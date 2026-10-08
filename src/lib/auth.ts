@@ -1,0 +1,95 @@
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity";
+
+export const authOptions: NextAuthOptions = {
+  session: { strategy: "jwt" },
+  pages: {
+    signIn: "/access",
+    error: "/access",
+  },
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+        portal: { label: "Portal", type: "text" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email?.toLowerCase().trim();
+        const password = credentials?.password;
+        const portal = credentials?.portal || "staff";
+
+        if (!email || !password) return null;
+
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || !user.passwordHash) return null;
+        if (user.status === "DISABLED" || user.status === "PENDING") return null;
+
+        const portalAccount = portal === "dealer" ? "DEALER" : portal === "depot" ? "DEPOT" : "INTERNAL";
+        if (user.accountType !== portalAccount) return null;
+
+        const valid = await bcrypt.compare(password, user.passwordHash);
+        if (!valid) return null;
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
+
+        await logActivity({
+          actorId: user.id,
+          action: "USER_LOGIN",
+          entity: "User",
+          entityId: user.id,
+          meta: { portal },
+        });
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          role: user.role,
+          department: user.department,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          accountType: user.accountType,
+          dealerOrganizationId: user.dealerOrganizationId,
+          depotId: user.depotId,
+        };
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as { role?: string }).role;
+        token.department = (user as { department?: string }).department;
+        token.firstName = (user as { firstName?: string }).firstName;
+        token.lastName = (user as { lastName?: string }).lastName;
+        token.accountType = (user as { accountType?: string }).accountType;
+        token.dealerOrganizationId = (user as { dealerOrganizationId?: string | null }).dealerOrganizationId;
+        token.depotId = (user as { depotId?: string | null }).depotId;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.department = token.department as string;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
+        session.user.accountType = (token.accountType as string) || "INTERNAL";
+        session.user.dealerOrganizationId = (token.dealerOrganizationId as string | null) ?? null;
+        session.user.depotId = (token.depotId as string | null) ?? null;
+      }
+      return session;
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+};

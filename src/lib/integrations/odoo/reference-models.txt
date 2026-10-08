@@ -1,0 +1,1102 @@
+Models
+Search...
+1-1097 / 1097
+
+Can Be Merged
+account.account	Account	Base Object	 	 	
+account.analytic.account	Analytic Account	Base Object	 	 	
+approval.request	Approval Request	Base Object	 	 	
+knowledge.article.thread	Article Discussion Thread	Base Object	 	 	
+account.asset	Asset/Revenue Recognition	Base Object	 	 	
+res.partner.bank	Bank Accounts	Base Object	 	 	
+account.online.link	Bank Connection	Base Object	 	 	
+credit.control.guarantee	Bank Guarantee	Base Object	 	 	
+extract.mixin	Base class to extract data from documents	Base Object	 	 	
+mrp.bom	Bill of Material	Base Object	 	 	
+blog.blog	Blog	Base Object	 	 	
+blog.post	Blog Post	Base Object	 	 	
+crossovered.budget	Budget	Base Object	 	 	
+calendar.event	Calendar Event	Base Object	 	 	
+res.company	Companies	Base Object	 	 	
+res.partner	Contact	Base Object	 	 	
+slide.channel	Course	Base Object	 	 	
+credit.control.request	Credit Control Request	Base Object	 	 	
+credit.sub.account.request	Credit Sub-Account Creation / Change Request	Base Object	 	 	
+credit.prepayment.ledger	Customer Prepayment Ledger	Base Object	 	 	
+hr.department	Department	Base Object	 	 	
+depot.hospitality.charges	Depot Hospitality Charges	Base Object	 	 	
+discuss.channel	Discussion Channel	Base Object	 	 	
+distributor.assessment	Distributor Performance Assessment	Base Object	 	 	
+documents.document	Document	Base Object	 	 	
+documents.share	Documents Share	Base Object	 	 	
+mail.thread.cc	Email CC management	Base Object	 	 	
+mail.thread	Email Thread	Base Object	 	 	
+hr.employee	Employee	Base Object	 	 	
+employee.checklist	Employee Checklist	Base Object	 	 	
+hr.contract	Employee Contract	Base Object	 	 	
+hr.expense.requisition	Employee Expense Requisition	Base Object	 	 	
+employee.grievance	Employee Grievance	Base Object	 	 	
+employee.purchase.requisition	Employee Purchase Requisition	Base Object	 	 	
+event.event	Event	Base Object	 	 	
+event.registration	Event Registration	Base Object	 	 	
+hr.expense	Expense	Base Object	 	 	
+hr.expense.sheet	Expense Report	Base Object	 	 	
+forum.forum	Forum	Base Object	 	 	
+forum.post	Forum Post	Base Object	 	 	
+forum.tag	Forum Tag	Base Object	 	 	
+fuel.localisation	Fuel Localisation	Base Object	 	 	
+gamification.badge	Gamification Badge	Base Object	 	 	
+gamification.challenge	Gamification Challenge	Base Object	 	 	
+helpdesk.team	Helpdesk Team	Base Object	 	 	
+helpdesk.ticket	Helpdesk Ticket	Base Object	 	 	
+hr.job	Job Position	Base Object	 	 	
+account.journal	Journal	Base Object	 	 	
+account.move	Journal Entry	Base Object	 	 	
+l10n_ke_edi.customs.import	Kenya Customs Import	Base Object	 	 	
+knowledge.article	Knowledge Article	Base Object	 	 	
+crm.lead	Lead/Opportunity	Base Object	 	 	
+loan.request	Loan Request	Base Object	 	 	
+stock.lot	Lot/Serial	Base Object	 	 	
+loyalty.card	Loyalty Coupon	Base Object	 	 	
+mail.blacklist	Mail Blacklist	Base Object	 	 	
+mail.thread.blacklist	Mail Blacklist mixin	Base Object	 	 	
+mail.thread.main.attachment	Mail Main Attachment management	Base Object	 	 	
+mailing.contact	Mailing Contact	Base Object	 	 	
+mailing.mailing	Mass Mailing	Base Object	 	 	
+multi.approval	Multi Aproval	Base Object	 	 	
+credit.payment.allocation	Parent/Sub-Account Payment Allocation	Base Object	 	 	
+hr.payslip	Pay Slip	Base Object	 	 	
+account.payment	Payments	Base Object	 	 	
+hr.payslip.run	Payslip Batches	Base Object	 	 	
+phone.blacklist	Phone Blacklist	Base Object	 	 	
+mail.thread.phone	Phone Blacklist Mixin	Base Object	 	 	
+pos.session	Point of Sale Session	Base Object	 	 	
+credit.prepayment.refund.request	Prepayment Refund / Adjustment Request	Base Object	 	 	
+account.reconcile.model	Preset to create journal entries during a invoices and payments matching	Base Object	 	 	
+product.pricelist	Pricelist	Base Object	 	 	
+product.template	Product	Base Object	 	 	
+product.product	Product Variant	Base Object	 	 	
+mrp.production	Production Order	Base Object	 	 	
+project.project	Project	Base Object	 	 	
+project.milestone	Project Milestone	Base Object	 	 	
+project.update	Project Update	Base Object	 	 	
+purchase.order	Purchase Order	Base Object	 	 	
+purchase.request	Purchase Request	Base Object	 	 	
+purchase.requisition	Purchase Requisition	Base Object	 	 	
+quality.alert	Quality Alert	Base Object	 	 	
+quality.alert.team	Quality Alert Team	Base Object	 	 	
+quality.check	Quality Check	Base Object	 	 	
+quality.point	Quality Control Point	Base Object	 	 	
+rating.mixin	Rating Mixin	Base Object	 	 	
+repair.order	Repair Order	Base Object	 	 	
+retail.stock.requisition	Requisition	Base Object	 	 	
+room.room	Room	Base Object	 	 	
+room.booking	Room Booking	Base Object	 	 	
+hr.salary.attachment	Salary Attachment	Base Object	 	 	
+sale.order	Sales Order	Base Object	 	 	
+sale.request	Sales Request	Base Object	 	 	
+crm.team	Sales Team	Base Object	 	 	
+crm.team.member	Sales Team Member	Base Object	 	 	
+stock.scrap	Scrap	Base Object	 	 	
+sign.request	Signature Request	Base Object	 	 	
+slide.slide	Slides	Base Object	 	 	
+social.media	Social Media	Base Object	 	 	
+social.post	Social Post	Base Object	 	 	
+station.shift	Station Shifts	Base Object	 	 	
+stock.landed.cost	Stock Landed Cost	Base Object	 	 	
+survey.survey	Survey	Base Object	 	 	
+survey.user_input	Survey User Input	Base Object	 	 	
+project.task	Task	Base Object	 	 	
+account.tax	Tax	Base Object	 	 	
+hr.leave	Time Off	Base Object	 	 	
+hr.leave.allocation	Time Off Allocation	Base Object	 	 	
+stock.picking	Transfer	Base Object	 	 	
+mrp.unbuild	Unbuild Order	Base Object	 	 	
+routes.activity.template	routes.activity.template	Base Object	 	 	
+routes.milestone.template	routes.milestone.template	Base Object	 	 	
+auth_totp.wizard	2-Factor Setup Wizard	Base Object	 	 	
+documents.workflow.rule	A set of condition and actions which will be available to all attachments matching the conditions	Base Object	 	 	
+account.edi.xml.ubl_a_nz	A-NZ BIS Billing 3.0	Base Object	 	 	
+res.users.apikeys.description	API Key Description	Base Object	 	 	
+report.report_xlsx.abstract	Abstract XLSX Report	Base Object	 	 	
+access.domain.ah	Access Domain	Base Object	 	 	
+res.groups	Access Groups	Base Object	 	 	
+access.management	Access Management	Base Object	 	 	
+account.cash.rounding	Account Cash Rounding	Base Object	 	 	
+account.chart.template	Account Chart Template	Base Object	 	 	
+account.group	Account Group	Base Object	 	 	
+account.journal.group	Account Journal Group	Base Object	 	 	
+account.move.reversal	Account Move Reversal	Base Object	 	 	
+account.move.send	Account Move Send	Base Object	 	 	
+account.report.custom.handler	Account Report Custom Handler	Base Object	 	 	
+account.report.footnote	Account Report Footnote	Base Object	 	 	
+account.tax.report.handler	Account Report Handler for Tax Reports	Base Object	 	 	
+account.account.tag	Account Tag	Base Object	 	 	
+account.transfer.model	Account Transfer Model	Base Object	 	 	
+account.transfer.model.line	Account Transfer Model Line	Base Object	 	 	
+account.unreconcile	Account Unreconcile	Base Object	 	 	
+account.auto.reconcile.wizard	Account automatic reconciliation wizard	Base Object	 	 	
+account.root	Account codes first 2 digits	Base Object	 	 	
+account.reconcile.wizard	Account reconciliation wizard	Base Object	 	 	
+report.account.report_invoice_with_payments	Account report with payment lines	Base Object	 	 	
+report.account.report_invoice	Account report without payment lines	Base Object	 	 	
+account.tour.upload.bill	Account tour upload bill	Base Object	 	 	
+account.tour.upload.bill.email.confirm	Account tour upload bill email confirm	Base Object	 	 	
+account.report	Accounting Report	Base Object	 	 	
+account.report.column	Accounting Report Column	Base Object	 	 	
+account.report.expression	Accounting Report Expression	Base Object	 	 	
+account.report.external.value	Accounting Report External Value	Base Object	 	 	
+account.report.line	Accounting Report Line	Base Object	 	 	
+account.fiscal.position.account	Accounts Mapping of Fiscal Position	Base Object	 	 	
+hr.leave.accrual.plan	Accrual Plan	Base Object	 	 	
+hr.leave.accrual.level	Accrual Plan Level	Base Object	 	 	
+account.accrued.orders.wizard	Accrued Orders Wizard	Base Object	 	 	
+action.data	Action Data	Base Object	 	 	
+ir.actions.act_url	Action URL	Base Object	 	 	
+ir.actions.act_window	Action Window	Base Object	 	 	
+ir.actions.act_window_close	Action Window Close	Base Object	 	 	
+ir.actions.act_window.view	Action Window View	Base Object	 	 	
+ir.actions.actions	Actions	Base Object	 	 	
+mail.activity	Activity	Base Object	 	 	
+mail.activity.mixin	Activity Mixin	Base Object	 	 	
+mail.activity.plan	Activity Plan	Base Object	 	 	
+mail.activity.type	Activity Type	Base Object	 	 	
+mail.activity.plan.template	Activity plan template	Base Object	 	 	
+mail.activity.schedule	Activity schedule plan Wizard	Base Object	 	 	
+mailing.contact.to.list	Add Contacts to Mailing List	Base Object	 	 	
+mrp.workcenter.tag	Add tag for the workcenter	Base Object	 	 	
+mrp_workorder.additional.product	Additional Product	Base Object	 	 	
+mrp_production.additional.workorder	Additional Workorder	Base Object	 	 	
+slide.slide.resource	Additional resource for a particular slide	Base Object	 	 	
+format.address.mixin	Address Format	Base Object	 	 	
+account.aged.partner.balance.report.handler	Aged Partner Balance Custom Handler	Base Object	 	 	
+account.aged.payable.report.handler	Aged Payable Custom Handler	Base Object	 	 	
+account.aged.receivable.report.handler	Aged Receivable Custom Handler	Base Object	 	 	
+website.route	All Website Route	Base Object	 	 	
+amazon.account	Amazon Account	Base Object	 	 	
+amazon.marketplace	Amazon Marketplace	Base Object	 	 	
+amazon.offer	Amazon Offer	Base Object	 	 	
+amazon.recover.order.wizard	Amazon Recover Order Wizard	Base Object	 	 	
+account.analytic.distribution.model	Analytic Distribution Model	Base Object	 	 	
+account.analytic.line	Analytic Line	Base Object	 	 	
+analytic.mixin	Analytic Mixin	Base Object	 	 	
+account.analytic.applicability	Analytic Plan's Applicabilities	Base Object	 	 	
+account.analytic.plan	Analytic Plans	Base Object	 	 	
+ir.module.category	Application	Base Object	 	 	
+approval.category	Approval Category	Base Object	 	 	
+approval.mail.token	Approval Email Token	Base Object	 	 	
+approval.category.approver	Approval Type Approver	Base Object	 	 	
+approval.mail.mixin	Approval by Email	Base Object	 	 	
+approval.approver	Approver	Base Object	 	 	
+knowledge.article.member	Article Member	Base Object	 	 	
+knowledge.article.template.category	Article Template Category	Base Object	 	 	
+ir.asset	Asset	Base Object	 	 	
+account.asset.report.handler	Assets Report Custom Handler	Base Object	 	 	
+web_editor.assets	Assets Utils	Base Object	 	 	
+ir.attachment	Attachment	Base Object	 	 	
+product.attribute.value	Attribute Value	Base Object	 	 	
+auth_totp.device	Authentication Device	Base Object	 	 	
+credit.control.signatory	Authorised Signatory	Base Object	 	 	
+onboarding.authorized.signatory	Authorized Signatory	Base Object	 	 	
+ir.autovacuum	Automatic Vacuum	Base Object	 	 	
+sequence.mixin	Automatic sequence	Base Object	 	 	
+base.automation	Automation Rule	Base Object	 	 	
+avatar.mixin	Avatar Mixin	Base Object	 	 	
+account.edi.xml.ubl_de	BIS3 DE (XRechnung)	Base Object	 	 	
+report.mrp.report_bom_structure	BOM Overview Report	Base Object	 	 	
+stock.backorder.confirmation	Backorder Confirmation	Base Object	 	 	
+stock.backorder.confirmation.line	Backorder Confirmation Line	Base Object	 	 	
+mrp.production.backorder.line	Backorder Confirmation Line	Base Object	 	 	
+res.bank	Bank	Base Object	 	 	
+account.bank.reconciliation.report.handler	Bank Reconciliation Report Custom Handler	Base Object	 	 	
+account.bank.statement	Bank Statement	Base Object	 	 	
+account.bank.statement.line	Bank Statement Line	Base Object	 	 	
+bank.rec.widget	Bank reconciliation widget for a single statement line	Base Object	 	 	
+account.setup.bank.manual.config	Bank setup manual config	Base Object	 	 	
+barcodes.barcode_events_mixin	Barcode Event Mixin	Base Object	 	 	
+barcode.nomenclature	Barcode Nomenclature	Base Object	 	 	
+barcode.rule	Barcode Rule	Base Object	 	 	
+base	Base	Base Object	 	 	
+base_import.import	Base Import	Base Object	 	 	
+base_import.mapping	Base Import Mapping	Base Object	 	 	
+hr.employee.base	Basic Employee	Base Object	 	 	
+mrp.bom.line	Bill of Material Line	Base Object	 	 	
+blog.tag	Blog Tag	Base Object	 	 	
+blog.tag.category	Blog Tag Category	Base Object	 	 	
+board.board	Board	Base Object	 	 	
+book.order.confirmation.wizard	Book Order Confirmation Wizard	Base Object	 	 	
+crossovered.budget.lines	Budget Line	Base Object	 	 	
+account.budget.post	Budgetary Position	Base Object	 	 	
+project.task.burndown.chart.report	Burndown Chart	Base Object	 	 	
+mrp.bom.byproduct	Byproduct	Base Object	 	 	
+crm.activity.report	CRM Activity Analysis	Base Object	 	 	
+crm.iap.lead.industry	CRM IAP Lead Industry	Base Object	 	 	
+crm.iap.lead.mining.request	CRM Lead Mining Request	Base Object	 	 	
+crm.recurring.plan	CRM Recurring revenue plans	Base Object	 	 	
+crm.stage.name	CRM Stage Name	Base Object	 	 	
+crm.stage	CRM Stages	Base Object	 	 	
+crm.tag	CRM Tag	Base Object	 	 	
+calendar.attendee	Calendar Attendee Information	Base Object	 	 	
+calendar.filters	Calendar Filters	Base Object	 	 	
+calendar.popover.delete.wizard	Calendar Popover Delete Wizard	Base Object	 	 	
+calendar.provider.config	Calendar Provider Configuration Wizard	Base Object	 	 	
+utm.stage	Campaign Stage	Base Object	 	 	
+cancel.approval	Cancel Approval	Base Object	 	 	
+stock_barcode.cancel.operation	Cancel Operation	Base Object	 	 	
+hr.holidays.cancel.leave	Cancel Time Off Wizard	Base Object	 	 	
+sale.mass.cancel.orders	Cancel multiple quotations	Base Object	 	 	
+mail.shortcode	Canned Response / Shortcode	Base Object	 	 	
+account.cash.flow.report.handler	Cash Flow Report Custom Handler	Base Object	 	 	
+documents.facet	Category	Base Object	 	 	
+change.approver	Change Approver	Base Object	 	 	
+account.change.lock.date	Change Lock Date	Base Object	 	 	
+change.password.wizard	Change Password Wizard	Base Object	 	 	
+stock.change.product.qty	Change Product Quantity	Base Object	 	 	
+change.production.qty	Change Production Qty	Base Object	 	 	
+slide.channel.partner	Channel / Partners (Members)	Base Object	 	 	
+slide.channel.invite	Channel Invitation Wizard	Base Object	 	 	
+discuss.channel.member	Channel Member	Base Object	 	 	
+slide.channel.tag.group	Channel/Course Groups	Base Object	 	 	
+slide.channel.tag	Channel/Course Tag	Base Object	 	 	
+chatbot.message	Chatbot Message	Base Object	 	 	
+chatbot.script	Chatbot Script	Base Object	 	 	
+chatbot.script.answer	Chatbot Script Answer	Base Object	 	 	
+chatbot.script.step	Chatbot Script Step	Base Object	 	 	
+hide.chatter	Chatter Rights	Base Object	 	 	
+lot.label.layout	Choose the sheet layout to print lot labels	Base Object	 	 	
+product.label.layout	Choose the sheet layout to print the labels	Base Object	 	 	
+picking.label.type	Choose whether to print product or lot/sn labels	Base Object	 	 	
+data_cleaning.model	Cleaning Model	Base Object	 	 	
+data_cleaning.record	Cleaning Record	Base Object	 	 	
+data_cleaning.rule	Cleaning Rule	Base Object	 	 	
+ir.actions.client	Client Action	Base Object	 	 	
+pos.close.session.wizard	Close Session Wizard	Base Object	 	 	
+pos.bill	Coins/Bills	Base Object	 	 	
+spreadsheet.revision	Collaborative spreadsheet revision	Base Object	 	 	
+project.collaborator	Collaborators in project shared	Base Object	 	 	
+account.edi.common	Common functions for EDI documents: generate the data, the constraints, etc	Base Object	 	 	
+bus.bus	Communication Bus	Base Object	 	 	
+base.document.layout	Company Document Layout	Base Object	 	 	
+ir.property	Company Property	Base Object	 	 	
+delivery.compartment.line	Compartment Assignment Line	Base Object	 	 	
+compliance.letter.wizard	Compliance Letter for EXO Number	Base Object	 	 	
+res.config	Config	Base Object	 	 	
+res.config.installer	Config Installer	Base Object	 	 	
+res.config.settings	Config Settings	Base Object	 	 	
+ir.actions.todo	Configuration Wizards	Base Object	 	 	
+confirm.stock.sms	Confirm Stock SMS	Base Object	 	 	
+stock.inventory.conflict	Conflict in Inventory	Base Object	 	 	
+contact.approval.config	Contact Approval Configuration	Base Object	 	 	
+slide.question	Content Quiz Question	Base Object	 	 	
+hr.contract.type	Contract Type	Base Object	 	 	
+hr.contract.employee.report	Contract and Employee Analysis Report	Base Object	 	 	
+hr.contract.history	Contract history	Base Object	 	 	
+helpdesk.ticket.convert.wizard	Convert Helpdesk Tickets to Tasks	Base Object	 	 	
+crm.lead2opportunity.partner.mass	Convert Lead to Opportunity (in mass)	Base Object	 	 	
+crm.lead2opportunity.partner	Convert Lead to Opportunity (not in mass)	Base Object	 	 	
+project.task.convert.wizard	Convert Project Tasks to Tickets	Base Object	 	 	
+social.post.to.lead	Convert Social Post to Lead	Base Object	 	 	
+helpdesk.ticket.to.lead	Convert Ticket to Lead	Base Object	 	 	
+spreadsheet.dashboard.share	Copy of a shared dashboard	Base Object	 	 	
+documents.shared.spreadsheet	Copy of a shared spreadsheet	Base Object	 	 	
+res.country	Country	Base Object	 	 	
+res.country.group	Country Group	Base Object	 	 	
+res.country.state	Country state	Base Object	 	 	
+website.cover_properties.mixin	Cover Properties Website Mixin	Base Object	 	 	
+account.automatic.entry.wizard	Create Automatic Entries	Base Object	 	 	
+internal.backorder.wizard	Create Internal Transfer from Receipt	Base Object	 	 	
+wizard.ir.model.menu.create	Create Menu Wizard	Base Object	 	 	
+spreadsheet.document.to.dashboard	Create a dashboard from a spreadsheet document	Base Object	 	 	
+mail.activity.todo.create	Create activity and todo at the same time	Base Object	 	 	
+crm.quotation.partner	Create new or use existing Customer on new Quotation	Base Object	 	 	
+credit.control.director	Credit Application Director/Partner	Base Object	 	 	
+credit.import.wizard	Credit Application Import Wizard	Base Object	 	 	
+mail.notification.web.push	Cron data used for web push notification	Base Object	 	 	
+res.currency	Currency	Base Object	 	 	
+res.currency.rate	Currency Rate	Base Object	 	 	
+casual.tremos.payroll.report	Custom Payroll Reporting	Base Object	 	 	
+tremos.payroll.report	Custom Payroll Reporting	Base Object	 	 	
+ir.ui.view.custom	Custom View	Base Object	 	 	
+customer.feedback	Customer Feedback	Base Object	 	 	
+customer.feedback.tag	Customer Feedback Tag	Base Object	 	 	
+decimal.precision	Decimal Precision	Base Object	 	 	
+data_merge.group	Deduplication Group	Base Object	 	 	
+data_merge.model	Deduplication Model	Base Object	 	 	
+data_merge.record	Deduplication Record	Base Object	 	 	
+data_merge.rule	Deduplication Rule	Base Object	 	 	
+ir.default	Default Values	Base Object	 	 	
+account.deferred.expense.report.handler	Deferred Expense Custom Handler	Base Object	 	 	
+account.deferred.report.handler	Deferred Expense Report Custom Handler	Base Object	 	 	
+account.deferred.revenue.report.handler	Deferred Revenue Custom Handler	Base Object	 	 	
+choose.delivery.carrier	Delivery Carrier Selection Wizard	Base Object	 	 	
+delivery.wizard	Delivery Line Wizard	Base Object	 	 	
+choose.delivery.package	Delivery Package Selection Wizard	Base Object	 	 	
+delivery.price.rule	Delivery Price Rules	Base Object	 	 	
+delivery.print.wizard	Delivery Print Wizard	Base Object	 	 	
+delivery.print.wizard.line	Delivery Print Wizard Line	Base Object	 	 	
+delivery.truck	Delivery Truck	Base Object	 	 	
+delivery.wizard.line	Delivery Wizard Line	Base Object	 	 	
+delivery.zip.prefix	Delivery Zip Prefix	Base Object	 	 	
+ir.demo	Demo	Base Object	 	 	
+ir.demo_failure.wizard	Demo Failure wizard	Base Object	 	 	
+ir.demo_failure	Demo failure	Base Object	 	 	
+hr.departure.reason	Departure Reason	Base Object	 	 	
+hr.departure.wizard	Departure Wizard	Base Object	 	 	
+depot.hospitality.charges.line	Depot Hospitality Charges Line	Base Object	 	 	
+wizard.depot.hospitality.report	Depot Hospitality Charges Report Wizard	Base Object	 	 	
+depot.hospitality.rate	Depot Hospitality Rate	Base Object	 	 	
+digest.digest	Digest	Base Object	 	 	
+digest.tip	Digest Tips	Base Object	 	 	
+account.disallowed.expenses.category	Disallowed Expenses Category	Base Object	 	 	
+account.disallowed.expenses.report.handler	Disallowed Expenses Custom Handler	Base Object	 	 	
+account.disallowed.expenses.rate	Disallowed Expenses Rate	Base Object	 	 	
+sale.order.discount	Discount Wizard	Base Object	 	 	
+onboarding.distributor.reference	Distributor Reference	Base Object	 	 	
+loan.image	Document	Base Object	 	 	
+mail.followers	Document Followers	Base Object	 	 	
+documents.request_wizard	Document Request	Base Object	 	 	
+documents.workflow.action	Document Workflow Tag Action	Base Object	 	 	
+documents.link_to_record_wizard	Documents Link to Record	Base Object	 	 	
+documents.folder	Documents Workspace	Base Object	 	 	
+documents.mixin	Documents creation mixin	Base Object	 	 	
+excel.wizard	Download Excel Forms	Base Object	 	 	
+account.edi.xml.ubl_efff	E-FFF (BE)	Base Object	 	 	
+account.ec.sales.report.handler	EC Sales Report Custom Handler	Base Object	 	 	
+registration.editor	Edit Attendee Details on Sales Confirmation	Base Object	 	 	
+registration.editor.line	Edit Attendee Line on Sales Confirmation	Base Object	 	 	
+hr.payroll.edit.payslip.worked.days.line	Edit payslip line wizard worked days	Base Object	 	 	
+hr.payroll.edit.payslip.lines.wizard	Edit payslip lines wizard	Base Object	 	 	
+hr.payroll.edit.payslip.line	Edit payslip lines wizard line	Base Object	 	 	
+mail.alias	Email Aliases	Base Object	 	 	
+mail.alias.mixin	Email Aliases Mixin	Base Object	 	 	
+mail.alias.mixin.optional	Email Aliases Mixin (light)	Base Object	 	 	
+mail.alias.domain	Email Domain	Base Object	 	 	
+mail.template.preview	Email Template Preview	Base Object	 	 	
+mail.template	Email Templates	Base Object	 	 	
+mail.compose.message	Email composition wizard	Base Object	 	 	
+mail.resend.message	Email resend wizard	Base Object	 	 	
+slide.embed	Embedded Slides View Counter	Base Object	 	 	
+hr.employee.category	Employee Category	Base Object	 	 	
+report.hr_skills.report_employee_cv	Employee Resume	Base Object	 	 	
+hr.employee.skill.report	Employee Skills Report	Base Object	 	 	
+base.enable.profiling.wizard	Enable profiling for some time	Base Object	 	 	
+calendar.alarm	Event Alarm	Base Object	 	 	
+calendar.alarm_manager	Event Alarm Manager	Base Object	 	 	
+event.mail	Event Automated Mailing	Base Object	 	 	
+event.event.configurator	Event Configurator	Base Object	 	 	
+event.lead.rule	Event Lead Rules	Base Object	 	 	
+calendar.event.type	Event Meeting Type	Base Object	 	 	
+event.question	Event Question	Base Object	 	 	
+event.question.answer	Event Question Answer	Base Object	 	 	
+calendar.recurrence	Event Recurrence Rule	Base Object	 	 	
+event.registration.answer	Event Registration Answer	Base Object	 	 	
+event.sale.report	Event Sales Report	Base Object	 	 	
+event.stage	Event Stage	Base Object	 	 	
+event.tag	Event Tag	Base Object	 	 	
+event.tag.category	Event Tag Category	Base Object	 	 	
+event.type	Event Template	Base Object	 	 	
+event.type.ticket	Event Template Ticket	Base Object	 	 	
+event.event.ticket	Event Ticket	Base Object	 	 	
+hr.expense.approve.duplicate	Expense Approve Duplicate	Base Object	 	 	
+hr.expense.refuse.wizard	Expense Refuse Reason Wizard	Base Object	 	 	
+hr.expense.requisition.config	Expense Requisition Configuration	Base Object	 	 	
+hr.expense.sheet.approval.line	Expense Sheet Approval Line	Base Object	 	 	
+hr.expense.sheet.reject.wizard	Expense Sheet Rejection Wizard	Base Object	 	 	
+hr.expense.split	Expense Split	Base Object	 	 	
+hr.expense.split.wizard	Expense Split Wizard	Base Object	 	 	
+account_reports.export.wizard.format	Export format for accounting's reports	Base Object	 	 	
+account_reports.export.wizard	Export wizard for accounting's reports	Base Object	 	 	
+ir.exports	Exports	Base Object	 	 	
+ir.exports.line	Exports Line	Base Object	 	 	
+account.invoice_extract.words	Extracted words from invoice scan	Base Object	 	 	
+fms.analysis	FMS Analysis reports	Base Object	 	 	
+account.edi.xml.cii	Factur-x/XRechnung CII 2.2.0	Base Object	 	 	
+knowledge.article.favorite	Favorite Article	Base Object	 	 	
+html.field.history.mixin	Field html History	Base Object	 	 	
+ir.model.fields	Fields	Base Object	 	 	
+ir.fields.converter	Fields Converter	Base Object	 	 	
+hide.field	Fields Rights	Base Object	 	 	
+ir.model.fields.selection	Fields Selection	Base Object	 	 	
+crm.lead.scoring.frequency.field	Fields that can be used for predictive lead scoring computation	Base Object	 	 	
+sign.item	Fields to be sign on Document	Base Object	 	 	
+ir.binary	File streaming helper model for controllers	Base Object	 	 	
+ir.filters	Filters	Base Object	 	 	
+account.fiscal.position	Fiscal Position	Base Object	 	 	
+account.fiscal.year	Fiscal Year	Base Object	 	 	
+account_followup.followup.line	Follow-up Criteria	Base Object	 	 	
+account.followup.report	Follow-up Report	Base Object	 	 	
+account_followup.missing.information.wizard	Followup missing information wizard	Base Object	 	 	
+snailmail.letter.format.error	Format Error Sending a Snailmail Letter	Base Object	 	 	
+freight.type	Freight Type	Base Object	 	 	
+fuel.localisation.audit	Fuel Localisation Audit Trail	Base Object	 	 	
+fuel.localisation.duty.line	Fuel Localisation Levy Line	Base Object	 	 	
+fuel.localisation.product.pair	Fuel Transit/Local Product Pair	Base Object	 	 	
+account.full.reconcile	Full Reconcile	Base Object	 	 	
+gceo.approval.mixin	GCEO Approval	Base Object	 	 	
+gamification.goal	Gamification Goal	Base Object	 	 	
+gamification.goal.definition	Gamification Goal Definition	Base Object	 	 	
+gamification.goal.wizard	Gamification Goal Wizard	Base Object	 	 	
+gamification.badge.user	Gamification User Badge	Base Object	 	 	
+gamification.badge.user.wizard	Gamification User Badge Wizard	Base Object	 	 	
+gamification.challenge.line	Gamification generic goal for challenge	Base Object	 	 	
+account.general.ledger.report.handler	General Ledger Custom Handler	Base Object	 	 	
+loyalty.generate.wizard	Generate Coupons	Base Object	 	 	
+payment.link.wizard	Generate Sales Payment Link	Base Object	 	 	
+hr.payslip.employees	Generate payslips for all selected employees	Base Object	 	 	
+account.generic.tax.report.handler	Generic Tax Report Custom Handler	Base Object	 	 	
+account.generic.tax.report.handler.account.tax	Generic Tax Report Custom Handler (Account -> Tax)	Base Object	 	 	
+account.generic.tax.report.handler.tax.account	Generic Tax Report Custom Handler (Tax -> Account)	Base Object	 	 	
+base.geocoder	Geo Coder	Base Object	 	 	
+base.geo_provider	Geo Provider	Base Object	 	 	
+crm.lead.lost	Get Lost Reason	Base Object	 	 	
+report.account.report_hash_integrity	Get hash integrity result as PDF.	Base Object	 	 	
+google.gmail.mixin	Google Gmail Mixin	Base Object	 	 	
+portal.wizard	Grant Portal Access	Base Object	 	 	
+report.sign.green_savings_report	Green Savings Report model	Base Object	 	 	
+spreadsheet.dashboard.group	Group of dashboards	Base Object	 	 	
+mail.guest	Guest	Base Object	 	 	
+hr.employee.beneficiary	HR Employee Beneficiary	Base Object	 	 	
+hr.employee.document	HR Employee Documents	Base Object	 	 	
+hr.employee.family	HR Employee Family Info	Base Object	 	 	
+hr.employee.relation	HR Employee Relation	Base Object	 	 	
+l10n_ke.tax.deduction.card	HR Tax Deduction Card Report By Employee	Base Object	 	 	
+hr.holidays.summary.employee	HR Time Off Summary Report By Employee	Base Object	 	 	
+hr.work.entry	HR Work Entry	Base Object	 	 	
+hr.work.entry.type	HR Work Entry Type	Base Object	 	 	
+ir.http	HTTP Routing	Base Object	 	 	
+helpdesk.sla	Helpdesk SLA Policies	Base Object	 	 	
+helpdesk.stage	Helpdesk Stage	Base Object	 	 	
+helpdesk.stage.delete.wizard	Helpdesk Stage Delete Wizard	Base Object	 	 	
+helpdesk.tag	Helpdesk Tags	Base Object	 	 	
+helpdesk.ticket.type	Helpdesk Ticket Type	Base Object	 	 	
+crm.iap.lead.helpers	Helper methods for crm_iap_mine modules	Base Object	 	 	
+hide.filters.groups	Hide Filters Groups	Base Object	 	 	
+hide.view.nodes	Hide View Nodes	Base Object	 	 	
+report.hr_holidays.report_holidayssummary	Holidays Summary Report	Base Object	 	 	
+account.report.horizontal.group	Horizontal group for reports	Base Object	 	 	
+account.report.horizontal.group.rule	Horizontal group rule for reports	Base Object	 	 	
+iap.account	IAP Account	Base Object	 	 	
+iap.account.info	IAP Account Info	Base Object	 	 	
+iap.enrich.api	IAP Lead Enrichment API	Base Object	 	 	
+mail.ice.server	ICE server	Base Object	 	 	
+image.mixin	Image Mixin	Base Object	 	 	
+base.import.module	Import Module	Base Object	 	 	
+fetchmail.server	Incoming Mail Server	Base Object	 	 	
+account.incoterms	Incoterms	Base Object	 	 	
+hr.payroll.index	Index contracts	Base Object	 	 	
+res.partner.industry	Industry	Base Object	 	 	
+base.language.install	Install Language	Base Object	 	 	
+stock.inventory.adjustment.name	Inventory Adjustment Reference / Reason	Base Object	 	 	
+stock.inventory.warning	Inventory Adjustment Warning	Base Object	 	 	
+stock.location	Inventory Locations	Base Object	 	 	
+stock.route	Inventory Routes	Base Object	 	 	
+stock.inventory.line	Inventory line	Base Object	 	 	
+mail.wizard.invite	Invite wizard	Base Object	 	 	
+account.invoice.report	Invoices Statistics	Base Object	 	 	
+account.move.line	Journal Item	Base Object	 	 	
+account.journal.report.handler	Journal Report Custom Handler	Base Object	 	 	
+documents.account.folder.setting	Journal and Folder settings	Base Object	 	 	
+kpi.provider	KPI Provider	Base Object	 	 	
+fuel.localisation.levy.profile	KRA Fuel Levy Profile	Base Object	 	 	
+fuel.localisation.levy.profile.line	KRA Fuel Levy Profile Line	Base Object	 	 	
+l10n_ke.item.code	KRA defined codes that justify a given tax rate / exemption	Base Object	 	 	
+knowledge.cover	Knowledge Cover	Base Object	 	 	
+knowledge.invite	Knowledge Invite Wizard	Base Object	 	 	
+knowledge.article.stage	Knowledge Stage	Base Object	 	 	
+landed.cost.configuration	Landed Cost Configuration	Base Object	 	 	
+sr.landed.cost.history	Landed Cost History	Base Object	 	 	
+landed.cost.line	Landed Cost Line	Base Object	 	 	
+base.language.export	Language Export	Base Object	 	 	
+base.language.import	Language Import	Base Object	 	 	
+res.lang	Languages	Base Object	 	 	
+crm.lead.scoring.frequency	Lead Scoring Frequency	Base Object	 	 	
+crm.lead.convert2ticket	Lead convert to Ticket	Base Object	 	 	
+report.hr_leave_liability.report_leave_liability_document	Leave Liability PDF Report Values	Base Object	 	 	
+leave.liability.wizard	Leave Liability Report	Base Object	 	 	
+internal.backorder.wizard.line	Line for Internal Backorder Wizard	Base Object	 	 	
+mrp.consumption.warning.line	Line of issue consumption	Base Object	 	 	
+bank.rec.widget.line	Line of the bank reconciliation widget	Base Object	 	 	
+sms.tracker	Link SMS to mailing/sms tracking models	Base Object	 	 	
+link.tracker	Link Tracker	Base Object	 	 	
+link.tracker.click	Link Tracker Click	Base Object	 	 	
+link.tracker.code	Link Tracker Code	Base Object	 	 	
+account.bank.selection	Link a bank account to the selected journal	Base Object	 	 	
+im_livechat.channel	Livechat Channel	Base Object	 	 	
+im_livechat.channel.rule	Livechat Channel Rules	Base Object	 	 	
+im_livechat.report.channel	Livechat Support Channel Report	Base Object	 	 	
+im_livechat.report.operator	Livechat Support Operator Report	Base Object	 	 	
+loan.installment	Loan Installment	Base Object	 	 	
+loan.policies	Loan Policies	Base Object	 	 	
+loan.proof	Loan Proof	Base Object	 	 	
+loan.type	Loan Type	Base Object	 	 	
+ir.logging	Logging	Base Object	 	 	
+report.stock.label_lot_template_view	Lot Label Report	Base Object	 	 	
+loyalty.mail	Loyalty Communication	Base Object	 	 	
+loyalty.program	Loyalty Program	Base Object	 	 	
+loyalty.reward	Loyalty Reward	Base Object	 	 	
+loyalty.rule	Loyalty Rule	Base Object	 	 	
+report.mrp.report_mo_overview	MO Overview Report	Base Object	 	 	
+report.mrp_account_enterprise.mrp_cost_structure	MRP Cost Structure Report	Base Object	 	 	
+mrp.workcenter.productivity.loss.type	MRP Workorder productivity losses	Base Object	 	 	
+mail.bot	Mail Bot	Base Object	 	 	
+mail.composer.mixin	Mail Composer Mixin	Base Object	 	 	
+mail.gateway.allowed	Mail Gateway Allowed	Base Object	 	 	
+discuss.channel.rtc.session	Mail RTC session	Base Object	 	 	
+mail.render.mixin	Mail Render Mixin	Base Object	 	 	
+event.type.mail	Mail Scheduling on Event Category	Base Object	 	 	
+ir.mail_server	Mail Server	Base Object	 	 	
+mail.template.reset	Mail Template Reset	Base Object	 	 	
+mail.tracking.value	Mail Tracking Value	Base Object	 	 	
+mailing.contact.import	Mailing Contact Import	Base Object	 	 	
+mailing.filter	Mailing Favorite Filters	Base Object	 	 	
+mailing.list	Mailing List	Base Object	 	 	
+mailing.subscription	Mailing List Subscription	Base Object	 	 	
+mailing.trace	Mailing Statistics	Base Object	 	 	
+mailing.subscription.optout	Mailing Subscription Reason	Base Object	 	 	
+account.report.file.download.error.wizard	Manage the file generation errors from report exports.	Base Object	 	 	
+hr.leave.mandatory.day	Mandatory Day	Base Object	 	 	
+mrp.report	Manufacturing Report	Base Object	 	 	
+mailing.trace.report	Mass Mailing Statistics	Base Object	 	 	
+ir.ui.menu	Menu	Base Object	 	 	
+menu.item	Menu Item	Base Object	 	 	
+mailing.list.merge	Merge Mass Mailing List	Base Object	 	 	
+crm.merge.opportunity	Merge Opportunities	Base Object	 	 	
+base.partner.merge.line	Merge Partner Line	Base Object	 	 	
+base.partner.merge.automatic.wizard	Merge Partner Wizard	Base Object	 	 	
+mail.message	Message	Base Object	 	 	
+mail.notification	Message Notifications	Base Object	 	 	
+mail.message.reaction	Message Reaction	Base Object	 	 	
+mail.message.translation	Message Translation	Base Object	 	 	
+mail.message.subtype	Message subtypes	Base Object	 	 	
+discuss.voice.metadata	Metadata for voice attachments	Base Object	 	 	
+microsoft.calendar.credentials	Microsoft Calendar Account Data	Base Object	 	 	
+microsoft.calendar.account.reset	Microsoft Calendar Account Reset	Base Object	 	 	
+microsoft.outlook.mixin	Microsoft Outlook Mixin	Base Object	 	 	
+microsoft.service	Microsoft Service	Base Object	 	 	
+truck.migration.wizard	Migrate Truck Char Data to Fleet Records	Base Object	 	 	
+stock.warehouse.orderpoint	Minimum Inventory Rule	Base Object	 	 	
+mail.tracking.duration.mixin	Mixin to compute the time a record has spent in each value a many2one field can take	Base Object	 	 	
+ir.model.access	Model Access	Base Object	 	 	
+ir.model.constraint	Model Constraint	Base Object	 	 	
+ir.model.data	Model Data	Base Object	 	 	
+ir.model.inherit	Model Inheritance Tree	Base Object	 	 	
+website.controller.page	Model Page	Base Object	 	 	
+report.hr_payroll.contribution_register	Model for Printing hr.payslip.line grouped by register	Base Object	 	 	
+ir.model	Models	Base Object	 	 	
+remove.action	Models Right	Base Object	 	 	
+asset.modify	Modify Asset	Base Object	 	 	
+ir.module.module	Module	Base Object	 	 	
+base.module.install.request	Module Activation Request	Base Object	 	 	
+base.module.install.review	Module Activation Review	Base Object	 	 	
+report.base.report_irmodulereference	Module Reference Report (base)	Base Object	 	 	
+base.module.uninstall	Module Uninstall	Base Object	 	 	
+ir.module.module.dependency	Module dependency	Base Object	 	 	
+ir.module.module.exclusion	Module exclusion	Base Object	 	 	
+mpesa.c2b.callback	Mpesa C2B Callback	Base Object	 	 	
+mpesa.credential	Mpesa Credentials	Base Object	 	 	
+mpesa.pay	Mpesa Payment Wizard	Base Object	 	 	
+multi.approval.type	Multi Approval Type	Base Object	 	 	
+multi.approval.line	Multi Aproval Line	Base Object	 	 	
+multi.approval.type.line	Multi Aproval Type Lines	Base Object	 	 	
+website.multi.mixin	Multi Website Mixin	Base Object	 	 	
+website.published.multi.mixin	Multi Website Published Mixin	Base Object	 	 	
+account.multicurrency.revaluation.report.handler	Multicurrency Revaluation Report Custom Handler	Base Object	 	 	
+account.multicurrency.revaluation.wizard	Multicurrency Revaluation Wizard	Base Object	 	 	
+l10n.ke.hr.payroll.nhif.report.wizard	NHIF Report Wizard	Base Object	 	 	
+l10n.ke.hr.payroll.nhif.report.line.wizard	NHIF Report Wizard Line	Base Object	 	 	
+l10n.ke.hr.payroll.nssf.report.wizard	NSSF Report Wizard	Base Object	 	 	
+l10n.ke.hr.payroll.nssf.report.line.wizard	NSSF Report Wizard Line	Base Object	 	 	
+onboarding.onboarding	Onboarding	Base Object	 	 	
+onboarding.bank.account	Onboarding Bank Account	Base Object	 	 	
+onboarding.contact.person	Onboarding Contact Person (Trinity)	Base Object	 	 	
+onboarding.progress.step	Onboarding Progress Step Tracker	Base Object	 	 	
+onboarding.progress	Onboarding Progress Tracker	Base Object	 	 	
+onboarding.onboarding.step	Onboarding Step	Base Object	 	 	
+account.financial.year.op	Opening Balance of Financial Year	Base Object	 	 	
+crm.lost.reason	Opp. Lost Reason	Base Object	 	 	
+sign.item.option	Option of a selection Field	Base Object	 	 	
+mail.mail	Outgoing Mails	Base Object	 	 	
+sms.sms	Outgoing SMS	Base Object	 	 	
+pos.analytics.line	POS Analytics Line	Base Object	 	 	
+pos.sales.daily.line	POS Daily Sales Line	Base Object	 	 	
+report.pos_pnl_report.report_pos_inventory_valuation	POS Inventory Valuation Report	Base Object	 	 	
+pos.pnl.report.wizard	POS P&L / Product Movement Report Wizard	Base Object	 	 	
+pos.analytics.report	POS Product Analytics Dashboard	Base Object	 	 	
+report.pos_pnl_report.report_pos_product_movement	POS Product Movement Report	Base Object	 	 	
+report.pos_pnl_report.report_pos_pnl	POS Profit & Loss Report	Base Object	 	 	
+pos.receipt	POS Receipts	Base Object	 	 	
+pos.sales.report	POS Sales Summary Report	Base Object	 	 	
+report.pos_sales_summary_report.pos_sales_xlsx	POS Sales Summary XLSX Report	Base Object	 	 	
+pos.sales.item.line	POS Sales by Item Line	Base Object	 	 	
+pos.location.price.report.line	POS Stock & Price Report Line	Base Object	 	 	
+pos.location.price.report	POS Stock & Price by Register	Base Object	 	 	
+stock.quant.package	Packages	Base Object	 	 	
+website.page	Page	Base Object	 	 	
+report.paperformat	Paper Format Config	Base Object	 	 	
+account.partial.reconcile	Partial Reconcile	Base Object	 	 	
+account.partner.ledger.report.handler	Partner Ledger Custom Handler	Base Object	 	 	
+res.partner.category	Partner Tags	Base Object	 	 	
+res.partner.title	Partner Title	Base Object	 	 	
+mail.partner.device	Partner Web Push Device	Base Object	 	 	
+report.report_xlsx.partner_xlsx	Partner XLSX Report	Base Object	 	 	
+account.reconcile.model.partner.mapping	Partner mapping for reconciliation models	Base Object	 	 	
+mail.resend.partner	Partner with additional information for mail resend	Base Object	 	 	
+res.users.identitycheck	Password Check Wizard	Base Object	 	 	
+payment.capture.wizard	Payment Capture Wizard	Base Object	 	 	
+payment.method	Payment Method	Base Object	 	 	
+account.payment.method	Payment Methods	Base Object	 	 	
+account.payment.method.line	Payment Methods	Base Object	 	 	
+payment.provider	Payment Provider	Base Object	 	 	
+payment.refund.wizard	Payment Refund Wizard	Base Object	 	 	
+account.payment.term	Payment Terms	Base Object	 	 	
+account.payment.term.line	Payment Terms Line	Base Object	 	 	
+payment.token	Payment Token	Base Object	 	 	
+payment.transaction	Payment Transaction	Base Object	 	 	
+payment.provider.onboarding.wizard	Payment provider onboarding wizard	Base Object	 	 	
+hr.payroll.report	Payroll Analysis Report	Base Object	 	 	
+hr.payroll.declaration.mixin	Payroll Declaration Mixin	Base Object	 	 	
+hr.payroll.employee.declaration	Payroll Employee Declaration	Base Object	 	 	
+hr.payroll.note	Payroll Note	Base Object	 	 	
+hr.payslip.input	Payslip Input	Base Object	 	 	
+hr.payslip.input.type	Payslip Input Type	Base Object	 	 	
+hr.payslip.line	Payslip Line	Base Object	 	 	
+report.payslip_reports.payslip_template_document	Payslip Summary Report	Base Object	 	 	
+payslip.wizard	Payslip Wizard	Base Object	 	 	
+hr.payslip.worked_days	Payslip Worked Days	Base Object	 	 	
+crm.iap.lead.role	People Role	Base Object	 	 	
+crm.iap.lead.seniority	People Seniority	Base Object	 	 	
+project.task.stage.personal	Personal Task Stage	Base Object	 	 	
+stock.picking.type	Picking Type	Base Object	 	 	
+pos.category	Point of Sale Category	Base Object	 	 	
+pos.config	Point of Sale Configuration	Base Object	 	 	
+pos.daily.sales.reports.wizard	Point of Sale Daily Report	Base Object	 	 	
+report.point_of_sale.report_saledetails	Point of Sale Details	Base Object	 	 	
+pos.details.wizard	Point of Sale Details Report	Base Object	 	 	
+report.point_of_sale.report_invoice	Point of Sale Invoice Report	Base Object	 	 	
+pos.make.payment	Point of Sale Make Payment Wizard	Base Object	 	 	
+pos.order.line	Point of Sale Order Lines	Base Object	 	 	
+pos.order	Point of Sale Orders	Base Object	 	 	
+report.pos.order	Point of Sale Orders Report	Base Object	 	 	
+pos.payment.method	Point of Sale Payment Methods	Base Object	 	 	
+pos.payment	Point of Sale Payments	Base Object	 	 	
+pos.printer	Point of Sale Printer	Base Object	 	 	
+pos_preparation_display.orderline	Point of Sale preparation order line	Base Object	 	 	
+pos_preparation_display.stage	Point of Sale preparation stage	Base Object	 	 	
+portal.mixin	Portal Mixin	Base Object	 	 	
+portal.share	Portal Sharing	Base Object	 	 	
+portal.wizard.user	Portal User Config	Base Object	 	 	
+forum.post.reason	Post Closing Reason	Base Object	 	 	
+forum.post.vote	Post Vote	Base Object	 	 	
+pos_preparation_display.display	Preparation display	Base Object	 	 	
+pos_preparation_display.order	Preparation orders	Base Object	 	 	
+prepayment.import.wizard	Prepayment Import Wizard	Base Object	 	 	
+report.product.report_pricelist	Pricelist Report	Base Object	 	 	
+product.pricelist.item	Pricelist Rule	Base Object	 	 	
+hr.employee.cv.wizard	Print Resume	Base Object	 	 	
+privacy.log	Privacy Log	Base Object	 	 	
+privacy.lookup.wizard	Privacy Lookup Wizard	Base Object	 	 	
+privacy.lookup.wizard.line	Privacy Lookup Wizard Line	Base Object	 	 	
+procurement.group	Procurement Group	Base Object	 	 	
+product.attribute	Product Attribute	Base Object	 	 	
+product.attribute.custom.value	Product Attribute Custom Value	Base Object	 	 	
+product.brand	Product Brand	Base Object	 	 	
+product.catalog.mixin	Product Catalog Mixin	Base Object	 	 	
+product.category	Product Category	Base Object	 	 	
+product.category.sync.wizard	Product Category Sync Wizard	Base Object	 	 	
+pos.combo.line	Product Combo Items	Base Object	 	 	
+product.document	Product Document	Base Object	 	 	
+report.product.report_producttemplatelabel_dymo	Product Label Report	Base Object	 	 	
+report.stock.label_product_product_view	Product Label Report	Base Object	 	 	
+report.product.report_producttemplatelabel2x7	Product Label Report 2x7	Base Object	 	 	
+report.product.report_producttemplatelabel4x12	Product Label Report 4x12	Base Object	 	 	
+report.product.report_producttemplatelabel4x12noprice	Product Label Report 4x12 No Price	Base Object	 	 	
+report.product.report_producttemplatelabel4x7	Product Label Report 4x7	Base Object	 	 	
+approval.product.line	Product Line	Base Object	 	 	
+product.margin	Product Margin	Base Object	 	 	
+stock.move.line	Product Moves (Stock Move Line)	Base Object	 	 	
+product.packaging	Product Packaging	Base Object	 	 	
+product.replenish	Product Replenish	Base Object	 	 	
+product.tag	Product Tag	Base Object	 	 	
+product.template.attribute.exclusion	Product Template Attribute Exclusion	Base Object	 	 	
+product.template.attribute.line	Product Template Attribute Line	Base Object	 	 	
+product.template.attribute.value	Product Template Attribute Value	Base Object	 	 	
+report.mrp_account_enterprise.product_template_cost_structure	Product Template Cost Structure Report	Base Object	 	 	
+uom.uom	Product Unit of Measure	Base Object	 	 	
+uom.category	Product UoM Categories	Base Object	 	 	
+product.unspsc.code	Product and UOM Codes from UNSPSC	Base Object	 	 	
+pos.combo	Product combo choices	Base Object	 	 	
+mrp.document	Production Document	Base Object	 	 	
+ir.profile	Profiling results	Base Object	 	 	
+project.share.wizard	Project Sharing	Base Object	 	 	
+project.project.stage	Project Stage	Base Object	 	 	
+project.project.stage.delete.wizard	Project Stage Delete Wizard	Base Object	 	 	
+project.tags	Project Tags	Base Object	 	 	
+project.task.type.delete.wizard	Project Task Stage Delete Wizard	Base Object	 	 	
+propose.change	Propose a change in the production	Base Object	 	 	
+hr.employee.public	Public Employee	Base Object	 	 	
+publisher_warranty.contract	Publisher Warranty Contract	Base Object	 	 	
+purchase.agreement	Purchase Agreement	Base Object	 	 	
+purchase.agreement.line	Purchase Agreement Line	Base Object	 	 	
+purchase.agreement.vendor	Purchase Agreement Vendor	Base Object	 	 	
+purchase.agreement.vendor.done	Purchase Agreement Vendor Done	Base Object	 	 	
+access.purchase.request	Purchase Approval Access	Base Object	 	 	
+wizard.purchase.history	Purchase History Wizard	Base Object	 	 	
+purchase.order.approval	Purchase Order Approval	Base Object	 	 	
+purchase.order.line	Purchase Order Line	Base Object	 	 	
+sr.purchase.price.history	Purchase Price History	Base Object	 	 	
+purchase.report	Purchase Report	Base Object	 	 	
+purchase.request.line	Purchase Request Line	Base Object	 	 	
+purchase.requisition.line	Purchase Requisition Line	Base Object	 	 	
+purchase.requisition.type	Purchase Requisition Type	Base Object	 	 	
+purchase.bill.union	Purchases & Bills Union	Base Object	 	 	
+website.visitor.push.subscription	Push Subscription for a Website Visitor	Base Object	 	 	
+stock.putaway.rule	Putaway Rule	Base Object	 	 	
+ir.qweb.field.time	QWeb Field Time	Base Object	 	 	
+quality.alert.stage	Quality Alert Stage	Base Object	 	 	
+quality.point.test_type	Quality Control Test Type	Base Object	 	 	
+quality.tag	Quality Tag	Base Object	 	 	
+stock.quant	Quants	Base Object	 	 	
+sale.order.template	Quotation Template	Base Object	 	 	
+sale.order.template.line	Quotation Template Line	Base Object	 	 	
+sale.order.template.option	Quotation Template Option	Base Object	 	 	
+ir.qweb	Qweb	Base Object	 	 	
+ir.qweb.field	Qweb Field	Base Object	 	 	
+ir.qweb.field.barcode	Qweb Field Barcode	Base Object	 	 	
+ir.qweb.field.contact	Qweb Field Contact	Base Object	 	 	
+ir.qweb.field.date	Qweb Field Date	Base Object	 	 	
+ir.qweb.field.datetime	Qweb Field Datetime	Base Object	 	 	
+ir.qweb.field.duration	Qweb Field Duration	Base Object	 	 	
+ir.qweb.field.float	Qweb Field Float	Base Object	 	 	
+ir.qweb.field.float_time	Qweb Field Float Time	Base Object	 	 	
+ir.qweb.field.html	Qweb Field HTML	Base Object	 	 	
+ir.qweb.field.image	Qweb Field Image	Base Object	 	 	
+ir.qweb.field.image_url	Qweb Field Image	Base Object	 	 	
+ir.qweb.field.integer	Qweb Field Integer	Base Object	 	 	
+ir.qweb.field.many2one	Qweb Field Many to One	Base Object	 	 	
+ir.qweb.field.monetary	Qweb Field Monetary	Base Object	 	 	
+ir.qweb.field.relative	Qweb Field Relative	Base Object	 	 	
+ir.qweb.field.selection	Qweb Field Selection	Base Object	 	 	
+ir.qweb.field.text	Qweb Field Text	Base Object	 	 	
+ir.qweb.field.qweb	Qweb Field qweb	Base Object	 	 	
+ir.qweb.field.many2many	Qweb field many2many	Base Object	 	 	
+ir.qweb.field.one2many	Qweb field one2many	Base Object	 	 	
+gamification.karma.rank	Rank based on karma	Base Object	 	 	
+rating.rating	Rating	Base Object	 	 	
+rating.parent.mixin	Rating Parent Mixin	Base Object	 	 	
+data_recycle.model	Recycling Model	Base Object	 	 	
+data_recycle.record	Recycling Record	Base Object	 	 	
+refused.reason	Refused Reason	Base Object	 	 	
+hr.work.entry.regeneration.wizard	Regenerate Employee Work Entries	Base Object	 	 	
+account.payment.register	Register Payment	Base Object	 	 	
+expense.sample.register	Register Sample Payments	Base Object	 	 	
+event.mail.registration	Registration Mail Scheduler	Base Object	 	 	
+hr.expense.requisition.reject.wizard	Reject Expense Requisition Wizard	Base Object	 	 	
+fuel.localisation.reject.wizard	Reject Fuel Localisation	Base Object	 	 	
+purchase.approval.reject.wizard	Reject Purchase Approval Wizard	Base Object	 	 	
+retail.requisition.reject.wizard	Reject Requisition Wizard	Base Object	 	 	
+sale.approval.reject.wizard	Reject Sale Approval Wizard	Base Object	 	 	
+reject.request	Reject request message wizard	Base Object	 	 	
+ir.model.relation	Relation Model	Base Object	 	 	
+account.resequence.wizard	Remake the sequence of Journal Entries.	Base Object	 	 	
+product.removal	Removal Strategy	Base Object	 	 	
+mail.blacklist.remove	Remove email from blacklist wizard	Base Object	 	 	
+phone.blacklist.remove	Remove phone from blacklist	Base Object	 	 	
+repair.tags	Repair Tags	Base Object	 	 	
+report.payslip_reports.report_salary_summary	Report	Base Object	 	 	
+ir.actions.report	Report Action	Base Object	 	 	
+report.layout	Report Layout	Base Object	 	 	
+request.approval	Request Approval	Base Object	 	 	
+retail.stock.requisition.config	Requisition Configuration	Base Object	 	 	
+retail.stock.requisition.line	Requisition Line	Base Object	 	 	
+retail.requisition.variance.report	Requisition Transfer vs Received Variance	Base Object	 	 	
+requisition.order	Requisition order	Base Object	 	 	
+sms.resend.recipient	Resend Notification	Base Object	 	 	
+reset.view.arch.wizard	Reset View Architecture Wizard	Base Object	 	 	
+pos_preparation_display.reset.wizard	Reset all current order in a preparation display	Base Object	 	 	
+resource.mixin	Resource Mixin	Base Object	 	 	
+resource.calendar.leaves	Resource Time Off Detail	Base Object	 	 	
+resource.calendar	Resource Working Time	Base Object	 	 	
+resource.resource	Resources	Base Object	 	 	
+hr.resume.line	Resume line of an employee	Base Object	 	 	
+stock.return.picking	Return Picking	Base Object	 	 	
+stock.return.picking.line	Return Picking Line	Base Object	 	 	
+fuel.localisation.reversal.wizard	Reverse Fuel Localisation	Base Object	 	 	
+social.account.revoke.youtube	Revoke YouTube Account	Base Object	 	 	
+rework.approval	Rework Approval	Base Object	 	 	
+website.robots	Robots.txt Editor	Base Object	 	 	
+room.office	Room Office	Base Object	 	 	
+quality.reason	Root Cause for Quality Failure	Base Object	 	 	
+ir.rule	Rule	Base Object	 	 	
+account.reconcile.model.line	Rules for the reconciliation model	Base Object	 	 	
+stock.scheduler.compute	Run Scheduler Manually	Base Object	 	 	
+website.seo.metadata	SEO metadata	Base Object	 	 	
+account.edi.xml.ubl_sg	SG BIS Billing 3.0	Base Object	 	 	
+l10n.ke.hr.payroll.shif.report.wizard	SHIF (NHIF) Report Wizard	Base Object	 	 	
+l10n.ke.hr.payroll.shif.report.line.wizard	SHIF Report Wizard Line	Base Object	 	 	
+account.edi.xml.ubl_nl	SI-UBL 2.0 (NLCIUS)	Base Object	 	 	
+helpdesk.sla.report.analysis	SLA Status Analysis	Base Object	 	 	
+sms.resend	SMS Resend	Base Object	 	 	
+sms.template.preview	SMS Template Preview	Base Object	 	 	
+sms.template.reset	SMS Template Reset	Base Object	 	 	
+sms.template	SMS Templates	Base Object	 	 	
+hr.salary.attachment.report	Salary Attachment / Report	Base Object	 	 	
+hr.salary.attachment.type	Salary Attachment Type	Base Object	 	 	
+hr.salary.rule	Salary Rule	Base Object	 	 	
+hr.salary.rule.category	Salary Rule Category	Base Object	 	 	
+hr.rule.parameter	Salary Rule Parameter	Base Object	 	 	
+hr.rule.parameter.value	Salary Rule Parameter Value	Base Object	 	 	
+hr.payroll.structure	Salary Structure	Base Object	 	 	
+hr.payroll.structure.type	Salary Structure Type	Base Object	 	 	
+sale.delivery.line	Sale Delivery Line	Base Object	 	 	
+sale.loyalty.coupon.wizard	Sale Loyalty - Apply Coupon Wizard	Base Object	 	 	
+sale.loyalty.reward.wizard	Sale Loyalty - Reward Selection Wizard	Base Object	 	 	
+sale.order.option	Sale Options	Base Object	 	 	
+sale.order.coupon.points	Sale Order Coupon Points - Keeps track of how a sale order impacts a coupon	Base Object	 	 	
+sale.order.truck	Sale Order Truck Details	Base Object	 	 	
+sale.payment.provider.onboarding.wizard	Sale Payment provider onboarding wizard	Base Object	 	 	
+sr.sale.price.history	Sale Price History	Base Object	 	 	
+sale.request.line	Sale Request Line	Base Object	 	 	
+sale.advance.payment.inv	Sales Advance Payment Invoice	Base Object	 	 	
+sale.report	Sales Analysis Report	Base Object	 	 	
+sale.order.approval	Sales Order Approval	Base Object	 	 	
+sale.order.cancel	Sales Order Cancel	Base Object	 	 	
+sale.order.line	Sales Order Line	Base Object	 	 	
+mailing.mailing.test	Sample Mail Wizard	Base Object	 	 	
+discuss.gif.favorite	Save favorite GIF from Tenor API	Base Object	 	 	
+ir.cron	Scheduled Actions	Base Object	 	 	
+mail.message.schedule	Scheduled Messages	Base Object	 	 	
+payslip.send.mail	Send Multiple Payslip By Mail	Base Object	 	 	
+sms.composer	Send SMS Wizard	Base Object	 	 	
+ir.sequence	Sequence	Base Object	 	 	
+ir.sequence.date_range	Sequence Date Range	Base Object	 	 	
+ir.actions.server	Server Action	Base Object	 	 	
+helpdesk.ticket.select.forum.wizard	Share on Forum	Base Object	 	 	
+shift.history	Shift History	Base Object	 	 	
+station.shift.payment	Shift Payments	Base Object	 	 	
+shift.pump.stock.take	Shift Pump Readings	Base Object	 	 	
+station.shift.sale	Shift Sales	Base Object	 	 	
+shift.transfer.line	Shift Stocks Receipts	Base Object	 	 	
+shift.summary.line	Shift Summary	Base Object	 	 	
+shift.tank.stock.take	Shift Tank Dippings	Base Object	 	 	
+receive.move.wizard	Shift stock from moves	Base Object	 	 	
+delivery.carrier	Shipping Methods	Base Object	 	 	
+res.users.apikeys.show	Show API Key	Base Object	 	 	
+sign.duplicate.template.pdf	Sign Duplicate Template with new PDF	Base Object	 	 	
+sign.template.tag	Sign Template Tag	Base Object	 	 	
+hr.contract.sign.document.wizard	Sign document in contract	Base Object	 	 	
+sign.log	Sign requests access history	Base Object	 	 	
+sign.send.request	Sign send request	Base Object	 	 	
+sign.send.request.signer	Sign send request signer	Base Object	 	 	
+sign.item.role	Signature Item Party	Base Object	 	 	
+sign.item.type	Signature Item Type	Base Object	 	 	
+sign.request.item.value	Signature Item Value	Base Object	 	 	
+sign.request.item	Signature Request Item	Base Object	 	 	
+sign.template	Signature Template	Base Object	 	 	
+hr.skill	Skill	Base Object	 	 	
+hr.skill.level	Skill Level	Base Object	 	 	
+hr.skill.type	Skill Type	Base Object	 	 	
+hr.employee.skill	Skill level for an employee	Base Object	 	 	
+hr.employee.skill.log	Skills History	Base Object	 	 	
+slide.slide.partner	Slide / Partner decorated m2m	Base Object	 	 	
+slide.answer	Slide Question's Answer	Base Object	 	 	
+slide.tag	Slide Tag	Base Object	 	 	
+snailmail.letter	Snailmail Letter	Base Object	 	 	
+stock.orderpoint.snooze	Snooze Orderpoint	Base Object	 	 	
+social.account	Social Account	Base Object	 	 	
+social.live.post	Social Live Post	Base Object	 	 	
+social.post.template	Social Post Template	Base Object	 	 	
+social.stream	Social Stream	Base Object	 	 	
+social.stream.post	Social Stream Post	Base Object	 	 	
+social.stream.type	Social Stream Post	Base Object	 	 	
+social.stream.post.image	Social Stream Post Image Attachment	Base Object	 	 	
+social.twitter.account	Social Twitter Account	Base Object	 	 	
+pos.pack.operation.lot	Specify product lot/serial number in pos order line	Base Object	 	 	
+mrp.production.split.line	Split Production Detail	Base Object	 	 	
+spreadsheet.contributor	Spreadsheet Contributor	Base Object	 	 	
+spreadsheet.dashboard	Spreadsheet Dashboard	Base Object	 	 	
+spreadsheet.template	Spreadsheet Template	Base Object	 	 	
+save.spreadsheet.template	Spreadsheet Template Save Wizard	Base Object	 	 	
+spreadsheet.mixin	Spreadsheet mixin	Base Object	 	 	
+station.shift.type	Staftion Shift Types	Base Object	 	 	
+pos_preparation_display.order.stage	Stage of orders by preparation display	Base Object	 	 	
+station.csr	Station Customer Service Rep	Base Object	 	 	
+station.csr.variance	Station Employee Gains/Losses	Base Object	 	 	
+station.shift.expense	Station Expenses & Petty Cash	Base Object	 	 	
+station.eda	Station Integrations	Base Object	 	 	
+station.eda.map	Station Integrations Mappings	Base Object	 	 	
+wizard.station.stock.loss.report	Station Stock Loss Report Wizard	Base Object	 	 	
+station.pump.nozzle	Station Tank Nozzles	Base Object	 	 	
+station.tank	Station Tanks	Base Object	 	 	
+station.station	Stations	Base Object	 	 	
+stock.assign.serial	Stock Assign Serial Numbers	Base Object	 	 	
+stock.dashboard	Stock Dashboard Logic	Base Object	 	 	
+stock.inventory.import	Stock Inventory Import	Base Object	 	 	
+inventory.selection	Stock Inventory Line Selection	Base Object	 	 	
+stock.landed.cost.lines	Stock Landed Cost Line	Base Object	 	 	
+stock.move	Stock Move	Base Object	 	 	
+stock.package.destination	Stock Package Destination	Base Object	 	 	
+stock.package_level	Stock Package Level	Base Object	 	 	
+stock.picking.loading.detail	Stock Picking Loading Detail	Base Object	 	 	
+stock.quantity.history	Stock Quantity History	Base Object	 	 	
+stock.quant.relocate	Stock Quantity Relocation	Base Object	 	 	
+report.stock.quantity	Stock Quantity Report	Base Object	 	 	
+report.stock.report_reception	Stock Reception Report	Base Object	 	 	
+stock.forecasted_product_template	Stock Replenishment Report	Base Object	 	 	
+stock.forecasted_product_product	Stock Replenishment Report	Base Object	 	 	
+stock.report	Stock Report	Base Object	 	 	
+stock.adjustment.report.export	Stock Report Export	Base Object	 	 	
+stock.request.count	Stock Request an Inventory Count	Base Object	 	 	
+stock.reservation.wizard	Stock Reservation Details	Base Object	 	 	
+stock.reservation.wizard.line	Stock Reservation Details Line	Base Object	 	 	
+stock.rule	Stock Rule	Base Object	 	 	
+stock.rules.report	Stock Rules report	Base Object	 	 	
+stock.track.confirmation	Stock Track Confirmation	Base Object	 	 	
+stock.track.line	Stock Track Line	Base Object	 	 	
+stock.valuation.layer	Stock Valuation Layer	Base Object	 	 	
+stock.webhook.log	Stock Webhook Log	Base Object	 	 	
+stock.webhook.queue	Stock Webhook Queue	Base Object	 	 	
+stock.package.type	Stock package type	Base Object	 	 	
+report.stock.report_stock_rule	Stock rule report	Base Object	 	 	
+stock.replenishment.info	Stock supplier replenishment information	Base Object	 	 	
+stock.replenishment.option	Stock warehouse replenishment option	Base Object	 	 	
+stocktake.valuation.line	Stocktake Inventory Valuation Line	Base Object	 	 	
+report.stocktake_variation_report.stocktake_xlsx	Stocktake Session XLSX Report	Base Object	 	 	
+stocktake.session	Stocktake Variation Report	Base Object	 	 	
+stocktake.session.line	Stocktake Variation Report Line	Base Object	 	 	
+stock.storage.category	Storage Category	Base Object	 	 	
+stock.storage.category.capacity	Storage Category Capacity	Base Object	 	 	
+store.filters.groups	Store Filters Groups	Base Object	 	 	
+store.model.nodes	Store Model Nodes	Base Object	 	 	
+mail.link.preview	Store link preview data	Base Object	 	 	
+studio.approval.entry	Studio Approval Entry	Base Object	 	 	
+studio.approval.request	Studio Approval Request	Base Object	 	 	
+studio.approval.rule	Studio Approval Rule	Base Object	 	 	
+studio.mixin	Studio Mixin	Base Object	 	 	
+product.supplierinfo	Supplier Pricelist	Base Object	 	 	
+survey.invite	Survey Invitation Wizard	Base Object	 	 	
+survey.question.answer	Survey Label	Base Object	 	 	
+survey.question	Survey Question	Base Object	 	 	
+survey.user_input.line	Survey User Input Line	Base Object	 	 	
+microsoft.calendar.sync	Synchronize a record with Microsoft Calendar	Base Object	 	 	
+ir.config_parameter	System Parameter	Base Object	 	 	
+documents.tag	Tag	Base Object	 	 	
+project.task.recurrence	Task Recurrence	Base Object	 	 	
+project.task.type	Task Stage	Base Object	 	 	
+report.project.task.user	Tasks Analysis	Base Object	 	 	
+report.l10n_ke_hr_payroll.report_tax_deduction_card	Tax Deduction Card Report	Base Object	 	 	
+account.tax.group	Tax Group	Base Object	 	 	
+account.fiscal.position.tax	Tax Mapping of Fiscal Position	Base Object	 	 	
+account.tax.repartition.line	Tax Repartition Line	Base Object	 	 	
+account.tax.unit	Tax Unit	Base Object	 	 	
+ir_actions_account_report_download	Technical model for accounting report downloads	Base Object	 	 	
+purchase.order.group	Technical model to group PO for call to tenders	Base Object	 	 	
+template.reset.mixin	Template Reset Mixin	Base Object	 	 	
+test.approval	Test Approval	Base Object	 	 	
+theme.ir.asset	Theme Asset	Base Object	 	 	
+theme.ir.attachment	Theme Attachments	Base Object	 	 	
+theme.ir.ui.view	Theme UI View	Base Object	 	 	
+theme.utils	Theme Utils	Base Object	 	 	
+helpdesk.ticket.report.analysis	Ticket Analysis	Base Object	 	 	
+helpdesk.sla.status	Ticket SLA Status	Base Object	 	 	
+hr.leave.report.calendar	Time Off Calendar	Base Object	 	 	
+hr.leave.report	Time Off Summary / Report	Base Object	 	 	
+hr.leave.employee.type.report	Time Off Summary / Report	Base Object	 	 	
+hr.leave.type	Time Off Type	Base Object	 	 	
+web_tour.tour	Tours	Base Object	 	 	
+stock.traceability.report	Traceability Report	Base Object	 	 	
+gamification.karma.tracking	Track Karma Changes	Base Object	 	 	
+credit.control.trade.reference	Trade Reference	Base Object	 	 	
+onboarding.trade.reference	Trade Reference	Base Object	 	 	
+account.bank.statement.line.transient	Transient model for bank statement line	Base Object	 	 	
+account.trial.balance.report.handler	Trial Balance Custom Handler	Base Object	 	 	
+ir.cron.trigger	Triggered actions	Base Object	 	 	
+delivery.truck.compartment	Truck Compartment	Base Object	 	 	
+truck.driver	Truck Driver	Base Object	 	 	
+expense.sample.receipt	Try Sample Receipts	Base Object	 	 	
+hr.resume.line.type	Type of a resume line	Base Object	 	 	
+account.edi.xml.ubl_20	UBL 2.0	Base Object	 	 	
+account.edi.xml.ubl_21	UBL 2.1	Base Object	 	 	
+account.edi.xml.ubl_bis3	UBL BIS Billing 3.0.12	Base Object	 	 	
+utm.campaign	UTM Campaign	Base Object	 	 	
+utm.medium	UTM Medium	Base Object	 	 	
+utm.mixin	UTM Mixin	Base Object	 	 	
+utm.source	UTM Source	Base Object	 	 	
+utm.source.mixin	UTM Source Mixin	Base Object	 	 	
+utm.tag	UTM Tag	Base Object	 	 	
+_unknown	Unknown	Base Object	 	 	
+base.module.update	Update Module	Base Object	 	 	
+snailmail.letter.missing.required.fields	Update address of partner	Base Object	 	 	
+crm.lead.pls.update	Update the probabilities	Base Object	 	 	
+base.module.upgrade	Upgrade Module	Base Object	 	 	
+res.users	User	Base Object	 	 	
+bus.presence	User Presence	Base Object	 	 	
+res.users.settings	User Settings	Base Object	 	 	
+res.users.settings.volumes	User Settings Volumes	Base Object	 	 	
+change.password.user	User, Change Password Wizard	Base Object	 	 	
+change.password.own	User, change own password wizard	Base Object	 	 	
+res.users.apikeys	Users API Keys	Base Object	 	 	
+res.users.deletion	Users Deletion Request	Base Object	 	 	
+res.users.log	Users Log	Base Object	 	 	
+validate.account.move	Validate Account Move	Base Object	 	 	
+stock.valuation.adjustment.lines	Valuation Adjustment Lines	Base Object	 	 	
+vendor.delay.report	Vendor Delay Report	Base Object	 	 	
+ir.ui.view	View	Base Object	 	 	
+view.data	View Data	Base Object	 	 	
+website.track	Visited Pages	Base Object	 	 	
+stock.warehouse	Warehouse	Base Object	 	 	
+stock.warn.insufficient.qty	Warn Insufficient Quantity	Base Object	 	 	
+stock.warn.insufficient.qty.repair	Warn Insufficient Repair Quantity	Base Object	 	 	
+stock.warn.insufficient.qty.scrap	Warn Insufficient Scrap Quantity	Base Object	 	 	
+stock.warn.insufficient.qty.unbuild	Warn Insufficient Unbuild Quantity	Base Object	 	 	
+repair.warn.uncomplete.move	Warn Uncomplete Move(s)	Base Object	 	 	
+web_editor.converter.test.sub	Web Editor Converter Subtest	Base Object	 	 	
+web_editor.converter.test	Web Editor Converter Test	Base Object	 	 	
+website	Website	Base Object	 	 	
+website.configurator.feature	Website Configurator Feature	Base Object	 	 	
+website.event.menu	Website Event Menu	Base Object	 	 	
+website.menu	Website Menu	Base Object	 	 	
+website.published.mixin	Website Published Mixin	Base Object	 	 	
+website.searchable.mixin	Website Searchable Mixin	Base Object	 	 	
+website.snippet.filter	Website Snippet Filter	Base Object	 	 	
+theme.website.menu	Website Theme Menu	Base Object	 	 	
+theme.website.page	Website Theme Page	Base Object	 	 	
+website.visitor	Website Visitor	Base Object	 	 	
+website.rewrite	Website rewrite	Base Object	 	 	
+delivery.wizard.compartment.line	Wizard Compartment Assignment	Base Object	 	 	
+account.missing.transaction.wizard	Wizard for missing transactions	Base Object	 	 	
+account_followup.manual_reminder	Wizard for sending manual reminders to clients	Base Object	 	 	
+purchase.requisition.alternative.warning	Wizard in case PO still has open alternative requests for quotation	Base Object	 	 	
+mrp.consumption.warning	Wizard in case of consumption in warning/strict and more component has been used for a MO (related to the bom)	Base Object	 	 	
+stock.valuation.layer.revaluation	Wizard model to reavaluate a stock inventory for a product	Base Object	 	 	
+mrp.production.split.multi	Wizard to Split Multiple Productions	Base Object	 	 	
+mrp.production.split	Wizard to Split a Production	Base Object	 	 	
+mrp.production.backorder	Wizard to mark as done or create back order	Base Object	 	 	
+purchase.requisition.create.alternative	Wizard to preset values for alternative PO	Base Object	 	 	
+mrp.workcenter	Work Center	Base Object	 	 	
+mrp.workcenter.capacity	Work Center Capacity	Base Object	 	 	
+mrp.routing.workcenter	Work Center Usage	Base Object	 	 	
+resource.calendar.attendance	Work Detail	Base Object	 	 	
+hr.work.entry.report	Work Entries Analysis Report	Base Object	 	 	
+hr.user.work.entry.employee	Work Entries Employees	Base Object	 	 	
+hr.work.location	Work Location	Base Object	 	 	
+mrp.workorder	Work Order	Base Object	 	 	
+mrp.workcenter.productivity	Workcenter Productivity Log	Base Object	 	 	
+mrp.workcenter.productivity.loss	Workcenter Productivity Losses	Base Object	 	 	
+approval.line.users	approval line users	Base Object	 	 	
+approval.users	approval users	Base Object	 	 	
+l10n_ke_edi_oscu.notice	eTIMS Notices	Base Object	 	 	
+l10n_ke_edi_oscu.code	eTIMS Technical Codes	Base Object	 	 	
+hr.employee.dependants	hr.employee.dependants	Base Object	 	 	
+hr.employee.education.level	hr.employee.education.level	Base Object	 	 	
+hr.employee.next.kin	hr.employee.next.kin	Base Object	 	 	
+inventory.selection.line	inventory.selection.line	Base Object	 	 	
+payroll.deduction.report.wizard	payroll.deduction.report.wizard	Base Object	 	 	
+payroll.summary.report.wizard	payroll.summary.report.wizard	Base Object	 	 	
+purchase.landed.cost.line	purchase.landed.cost.line	Base Object	 	 	
+report.delivery_report.delivery_note_report	report.delivery_report.delivery_note_report	Base Object	 	 	
+report.delivery_report.gate_pass_report	report.delivery_report.gate_pass_report	Base Object	 	 	
+report.delivery_report.sale_gate_pass_report	report.delivery_report.sale_gate_pass_report	Base Object	 	 	
+account.online.account	representation of an online bank account	Base Object	 	 	
+mailing.mailing.schedule.date	schedule a mailing	Base Object	 	 	
+stock.inventory	stock.inventory	Base Object	 	 	
+ir.websocket	websocket message handling	Base Object	 	 	

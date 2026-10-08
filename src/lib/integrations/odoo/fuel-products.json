@@ -1,0 +1,215 @@
+{
+  "source": "odoo_live_product.product",
+  "fetchedAt": "2026-10-01",
+  "note": "True bulk fuels only (All / Fuels + Fuel:*). Lubricants/filters excluded. CSV upload had no fuels.",
+  "defaults": {
+    "PMS": 56637,
+    "AGO": 56634,
+    "IK": 84261,
+    "JET_A1": 56635
+  },
+  "defaultDetails": {
+    "PMS": {
+      "id": 56637,
+      "code": "PMSL001",
+      "name": "PMS LOCAL",
+      "kind": "PMS",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    "AGO": {
+      "id": 56634,
+      "code": "AGOL001",
+      "name": "AGO LOCAL",
+      "kind": "AGO",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    "IK": {
+      "id": 84261,
+      "code": "",
+      "name": "Fuel:Illuminating Kerosene-IK",
+      "kind": "IK",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    "JET_A1": {
+      "id": 56635,
+      "code": "JET A1",
+      "name": "LINE FILL",
+      "kind": "JET_A1",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    }
+  },
+  "products": [
+    {
+      "id": 56633,
+      "code": "AGOE001",
+      "name": "AGO EXPORT",
+      "kind": "AGO",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 84642,
+      "code": "",
+      "name": "AGO FOT (EXPORT)",
+      "kind": "AGO",
+      "category": "All",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 84312,
+      "code": "",
+      "name": "AGO FOT (LOCAL)",
+      "kind": "AGO",
+      "category": "All",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 56634,
+      "code": "AGOL001",
+      "name": "AGO LOCAL",
+      "kind": "AGO",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 85785,
+      "code": "",
+      "name": "Fuel:AGO- TELK EXPORT",
+      "kind": "AGO",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 85783,
+      "code": "",
+      "name": "Fuel:Automotive Gas Oil- KPC",
+      "kind": "AGO",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 85794,
+      "code": "",
+      "name": "Fuel:Automotive Gas Oil- LAKE OIL",
+      "kind": "AGO",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 84261,
+      "code": "",
+      "name": "Fuel:Illuminating Kerosene-IK",
+      "kind": "IK",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 56635,
+      "code": "JET A1",
+      "name": "LINE FILL",
+      "kind": "JET_A1",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 85795,
+      "code": "",
+      "name": "Fuel:PMS- TELK EXPORT",
+      "kind": "PMS",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 85784,
+      "code": "",
+      "name": "Fuel:Premium Motor Spirit- KPC",
+      "kind": "PMS",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 85789,
+      "code": "",
+      "name": "Fuel:Premium Motor Spirit- LAKE OIL",
+      "kind": "PMS",
+      "category": "All",
+      "uom": "Units",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 56636,
+      "code": "PMSE001",
+      "name": "PMS EXPORT",
+      "kind": "PMS",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 84643,
+      "code": "",
+      "name": "PMS FOT (EXPORT)",
+      "kind": "PMS",
+      "category": "All",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 84644,
+      "code": "",
+      "name": "PMS FOT (LOCAL) ",
+      "kind": "PMS",
+      "category": "All",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    },
+    {
+      "id": 56637,
+      "code": "PMSL001",
+      "name": "PMS LOCAL",
+      "kind": "PMS",
+      "category": "All / Fuels",
+      "uom": "L",
+      "sale_ok": true,
+      "active": true
+    }
+  ]
+}

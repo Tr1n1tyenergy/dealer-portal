@@ -1,0 +1,428 @@
+{
+  "source": "Official dealer–station list (screenshot 2026-10-01) + full Odoo res.partner External ID export (4 batches)",
+  "defaultProducts": ["PMS", "AGO", "LUBRICANTS", "LPG"],
+  "dealers": [
+    {
+      "code": "VERECA",
+      "name": "VERECA ENTERPRISES LIMITED",
+      "odooPartnerId": null,
+      "stations": [
+        {
+          "code": "banana",
+          "name": "Banana",
+          "tradingNameAsListed": "VERECA ENTERPRISES LIMITED-BANANA",
+          "odooPartnerId": 5207,
+          "odooExternalId": "__export__.res_partner_5207_4587753b",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        },
+        {
+          "code": "nakuru",
+          "name": "Nakuru",
+          "tradingNameAsListed": "VERECA ENTERPRISES LIMITED-NAKURU CBD",
+          "odooPartnerId": 5269,
+          "odooExternalId": "__export__.res_partner_5269_403728b1",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.vereca@trinityenergyltd.com",
+        "firstName": "Veraca",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "MASAHA",
+      "name": "MASAHA FUEL POINT",
+      "odooPartnerId": 5209,
+      "stations": [
+        {
+          "code": "mumias",
+          "name": "Mumias",
+          "tradingNameAsListed": "MASAHA FUEL POINT",
+          "odooPartnerId": 5209,
+          "odooExternalId": "__export__.res_partner_5209_fc5b2c66",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.masaha@trinityenergyltd.com",
+        "firstName": "Masaha",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "TULLA",
+      "name": "TULLA NAGELLE ENERGY AND COURIOR SERVICES LIMITED",
+      "odooPartnerId": 5312,
+      "stations": [
+        {
+          "code": "kiserian",
+          "name": "Kiserian",
+          "tradingNameAsListed": "TULLA NAGELLE ENERGY AND COURIOR SERVICES LIMITED",
+          "odooPartnerId": 5312,
+          "odooExternalId": "__export__.res_partner_5312_eba61c6f",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.tulla@trinityenergyltd.com",
+        "firstName": "Tulla",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "RABAN",
+      "name": "RABAN ENERGY TRADING COMPANY LIMITED",
+      "odooPartnerId": 3680,
+      "stations": [
+        {
+          "code": "rimpa",
+          "name": "Rimpa",
+          "tradingNameAsListed": "RABAN ENERGY TRADING COMPANY LIMITED",
+          "odooPartnerId": 3680,
+          "odooExternalId": "__export__.res_partner_3680_e0965eaf",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.raban@trinityenergyltd.com",
+        "firstName": "Raban",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "ETAL",
+      "name": "ETAL ENERGY LIMITED",
+      "odooPartnerId": 4552,
+      "stations": [
+        {
+          "code": "ol-joro-orok",
+          "name": "Ol'Joro-Orok",
+          "tradingNameAsListed": "ETAL ENERGY LIMITED",
+          "odooPartnerId": 4552,
+          "odooExternalId": "__export__.res_partner_4552_c64ba256",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.etal@trinityenergyltd.com",
+        "firstName": "Etal",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "BEEKEY",
+      "name": "BEEKEY JEYEN LTD",
+      "odooPartnerId": 2484,
+      "stations": [
+        {
+          "code": "magumu",
+          "name": "Magumu",
+          "tradingNameAsListed": "BEEKEY JEYEN LTD",
+          "odooPartnerId": 2484,
+          "odooExternalId": "__export__.res_partner_2484_14cdb6a0",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.beekey@trinityenergyltd.com",
+        "firstName": "Beekey",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "OILDEN",
+      "name": "OILDEN LOGISTICS LIMITED",
+      "odooPartnerId": 3651,
+      "stations": [
+        {
+          "code": "athiriver",
+          "name": "Athiriver",
+          "tradingNameAsListed": "OILDEN LOGISTICS LIMITED",
+          "odooPartnerId": 3651,
+          "odooExternalId": "__export__.res_partner_3651_d6adf0ba",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.oilden@trinityenergyltd.com",
+        "firstName": "Oilden",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "MEMISI",
+      "name": "MEMISI SUPPLIERS LTD",
+      "odooPartnerId": 5334,
+      "stations": [
+        {
+          "code": "kitanga",
+          "name": "Kitanga",
+          "tradingNameAsListed": "MEMISI SUPPLIERS LTD",
+          "odooPartnerId": 5334,
+          "odooExternalId": "__export__.res_partner_5334_d3b744d4",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.memisi@trinityenergyltd.com",
+        "firstName": "Memisi",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "NINAS",
+      "name": "NINAS CREATIVE ENTERPRISES",
+      "odooPartnerId": 5307,
+      "stations": [
+        {
+          "code": "sobea",
+          "name": "Sobea",
+          "tradingNameAsListed": "NINAS CREATIVE ENTERPRISES",
+          "odooPartnerId": 5307,
+          "odooExternalId": "__export__.res_partner_5307_11d9f844",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.ninas@trinityenergyltd.com",
+        "firstName": "Ninas",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "MAGOMA",
+      "name": "Maxwel Nyaanga Magoma",
+      "odooPartnerId": 5296,
+      "stations": [
+        {
+          "code": "kisii",
+          "name": "Kisii",
+          "tradingNameAsListed": "Maxwel Nyaanga Magoma",
+          "odooPartnerId": 5296,
+          "odooExternalId": "__export__.res_partner_5296_b828e2ef",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.magoma@trinityenergyltd.com",
+        "firstName": "Maxwel",
+        "lastName": "Magoma"
+      }
+    },
+    {
+      "code": "IKOWINNERS",
+      "name": "IKO WINNERS COMPANY LIMITED",
+      "odooPartnerId": null,
+      "stations": [
+        {
+          "code": "maili-tatu",
+          "name": "Maili Tatu",
+          "tradingNameAsListed": "IKO WINNERS COMPANY LIMITED-MAILI TATU",
+          "odooPartnerId": 4737,
+          "odooExternalId": "__export__.res_partner_4737_7ebd58a0",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        },
+        {
+          "code": "maua-town",
+          "name": "Maua Town",
+          "tradingNameAsListed": "IKO WINNERS COMPANY LIMITED - MAUA",
+          "odooPartnerId": 5124,
+          "odooExternalId": "__export__.res_partner_5124_ec4f0823",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.ikowinners@trinityenergyltd.com",
+        "firstName": "Iko",
+        "lastName": "Winners"
+      }
+    },
+    {
+      "code": "RUTIBEN",
+      "name": "RUTIBEN AGENCIES LIMITED",
+      "odooPartnerId": 5205,
+      "stations": [
+        {
+          "code": "kabati-kitui",
+          "name": "Kabati Kitui",
+          "tradingNameAsListed": "RUTIBEN AGENCIES LIMITED",
+          "odooPartnerId": 5205,
+          "odooExternalId": "__export__.res_partner_5205_3f73b3fe",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.rutiben@trinityenergyltd.com",
+        "firstName": "Rutiben",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "SURETECH",
+      "name": "SURE TECHNOLOGIES CO. LIMITED",
+      "odooPartnerId": 5235,
+      "stations": [
+        {
+          "code": "migori",
+          "name": "Migori",
+          "tradingNameAsListed": "SURE TECHNOLOGIES CO. LIMITED",
+          "odooPartnerId": 5235,
+          "odooExternalId": "__export__.res_partner_5235_4cc37174",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.suretech@trinityenergyltd.com",
+        "firstName": "Sure",
+        "lastName": "Tech"
+      }
+    },
+    {
+      "code": "ELOBAY",
+      "name": "ELOBAY INVESTMENT LIMITED",
+      "odooPartnerId": 4750,
+      "stations": [
+        {
+          "code": "meru-gaitu",
+          "name": "Meru-Gaitu",
+          "tradingNameAsListed": "ELOBAY INVESTMENT LIMITED",
+          "odooPartnerId": 4750,
+          "odooExternalId": "__export__.res_partner_4750_2c82ea06",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.elobay@trinityenergyltd.com",
+        "firstName": "Elobay",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "PERY",
+      "name": "PERY GROWERS LIMITED",
+      "odooPartnerId": 4732,
+      "stations": [
+        {
+          "code": "kitale",
+          "name": "Kitale",
+          "tradingNameAsListed": "PERY GROWERS LIMITED",
+          "odooPartnerId": 4732,
+          "odooExternalId": "__export__.res_partner_4732_cd70ca49",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.pery@trinityenergyltd.com",
+        "firstName": "Pery",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "READYTOGO",
+      "name": "READY TO GO AUTO LIMITED",
+      "odooPartnerId": 4751,
+      "stations": [
+        {
+          "code": "thome",
+          "name": "Thome",
+          "tradingNameAsListed": "READY TO GO AUTO LIMITED",
+          "odooPartnerId": 4751,
+          "odooExternalId": "__export__.res_partner_4751_4c500c0a",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.readytogo@trinityenergyltd.com",
+        "firstName": "Ready",
+        "lastName": "ToGo"
+      }
+    },
+    {
+      "code": "KENBI",
+      "name": "KENBI HOLDINGS LIMITED",
+      "odooPartnerId": 4970,
+      "stations": [
+        {
+          "code": "greensted",
+          "name": "Greensted",
+          "tradingNameAsListed": "KENBI HOLDINGS LIMITED",
+          "odooPartnerId": 4970,
+          "odooExternalId": "__export__.res_partner_4970_82f6fc67",
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.kenbi@trinityenergyltd.com",
+        "firstName": "Kenbi",
+        "lastName": "Admin"
+      }
+    },
+    {
+      "code": "KAMBITI-DUMMY",
+      "name": "PLACEHOLDER DEALER — KAMBITI",
+      "isPlaceholder": true,
+      "odooPartnerId": null,
+      "stations": [
+        {
+          "code": "kambiti",
+          "name": "Kambiti",
+          "tradingNameAsListed": "TBC",
+          "odooPartnerId": null,
+          "odooStationPartnerId": 4428,
+          "odooExternalId": null,
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.kambiti@trinityenergyltd.com",
+        "firstName": "Kambiti",
+        "lastName": "Placeholder"
+      }
+    },
+    {
+      "code": "OUTSPAN-DUMMY",
+      "name": "PLACEHOLDER DEALER — OUTSPAN ELDORET",
+      "isPlaceholder": true,
+      "odooPartnerId": null,
+      "stations": [
+        {
+          "code": "outspan-eldoret",
+          "name": "Outspan Eldoret",
+          "tradingNameAsListed": "N/A",
+          "odooPartnerId": null,
+          "odooStationPartnerId": 4429,
+          "odooExternalId": null,
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.outspan@trinityenergyltd.com",
+        "firstName": "Outspan",
+        "lastName": "Placeholder"
+      }
+    },
+    {
+      "code": "DAGORETTI-DUMMY",
+      "name": "PLACEHOLDER DEALER — DAGORETTI",
+      "isPlaceholder": true,
+      "odooPartnerId": null,
+      "stations": [
+        {
+          "code": "dagoretti",
+          "name": "Dagoretti",
+          "tradingNameAsListed": "TBC",
+          "odooPartnerId": null,
+          "odooExternalId": null,
+          "products": ["PMS", "AGO", "LUBRICANTS", "LPG"]
+        }
+      ],
+      "login": {
+        "email": "dealer.dagoretti@trinityenergyltd.com",
+        "firstName": "Dagoretti",
+        "lastName": "Placeholder"
+      }
+    }
+  ],
+  "unassignedStations": []
+}

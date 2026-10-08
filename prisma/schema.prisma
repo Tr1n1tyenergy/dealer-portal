@@ -1,0 +1,414 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  INTERNAL
+  DEALER
+  DEPOT
+}
+
+enum Role {
+  SUPER_ADMIN
+  STANDARD_USER
+  SALES_REP
+  FINANCE
+  DEPOT_MANAGER
+  DEALER_ADMIN
+  DEALER_USER
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COUNTDOWN
+  RECORDING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum TranscriptStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum NotesStatus {
+  PENDING
+  GENERATING
+  READY
+  FAILED
+}
+
+enum ReportCategory {
+  FUEL_RETAIL
+  NON_FUEL_RETAIL
+  GENERAL
+}
+
+enum ProductCode {
+  PMS
+  AGO
+  LUBRICANTS
+  LPG
+}
+
+enum DealerOrderStatus {
+  DRAFT
+  SUBMITTED
+  ODOO_SYNC_PENDING
+  ODOO_SYNC_FAILED
+  QUOTATION_CREATING
+  QUOTATION_READY
+  PFI_PENDING
+  PFI_ISSUED
+  AWAITING_PAYMENT
+  PAYMENT_SUBMITTED
+  PAYMENT_VERIFICATION
+  PAYMENT_CONFIRMED
+  RELEASED_TO_DEPOT
+  LOADING
+  LOADED
+  DISPATCHED
+  IN_TRANSIT
+  DELIVERED
+  CLOSED
+  REQUIRES_AMENDMENT
+  REJECTED
+  CANCELLED
+  PAYMENT_EXCEPTION
+  STOCK_EXCEPTION
+  DELIVERY_EXCEPTION
+}
+
+enum PaymentState {
+  SUBMITTED
+  VERIFICATION
+  CONFIRMED
+  REJECTED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String     @unique
+  passwordHash String?
+  department   String
+  role         Role        @default(STANDARD_USER)
+  accountType  AccountType @default(INTERNAL)
+  status       UserStatus  @default(PENDING)
+  permissions  String      @default("[]")
+  dealerOrganizationId String?
+  dealerOrganization   DealerOrganization? @relation(fields: [dealerOrganizationId], references: [id], onDelete: SetNull)
+  depotId      String?
+  depot        Depot?      @relation(fields: [depotId], references: [id], onDelete: SetNull)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  lastLoginAt  DateTime?
+
+  invitations    InvitationToken[]
+  passwordResets PasswordResetToken[]
+  noteSessions   NoteSession[]
+  presentations  Presentation[]
+  reports        Report[]
+  activityLogs   ActivityLog[]       @relation("ActorLogs")
+  ordersCreated  DealerOrder[]       @relation("OrderCreator")
+  statusChanges  OrderStatusHistory[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@index([accountType])
+  @@index([dealerOrganizationId])
+  @@index([depotId])
+}
+
+model InvitationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([token])
+}
+
+model NoteSession {
+  id               String           @id @default(cuid())
+  name             String
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           SessionStatus    @default(SCHEDULED)
+  scheduledAt      DateTime?
+  startedAt        DateTime?
+  endedAt          DateTime?
+  durationSeconds  Int?
+  timeLimitSeconds Int?
+  participants     String           @default("[]")
+  audioUrl         String?
+  transcript       String?
+  transcriptStatus TranscriptStatus @default(PENDING)
+  notesStatus      NotesStatus      @default(PENDING)
+  notesJson        String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  presentation Presentation?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Presentation {
+  id            String      @id @default(cuid())
+  title         String
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  noteSessionId String?     @unique
+  noteSession   NoteSession? @relation(fields: [noteSessionId], references: [id], onDelete: SetNull)
+  slidesJson    String
+  presenter     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+model Report {
+  id          String         @id @default(cuid())
+  title       String
+  category    ReportCategory @default(GENERAL)
+  description String?
+  dateFrom    DateTime?
+  dateTo      DateTime?
+  contentJson String?
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([category])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model DealerOrganization {
+  id            String   @id @default(cuid())
+  name          String
+  code          String   @unique
+  /** Odoo res.partner id for this dealer customer */
+  odooPartnerId Int?
+  /** JSON array of ProductCode values this dealer may order */
+  products      String   @default("[\"PMS\",\"AGO\",\"LUBRICANTS\",\"LPG\"]")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users    User[]
+  stations Station[]
+  orders   DealerOrder[]
+
+  @@index([name])
+  @@index([odooPartnerId])
+}
+
+model Station {
+  id                   String   @id @default(cuid())
+  /** Stable slug used for seed/upsert (e.g. banana, nakuru) */
+  code                 String?  @unique
+  name                 String
+  dealerOrganizationId String
+  dealerOrganization   DealerOrganization @relation(fields: [dealerOrganizationId], references: [id], onDelete: Cascade)
+  /** Odoo res.partner id for this station customer (preferred over org-level) */
+  odooPartnerId        Int?
+  /** JSON array of ProductCode values for this station (may differ from org defaults later) */
+  products             String   @default("[\"PMS\",\"AGO\",\"LUBRICANTS\",\"LPG\"]")
+  createdAt            DateTime @default(now())
+
+  orders DealerOrder[]
+
+  @@index([dealerOrganizationId])
+  @@index([odooPartnerId])
+}
+
+model Depot {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now())
+
+  users  User[]
+  orders DealerOrder[]
+}
+
+model OrderSequence {
+  year       Int @id
+  lastNumber Int @default(0)
+}
+
+model DealerOrder {
+  id                   String            @id @default(cuid())
+  reference            String            @unique
+  dealerOrganizationId String
+  dealerOrganization   DealerOrganization @relation(fields: [dealerOrganizationId], references: [id])
+  stationId            String
+  station              Station           @relation(fields: [stationId], references: [id])
+  depotId              String?
+  depot                Depot?            @relation(fields: [depotId], references: [id])
+  createdById          String
+  createdBy            User              @relation("OrderCreator", fields: [createdById], references: [id])
+  status               DealerOrderStatus @default(DRAFT)
+  requestedDeliveryDate DateTime?
+  dealerReference      String?
+  notes                String?
+  currency             String            @default("KES")
+  amountDue            String?
+  odooSyncKey          String            @unique
+  odooQuotationId      String?
+  odooQuotationNumber  String?
+  odooSyncError        String?
+  truckRegistration    String?
+  driverName           String?
+  transporter          String?
+  loadedPmsLitres      Int?
+  loadedAgoLitres      Int?
+  loadingReference     String?
+  loadingStartedAt     DateTime?
+  loadingCompletedAt   DateTime?
+  sealNumbers          String?
+  deliveryNoteRef      String?
+  dispatchedAt         DateTime?
+  deliveredAt          DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  lines     DealerOrderLine[]
+  history   OrderStatusHistory[]
+  payments  PaymentRecord[]
+  documents OrderDocument[]
+  proforma  ProFormaInvoice?
+
+  @@index([dealerOrganizationId])
+  @@index([stationId])
+  @@index([depotId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([odooQuotationId])
+}
+
+model DealerOrderLine {
+  id             String      @id @default(cuid())
+  orderId        String
+  order          DealerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        ProductCode
+  quantityLitres Int
+
+  @@index([orderId])
+}
+
+model ProFormaInvoice {
+  id              String      @id @default(cuid())
+  orderId         String      @unique
+  order           DealerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  number          String      @unique
+  amount          String
+  currency        String      @default("KES")
+  issuedAt        DateTime    @default(now())
+  odooDocumentId  String?
+  documentPath    String?
+
+  @@index([number])
+}
+
+model PaymentRecord {
+  id                   String       @id @default(cuid())
+  orderId              String
+  order                DealerOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount               String
+  bankReference        String?
+  transactionReference String?
+  paymentDate          DateTime?
+  proofPath            String?
+  status               PaymentState @default(SUBMITTED)
+  note                 String?
+  submittedById        String?
+  createdAt            DateTime     @default(now())
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model OrderStatusHistory {
+  id         String      @id @default(cuid())
+  orderId    String
+  order      DealerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus String?
+  toStatus   String
+  actorId    String?
+  actor      User?       @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  note       String?
+  createdAt  DateTime    @default(now())
+
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+model OrderDocument {
+  id          String      @id @default(cuid())
+  orderId     String
+  order       DealerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind        String
+  fileName    String
+  storagePath String
+  createdAt   DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation("ActorLogs", fields: [actorId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String?
+  entityId  String?
+  metaJson  String?
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([createdAt])
+}

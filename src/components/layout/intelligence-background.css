@@ -1,0 +1,136 @@
+/* Premium executive intelligence background */
+
+.intel-bg {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* ── Layer 1: Navy gradient base ── */
+.intel-bg__base {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 52% 28%,
+      rgba(35, 91, 190, 0.28) 0%,
+      rgba(15, 55, 125, 0.16) 30%,
+      transparent 58%
+    ),
+    radial-gradient(
+      circle at 15% 70%,
+      rgba(25, 86, 210, 0.13) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 88% 75%,
+      rgba(20, 70, 180, 0.10) 0%,
+      transparent 40%
+    ),
+    linear-gradient(
+      135deg,
+      #061a45 0%,
+      #0a2b69 45%,
+      #04183f 100%
+    );
+}
+
+/* ── Layer 2: Sparse network SVG ── */
+.intel-bg__network {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.intel-bg__mesh--center {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .intel-bg__mesh--center {
+    display: block;
+  }
+}
+
+/* ── Layer 3: Tiny particles ── */
+.intel-bg__particles {
+  position: absolute;
+  inset: 0;
+}
+
+.intel-bg__particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(160, 205, 255, 0.35);
+  box-shadow: 0 0 4px rgba(80, 150, 255, 0.12);
+  animation: intel-particle-drift 12s ease-in-out infinite;
+}
+
+.intel-bg__particle.is-gold {
+  background: rgba(245, 180, 0, 0.4);
+  box-shadow: 0 0 5px rgba(245, 180, 0, 0.15);
+}
+
+@keyframes intel-particle-drift {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.15);
+  }
+}
+
+/* ── Layer 4: TRI watermark ── */
+.intel-bg__watermark {
+  position: absolute;
+  right: -2%;
+  top: 8%;
+  font-size: clamp(280px, 32vw, 560px);
+  font-weight: 700;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: rgba(64, 130, 240, 0.055);
+  user-select: none;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Responsive simplification ── */
+@media (max-width: 768px) {
+  .intel-bg__mesh--left,
+  .intel-bg__mesh--corners {
+    opacity: 0.7;
+  }
+
+  .intel-bg__mesh--right {
+    opacity: 0.55;
+  }
+
+  .intel-bg__watermark {
+    font-size: clamp(180px, 40vw, 320px);
+    right: -8%;
+    top: 12%;
+    opacity: 0.85;
+  }
+
+  .intel-bg__particle:nth-child(n + 13) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .intel-bg__mesh--corners {
+    display: none;
+  }
+
+  .intel-bg__particle:nth-child(n + 9) {
+    display: none;
+  }
+}
