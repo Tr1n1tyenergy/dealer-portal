@@ -1,24 +1,62 @@
 import { Resend } from "resend";
 
-const resendApiKey = process.env.RESEND_API_KEY;
 const emailFrom =
   process.env.EMAIL_FROM ?? "Trinity Retail Intelligence <noreply@trinityenergyltd.com>";
 
+export class EmailDeliveryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EmailDeliveryError";
+  }
+}
+
+function isProductionRuntime() {
+  return process.env.NODE_ENV === "production";
+}
+
+function hasResendCredentials() {
+  return Boolean(process.env.RESEND_API_KEY?.trim());
+}
+
+/** True when outbound email can be attempted. */
+export function emailDeliveryConfigured(): boolean {
+  return hasResendCredentials();
+}
+
+/**
+ * Send an email via Resend.
+ * - Never logs HTML or token-bearing URLs.
+ * - In production, fails closed when RESEND_API_KEY is missing.
+ * - In non-production without Resend, records a redacted console notice and returns skipped
+ *   only when explicitly allowed for local/staging tooling (TRI_ALLOW_DEV_EMAIL_SKIP=1).
+ */
 export async function sendEmail(params: {
   to: string;
   subject: string;
   html: string;
-}) {
-  if (!resendApiKey) {
-    console.info("[email:dev]", {
-      to: params.to,
-      subject: params.subject,
-      html: params.html,
-    });
-    return { id: "dev-email", skipped: true as const };
+}): Promise<{ id: string; skipped?: true }> {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+
+  if (!apiKey) {
+    if (isProductionRuntime()) {
+      throw new EmailDeliveryError(
+        "Email delivery is not configured. Set RESEND_API_KEY before sending invitations or password resets."
+      );
+    }
+    if (process.env.TRI_ALLOW_DEV_EMAIL_SKIP === "1") {
+      console.info("[email:dev] skipped send (no RESEND_API_KEY)", {
+        to: params.to,
+        subject: params.subject,
+        // Intentionally omit html / URLs
+      });
+      return { id: "dev-email-skipped", skipped: true };
+    }
+    throw new EmailDeliveryError(
+      "Email delivery is not configured. Set RESEND_API_KEY, or TRI_ALLOW_DEV_EMAIL_SKIP=1 for local-only skips."
+    );
   }
 
-  const resend = new Resend(resendApiKey);
+  const resend = new Resend(apiKey);
   const result = await resend.emails.send({
     from: emailFrom,
     to: params.to,
@@ -26,7 +64,16 @@ export async function sendEmail(params: {
     html: params.html,
   });
 
-  return result;
+  if (result.error) {
+    throw new EmailDeliveryError(result.error.message || "Email provider rejected the message.");
+  }
+
+  const id = result.data?.id;
+  if (!id) {
+    throw new EmailDeliveryError("Email provider did not confirm delivery.");
+  }
+
+  return { id };
 }
 
 export function invitationEmailHtml(params: {

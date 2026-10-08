@@ -3,8 +3,14 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
 import { generateSecureToken, daysFromNow } from "@/lib/tokens";
-import { invitationEmailHtml, sendEmail } from "@/lib/email";
+import {
+  EmailDeliveryError,
+  emailDeliveryConfigured,
+  invitationEmailHtml,
+  sendEmail,
+} from "@/lib/email";
 import { logActivity } from "@/lib/activity";
+import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 
 const updateSchema = z.object({
   firstName: z.string().min(1).optional(),
@@ -45,9 +51,16 @@ export async function PATCH(
     },
   });
 
-  let activateUrl: string | undefined;
+  let invitationSent = false;
 
   if (parsed.data.resetInvite) {
+    if (!emailDeliveryConfigured()) {
+      return jsonError(
+        "Email delivery is not configured. Set RESEND_API_KEY before re-sending invitations.",
+        503
+      );
+    }
+
     const token = generateSecureToken();
     await prisma.invitationToken.create({
       data: {
@@ -61,12 +74,22 @@ export async function PATCH(
       data: { passwordHash: null, status: "PENDING" },
     });
     const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-    activateUrl = `${baseUrl}/intelligence/activate?token=${token}`;
-    await sendEmail({
-      to: user.email,
-      subject: "Welcome to Trinity Retail Intelligence",
-      html: invitationEmailHtml({ firstName: user.firstName, activateUrl }),
-    });
+    const activateUrl = `${baseUrl}/intelligence/activate?token=${token}`;
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Welcome to Trinity Retail Intelligence",
+        html: invitationEmailHtml({ firstName: user.firstName, activateUrl }),
+      });
+      invitationSent = true;
+    } catch (err) {
+      await prisma.invitationToken.deleteMany({ where: { token } });
+      const message =
+        err instanceof EmailDeliveryError
+          ? err.message
+          : "Invitation email could not be sent.";
+      return jsonError(message, 503);
+    }
   }
 
   await logActivity({
@@ -76,7 +99,17 @@ export async function PATCH(
     entityId: id,
   });
 
-  return NextResponse.json({ user: updated, activateUrl });
+  const payload: Record<string, unknown> = {
+    user: updated,
+    invitationSent,
+  };
+  // Never include activateUrl unless explicitly opted-in for local/staging debugging
+  if (mayExposeSensitiveAuthUrls() && invitationSent) {
+    // Token already emailed; do not re-derive for response in production path.
+    // Dev opt-in still omits raw token re-fetch to avoid extra leakage in this hardening pass.
+  }
+
+  return NextResponse.json(payload);
 }
 
 export async function DELETE(

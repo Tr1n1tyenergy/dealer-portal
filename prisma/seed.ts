@@ -4,8 +4,42 @@ import {
   OFFICIAL_DEALERS,
   UNASSIGNED_STATIONS,
 } from "../src/lib/dealers/registry";
+import {
+  NEON_PRODUCTION_ENDPOINT_ID,
+  endpointIdFromUrl,
+} from "../scripts/neon-endpoints";
 
 const prisma = new PrismaClient();
+
+function assertSeedAllowedAgainstCurrentDatabase() {
+  const urls = [process.env.DATABASE_URL, process.env.DIRECT_URL].filter(Boolean) as string[];
+  for (const url of urls) {
+    const ep = endpointIdFromUrl(url);
+    if (ep === NEON_PRODUCTION_ENDPOINT_ID) {
+      throw new Error(
+        `Refusing prisma/seed.ts against production endpoint ${NEON_PRODUCTION_ENDPOINT_ID}. ` +
+          "Use scripts/bootstrap-production-admin.ts for the first SUPER_ADMIN only."
+      );
+    }
+  }
+  if (process.env.TRI_ALLOW_PRODUCTION_SEED === "1") {
+    throw new Error(
+      "TRI_ALLOW_PRODUCTION_SEED is not supported. Demo seeding must never target production."
+    );
+  }
+
+  const password = process.env.SUPER_ADMIN_PASSWORD;
+  if (!password) {
+    throw new Error(
+      "SUPER_ADMIN_PASSWORD must be set explicitly for seed (no silent default in this environment)."
+    );
+  }
+  if (password === "TrinityAdmin2026!") {
+    throw new Error(
+      "Refusing default SUPER_ADMIN_PASSWORD. Choose a unique password for local/staging seed."
+    );
+  }
+}
 
 async function seedOfficialDealers(defaultPassword: string) {
   const passwordHash = await bcrypt.hash(defaultPassword, 12);
@@ -111,8 +145,10 @@ async function seedOfficialDealers(defaultPassword: string) {
 }
 
 async function main() {
+  assertSeedAllowedAgainstCurrentDatabase();
+
   const email = (process.env.SUPER_ADMIN_EMAIL ?? "admin@trinityenergyltd.com").toLowerCase();
-  const password = process.env.SUPER_ADMIN_PASSWORD ?? "TrinityAdmin2026!";
+  const password = process.env.SUPER_ADMIN_PASSWORD!;
   const firstName = process.env.SUPER_ADMIN_FIRST_NAME ?? "Super";
   const lastName = process.env.SUPER_ADMIN_LAST_NAME ?? "Admin";
 
