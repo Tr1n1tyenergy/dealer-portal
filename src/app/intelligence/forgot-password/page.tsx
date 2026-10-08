@@ -9,21 +9,18 @@ import { Label } from "@/components/ui/label";
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
-  const [devUrl, setDevUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const res = await fetch("/api/auth/forgot-password", {
+    await fetch("/api/auth/forgot-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
-    const data = await res.json();
     setLoading(false);
     setDone(true);
-    if (data.resetUrl) setDevUrl(data.resetUrl);
   }
 
   return (
@@ -53,14 +50,6 @@ export default function ForgotPasswordPage() {
           {done ? (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
               If an account exists, a reset link has been sent.
-              {devUrl ? (
-                <div className="mt-2 break-all">
-                  Dev link:{" "}
-                  <a className="font-bold underline" href={devUrl}>
-                    {devUrl}
-                  </a>
-                </div>
-              ) : null}
             </div>
           ) : null}
           <Button type="submit" className="w-full" disabled={loading}>

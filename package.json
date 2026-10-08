@@ -20,7 +20,12 @@
     "staging:transfer": "tsx scripts/run-with-staging-env.ts npx tsx scripts/transfer-sqlite-to-postgres.ts",
     "staging:transfer:nodemo": "tsx scripts/run-with-staging-env.ts npx tsx scripts/transfer-sqlite-to-postgres.ts --exclude-demo",
     "staging:validate": "tsx scripts/run-with-staging-env.ts npx tsx scripts/validate-staging-data.ts",
-    "test": "node --import tsx --test src/lib/orders/state-machine.test.ts src/lib/integrations/odoo/client.test.ts",
+    "production:env": "tsx scripts/run-with-production-env.ts",
+    "production:migrate:preflight": "tsx scripts/run-with-production-env.ts npx tsx scripts/preflight-production-migrate.ts",
+    "production:migrate:status": "tsx scripts/run-with-production-env.ts npx prisma migrate status",
+    "production:migrate:deploy": "tsx scripts/run-with-production-env.ts npx prisma migrate deploy",
+    "production:bootstrap:admin": "tsx scripts/run-with-production-env.ts npx tsx scripts/bootstrap-production-admin.ts",
+    "test": "node --import tsx --test src/lib/orders/state-machine.test.ts src/lib/integrations/odoo/client.test.ts src/lib/security/password-policy.test.ts src/lib/security/launch-mode.test.ts src/lib/security/expose-sensitive-urls.test.ts scripts/bootstrap-production-admin.test.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

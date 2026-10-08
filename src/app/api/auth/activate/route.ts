@@ -4,16 +4,20 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
+import { validatePasswordStrength } from "@/lib/security/password-policy";
 
 const schema = z.object({
   token: z.string().min(10),
-  password: z.string().min(8),
+  password: z.string().min(1),
 });
 
 export async function POST(req: Request) {
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
+
+  const strength = validatePasswordStrength(parsed.data.password);
+  if (!strength.ok) return jsonError(strength.message, 400);
 
   const invite = await prisma.invitationToken.findUnique({
     where: { token: parsed.data.token },

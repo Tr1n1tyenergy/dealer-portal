@@ -3,8 +3,14 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
 import { generateSecureToken, daysFromNow } from "@/lib/tokens";
-import { invitationEmailHtml, sendEmail } from "@/lib/email";
+import {
+  EmailDeliveryError,
+  emailDeliveryConfigured,
+  invitationEmailHtml,
+  sendEmail,
+} from "@/lib/email";
 import { logActivity } from "@/lib/activity";
+import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 
 const createUserSchema = z.object({
   firstName: z.string().min(1),
@@ -42,6 +48,13 @@ export async function POST(req: Request) {
   const auth = await requireSuperAdminApi();
   if ("error" in auth) return auth.error;
 
+  if (!emailDeliveryConfigured()) {
+    return jsonError(
+      "Email delivery is not configured. Set RESEND_API_KEY before inviting users.",
+      503
+    );
+  }
+
   const body = await req.json();
   const parsed = createUserSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
@@ -74,11 +87,22 @@ export async function POST(req: Request) {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
   const activateUrl = `${baseUrl}/intelligence/activate?token=${token}`;
 
-  await sendEmail({
-    to: user.email,
-    subject: "Welcome to Trinity Retail Intelligence",
-    html: invitationEmailHtml({ firstName: user.firstName, activateUrl }),
-  });
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: "Welcome to Trinity Retail Intelligence",
+      html: invitationEmailHtml({ firstName: user.firstName, activateUrl }),
+    });
+  } catch (err) {
+    // Roll back invite so a failed send cannot leave a usable pending invite dangling without notice
+    await prisma.invitationToken.deleteMany({ where: { userId: user.id } });
+    await prisma.user.delete({ where: { id: user.id } }).catch(() => undefined);
+    const message =
+      err instanceof EmailDeliveryError
+        ? err.message
+        : "Invitation email could not be sent.";
+    return jsonError(message, 503);
+  }
 
   await logActivity({
     actorId: auth.session.user.id,
@@ -88,5 +112,13 @@ export async function POST(req: Request) {
     meta: { email: user.email },
   });
 
-  return NextResponse.json({ user, activateUrl }, { status: 201 });
+  const payload: Record<string, unknown> = {
+    user,
+    invitationSent: true,
+  };
+  if (mayExposeSensitiveAuthUrls()) {
+    payload.activateUrl = activateUrl;
+  }
+
+  return NextResponse.json(payload, { status: 201 });
 }

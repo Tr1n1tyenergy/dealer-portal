@@ -6,6 +6,7 @@ import { getOdooClient } from "@/lib/integrations/odoo/client";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
 import { assertTransition } from "@/lib/orders/state-machine";
+import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode";
 
 const orderInclude = {
   lines: true,
@@ -67,6 +68,7 @@ export async function submitDealerOrder(params: {
   notes?: string | null;
   lines: { product: "PMS" | "AGO"; quantityLitres: number }[];
 }) {
+  assertDealerCommercialOrdersAllowed();
   if (!params.lines.length) throw new Error("Add at least one product.");
   for (const line of params.lines) {
     if (!Number.isInteger(line.quantityLitres) || line.quantityLitres <= 0) {

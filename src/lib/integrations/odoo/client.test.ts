@@ -20,6 +20,7 @@ describe("mock Odoo adapter", () => {
     const second = await client.createQuotation(sample);
     assert.equal(first.id, second.id);
     assert.equal(first.number, second.number);
+    assert.match(first.number, /^MOCK-/);
   });
 
   it("does not issue a second pro-forma for the same quotation", async () => {
@@ -29,5 +30,6 @@ describe("mock Odoo adapter", () => {
     const second = await client.generateProForma(quotation.id);
     assert.equal(first.number, second.number);
     assert.equal(first.id, second.id);
+    assert.match(first.number, /^MOCK-/);
   });
 });

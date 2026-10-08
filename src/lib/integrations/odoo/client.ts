@@ -1,12 +1,14 @@
 import type { CreateQuotationInput, OdooClient, OdooProForma, OdooQuotation } from "./types";
 import { odooConfigured, odooEnv } from "./config";
 import { LiveOdooClient } from "./live-client";
+import { mockCommercialDocumentPrefix } from "@/lib/security/launch-mode";
 
 /**
  * Development adapter.
  *
  * Live Odoo uses JSON-RPC against trinityenergykenya.odoo.com (sale.order).
  * Keep ODOO_MODE=mock for local UI work without touching production.
+ * Mock document numbers are always prefixed so they cannot be mistaken for live docs.
  */
 const memory = new Map<string, { quotation: OdooQuotation; proforma?: OdooProForma }>();
 
@@ -24,9 +26,10 @@ export class MockOdooClient implements OdooClient {
     if (existing) return existing.quotation;
 
     const n = hashKey(input.idempotencyKey) % 90000;
+    const prefix = mockCommercialDocumentPrefix();
     const quotation: OdooQuotation = {
       id: `mock-quot-${input.idempotencyKey}`,
-      number: `S${String(10000 + (n % 89999)).padStart(5, "0")}`,
+      number: `${prefix}-S${String(10000 + (n % 89999)).padStart(5, "0")}`,
       currency: "KES",
       amountTotal: "0.00",
       status: "draft",
@@ -48,9 +51,10 @@ export class MockOdooClient implements OdooClient {
     for (const [key, entry] of memory.entries()) {
       if (entry.quotation.id !== quotationId) continue;
       if (entry.proforma) return entry.proforma;
+      const prefix = mockCommercialDocumentPrefix();
       const proforma: OdooProForma = {
         id: `mock-pfi-${key}`,
-        number: `PFI-${entry.quotation.number}`,
+        number: `${prefix}-PFI-${entry.quotation.number.replace(/^MOCK-/, "")}`,
         quotationId,
         amount: entry.quotation.amountTotal,
         currency: entry.quotation.currency,

@@ -28,7 +28,7 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
     role: "STANDARD_USER",
     permissions: "reports,note-taker,presentations",
   });
-  const [inviteUrl, setInviteUrl] = useState("");
+  const [inviteNotice, setInviteNotice] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +42,7 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
     e.preventDefault();
     setLoading(true);
     setError("");
-    setInviteUrl("");
+    setInviteNotice("");
 
     const res = await fetch("/api/users", {
       method: "POST",
@@ -63,7 +63,11 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
       return;
     }
 
-    setInviteUrl(data.activateUrl ?? "");
+    setInviteNotice(
+      data.invitationSent
+        ? "User created. An activation email was sent."
+        : "User created."
+    );
     setForm({
       firstName: "",
       lastName: "",
@@ -77,11 +81,21 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
   }
 
   async function patchUser(id: string, payload: Record<string, unknown>) {
-    await fetch(`/api/users/${id}`, {
+    setError("");
+    setInviteNotice("");
+    const res = await fetch(`/api/users/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(typeof data.error === "string" ? data.error : "Unable to update user");
+      return;
+    }
+    if (payload.resetInvite && data.invitationSent) {
+      setInviteNotice("Invitation email re-sent.");
+    }
     await refresh();
     router.refresh();
   }
@@ -158,12 +172,9 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
                 {error}
               </div>
             ) : null}
-            {inviteUrl ? (
+            {inviteNotice ? (
               <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 md:col-span-2">
-                Invitation ready (also emailed when Resend is configured):{" "}
-                <a className="font-bold underline" href={inviteUrl}>
-                  {inviteUrl}
-                </a>
+                {inviteNotice}
               </div>
             ) : null}
             <div className="md:col-span-2">

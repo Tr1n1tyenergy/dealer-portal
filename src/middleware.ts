@@ -54,7 +54,8 @@ export default withAuth(
           return true;
         }
         if (path.startsWith("/intelligence") || path.startsWith("/dealer") || path.startsWith("/depot")) {
-          return !!token;
+          if (!token || token.error === "SessionRevoked") return false;
+          return true;
         }
         return true;
       },

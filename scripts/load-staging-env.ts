@@ -5,6 +5,11 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import {
+  NEON_PRODUCTION_ENDPOINT_ID,
+  NEON_STAGING_ENDPOINT_ID,
+  endpointIdFromUrl,
+} from "./neon-endpoints";
 
 const STAGING_ENV_PATH = path.resolve(process.cwd(), ".env.staging");
 
@@ -115,6 +120,22 @@ export function loadStagingEnv(filePath = STAGING_ENV_PATH): {
     );
   }
 
+  const dbEp = endpointIdFromUrl(process.env.DATABASE_URL);
+  const directEp = endpointIdFromUrl(process.env.DIRECT_URL);
+  if (dbEp === NEON_PRODUCTION_ENDPOINT_ID || directEp === NEON_PRODUCTION_ENDPOINT_ID) {
+    throw new Error(
+      `Refusing production endpoint ${NEON_PRODUCTION_ENDPOINT_ID} in staging loader. Use staging endpoint ${NEON_STAGING_ENDPOINT_ID} only.`
+    );
+  }
+  if (
+    (dbEp && dbEp !== NEON_STAGING_ENDPOINT_ID) ||
+    (directEp && directEp !== NEON_STAGING_ENDPOINT_ID)
+  ) {
+    throw new Error(
+      `Staging loader expected endpoint ${NEON_STAGING_ENDPOINT_ID}. Got DATABASE_URL=${dbEp ?? "unknown"}, DIRECT_URL=${directEp ?? "unknown"}.`
+    );
+  }
+
   // Hard safety: never accidentally run against a URL that looks like production branch
   // unless TRI_ALLOW_PRODUCTION_DB=1 (should remain unset).
   const urls = `${process.env.DATABASE_URL}\n${process.env.DIRECT_URL}`.toLowerCase();
@@ -127,9 +148,12 @@ export function loadStagingEnv(filePath = STAGING_ENV_PATH): {
     );
   }
 
-  // Always force mock Odoo + no Resend for staging-wrapped local ops
+  // Always force mock Odoo for staging-wrapped local ops.
+  // Do not delete RESEND_API_KEY if the operator set it for invite/reset testing.
   process.env.ODOO_MODE = "mock";
-  delete process.env.RESEND_API_KEY;
+  if (!process.env.TRI_LAUNCH_MODE) {
+    process.env.TRI_LAUNCH_MODE = "full";
+  }
 
   return { loaded, path: filePath, target: getStagingDbTarget() };
 }

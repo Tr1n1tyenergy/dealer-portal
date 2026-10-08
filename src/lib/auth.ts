@@ -4,6 +4,23 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
 
+async function hydrateTokenFromUser(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || !user.passwordHash || user.status === "DISABLED" || user.status === "PENDING") {
+    return null;
+  }
+  return {
+    id: user.id,
+    role: user.role,
+    department: user.department,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    accountType: user.accountType,
+    dealerOrganizationId: user.dealerOrganizationId,
+    depotId: user.depotId,
+  };
+}
+
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: {
@@ -29,7 +46,8 @@ export const authOptions: NextAuthOptions = {
         if (!user || !user.passwordHash) return null;
         if (user.status === "DISABLED" || user.status === "PENDING") return null;
 
-        const portalAccount = portal === "dealer" ? "DEALER" : portal === "depot" ? "DEPOT" : "INTERNAL";
+        const portalAccount =
+          portal === "dealer" ? "DEALER" : portal === "depot" ? "DEPOT" : "INTERNAL";
         if (user.accountType !== portalAccount) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
@@ -72,12 +90,40 @@ export const authOptions: NextAuthOptions = {
         token.firstName = (user as { firstName?: string }).firstName;
         token.lastName = (user as { lastName?: string }).lastName;
         token.accountType = (user as { accountType?: string }).accountType;
-        token.dealerOrganizationId = (user as { dealerOrganizationId?: string | null }).dealerOrganizationId;
+        token.dealerOrganizationId = (
+          user as { dealerOrganizationId?: string | null }
+        ).dealerOrganizationId;
         token.depotId = (user as { depotId?: string | null }).depotId;
+        delete token.error;
+        return token;
       }
+
+      // Re-validate role/status on subsequent JWT access so disables/role changes take effect
+      if (token.id && typeof token.id === "string") {
+        try {
+          const fresh = await hydrateTokenFromUser(token.id);
+          if (!fresh) {
+            return { ...token, error: "SessionRevoked" };
+          }
+          token.role = fresh.role;
+          token.department = fresh.department;
+          token.firstName = fresh.firstName;
+          token.lastName = fresh.lastName;
+          token.accountType = fresh.accountType;
+          token.dealerOrganizationId = fresh.dealerOrganizationId;
+          token.depotId = fresh.depotId;
+          delete token.error;
+        } catch {
+          // Keep prior token claims if DB is briefly unreachable
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
+      if (token.error === "SessionRevoked") {
+        return { expires: session.expires } as typeof session;
+      }
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
@@ -85,7 +131,8 @@ export const authOptions: NextAuthOptions = {
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
         session.user.accountType = (token.accountType as string) || "INTERNAL";
-        session.user.dealerOrganizationId = (token.dealerOrganizationId as string | null) ?? null;
+        session.user.dealerOrganizationId =
+          (token.dealerOrganizationId as string | null) ?? null;
         session.user.depotId = (token.depotId as string | null) ?? null;
       }
       return session;
