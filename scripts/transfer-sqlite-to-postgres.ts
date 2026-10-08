@@ -73,7 +73,12 @@ function isDemoEmail(email: string): boolean {
 function toDate(value: unknown): Date | null {
   if (value == null || value === "") return null;
   if (value instanceof Date) return value;
-  const d = new Date(String(value));
+  // Prisma's SQLite connector stores DateTime as integer epoch milliseconds;
+  // new Date("1791370225439") is Invalid Date, so numbers must not be stringified.
+  const d =
+    typeof value === "number" || typeof value === "bigint" || /^\d+$/.test(String(value))
+      ? new Date(Number(value))
+      : new Date(String(value));
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
