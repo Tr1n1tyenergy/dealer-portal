@@ -29,14 +29,14 @@ export const TRI_MODULES: TriModule[] = [
     tagline: "Performance · Insights · Archive",
     description:
       "Retail performance intelligence with filters, archives, and expandable fuel / non-fuel frameworks.",
-    href: "/intelligence/reports",
+    href: "/intelligence/retail",
     icon: FileSpreadsheet,
     category: "Intelligence",
     features: [
-      "Fuel & non-fuel report frameworks",
-      "Date-range filters & archive",
-      "Executive report viewer",
-      "Expandable data connectors",
+      "Dealer order analytics dashboard",
+      "Station-first dealer & staff invites",
+      "Realtime messaging",
+      "Retail operations workspace",
     ],
   },
   {

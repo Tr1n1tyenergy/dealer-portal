@@ -110,3 +110,43 @@ Other product.template candidates kept for reference only.
 - Fixed `.gitignore`: removed blanket `.env*` that would ignore `.env.example`; kept explicit secret env patterns.
 
 <!-- Add newer entries above this line (newest first under Entry log). -->
+
+---
+
+## 2026-10-09 — Retail Interface + invites + realtime messaging
+
+### Goal
+Rebuild Retail Interface as a TRI dark-blue dealer-style workspace with Dashboard / Users / Messaging; station-first dealer invites; portal-specific activation; WhatsApp-like messaging on Neon + Pusher.
+
+### Schema
+- Migration `prisma/migrations/20261009140000_retail_messaging_external_ids/`
+- `DealerOrganization.odooPartnerExternalId`
+- `Station.tradingName`, `odooPartnerExternalId`, `odooStationExternalId`
+- Models: `Conversation`, `ConversationParticipant`, `Message`, `MessageReceipt`
+
+### Catalog / Odoo
+- `src/lib/dealers/station-invite-catalog.ts` (+ unit tests)
+- Live partner resolve prefers External ID (`live-client.ts` + `types.ts` + order sync)
+
+### Retail shell
+- Routes under `/intelligence/retail` (dashboard, users, messaging)
+- `/intelligence/reports` redirects to retail
+- Module launcher href updated
+
+### Invites / activate
+- `POST /api/retail/invite/dealer`, `POST /api/retail/invite/staff`
+- `/dealer/activate` + improved `/intelligence/activate` (login-grade password UI)
+- Middleware allows public dealer activate
+
+### Messaging
+- REST under `/api/messaging/*` + Pusher auth/typing
+- Shared `MessagingApp` in retail + `/dealer/messaging` nav
+
+### Env
+- `.env.example`: Pusher + Resend notes
+
+### Migrate (gated — do not run prod until approved)
+1. Staging: `npm run staging:migrate:deploy`
+2. Prod only after approval:
+   `TRI_CONFIRM_PRODUCTION_ENDPOINT=ep-quiet-wildflower-zaag2pmh TRI_ALLOW_PRODUCTION_MIGRATE=1 npm run production:migrate:deploy`
+

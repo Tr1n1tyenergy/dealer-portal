@@ -11,8 +11,20 @@ export default async function DealerPortalLayout({
   const session = await requireDealer();
   const org = await prisma.dealerOrganization.findUnique({
     where: { id: session.user.dealerOrganizationId! },
+    include: {
+      stations: {
+        select: { tradingName: true, name: true },
+        orderBy: { createdAt: "asc" },
+        take: 1,
+      },
+    },
   });
-  const orgName = org?.name ?? "Dealer Account";
+  // Post-activation: trading name is the primary dealer label
+  const orgName =
+    org?.stations[0]?.tradingName ||
+    org?.stations[0]?.name ||
+    org?.name ||
+    "Dealer Account";
   const initials = (org?.code ?? orgName)
     .replace(/[^A-Za-z]/g, "")
     .slice(0, 2)

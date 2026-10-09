@@ -12,6 +12,7 @@ import {
   Home,
   LogOut,
   MapPin,
+  MessageSquare,
   Package,
   Search,
   ShoppingCart,
@@ -25,6 +26,7 @@ const nav = [
   { href: "/dealer/dashboard", label: "Dashboard", icon: Home },
   { href: "/dealer/orders/new", label: "Place Order", icon: ShoppingCart },
   { href: "/dealer/orders", label: "My Orders", icon: Package },
+  { href: "/dealer/messaging", label: "Messaging", icon: MessageSquare },
   { href: "/dealer/orders", label: "PFIs & Documents", icon: FileText },
   { href: "/dealer/orders", label: "Payments", icon: CreditCard },
   { href: "/dealer/orders", label: "Deliveries", icon: Truck },
@@ -101,7 +103,9 @@ export function DealerShell({
                     : item.label === "My Orders"
                       ? pathname === "/dealer/orders" ||
                         (pathname.startsWith("/dealer/orders/") && !pathname.includes("/new"))
-                      : false;
+                      : item.label === "Messaging"
+                        ? pathname.startsWith("/dealer/messaging")
+                        : false;
               return (
                 <Link
                   key={item.label}

@@ -228,6 +228,9 @@ export class LiveOdooClient implements OdooClient {
   }
 
   private async resolvePartnerId(input: CreateQuotationInput): Promise<number> {
+    if (input.odooPartnerExternalId) {
+      return this.resolveExternalId(input.odooPartnerExternalId, M.partner);
+    }
     if (input.odooPartnerId) return input.odooPartnerId;
 
     const byRef = await this.execute<number[]>(
@@ -257,7 +260,7 @@ export class LiveOdooClient implements OdooClient {
     if (byName[0]) return byName[0];
 
     throw new Error(
-      `No Odoo customer found for dealer "${input.dealerName}" (code ${input.dealerCode}). Set odooPartnerId on the dealer organization (${M.partner}).`
+      `No Odoo customer found for dealer "${input.dealerName}" (code ${input.dealerCode}). Set odooPartnerExternalId or odooPartnerId on the dealer organization (${M.partner}).`
     );
   }
 

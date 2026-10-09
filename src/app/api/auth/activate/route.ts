@@ -11,6 +11,27 @@ const schema = z.object({
   password: z.string().min(1),
 });
 
+/** Lookup invite email for activate UI (read-only; no secrets). */
+export async function GET(req: Request) {
+  const token = new URL(req.url).searchParams.get("token");
+  if (!token || token.length < 10) return jsonError("Invalid token", 400);
+
+  const invite = await prisma.invitationToken.findUnique({
+    where: { token },
+    include: { user: { select: { email: true, accountType: true, firstName: true } } },
+  });
+
+  if (!invite || invite.usedAt || invite.expiresAt < new Date()) {
+    return jsonError("Invitation is invalid or expired.", 400);
+  }
+
+  return NextResponse.json({
+    email: invite.user.email,
+    accountType: invite.user.accountType,
+    firstName: invite.user.firstName,
+  });
+}
+
 export async function POST(req: Request) {
   const body = await req.json();
   const parsed = schema.safeParse(body);

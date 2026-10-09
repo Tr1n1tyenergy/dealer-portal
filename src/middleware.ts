@@ -26,7 +26,11 @@ export default withAuth(
       }
     }
 
-    if (path.startsWith("/dealer") && !path.startsWith("/dealer/login")) {
+    if (
+      path.startsWith("/dealer") &&
+      !path.startsWith("/dealer/login") &&
+      !path.startsWith("/dealer/activate")
+    ) {
       if (accountType !== "DEALER") {
         return NextResponse.redirect(new URL(accountType === "INTERNAL" ? "/intelligence/dashboard" : home, req.url));
       }
@@ -49,6 +53,7 @@ export default withAuth(
           path === "/" ||
           staffPublic.some((p) => path.startsWith(p)) ||
           path.startsWith("/dealer/login") ||
+          path.startsWith("/dealer/activate") ||
           path.startsWith("/depot/login")
         ) {
           return true;

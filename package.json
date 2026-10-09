@@ -25,7 +25,7 @@
     "production:migrate:status": "tsx scripts/run-with-production-env.ts npx prisma migrate status",
     "production:migrate:deploy": "tsx scripts/run-with-production-env.ts npx prisma migrate deploy",
     "production:bootstrap:admin": "tsx scripts/run-with-production-env.ts npx tsx scripts/bootstrap-production-admin.ts",
-    "test": "node --import tsx --test src/lib/orders/state-machine.test.ts src/lib/integrations/odoo/client.test.ts src/lib/security/password-policy.test.ts src/lib/security/launch-mode.test.ts src/lib/security/expose-sensitive-urls.test.ts scripts/bootstrap-production-admin.test.ts",
+    "test": "node --import tsx --test src/lib/orders/state-machine.test.ts src/lib/integrations/odoo/client.test.ts src/lib/integrations/odoo/external-ids.test.ts src/lib/dealers/station-invite-catalog.test.ts src/lib/security/password-policy.test.ts src/lib/security/launch-mode.test.ts src/lib/security/expose-sensitive-urls.test.ts scripts/bootstrap-production-admin.test.ts src/lib/messaging/authz.test.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -49,6 +49,8 @@
     "lucide-react": "^0.511.0",
     "next": "^15.3.3",
     "next-auth": "^4.24.11",
+    "pusher": "^5.3.4",
+    "pusher-js": "^8.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "resend": "^4.5.1",

@@ -22,3 +22,13 @@ export async function requireSuperAdminApi() {
   }
   return result;
 }
+
+/** INTERNAL staff (Super Admin or Standard User) for Retail Interface APIs. */
+export async function requireInternalApi() {
+  const result = await requireSessionApi();
+  if ("error" in result) return result;
+  if (result.session.user.accountType !== "INTERNAL") {
+    return { error: jsonError("Forbidden", 403) as NextResponse };
+  }
+  return result;
+}
