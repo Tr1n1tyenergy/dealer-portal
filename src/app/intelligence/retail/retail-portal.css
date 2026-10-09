@@ -107,7 +107,7 @@
   flex: 1;
   min-width: 0;
   width: 100%;
-  padding: 1.1rem 1.5rem 1.75rem;
+  padding: 20px 24px 24px;
   overflow: auto;
   box-sizing: border-box;
 }

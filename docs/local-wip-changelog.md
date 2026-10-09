@@ -167,3 +167,7 @@ Rebuild Retail Interface as a TRI dark-blue dealer-style workspace with Dashboar
 ### 2026-10-09 — Retail Analytics full-bleed layout fix
 - Root cause: `.rad { max-width: 1280px }` + AppShell `tri-main` width cage left empty navy on the right and shrank widgets.
 - Added `AppShell fullBleed` / `.tri-main--bleed`; removed content max-width; cards span full content column; larger type/KPI scale; taller seamless hero.
+
+### 2026-10-09 — Retail Analytics mockup layout restructure
+- DOM: single locked 2-col body (Trend+Orders | Status+Stations) instead of separate mid/bottom grids.
+- Hero: station photo as soft right background bleed (not framed card); 20px gutters; denser KPI/card padding.

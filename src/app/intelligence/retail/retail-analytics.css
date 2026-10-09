@@ -1,12 +1,12 @@
-/* Retail Analytics — full-width mockup layout (no content max-width cage) */
+/* Retail Analytics — mockup-locked grid + soft hero bleed */
 
 .rad {
-  --rad-gap: 16px;
+  --rad-gap: 20px;
   --rad-card: rgba(17, 25, 48, 0.92);
   --rad-card-border: rgba(148, 163, 184, 0.14);
   --rad-ink: #f8fafc;
   --rad-muted: #94a3b8;
-  --rad-radius: 14px;
+  --rad-radius: 12px;
   width: 100%;
   max-width: none;
   color: var(--rad-ink);
@@ -17,12 +17,12 @@
   box-sizing: border-box;
 }
 
-/* Hero band — welcome left, station photo bleeds from the right edge */
+/* ── Hero: photo is a soft right-side BACKGROUND, not a framed card ── */
 .rad-hero {
   position: relative;
   width: 100%;
-  min-height: 148px;
-  height: 148px;
+  min-height: 168px;
+  height: 168px;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -31,47 +31,48 @@
 
 .rad-hero__media {
   position: absolute;
-  inset: 0 0 0 32%;
+  inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
 }
 
 .rad-hero__img {
-  width: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 62%;
   height: 100%;
   object-fit: cover;
-  object-position: 68% 40%;
+  object-position: 72% 42%;
   display: block;
-  transform: scale(1.02);
 }
 
 .rad-hero__fade {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(
-      90deg,
-      #061636 0%,
-      #061636 6%,
-      rgba(6, 22, 54, 0.88) 22%,
-      rgba(6, 22, 54, 0.35) 48%,
-      rgba(6, 22, 54, 0.05) 72%,
-      transparent 100%
-    ),
-    linear-gradient(180deg, rgba(6, 22, 54, 0.25) 0%, transparent 45%, rgba(6, 22, 54, 0.4) 100%);
+  background: linear-gradient(
+    90deg,
+    #061636 0%,
+    #061636 28%,
+    rgba(6, 22, 54, 0.92) 42%,
+    rgba(6, 22, 54, 0.55) 55%,
+    rgba(6, 22, 54, 0.18) 72%,
+    rgba(6, 22, 54, 0.05) 88%,
+    transparent 100%
+  );
 }
 
 .rad-hero__copy {
   position: relative;
   z-index: 2;
-  max-width: min(36rem, 48%);
-  padding: 1.15rem 0 0;
+  max-width: 34rem;
+  padding: 1.35rem 0 0;
 }
 
 .rad-hero__title {
   margin: 0;
-  font-size: clamp(1.75rem, 2.1vw, 2.05rem);
+  font-size: clamp(1.8rem, 2.2vw, 2.1rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.15;
@@ -79,8 +80,8 @@
 }
 
 .rad-hero__sub {
-  margin: 0.45rem 0 0;
-  max-width: 30rem;
+  margin: 0.5rem 0 0;
+  max-width: 28rem;
   font-size: 0.92rem;
   line-height: 1.45;
   color: #b0bfd4;
@@ -88,7 +89,7 @@
 
 .rad-date {
   position: absolute;
-  top: 0.85rem;
+  top: 1rem;
   right: 0;
   z-index: 3;
   display: inline-flex;
@@ -98,7 +99,7 @@
   padding: 0 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(8, 16, 36, 0.82);
+  background: rgba(8, 16, 36, 0.78);
   color: #e2e8f0;
   font-size: 0.78rem;
   font-weight: 600;
@@ -107,24 +108,27 @@
   white-space: nowrap;
 }
 
-/* KPI row — full width of content column */
+/* ── KPI row — same width as body below ── */
 .rad-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--rad-gap);
   width: 100%;
   margin: 0;
+  align-items: stretch;
 }
 
 .rad-kpi {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 1rem 1.1rem 0.85rem;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 16px 18px 14px;
   border-radius: var(--rad-radius);
   background: var(--rad-card);
   border: 1px solid var(--rad-card-border);
   min-width: 0;
+  min-height: 118px;
 }
 
 .rad-kpi__top {
@@ -154,11 +158,11 @@
 }
 
 .rad-kpi__value {
-  margin: 0;
-  font-size: 1.9rem;
+  margin: 0.15rem 0 0;
+  font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1.05;
+  line-height: 1;
   color: #fff;
 }
 
@@ -167,7 +171,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-top: 0.15rem;
+  margin-top: auto;
 }
 
 .rad-kpi__spark {
@@ -189,21 +193,20 @@
 .rad-kpi__foot .is-up { color: #4ade80; }
 .rad-kpi__foot .is-down { color: #f87171; }
 
-.rad-mid,
-.rad-bottom {
+/* ── Locked 2-col body (65/35) — Trend+Orders | Status+Stations ── */
+.rad-body {
   display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
   gap: var(--rad-gap);
   width: 100%;
-  margin: 0;
-  align-items: stretch;
+  align-items: start;
 }
 
-.rad-mid {
-  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
-}
-
-.rad-bottom {
-  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+.rad-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rad-gap);
+  min-width: 0;
 }
 
 .rad-card {
@@ -211,15 +214,19 @@
   flex-direction: column;
   width: 100%;
   min-width: 0;
-  padding: 1rem 1.15rem 1.05rem;
+  padding: 18px 20px 18px;
   border-radius: var(--rad-radius);
   background: var(--rad-card);
   border: 1px solid var(--rad-card-border);
+  box-sizing: border-box;
 }
 
-.rad-trend,
-.rad-status {
+.rad-trend {
   min-height: 300px;
+}
+
+.rad-status {
+  min-height: 260px;
 }
 
 .rad-card__head {
@@ -303,7 +310,7 @@
 .rad-legend {
   display: flex;
   gap: 1.1rem;
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
   font-size: 0.78rem;
   color: #cbd5e1;
   font-weight: 600;
@@ -324,14 +331,14 @@
 .rad-status__body {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
   flex: 1;
 }
 
 .rad-donut {
   position: relative;
-  width: 160px;
-  height: 160px;
+  width: 152px;
+  height: 152px;
   flex-shrink: 0;
 }
 
@@ -350,7 +357,7 @@
 }
 
 .rad-donut__center strong {
-  font-size: 1.55rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #fff;
   line-height: 1;
@@ -358,7 +365,7 @@
 
 .rad-donut__center span {
   margin-top: 0.22rem;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 650;
   color: #94a3b8;
 }
@@ -370,7 +377,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.42rem;
 }
 
 .rad-status__legend li {
@@ -437,6 +444,7 @@
   color: #94a3b8 !important;
   text-align: center;
   padding: 1.1rem 0.5rem !important;
+  list-style: none;
 }
 
 .rad-pill {
@@ -530,31 +538,35 @@
   .rad-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .rad-mid,
-  .rad-bottom {
+  .rad-body {
     grid-template-columns: 1fr;
   }
   .rad-trend,
   .rad-status {
     min-height: 0;
   }
-  .rad-hero__copy {
-    max-width: 60%;
-  }
 }
 
 @media (max-width: 760px) {
   .rad-hero {
     height: auto;
-    min-height: 160px;
+    min-height: 180px;
   }
-  .rad-hero__media {
-    inset: 40% 0 0 0;
-    opacity: 0.55;
+  .rad-hero__img {
+    width: 100%;
+    opacity: 0.45;
+  }
+  .rad-hero__fade {
+    background: linear-gradient(
+      180deg,
+      rgba(6, 22, 54, 0.75) 0%,
+      rgba(6, 22, 54, 0.55) 55%,
+      rgba(6, 22, 54, 0.9) 100%
+    );
   }
   .rad-hero__copy {
     max-width: 100%;
-    padding-bottom: 4.5rem;
+    padding-bottom: 3.5rem;
   }
   .rad-kpis {
     grid-template-columns: 1fr;

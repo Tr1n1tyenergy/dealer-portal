@@ -114,141 +114,144 @@ export function RetailAnalyticsDashboard({
         ))}
       </section>
 
-      <section className="rad-mid">
-        <article className="rad-card rad-trend">
-          <header className="rad-card__head">
-            <div className="rad-card__title">
-              <BarChart3 size={16} strokeWidth={1.75} />
-              <span>Order Trend</span>
+      {/* Single locked 2-col body — matches mockup column edges */}
+      <div className="rad-body">
+        <div className="rad-col rad-col--main">
+          <article className="rad-card rad-trend">
+            <header className="rad-card__head">
+              <div className="rad-card__title">
+                <BarChart3 size={16} strokeWidth={1.75} />
+                <span>Order Trend</span>
+              </div>
+              <button type="button" className="rad-select">
+                Last 6 Months <ChevronDown size={13} />
+              </button>
+            </header>
+            <OrderTrendChart points={trend} />
+            <div className="rad-legend">
+              <span>
+                <i className="rad-dot rad-dot--pms" /> PMS Orders
+              </span>
+              <span>
+                <i className="rad-dot rad-dot--ago" /> AGO Orders
+              </span>
             </div>
-            <button type="button" className="rad-select">
-              Last 6 Months <ChevronDown size={13} />
-            </button>
-          </header>
-          <OrderTrendChart points={trend} />
-          <div className="rad-legend">
-            <span>
-              <i className="rad-dot rad-dot--pms" /> PMS Orders
-            </span>
-            <span>
-              <i className="rad-dot rad-dot--ago" /> AGO Orders
-            </span>
-          </div>
-        </article>
+          </article>
 
-        <article className="rad-card rad-status">
-          <header className="rad-card__head">
-            <div className="rad-card__title">
-              <Clock3 size={16} strokeWidth={1.75} />
-              <span>Orders by Status</span>
-            </div>
-            <button type="button" className="rad-select">
-              This Month <ChevronDown size={13} />
-            </button>
-          </header>
-          <div className="rad-status__body">
-            <StatusDonut slices={statusSlices} total={totalOrders} />
-            <ul className="rad-status__legend">
-              {statusSlices.map((s) => (
-                <li key={s.bucket}>
-                  <span
-                    className="rad-status__swatch"
-                    style={{ background: STATUS_BUCKET_COLORS[s.bucket] }}
-                  />
-                  <span className="rad-status__name">{s.bucket}</span>
-                  <span className="rad-status__pct">{s.pct}%</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </article>
-      </section>
-
-      <section className="rad-bottom">
-        <article className="rad-card rad-orders">
-          <header className="rad-card__head">
-            <div className="rad-card__title">
-              <FileText size={16} strokeWidth={1.75} />
-              <span>Recent Orders</span>
-            </div>
-            <Link href="/intelligence/reports/dealer-operations" className="rad-link">
-              View all orders
-            </Link>
-          </header>
-          <div className="rad-table-wrap">
-            <table className="rad-table">
-              <thead>
-                <tr>
-                  <th>Order Ref</th>
-                  <th>Dealer</th>
-                  <th>Station</th>
-                  <th>Products</th>
-                  <th>Volume</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.length === 0 ? (
+          <article className="rad-card rad-orders">
+            <header className="rad-card__head">
+              <div className="rad-card__title">
+                <FileText size={16} strokeWidth={1.75} />
+                <span>Recent Orders</span>
+              </div>
+              <Link href="/intelligence/reports/dealer-operations" className="rad-link">
+                View all orders
+              </Link>
+            </header>
+            <div className="rad-table-wrap">
+              <table className="rad-table">
+                <thead>
                   <tr>
-                    <td colSpan={7} className="rad-empty">
-                      No dealer orders yet.
-                    </td>
+                    <th>Order Ref</th>
+                    <th>Dealer</th>
+                    <th>Station</th>
+                    <th>Products</th>
+                    <th>Volume</th>
+                    <th>Status</th>
+                    <th>Created</th>
                   </tr>
-                ) : (
-                  recentOrders.map((o) => (
-                    <tr key={o.id}>
-                      <td className="rad-mono">{o.reference}</td>
-                      <td>{o.dealer}</td>
-                      <td>{o.station}</td>
-                      <td>{o.products}</td>
-                      <td>{o.volume}</td>
-                      <td>
-                        <span className={`rad-pill rad-pill--${o.tone}`}>{o.status}</span>
+                </thead>
+                <tbody>
+                  {recentOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="rad-empty">
+                        No dealer orders yet.
                       </td>
-                      <td>{o.created}</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article className="rad-card rad-stations">
-          <header className="rad-card__head">
-            <div className="rad-card__title">
-              <MapPin size={16} strokeWidth={1.75} />
-              <span>Top Stations by Order Volume</span>
+                  ) : (
+                    recentOrders.map((o) => (
+                      <tr key={o.id}>
+                        <td className="rad-mono">{o.reference}</td>
+                        <td>{o.dealer}</td>
+                        <td>{o.station}</td>
+                        <td>{o.products}</td>
+                        <td>{o.volume}</td>
+                        <td>
+                          <span className={`rad-pill rad-pill--${o.tone}`}>{o.status}</span>
+                        </td>
+                        <td>{o.created}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-            <button type="button" className="rad-select">
-              This Month <ChevronDown size={13} />
-            </button>
-          </header>
-          <ol className="rad-rank">
-            {topStations.length === 0 ? (
-              <li className="rad-empty">No station volume yet.</li>
-            ) : (
-              topStations.map((s, i) => (
-                <li key={s.name}>
-                  <span className="rad-rank__n">{i + 1}</span>
-                  <div className="rad-rank__meta">
-                    <div className="rad-rank__row">
-                      <strong>{s.name}</strong>
-                      <em>
-                        {s.litres.toLocaleString()} L · {s.pct}%
-                      </em>
+          </article>
+        </div>
+
+        <div className="rad-col rad-col--side">
+          <article className="rad-card rad-status">
+            <header className="rad-card__head">
+              <div className="rad-card__title">
+                <Clock3 size={16} strokeWidth={1.75} />
+                <span>Orders by Status</span>
+              </div>
+              <button type="button" className="rad-select">
+                This Month <ChevronDown size={13} />
+              </button>
+            </header>
+            <div className="rad-status__body">
+              <StatusDonut slices={statusSlices} total={totalOrders} />
+              <ul className="rad-status__legend">
+                {statusSlices.map((s) => (
+                  <li key={s.bucket}>
+                    <span
+                      className="rad-status__swatch"
+                      style={{ background: STATUS_BUCKET_COLORS[s.bucket] }}
+                    />
+                    <span className="rad-status__name">{s.bucket}</span>
+                    <span className="rad-status__pct">{s.pct}%</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </article>
+
+          <article className="rad-card rad-stations">
+            <header className="rad-card__head">
+              <div className="rad-card__title">
+                <MapPin size={16} strokeWidth={1.75} />
+                <span>Top Stations by Order Volume</span>
+              </div>
+              <button type="button" className="rad-select">
+                This Month <ChevronDown size={13} />
+              </button>
+            </header>
+            <ol className="rad-rank">
+              {topStations.length === 0 ? (
+                <li className="rad-empty">No station volume yet.</li>
+              ) : (
+                topStations.map((s, i) => (
+                  <li key={s.name}>
+                    <span className="rad-rank__n">{i + 1}</span>
+                    <div className="rad-rank__meta">
+                      <div className="rad-rank__row">
+                        <strong>{s.name}</strong>
+                        <em>
+                          {s.litres.toLocaleString()} L · {s.pct}%
+                        </em>
+                      </div>
+                      <div className="rad-rank__bar">
+                        <span style={{ width: `${Math.max(s.pct, 4)}%` }} />
+                      </div>
                     </div>
-                    <div className="rad-rank__bar">
-                      <span style={{ width: `${Math.max(s.pct, 4)}%` }} />
-                    </div>
-                  </div>
-                </li>
-              ))
-            )}
-          </ol>
-        </article>
-      </section>
+                  </li>
+                ))
+              )}
+            </ol>
+          </article>
+        </div>
+      </div>
     </div>
   );
 }
@@ -306,11 +309,11 @@ function OrderTrendChart({ points }: { points: TrendPoint[] }) {
 }
 
 function StatusDonut({ slices, total }: { slices: StatusSlice[]; total: number }) {
-  const size = 160;
+  const size = 152;
   const cx = size / 2;
   const cy = size / 2;
-  const r = 58;
-  const stroke = 20;
+  const r = 54;
+  const stroke = 18;
   const circ = 2 * Math.PI * r;
   let offset = 0;
 
