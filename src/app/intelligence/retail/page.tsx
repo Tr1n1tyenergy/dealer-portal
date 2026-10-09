@@ -36,17 +36,19 @@ export default async function RetailDashboardPage() {
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   const prettyRange = `${String(monthStart.getDate()).padStart(2, "0")} ${monthStart.toLocaleString("en-GB", { month: "short" })} ${monthStart.getFullYear()} – ${String(monthEnd.getDate()).padStart(2, "0")} ${monthEnd.toLocaleString("en-GB", { month: "short" })} ${monthEnd.getFullYear()}`;
 
-  const [orders, stationsCount, pendingInvites, prevPending, orgsNow, orgsPrev, stationsPrev] =
+  // Two waves (not 7-way Promise.all) to stay within Neon/Prisma pool limits under Turbopack HMR
+  const orders = await prisma.dealerOrder.findMany({
+    where: { createdAt: { gte: sixMonthsAgo } },
+    include: {
+      dealerOrganization: { select: { name: true } },
+      station: { select: { name: true, tradingName: true } },
+      lines: { select: { product: true, quantityLitres: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const [stationsCount, pendingInvites, prevPending, orgsNow, orgsPrev, stationsPrev] =
     await Promise.all([
-      prisma.dealerOrder.findMany({
-        where: { createdAt: { gte: sixMonthsAgo } },
-        include: {
-          dealerOrganization: { select: { name: true } },
-          station: { select: { name: true, tradingName: true } },
-          lines: { select: { product: true, quantityLitres: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
       prisma.station.count(),
       prisma.user.count({
         where: { status: "PENDING", accountType: { in: ["DEALER", "INTERNAL"] } },

@@ -171,3 +171,6 @@ Rebuild Retail Interface as a TRI dark-blue dealer-style workspace with Dashboar
 ### 2026-10-09 — Retail Analytics mockup layout restructure
 - DOM: single locked 2-col body (Trend+Orders | Status+Stations) instead of separate mid/bottom grids.
 - Hero: station photo as soft right background bleed (not framed card); 20px gutters; denser KPI/card padding.
+
+### 2026-10-09 — Prisma Neon pool timeout fix
+- Cap Prisma pool (`connection_limit`/`pool_timeout`/`pgbouncer`) for Neon pooler; reduce retail dashboard parallel query fan-out.
