@@ -2,15 +2,15 @@
 
 :root {
   --ri-navy: #0a235b;
-  --ri-navy-deep: #061636;
+  --ri-navy-deep: #07122a;
   --ri-navy-mid: #0d2f73;
-  --ri-gold: #c9a227;
-  --ri-gold-bright: #e8c547;
+  --ri-gold: #f5b800;
+  --ri-gold-bright: #f5b800;
   --ri-ink: #e8eef8;
   --ri-muted: #94a3b8;
   --ri-line: rgba(255, 255, 255, 0.1);
-  --ri-panel: rgba(10, 35, 91, 0.72);
-  --ri-panel-solid: #0c2a66;
+  --ri-panel: rgba(22, 29, 49, 0.82);
+  --ri-panel-solid: #161d31;
   --ri-sidebar-w: 220px;
   --ri-radius: 12px;
 }
@@ -35,9 +35,9 @@
   display: flex;
   flex-direction: column;
   padding: 1.25rem 0.85rem;
-  border-right: 1px solid var(--ri-line);
-  background: linear-gradient(180deg, rgba(6, 22, 54, 0.92), rgba(10, 35, 91, 0.78));
-  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(7, 14, 32, 0.72);
+  backdrop-filter: blur(14px);
 }
 
 .ri-sidebar__brand {
@@ -85,15 +85,19 @@
 }
 
 .ri-sidebar__link.is-active {
-  background: linear-gradient(135deg, rgba(201, 162, 39, 0.22), rgba(255, 255, 255, 0.06));
+  background: rgba(245, 184, 0, 0.08);
   color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(245, 184, 0, 0.55);
+}
+
+.ri-sidebar__link.is-active svg {
+  color: #f5b800;
 }
 
 .ri-content {
   flex: 1;
   min-width: 0;
-  padding: 1.35rem 1.5rem 2rem;
+  padding: 1.15rem 1.35rem 1.75rem;
   overflow: auto;
 }
 

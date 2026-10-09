@@ -154,3 +154,8 @@ Rebuild Retail Interface as a TRI dark-blue dealer-style workspace with Dashboar
 ### Production migrate (2026-10-09)
 - Applied `20261009140000_retail_messaging_external_ids` to production Neon `ep-quiet-wildflower-zaag2pmh` after operator approval (preflight + status + deploy).
 - Staging already had this migration; production schema now matches Retail Interface / messaging models.
+
+### 2026-10-09 — Retail Analytics dashboard mockup match
+- Rebuilt `/intelligence/retail` Analytics UI to match TRI dashboard mockup (hero station image, KPI cards + sparklines, order trend, status donut, recent orders table, top stations).
+- Sidebar label **Analytics** with gold active border + bar-chart icon.
+- Hero asset: `public/assets2/img/retail/dashboard-hero-station.jpg`.

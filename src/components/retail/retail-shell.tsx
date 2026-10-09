@@ -2,14 +2,29 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, MessageSquare, Users } from "lucide-react";
+import { BarChart3, MessageSquare, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import "@/app/intelligence/retail/retail-portal.css";
 
 const nav = [
-  { href: "/intelligence/retail", label: "Dashboard", icon: LayoutDashboard, match: (p: string) => p === "/intelligence/retail" || p === "/intelligence/retail/" },
-  { href: "/intelligence/retail/users", label: "Users", icon: Users, match: (p: string) => p.startsWith("/intelligence/retail/users") },
-  { href: "/intelligence/retail/messaging", label: "Messaging", icon: MessageSquare, match: (p: string) => p.startsWith("/intelligence/retail/messaging") },
+  {
+    href: "/intelligence/retail",
+    label: "Analytics",
+    icon: BarChart3,
+    match: (p: string) => p === "/intelligence/retail" || p === "/intelligence/retail/",
+  },
+  {
+    href: "/intelligence/retail/users",
+    label: "Users",
+    icon: Users,
+    match: (p: string) => p.startsWith("/intelligence/retail/users"),
+  },
+  {
+    href: "/intelligence/retail/messaging",
+    label: "Messaging",
+    icon: MessageSquare,
+    match: (p: string) => p.startsWith("/intelligence/retail/messaging"),
+  },
 ];
 
 export function RetailShell({ children }: { children: React.ReactNode }) {
