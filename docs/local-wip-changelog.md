@@ -150,3 +150,7 @@ Rebuild Retail Interface as a TRI dark-blue dealer-style workspace with Dashboar
 2. Prod only after approval:
    `TRI_CONFIRM_PRODUCTION_ENDPOINT=ep-quiet-wildflower-zaag2pmh TRI_ALLOW_PRODUCTION_MIGRATE=1 npm run production:migrate:deploy`
 
+
+### Production migrate (2026-10-09)
+- Applied `20261009140000_retail_messaging_external_ids` to production Neon `ep-quiet-wildflower-zaag2pmh` after operator approval (preflight + status + deploy).
+- Staging already had this migration; production schema now matches Retail Interface / messaging models.
