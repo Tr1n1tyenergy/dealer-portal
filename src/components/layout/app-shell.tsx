@@ -14,15 +14,19 @@ import {
 } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { IntelligenceBackground } from "@/components/layout/intelligence-background";
+import { cn } from "@/lib/utils";
 import "./app-shell.css";
 import "../dashboard/modules.css";
 
 export function AppShell({
   children,
+  fullBleed = false,
 }: {
   children: React.ReactNode;
   /** @deprecated Nav links removed from header; prop kept for call-site compatibility */
   activeNav?: string;
+  /** Drop tri-main max-width/padding (Retail Interface workspace). */
+  fullBleed?: boolean;
 }) {
   const { data } = useSession();
   const initials = `${data?.user?.firstName?.[0] ?? ""}${data?.user?.lastName?.[0] ?? ""}`.toUpperCase() || "TE";
@@ -87,7 +91,7 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="tri-main">{children}</main>
+      <main className={cn("tri-main", fullBleed && "tri-main--bleed")}>{children}</main>
     </div>
   );
 }

@@ -306,11 +306,11 @@ function OrderTrendChart({ points }: { points: TrendPoint[] }) {
 }
 
 function StatusDonut({ slices, total }: { slices: StatusSlice[]; total: number }) {
-  const size = 148;
+  const size = 160;
   const cx = size / 2;
   const cy = size / 2;
-  const r = 54;
-  const stroke = 18;
+  const r = 58;
+  const stroke = 20;
   const circ = 2 * Math.PI * r;
   let offset = 0;
 

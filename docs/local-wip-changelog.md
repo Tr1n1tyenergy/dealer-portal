@@ -163,3 +163,7 @@ Rebuild Retail Interface as a TRI dark-blue dealer-style workspace with Dashboar
 ### 2026-10-09 — Retail Analytics spacing fix
 - Removed double padding from AppShell `tri-main` (full-bleed retail workspace).
 - Tightened hero/KPI/chart vertical rhythm to a single 14px gap; compact KPI padding; seamless hero bleed using Trinity station hero.
+
+### 2026-10-09 — Retail Analytics full-bleed layout fix
+- Root cause: `.rad { max-width: 1280px }` + AppShell `tri-main` width cage left empty navy on the right and shrank widgets.
+- Added `AppShell fullBleed` / `.tri-main--bleed`; removed content max-width; cards span full content column; larger type/KPI scale; taller seamless hero.

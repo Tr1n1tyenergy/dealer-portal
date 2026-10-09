@@ -11,7 +11,7 @@
   --ri-line: rgba(255, 255, 255, 0.1);
   --ri-panel: rgba(22, 29, 49, 0.82);
   --ri-panel-solid: #161d31;
-  --ri-sidebar-w: 220px;
+  --ri-sidebar-w: 232px;
   --ri-radius: 12px;
 }
 
@@ -78,12 +78,12 @@
 .ri-sidebar__link {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.7rem 0.85rem;
+  gap: 0.75rem;
+  padding: 0.8rem 0.9rem;
   border-radius: 10px;
   color: var(--ri-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -106,8 +106,10 @@
 .ri-content {
   flex: 1;
   min-width: 0;
-  padding: 1rem 1.25rem 1.5rem;
+  width: 100%;
+  padding: 1.1rem 1.5rem 1.75rem;
   overflow: auto;
+  box-sizing: border-box;
 }
 
 .ri-page-title {

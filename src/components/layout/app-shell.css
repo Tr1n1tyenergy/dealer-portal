@@ -253,6 +253,14 @@
   box-sizing: border-box;
 }
 
+/* Full-bleed workspace (Retail Interface): sidebar + content fill the viewport */
+.tri-main.tri-main--bleed {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .mod-hero {
   display: flex;
   flex-wrap: wrap;
