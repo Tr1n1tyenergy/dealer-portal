@@ -69,14 +69,6 @@ export function RetailAnalyticsDashboard({
   return (
     <div className="rad">
       <section className="rad-hero">
-        <div className="rad-hero__copy">
-          <h1 className="rad-hero__title">
-            Welcome back, <span>{welcomeName}</span>
-          </h1>
-          <p className="rad-hero__sub">
-            Here&apos;s an overview of dealer orders and retail operations across Trinity.
-          </p>
-        </div>
         <div className="rad-hero__media" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -85,6 +77,14 @@ export function RetailAnalyticsDashboard({
             className="rad-hero__img"
           />
           <div className="rad-hero__fade" />
+        </div>
+        <div className="rad-hero__copy">
+          <h1 className="rad-hero__title">
+            Welcome back, <span>{welcomeName}</span>
+          </h1>
+          <p className="rad-hero__sub">
+            Here&apos;s an overview of dealer orders and retail operations across Trinity.
+          </p>
         </div>
         <button type="button" className="rad-date" aria-label="Date range">
           <CalendarDays size={15} strokeWidth={1.75} />
@@ -306,11 +306,11 @@ function OrderTrendChart({ points }: { points: TrendPoint[] }) {
 }
 
 function StatusDonut({ slices, total }: { slices: StatusSlice[]; total: number }) {
-  const size = 168;
+  const size = 148;
   const cx = size / 2;
   const cy = size / 2;
-  const r = 62;
-  const stroke = 22;
+  const r = 54;
+  const stroke = 18;
   const circ = 2 * Math.PI * r;
   let offset = 0;
 

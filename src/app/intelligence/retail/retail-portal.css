@@ -15,8 +15,16 @@
   --ri-radius: 12px;
 }
 
+/* Break out of AppShell .tri-main max-width / padding so retail matches full-bleed mockup */
+.tri-main:has(.ri-shell) {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .ri-shell {
-  min-height: calc(100vh - 0px);
+  min-height: calc(100vh - 72px);
   display: flex;
   flex-direction: column;
   color: var(--ri-ink);
@@ -27,6 +35,7 @@
   flex: 1;
   min-height: 0;
   gap: 0;
+  align-items: stretch;
 }
 
 .ri-sidebar {
@@ -34,14 +43,14 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 0.85rem;
+  padding: 1rem 0.75rem;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(7, 14, 32, 0.72);
+  background: rgba(5, 12, 28, 0.88);
   backdrop-filter: blur(14px);
 }
 
 .ri-sidebar__brand {
-  padding: 0.35rem 0.65rem 1.25rem;
+  padding: 0.2rem 0.55rem 1rem;
 }
 
 .ri-sidebar__kicker {
@@ -97,7 +106,7 @@
 .ri-content {
   flex: 1;
   min-width: 0;
-  padding: 1.15rem 1.35rem 1.75rem;
+  padding: 1rem 1.25rem 1.5rem;
   overflow: auto;
 }
 

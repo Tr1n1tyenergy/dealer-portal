@@ -1,176 +1,185 @@
-/* Retail Analytics dashboard — mockup-faithful layout */
+/* Retail Analytics — spacing/alignment matched to TRI mockup */
 
 .rad {
-  --rad-bg: transparent;
-  --rad-card: rgba(22, 29, 49, 0.82);
-  --rad-card-border: rgba(148, 163, 184, 0.14);
+  --rad-gap: 14px;
+  --rad-card: rgba(18, 26, 48, 0.9);
+  --rad-card-border: rgba(148, 163, 184, 0.12);
   --rad-ink: #f8fafc;
   --rad-muted: #94a3b8;
-  --rad-gold: #f5b800;
+  --rad-radius: 14px;
   --rad-blue: #3b82f6;
+  --rad-gold: #f5b800;
   --rad-purple: #a855f7;
   --rad-green: #22c55e;
-  --rad-orange: #f97316;
-  --rad-teal: #14b8a6;
-  --rad-radius: 16px;
   color: var(--rad-ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rad-gap);
+  max-width: 1280px;
 }
 
+/* ── Hero: compact band, photo bleeds right (not a framed card) ── */
 .rad-hero {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
-  align-items: end;
-  min-height: 168px;
-  margin: -0.15rem 0 1.15rem;
-  padding: 0.35rem 0 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 112px;
+  height: 112px;
+  margin: 0;
+  padding: 0.15rem 0 0;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .rad-hero__copy {
   position: relative;
   z-index: 2;
-  max-width: 36rem;
-  padding-bottom: 0.35rem;
+  max-width: 28rem;
+  padding-top: 0.35rem;
 }
 
 .rad-hero__title {
   margin: 0;
-  font-size: clamp(1.55rem, 2.2vw, 1.95rem);
+  font-size: 1.65rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1.15;
+  line-height: 1.2;
   color: #fff;
 }
 
-.rad-hero__title span {
-  font-weight: 800;
-}
-
 .rad-hero__sub {
-  margin: 0.55rem 0 0;
-  max-width: 32rem;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: #b6c2d6;
+  margin: 0.4rem 0 0;
+  max-width: 26rem;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: #a8b6cc;
 }
 
 .rad-hero__media {
   position: absolute;
-  inset: -8% -2% -18% 42%;
-  z-index: 1;
+  top: -12px;
+  right: -8px;
+  bottom: -28px;
+  left: 38%;
+  z-index: 0;
   pointer-events: none;
+  border-radius: 0;
+  overflow: hidden;
 }
 
 .rad-hero__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 62% 42%;
-  transform: scale(1.08);
-  filter: saturate(1.05) contrast(1.05);
+  object-position: 70% 45%;
+  display: block;
 }
 
 .rad-hero__fade {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, #07122a 0%, rgba(7, 18, 42, 0.82) 18%, rgba(7, 18, 42, 0.25) 48%, transparent 68%),
-    linear-gradient(180deg, rgba(7, 18, 42, 0.55) 0%, transparent 35%, rgba(7, 18, 42, 0.75) 100%);
+    linear-gradient(
+      90deg,
+      #061636 0%,
+      rgba(6, 22, 54, 0.92) 12%,
+      rgba(6, 22, 54, 0.45) 34%,
+      rgba(6, 22, 54, 0.08) 58%,
+      transparent 78%
+    ),
+    linear-gradient(180deg, rgba(6, 22, 54, 0.35) 0%, transparent 40%, rgba(6, 22, 54, 0.55) 100%);
 }
 
 .rad-date {
   position: absolute;
-  top: 0.15rem;
+  top: 0.1rem;
   right: 0;
   z-index: 3;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  height: 36px;
-  padding: 0 0.85rem;
+  gap: 0.4rem;
+  height: 34px;
+  padding: 0 0.8rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(15, 23, 42, 0.72);
+  background: rgba(10, 18, 40, 0.78);
   color: #e2e8f0;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
   backdrop-filter: blur(10px);
   cursor: default;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
+/* ── KPI row ── */
 .rad-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9rem;
+  gap: var(--rad-gap);
+  margin: 0;
 }
 
 .rad-kpi {
-  padding: 1rem 1.05rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.85rem 0.95rem 0.7rem;
   border-radius: var(--rad-radius);
   background: var(--rad-card);
   border: 1px solid var(--rad-card-border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(10px);
+  min-height: 0;
 }
 
 .rad-kpi__top {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.5rem;
 }
 
 .rad-kpi__icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: grid;
   place-items: center;
+  flex-shrink: 0;
 }
 
-.rad-kpi--blue .rad-kpi__icon {
-  background: rgba(59, 130, 246, 0.18);
-  color: #60a5fa;
-}
-.rad-kpi--gold .rad-kpi__icon {
-  background: rgba(245, 184, 0, 0.16);
-  color: #f5b800;
-}
-.rad-kpi--purple .rad-kpi__icon {
-  background: rgba(168, 85, 247, 0.16);
-  color: #c084fc;
-}
-.rad-kpi--green .rad-kpi__icon {
-  background: rgba(34, 197, 94, 0.16);
-  color: #4ade80;
-}
+.rad-kpi--blue .rad-kpi__icon { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
+.rad-kpi--gold .rad-kpi__icon { background: rgba(245, 184, 0, 0.16); color: #f5b800; }
+.rad-kpi--purple .rad-kpi__icon { background: rgba(168, 85, 247, 0.16); color: #c084fc; }
+.rad-kpi--green .rad-kpi__icon { background: rgba(34, 197, 94, 0.16); color: #4ade80; }
 
 .rad-kpi__label {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #cbd5e1;
 }
 
 .rad-kpi__value {
-  margin-top: 0.55rem;
-  font-size: 1.85rem;
+  margin: 0;
+  font-size: 1.7rem;
   font-weight: 800;
   letter-spacing: -0.03em;
+  line-height: 1.1;
   color: #fff;
 }
 
 .rad-kpi__foot {
-  margin-top: 0.35rem;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
 }
 
 .rad-kpi__spark {
-  width: 88px;
-  height: 28px;
+  width: 72px;
+  height: 22px;
   flex-shrink: 0;
 }
 
@@ -180,50 +189,59 @@
 .rad-kpi--green .rad-kpi__spark path { stroke: #4ade80; }
 
 .rad-kpi__foot span {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 650;
   white-space: nowrap;
 }
 .rad-kpi__foot .is-up { color: #4ade80; }
 .rad-kpi__foot .is-down { color: #f87171; }
 
+/* ── Mid + bottom rows share identical gap ── */
 .rad-mid,
 .rad-bottom {
   display: grid;
-  gap: 0.9rem;
-  margin-top: 0.9rem;
+  gap: var(--rad-gap);
+  margin: 0;
+  align-items: stretch;
 }
 
 .rad-mid {
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr);
 }
 
 .rad-bottom {
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr);
 }
 
 .rad-card {
-  padding: 1rem 1.1rem 1.05rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 1rem 0.9rem;
   border-radius: var(--rad-radius);
   background: var(--rad-card);
   border: 1px solid var(--rad-card-border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
-  backdrop-filter: blur(10px);
+  min-height: 0;
+}
+
+.rad-trend,
+.rad-status {
+  min-height: 280px;
 }
 
 .rad-card__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 0.6rem;
+  margin-bottom: 0.55rem;
+  flex-shrink: 0;
 }
 
 .rad-card__title {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.92rem;
+  gap: 0.4rem;
+  font-size: 0.88rem;
   font-weight: 750;
   color: #fff;
 }
@@ -235,21 +253,21 @@
 .rad-select {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  height: 30px;
-  padding: 0 0.65rem;
+  gap: 0.25rem;
+  height: 28px;
+  padding: 0 0.6rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
   color: #cbd5e1;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   cursor: default;
 }
 
 .rad-link {
   color: #93c5fd;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -260,18 +278,19 @@
 
 .rad-trend__svg {
   width: 100%;
-  height: auto;
+  flex: 1;
+  min-height: 180px;
   display: block;
 }
 
 .rad-trend__grid {
-  stroke: rgba(148, 163, 184, 0.14);
+  stroke: rgba(148, 163, 184, 0.12);
   stroke-width: 1;
 }
 
 .rad-trend__line {
   fill: none;
-  stroke-width: 2.5;
+  stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -283,25 +302,26 @@
 
 .rad-trend__xlabel {
   fill: #94a3b8;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
 }
 
 .rad-legend {
   display: flex;
-  gap: 1.1rem;
-  margin-top: 0.35rem;
-  font-size: 0.75rem;
+  gap: 1rem;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
   color: #cbd5e1;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .rad-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
-  margin-right: 0.35rem;
+  margin-right: 0.3rem;
   vertical-align: middle;
 }
 .rad-dot--pms { background: #60a5fa; }
@@ -310,13 +330,14 @@
 .rad-status__body {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
+  flex: 1;
 }
 
 .rad-donut {
   position: relative;
-  width: 168px;
-  height: 168px;
+  width: 148px;
+  height: 148px;
   flex-shrink: 0;
 }
 
@@ -335,15 +356,15 @@
 }
 
 .rad-donut__center strong {
-  font-size: 1.55rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #fff;
   line-height: 1;
 }
 
 .rad-donut__center span {
-  margin-top: 0.25rem;
-  font-size: 0.68rem;
+  margin-top: 0.2rem;
+  font-size: 0.64rem;
   font-weight: 650;
   color: #94a3b8;
 }
@@ -355,20 +376,20 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.38rem;
 }
 
 .rad-status__legend li {
   display: grid;
-  grid-template-columns: 10px 1fr auto;
+  grid-template-columns: 8px 1fr auto;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.74rem;
+  gap: 0.4rem;
+  font-size: 0.7rem;
 }
 
 .rad-status__swatch {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
 }
 
@@ -384,19 +405,20 @@
 
 .rad-table-wrap {
   overflow: auto;
+  flex: 1;
 }
 
 .rad-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 
 .rad-table th {
   text-align: left;
-  padding: 0.55rem 0.4rem;
+  padding: 0.45rem 0.35rem;
   color: #94a3b8;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 750;
@@ -405,7 +427,7 @@
 }
 
 .rad-table td {
-  padding: 0.7rem 0.4rem;
+  padding: 0.55rem 0.35rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.08);
   color: #e2e8f0;
   white-space: nowrap;
@@ -420,15 +442,15 @@
 .rad-empty {
   color: #94a3b8 !important;
   text-align: center;
-  padding: 1.25rem 0.5rem !important;
+  padding: 1rem 0.5rem !important;
 }
 
 .rad-pill {
   display: inline-flex;
   align-items: center;
-  padding: 0.18rem 0.55rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 750;
 }
 
@@ -446,27 +468,28 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.7rem;
+  flex: 1;
 }
 
 .rad-rank li {
   display: flex;
-  gap: 0.65rem;
+  gap: 0.55rem;
   align-items: flex-start;
 }
 
 .rad-rank__n {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 800;
   background: rgba(59, 130, 246, 0.16);
   color: #93c5fd;
   flex-shrink: 0;
-  margin-top: 0.1rem;
+  margin-top: 0.05rem;
 }
 
 .rad-rank__meta {
@@ -477,26 +500,26 @@
 .rad-rank__row {
   display: flex;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.35rem;
+  gap: 0.45rem;
+  margin-bottom: 0.28rem;
 }
 
 .rad-rank__row strong {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 750;
   color: #fff;
 }
 
 .rad-rank__row em {
   font-style: normal;
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 650;
   color: #94a3b8;
   white-space: nowrap;
 }
 
 .rad-rank__bar {
-  height: 7px;
+  height: 6px;
   border-radius: 999px;
   background: rgba(148, 163, 184, 0.12);
   overflow: hidden;
@@ -517,21 +540,31 @@
   .rad-bottom {
     grid-template-columns: 1fr;
   }
+  .rad-trend,
+  .rad-status {
+    min-height: 0;
+  }
 }
 
 @media (max-width: 760px) {
   .rad-hero {
-    grid-template-columns: 1fr;
-    min-height: 200px;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
   }
   .rad-hero__media {
-    inset: auto 0 0 0;
-    height: 140px;
-    opacity: 0.55;
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    height: 120px;
+    margin: 0 -0.25rem;
+    opacity: 0.7;
   }
   .rad-date {
-    position: static;
-    margin-top: 0.75rem;
+    align-self: flex-start;
   }
   .rad-kpis {
     grid-template-columns: 1fr;

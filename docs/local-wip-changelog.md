@@ -159,3 +159,7 @@ Rebuild Retail Interface as a TRI dark-blue dealer-style workspace with Dashboar
 - Rebuilt `/intelligence/retail` Analytics UI to match TRI dashboard mockup (hero station image, KPI cards + sparklines, order trend, status donut, recent orders table, top stations).
 - Sidebar label **Analytics** with gold active border + bar-chart icon.
 - Hero asset: `public/assets2/img/retail/dashboard-hero-station.jpg`.
+
+### 2026-10-09 — Retail Analytics spacing fix
+- Removed double padding from AppShell `tri-main` (full-bleed retail workspace).
+- Tightened hero/KPI/chart vertical rhythm to a single 14px gap; compact KPI padding; seamless hero bleed using Trinity station hero.

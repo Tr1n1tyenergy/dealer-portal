@@ -99,13 +99,15 @@ export function lastNMonthLabels(n: number, end = new Date()): { key: string; la
 /** Compact sparkline path for a series of values (viewBox 0 0 120 36). */
 export function sparklinePath(values: number[]): string {
   if (!values.length) return "M0 18 L120 18";
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values, 0);
-  const span = Math.max(max - min, 1);
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  // Flat / empty series → centered hairline (avoids a thick line glued to the card bottom)
+  if (max === min) return "M0 18 L120 18";
+  const span = max - min;
   return values
     .map((v, i) => {
       const x = values.length === 1 ? 0 : (i / (values.length - 1)) * 120;
-      const y = 32 - ((v - min) / span) * 28;
+      const y = 30 - ((v - min) / span) * 24;
       return `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
     })
     .join(" ");
