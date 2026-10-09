@@ -1,69 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
-  BarChart3,
   Bell,
   ChevronDown,
-  FileSpreadsheet,
-  Grid2x2,
   HelpCircle,
-  LayoutDashboard,
   Lock,
   LogOut,
-  Mic,
-  Presentation,
   Search,
   Shield,
   Sparkles,
-  Users,
 } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { IntelligenceBackground } from "@/components/layout/intelligence-background";
-import { cn } from "@/lib/utils";
 import "./app-shell.css";
 import "../dashboard/modules.css";
 
-const nav = [
-  { href: "/intelligence/dashboard", label: "Dashboard", icon: LayoutDashboard, match: "dashboard" },
-  { href: "/intelligence/dashboard", label: "Modules", icon: Grid2x2, match: "modules" },
-  { href: "/intelligence/reports", label: "Retail Interface", icon: FileSpreadsheet, match: "reports" },
-  { href: "/intelligence/note-taker", label: "AI Note Taker", icon: Mic, match: "note-taker" },
-  { href: "/intelligence/presentations", label: "Presentations", icon: Presentation, match: "presentations" },
-];
-
-const adminNav = [
-  { href: "/intelligence/admin/users", label: "Users", icon: Users, match: "users" },
-  { href: "/intelligence/admin/activity", label: "Activity Logs", icon: BarChart3, match: "activity" },
-];
-
-function isActive(pathname: string, match: string, label: string) {
-  if (label === "Modules") {
-    return pathname === "/intelligence/dashboard" || pathname.startsWith("/intelligence/dashboard");
-  }
-  if (label === "Dashboard") {
-    // Modules is the primary dashboard view; keep Dashboard available but Modules owns active state on home
-    return false;
-  }
-  return pathname.includes(match);
-}
-
 export function AppShell({
   children,
-  activeNav,
 }: {
   children: React.ReactNode;
+  /** @deprecated Nav links removed from header; prop kept for call-site compatibility */
   activeNav?: string;
 }) {
-  const pathname = usePathname();
   const { data } = useSession();
-  const isAdmin = data?.user?.role === "SUPER_ADMIN";
   const initials = `${data?.user?.firstName?.[0] ?? ""}${data?.user?.lastName?.[0] ?? ""}`.toUpperCase() || "TE";
-  const roleLabel = data?.user?.role === "SUPER_ADMIN" ? "Super Admin" : data?.user?.department;
-
-  const links = [...nav, ...(isAdmin ? adminNav : [])];
+  const displayName =
+    [data?.user?.firstName, data?.user?.lastName].filter(Boolean).join(" ") || "User";
+  const roleLabel =
+    data?.user?.role === "SUPER_ADMIN"
+      ? "Super Admin"
+      : (data?.user?.role ?? data?.user?.department ?? "Staff").replaceAll("_", " ");
 
   return (
     <div className="tri-shell">
@@ -80,57 +48,41 @@ export function AppShell({
             </div>
           </Link>
 
-          <div className="tri-divider" aria-hidden />
-
-          <nav className="tri-nav" aria-label="Primary">
-            {links.map((item) => {
-              const Icon = item.icon;
-              const active =
-                activeNav === item.label.toLowerCase() ||
-                isActive(pathname, item.match, item.label);
-              return (
-                <Link
-                  key={`${item.label}-${item.href}`}
-                  href={item.href}
-                  className={cn("tri-nav__link", active && "is-active")}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="tri-header__right">
-            <div className="tri-divider" aria-hidden />
+          {/* Brand left; search + actions flush right (mockup) */}
+          <div className="tri-header__actions">
             <label className="tri-search">
-              <Search className="h-3.5 w-3.5" />
+              <Search className="h-3.5 w-3.5" aria-hidden />
               <input placeholder="Search anything..." aria-label="Search" />
             </label>
+
+            <div className="tri-divider" aria-hidden />
 
             <button type="button" className="tri-bell" aria-label="Notifications">
               <Bell className="h-4 w-4" />
               <span className="tri-bell__badge">12</span>
             </button>
 
+            <div className="tri-divider" aria-hidden />
+
             <div className="tri-user">
               <div className="tri-user__avatar">{initials}</div>
               <div className="tri-user__meta">
-                <div className="tri-user__name">
-                  {data?.user?.firstName} {data?.user?.lastName}
-                </div>
+                <div className="tri-user__name">{displayName}</div>
                 <div className="tri-user__role">{roleLabel}</div>
               </div>
-              <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-              <button
-                type="button"
-                className="tri-logout"
-                aria-label="Logout"
-                onClick={() => signOut({ callbackUrl: "/access" })}
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </button>
+              <ChevronDown className="h-3.5 w-3.5 text-slate-400" aria-hidden />
             </div>
+
+            <div className="tri-divider" aria-hidden />
+
+            <button
+              type="button"
+              className="tri-logout"
+              aria-label="Logout"
+              onClick={() => signOut({ callbackUrl: "/access" })}
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </header>

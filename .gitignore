@@ -50,3 +50,5 @@ prisma/*.db-journal
 /backups/
 *.db
 *.db-journal
+
+# Keep .env.example tracked; ignore only secret env files (patterns above)

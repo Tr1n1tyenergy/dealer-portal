@@ -1,33 +1,129 @@
 {
-  "source": "odoo_live_product.product",
-  "fetchedAt": "2026-10-01",
-  "note": "True bulk fuels only (All / Fuels + Fuel:*). Lubricants/filters excluded. CSV upload had no fuels.",
+  "source": "odoo_live_product.product + product.template External ID export (2026-10-08)",
+  "fetchedAt": "2026-10-08",
+  "note": "Confirmed 2026-10-09: portal PMS/AGO use PMSL001 (PMS LOCAL) and AGOL001 (AGO LOCAL). Active externalIds below. Other productCandidates kept for reference only. Live sync resolves product.template → product.product for sale.order.line.product_id.",
+  "confirmedAt": "2026-10-09",
+  "confirmedProducts": {
+    "PMS": { "key": "PMS_LOCAL", "code": "PMSL001", "name": "PMS LOCAL" },
+    "AGO": { "key": "AGO_LOCAL", "code": "AGOL001", "name": "AGO LOCAL" }
+  },
+  "productCandidates": {
+    "PMS": [
+      {
+        "key": "PMS_EXPORT",
+        "externalId": "__export__.product_template_56637_f3e93ac9",
+        "code": "PMSE001",
+        "name": "PMS EXPORT",
+        "onHand": 1986660
+      },
+      {
+        "key": "PMS_FOT_EXPORT",
+        "externalId": "__export__.product_template_84673_d2c8e804",
+        "code": "",
+        "name": "PMS FOT (EXPORT)",
+        "onHand": 0
+      },
+      {
+        "key": "PMS_FOT_LOCAL",
+        "externalId": "__export__.product_template_84674_558ecef5",
+        "code": "",
+        "name": "PMS FOT (LOCAL)",
+        "onHand": 0
+      },
+      {
+        "key": "PMS_LOCAL",
+        "externalId": "__export__.product_template_56638_95395aa6",
+        "code": "PMSL001",
+        "name": "PMS LOCAL",
+        "onHand": 1288625
+      }
+    ],
+    "AGO": [
+      {
+        "key": "AGO_GENERIC_85760",
+        "externalId": "__export__.product_template_85760_749c506e",
+        "code": "",
+        "name": "AGO",
+        "onHand": 36000
+      },
+      {
+        "key": "AGO_GENERIC_85957",
+        "externalId": "__export__.product_template_85957_b609fdd4",
+        "code": "",
+        "name": "AGO",
+        "onHand": 10
+      },
+      {
+        "key": "AGO_EXPORT",
+        "externalId": "__export__.product_template_56634_806824e4",
+        "code": "AGOE001",
+        "name": "AGO EXPORT",
+        "onHand": 3131731
+      },
+      {
+        "key": "AGO_FOT_EXPORT",
+        "externalId": "__export__.product_template_84672_97517da9",
+        "code": "",
+        "name": "AGO FOT (EXPORT)",
+        "onHand": 0
+      },
+      {
+        "key": "AGO_FOT_LOCAL",
+        "externalId": "__export__.product_template_84342_4842b0d0",
+        "code": "",
+        "name": "AGO FOT (LOCAL)",
+        "onHand": 0
+      },
+      {
+        "key": "AGO_LOCAL",
+        "externalId": "__export__.product_template_56635_9d243ec3",
+        "code": "AGOL001",
+        "name": "AGO LOCAL",
+        "onHand": 609111
+      },
+      {
+        "key": "AGO_LOCAL_ALT",
+        "externalId": "__export__.product_template_86102_abb8037f",
+        "code": "",
+        "name": "AGO Local",
+        "onHand": 0
+      }
+    ]
+  },
+  "externalIds": {
+    "PMS": "__export__.product_template_56638_95395aa6",
+    "AGO": "__export__.product_template_56635_9d243ec3",
+    "IK": null,
+    "JET_A1": null
+  },
   "defaults": {
-    "PMS": 56637,
-    "AGO": 56634,
+    "PMS": 56638,
+    "AGO": 56635,
     "IK": 84261,
-    "JET_A1": 56635
+    "JET_A1": null
   },
   "defaultDetails": {
     "PMS": {
-      "id": 56637,
+      "id": 56638,
       "code": "PMSL001",
       "name": "PMS LOCAL",
       "kind": "PMS",
       "category": "All / Fuels",
       "uom": "L",
       "sale_ok": true,
-      "active": true
+      "active": true,
+      "externalId": "__export__.product_template_56638_95395aa6"
     },
     "AGO": {
-      "id": 56634,
+      "id": 56635,
       "code": "AGOL001",
       "name": "AGO LOCAL",
       "kind": "AGO",
       "category": "All / Fuels",
       "uom": "L",
       "sale_ok": true,
-      "active": true
+      "active": true,
+      "externalId": "__export__.product_template_56635_9d243ec3"
     },
     "IK": {
       "id": 84261,
@@ -39,16 +135,7 @@
       "sale_ok": true,
       "active": true
     },
-    "JET_A1": {
-      "id": 56635,
-      "code": "JET A1",
-      "name": "LINE FILL",
-      "kind": "JET_A1",
-      "category": "All / Fuels",
-      "uom": "L",
-      "sale_ok": true,
-      "active": true
-    }
+    "JET_A1": null
   },
   "products": [
     {

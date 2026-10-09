@@ -1,0 +1,21 @@
+---
+description: Keep unpushed local work documented and in one amendable WIP commit
+alwaysApply: true
+---
+
+# Local WIP changelog discipline
+
+While local Odoo / TRI work is **not yet pushed** to GitHub:
+
+1. **Document every meaningful local change** in `docs/local-wip-changelog.md`:
+   - Add a dated entry under **Entry log** (what changed, which files, why).
+   - Update the “Current WIP bundle” tables if mappings or file lists change.
+
+2. **Same commit until push:**
+   - Prefer **one** local feature commit on `feature/odoo-external-id-mapping` (or the active WIP branch).
+   - After the first WIP commit exists and is **not** on the remote: stage code + changelog and **`git commit --amend`** (no edit to unrelated history; only if HEAD is our WIP commit and not pushed).
+   - Do **not** push, force-push, or open a PR unless the user explicitly asks.
+
+3. **Never commit secrets** (`.env`, `.env.staging`, `.env.production.local`, API keys, Neon passwords).
+
+4. When the user asks to push: summarize `docs/local-wip-changelog.md`, confirm secret scan, then push only with approval.
