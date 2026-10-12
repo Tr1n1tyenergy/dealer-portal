@@ -301,6 +301,8 @@ model DealerOrder {
   currency             String            @default("KES")
   amountDue            String?
   odooSyncKey          String            @unique
+  /** One-time id from the Place Order form; a repeated submit returns the existing order */
+  submissionKey        String?           @unique
   odooQuotationId      String?
   odooQuotationNumber  String?
   odooSyncError        String?
