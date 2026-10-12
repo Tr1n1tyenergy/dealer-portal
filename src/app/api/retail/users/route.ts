@@ -19,7 +19,9 @@ export async function GET() {
       role: true,
       accountType: true,
       status: true,
+      department: true,
       createdAt: true,
+      lastLoginAt: true,
       dealerOrganization: {
         select: {
           name: true,

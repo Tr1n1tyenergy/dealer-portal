@@ -1,12 +1,17 @@
-/* Retail Analytics — mockup-locked grid + soft hero bleed */
+/* Retail Analytics — mockup-accurate hero + side-icon KPI cards */
 
 .rad {
   --rad-gap: 20px;
-  --rad-card: rgba(17, 25, 48, 0.92);
+  --rad-canvas: #0a192f;
+  --rad-card: #122a4a;
   --rad-card-border: rgba(148, 163, 184, 0.14);
   --rad-ink: #f8fafc;
   --rad-muted: #94a3b8;
   --rad-radius: 12px;
+  --rad-gutter: 24px;
+  /* Fixed hero photo plane — never scales with page height */
+  --rad-hero-h: 228px;
+  --rad-hero-w: min(52%, 780px);
   width: 100%;
   max-width: none;
   color: var(--rad-ink);
@@ -15,23 +20,30 @@
   flex-direction: column;
   gap: var(--rad-gap);
   box-sizing: border-box;
-}
-
-/* ── Hero: photo is a soft right-side BACKGROUND, not a framed card ── */
-.rad-hero {
-  position: relative;
-  width: 100%;
-  min-height: 168px;
-  height: 168px;
+  background: var(--rad-canvas);
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  position: relative;
+  z-index: 0;
+}
+
+/* Top band: welcome + KPIs; photo is a FIXED-size right plane */
+.rad-top {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 1.15rem 0 0;
   isolation: isolate;
+  overflow: hidden;
+  background: var(--rad-canvas);
 }
 
 .rad-hero__media {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  width: var(--rad-hero-w);
+  height: var(--rad-hero-h);
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
@@ -39,58 +51,68 @@
 
 .rad-hero__img {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 62%;
+  inset: 0;
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 72% 42%;
+  object-position: 72% 38%;
   display: block;
+  transform: scale(1.08);
+  transform-origin: 70% 40%;
 }
 
 .rad-hero__fade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    #061636 0%,
-    #061636 28%,
-    rgba(6, 22, 54, 0.92) 42%,
-    rgba(6, 22, 54, 0.55) 55%,
-    rgba(6, 22, 54, 0.18) 72%,
-    rgba(6, 22, 54, 0.05) 88%,
-    transparent 100%
-  );
+  background:
+    linear-gradient(
+      90deg,
+      var(--rad-canvas) 0%,
+      rgba(10, 25, 47, 0.97) 16%,
+      rgba(10, 25, 47, 0.72) 36%,
+      rgba(10, 25, 47, 0.28) 58%,
+      rgba(10, 25, 47, 0.06) 78%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 48%,
+      rgba(10, 25, 47, 0.35) 72%,
+      rgba(10, 25, 47, 0.85) 90%,
+      var(--rad-canvas) 100%
+    );
 }
 
 .rad-hero__copy {
   position: relative;
   z-index: 2;
-  max-width: 34rem;
-  padding: 1.35rem 0 0;
+  max-width: 36rem;
+  padding: 0.1rem var(--rad-gutter) 0;
+  margin: 0;
 }
 
 .rad-hero__title {
   margin: 0;
-  font-size: clamp(1.8rem, 2.2vw, 2.1rem);
+  font-size: clamp(1.85rem, 2.35vw, 2.2rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1.15;
+  line-height: 1.12;
   color: #fff;
 }
 
 .rad-hero__sub {
-  margin: 0.5rem 0 0;
+  margin: 0.45rem 0 0;
   max-width: 28rem;
-  font-size: 0.92rem;
+  font-size: 0.93rem;
   line-height: 1.45;
   color: #b0bfd4;
 }
 
 .rad-date {
   position: absolute;
-  top: 1rem;
-  right: 0;
+  top: 1.2rem;
+  right: var(--rad-gutter);
   z-index: 3;
   display: inline-flex;
   align-items: center;
@@ -99,7 +121,7 @@
   padding: 0 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(8, 16, 36, 0.78);
+  background: rgba(10, 25, 47, 0.82);
   color: #e2e8f0;
   font-size: 0.78rem;
   font-weight: 600;
@@ -108,75 +130,96 @@
   white-space: nowrap;
 }
 
-/* ── KPI row — same width as body below ── */
+/* KPIs tight under subtitle; sit above photo fade on the right */
 .rad-kpis {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--rad-gap);
   width: 100%;
-  margin: 0;
+  margin: 1.05rem 0 0;
+  padding: 0 var(--rad-gutter);
+  box-sizing: border-box;
   align-items: stretch;
 }
 
+.rad-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: var(--rad-gap);
+  width: 100%;
+  margin: 0;
+  padding: 0 var(--rad-gutter);
+  box-sizing: border-box;
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+}
+
+/* Mockup KPI: large solid icon LEFT of label / value / sparkline */
 .rad-kpi {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 0.35rem;
-  padding: 16px 18px 14px;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 14px 16px;
   border-radius: var(--rad-radius);
   background: var(--rad-card);
   border: 1px solid var(--rad-card-border);
   min-width: 0;
-  min-height: 118px;
-}
-
-.rad-kpi__top {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
+  min-height: 104px;
 }
 
 .rad-kpi__icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  color: #fff;
 }
 
-.rad-kpi--blue .rad-kpi__icon { background: rgba(59, 130, 246, 0.18); color: #60a5fa; }
-.rad-kpi--gold .rad-kpi__icon { background: rgba(245, 184, 0, 0.16); color: #f5b800; }
-.rad-kpi--purple .rad-kpi__icon { background: rgba(168, 85, 247, 0.16); color: #c084fc; }
-.rad-kpi--green .rad-kpi__icon { background: rgba(34, 197, 94, 0.16); color: #4ade80; }
+.rad-kpi--blue .rad-kpi__icon { background: #3b82f6; }
+.rad-kpi--gold .rad-kpi__icon { background: #f5b800; color: #0a192f; }
+.rad-kpi--purple .rad-kpi__icon { background: #8b5cf6; }
+.rad-kpi--green .rad-kpi__icon { background: #22c55e; }
+
+.rad-kpi__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
 
 .rad-kpi__label {
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+
+.rad-kpi__mid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
 }
 
 .rad-kpi__value {
-  margin: 0.15rem 0 0;
-  font-size: 2rem;
+  font-size: 1.85rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
   color: #fff;
 }
 
-.rad-kpi__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: auto;
-}
-
 .rad-kpi__spark {
-  width: 84px;
-  height: 26px;
+  width: 72px;
+  height: 28px;
   flex-shrink: 0;
 }
 
@@ -185,28 +228,21 @@
 .rad-kpi--purple .rad-kpi__spark path { stroke: #c084fc; }
 .rad-kpi--green .rad-kpi__spark path { stroke: #4ade80; }
 
-.rad-kpi__foot span {
-  font-size: 0.7rem;
+.rad-kpi__delta {
+  font-size: 0.68rem;
   font-weight: 650;
   white-space: nowrap;
+  margin-top: 0.15rem;
 }
-.rad-kpi__foot .is-up { color: #4ade80; }
-.rad-kpi__foot .is-down { color: #f87171; }
-
-/* ── Locked 2-col body (65/35) — Trend+Orders | Status+Stations ── */
-.rad-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
-  gap: var(--rad-gap);
-  width: 100%;
-  align-items: start;
-}
+.rad-kpi__delta.is-up { color: #4ade80; }
+.rad-kpi__delta.is-down { color: #f87171; }
 
 .rad-col {
   display: flex;
   flex-direction: column;
   gap: var(--rad-gap);
   min-width: 0;
+  min-height: 100%;
 }
 
 .rad-card {
@@ -223,10 +259,52 @@
 
 .rad-trend {
   min-height: 300px;
+  flex: 0 0 auto;
 }
 
 .rad-status {
   min-height: 260px;
+  flex: 0 0 auto;
+}
+
+/* Recent Orders: always room for 3 rows; scroll past that */
+.rad-orders {
+  --rad-order-head-h: 2.35rem;
+  --rad-order-row-h: 2.85rem;
+  --rad-orders-body-h: calc(var(--rad-order-head-h) + 3 * var(--rad-order-row-h));
+  flex: 0 0 auto;
+}
+
+.rad-orders .rad-table-wrap {
+  height: var(--rad-orders-body-h);
+  min-height: var(--rad-orders-body-h);
+  max-height: var(--rad-orders-body-h);
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 0 0 auto;
+}
+
+.rad-orders .rad-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--rad-card);
+}
+
+.rad-orders .rad-empty {
+  height: calc(3 * var(--rad-order-row-h));
+  vertical-align: middle;
+}
+
+/* Top Stations: stretch to same bottom edge as Recent Orders */
+.rad-stations {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.rad-stations .rad-rank {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .rad-card__head {
@@ -407,6 +485,7 @@
 .rad-table-wrap {
   overflow: auto;
   flex: 1;
+  min-height: 0;
 }
 
 .rad-table {
@@ -548,25 +627,30 @@
 }
 
 @media (max-width: 760px) {
-  .rad-hero {
-    height: auto;
-    min-height: 180px;
+  .rad {
+    --rad-hero-h: 160px;
+    --rad-hero-w: 100%;
   }
-  .rad-hero__img {
-    width: 100%;
+  .rad-hero__media {
     opacity: 0.45;
   }
   .rad-hero__fade {
     background: linear-gradient(
       180deg,
-      rgba(6, 22, 54, 0.75) 0%,
-      rgba(6, 22, 54, 0.55) 55%,
-      rgba(6, 22, 54, 0.9) 100%
+      rgba(10, 25, 47, 0.45) 0%,
+      rgba(10, 25, 47, 0.65) 55%,
+      var(--rad-canvas) 100%
     );
   }
   .rad-hero__copy {
     max-width: 100%;
-    padding-bottom: 3.5rem;
+    padding-bottom: 0.25rem;
+  }
+  .rad-date {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 0.75rem var(--rad-gutter) 0;
   }
   .rad-kpis {
     grid-template-columns: 1fr;

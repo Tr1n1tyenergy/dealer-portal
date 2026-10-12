@@ -40,6 +40,13 @@ Move portal → Odoo quotation create from numeric/hardcoded IDs to **Odoo Exter
 | `.env.example` | Document External ID env overrides (placeholders only) |
 | `.gitignore` | Keep secret env files ignored (without ignoring `.env.example`) |
 | `docs/local-wip-changelog.md` | This file |
+| `scripts/bootstrap-production-dealer.ts` | Gated production DEALER_ADMIN bootstrap |
+| `scripts/run-with-production-env.ts` | Allows admin + dealer bootstrap scripts |
+| `package.json` | `production:bootstrap:dealer` script |
+| `src/components/messaging/*` | TRI Messaging glassy 3-column staff UI |
+| `src/app/intelligence/retail/retail-messaging.css` | Messaging page hero shell |
+| `src/app/api/messaging/conversations/[id]/context/route.ts` | Peer + orders + files context |
+| `src/app/api/messaging/files/**` | Authorized order/PFI file download |
 
 ### Mapping captured
 
@@ -85,6 +92,63 @@ Other product.template candidates kept for reference only.
 ---
 
 ## Entry log
+
+### 2026-10-12 — Dealer portal Messaging matches TRI staff Messaging
+
+- `/dealer/messaging` now uses the same dark 3-column UI as staff (hero, filters, New Chat, contact intelligence, composer).
+- `MessagingApp` always renders the staff layout; dealer variant only changes deep-links (`/dealer/orders`, `/dealer/dashboard`).
+- Shared `retail-messaging.css` shell (`.rm--dealer`) for station hero + workspace height inside the dealer portal.
+
+### 2026-10-12 — Retail Messaging glassy-blue redesign
+
+- Rebuilt `/intelligence/retail/messaging` as a three-column glassy workspace (conversations / chat / dealer context).
+- Cinematic station hero + IntelligenceBackground; search + All/Dealers/Internal/Unread filters.
+- Context API loads peer profile, recent dealer orders, and shared PFI/order documents (authorized downloads).
+- Preserved Pusher realtime, directory New Chat, send/receipts; dealer portal Messaging now matches staff 3-column dark UI.
+- Glass panels: near-transparent fill (~0.14), light blur (6px); chat column widened, contact panel narrowed.
+- Messaging + Users: solid Analytics tokens (`#0a192f` canvas, `#122a4a` cards); retail layout suppresses IntelligenceBackground in React (not CSS-only); Messaging hero matches Analytics plane.
+- Messaging: staff grid shell transparent so chat/contact gaps show station hero (no navy strip over the image).
+- Faster first paint: SSR conversation list (staff + dealer), leaner unread query, parallel context/orders/files; contact panel seeds from list immediately.
+- Contact intelligence: removed top station banner; circular station avatar only.
+- Contact panel: extra top padding (inline + CSS) so the avatar circle is not clipped by the panel edge; forced overflow visible/auto after stale HMR misses.
+- Fix Messaging hydration mismatch: pin time/date formatters to `en-GB` + 24h (`hour12: false`) so SSR and client match.
+
+### 2026-10-12 — Retail Users glassy-blue redesign
+
+- Rebuilt `/intelligence/retail/users` to match premium glass mockup (side-by-side invite cards, Secure Access chip, Pending/Active panels).
+- New `retail-users.css`; page canvas locked to Analytics `#0a192f` (same as Messaging).
+- Preserved dealer/staff invite APIs; added search + type filter; users API returns `department` + `lastLoginAt`.
+- Invite staff watermark silhouettes: moved into header row (top-right), sized ~72×36 so form fields no longer cover them.
+
+### 2026-10-12 — Recent Orders 3-row viewport + Top Stations stretch
+
+- Recent Orders table body fixed to 3-row height (empty or full); rows beyond 3 scroll inside the card.
+- Body columns `align-items: stretch`; Top Stations flex-grows so its bottom matches Recent Orders.
+
+### 2026-10-09 — Retail Analytics mockup match (KPI icons + hero scale)
+
+- KPI cards: large solid-color icons on the left; label / value+sparkline / delta stacked beside (mockup layout).
+- Hero photo: fixed ~228×52% right plane with soft left/bottom fade (does not stretch with page).
+- KPIs sit ~16px under welcome subtitle; sidebar unchanged.
+
+### 2026-10-09 — Retail Analytics layout fix (sidebar + hero clip)
+
+- Reverted wrapping KPIs inside the hero band (that made the photo a full-page background).
+- Hero is short (copy-height only); image clipped inside it; opaque cards; sidebar z-index restored.
+- KPI row remains tight under the welcome subtitle (~16px gap).
+
+### 2026-10-09 — Retail Analytics hero bleed + dealer canvas
+
+- Retail shell/page canvas switched to dealer portal `#0a192f` (removed mismatched navy).
+- Analytics hero: flush top/right soft-bleed (no framed container); dual left+bottom fade; taller scale.
+- KPI/body keep 24px gutters; cards use dealer-style glass panels.
+
+### 2026-10-09 — Production dealer portal bootstrap
+
+- Added `scripts/bootstrap-production-dealer.ts` + `production:bootstrap:dealer` (gated like staff bootstrap).
+- Creates ACTIVE `DEALER` / `DEALER_ADMIN` with org+station from invite catalog (default Kitanga/MEMISI).
+- Staff `SUPER_ADMIN` cannot sign in at `/dealer/login` — dealer portal requires `accountType=DEALER`.
+- Updated `run-with-production-env.ts` and `.env.example` docs. Password never logged or committed.
 
 ### 2026-10-09 — TRI header search aligned to mockup (right cluster)
 

@@ -1,16 +1,17 @@
-/* Retail Interface — dealer-layout shell with TRI dark blue theme */
+/* Retail Interface — same canvas/navy as dealer portal */
 
 :root {
-  --ri-navy: #0a235b;
-  --ri-navy-deep: #07122a;
-  --ri-navy-mid: #0d2f73;
+  --ri-navy: #001b3a;
+  --ri-navy-deep: #0a192f;
+  --ri-navy-mid: #0a235b;
+  --ri-canvas: #0a192f;
   --ri-gold: #f5b800;
   --ri-gold-bright: #f5b800;
   --ri-ink: #e8eef8;
   --ri-muted: #94a3b8;
   --ri-line: rgba(255, 255, 255, 0.1);
-  --ri-panel: rgba(22, 29, 49, 0.82);
-  --ri-panel-solid: #161d31;
+  --ri-panel: rgba(0, 27, 58, 0.72);
+  --ri-panel-solid: #0a235b;
   --ri-sidebar-w: 232px;
   --ri-radius: 12px;
 }
@@ -23,11 +24,26 @@
   padding: 0 !important;
 }
 
+/*
+ * Retail Interface matches Analytics navy (#0a192f).
+ * Hide IntelligenceBackground so Users/Messaging never pick up the brighter glow.
+ */
+.tri-shell:has(.ri-shell) {
+  background: #0a192f !important;
+}
+
+.tri-shell:has(.ri-shell) .intel-bg {
+  display: none !important;
+}
+
 .ri-shell {
   min-height: calc(100vh - 72px);
   display: flex;
   flex-direction: column;
   color: var(--ri-ink);
+  background: #0a192f;
+  position: relative;
+  z-index: 1;
 }
 
 .ri-workspace {
@@ -36,6 +52,7 @@
   min-height: 0;
   gap: 0;
   align-items: stretch;
+  background: #0a192f;
 }
 
 .ri-sidebar {
@@ -45,8 +62,9 @@
   flex-direction: column;
   padding: 1rem 0.75rem;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(5, 12, 28, 0.88);
-  backdrop-filter: blur(14px);
+  background: var(--ri-navy);
+  position: relative;
+  z-index: 5;
 }
 
 .ri-sidebar__brand {
@@ -94,9 +112,9 @@
 }
 
 .ri-sidebar__link.is-active {
-  background: rgba(245, 184, 0, 0.08);
+  background: rgba(245, 184, 0, 0.1);
   color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(245, 184, 0, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(245, 184, 0, 0.7);
 }
 
 .ri-sidebar__link.is-active svg {
@@ -107,9 +125,20 @@
   flex: 1;
   min-width: 0;
   width: 100%;
-  padding: 20px 24px 24px;
+  padding: 16px 0 24px;
   overflow: auto;
   box-sizing: border-box;
+  background: #0a192f;
+  position: relative;
+  z-index: 1;
+}
+
+/* Analytics / Messaging / Users fill the well with the same canvas */
+.ri-content:has(.rad),
+.ri-content:has(.rm),
+.ri-content:has(.ru) {
+  background: #0a192f;
+  padding: 0;
 }
 
 .ri-page-title {

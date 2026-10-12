@@ -31,8 +31,8 @@ export function RetailShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="ri-shell">
-      <div className="ri-workspace">
+    <div className="ri-shell" style={{ background: "#0a192f" }}>
+      <div className="ri-workspace" style={{ background: "#0a192f" }}>
         <aside className="ri-sidebar">
           <div className="ri-sidebar__brand">
             <div className="ri-sidebar__kicker">Trinity Retail</div>
@@ -55,7 +55,9 @@ export function RetailShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
         </aside>
-        <div className="ri-content">{children}</div>
+        <div className="ri-content" style={{ background: "#0a192f" }}>
+          {children}
+        </div>
       </div>
     </div>
   );

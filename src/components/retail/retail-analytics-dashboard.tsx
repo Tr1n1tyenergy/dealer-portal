@@ -68,7 +68,8 @@ export function RetailAnalyticsDashboard({
 }) {
   return (
     <div className="rad">
-      <section className="rad-hero">
+      {/* Media uses fixed height (not 100%) so it never stretches behind charts */}
+      <section className="rad-top">
         <div className="rad-hero__media" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -91,30 +92,31 @@ export function RetailAnalyticsDashboard({
           <span>{dateRangeLabel}</span>
           <ChevronDown size={14} strokeWidth={2} />
         </button>
-      </section>
 
-      <section className="rad-kpis">
-        {kpis.map((k) => (
-          <article key={k.label} className={`rad-kpi rad-kpi--${k.tone}`}>
-            <div className="rad-kpi__top">
-              <span className="rad-kpi__icon">{kpiIcon(k.icon)}</span>
-              <span className="rad-kpi__label">{k.label}</span>
-            </div>
-            <div className="rad-kpi__value">{k.value.toLocaleString()}</div>
-            <div className="rad-kpi__foot">
-              <svg className="rad-kpi__spark" viewBox="0 0 120 36" preserveAspectRatio="none">
-                <path d={sparklinePath(k.spark)} fill="none" strokeWidth="2.2" />
-              </svg>
-              <span className={k.deltaPct >= 0 ? "is-up" : "is-down"}>
-                {k.deltaPct >= 0 ? "+" : ""}
-                {k.deltaPct}% vs last month
+        <section className="rad-kpis">
+          {kpis.map((k) => (
+            <article key={k.label} className={`rad-kpi rad-kpi--${k.tone}`}>
+              <span className="rad-kpi__icon" aria-hidden>
+                {kpiIcon(k.icon)}
               </span>
-            </div>
-          </article>
-        ))}
+              <div className="rad-kpi__body">
+                <span className="rad-kpi__label">{k.label}</span>
+                <div className="rad-kpi__mid">
+                  <span className="rad-kpi__value">{k.value.toLocaleString()}</span>
+                  <svg className="rad-kpi__spark" viewBox="0 0 120 36" preserveAspectRatio="none">
+                    <path d={sparklinePath(k.spark)} fill="none" strokeWidth="2.4" />
+                  </svg>
+                </div>
+                <span className={`rad-kpi__delta ${k.deltaPct >= 0 ? "is-up" : "is-down"}`}>
+                  {k.deltaPct >= 0 ? "↑ +" : "↓ "}
+                  {Math.abs(k.deltaPct)}% vs last month
+                </span>
+              </div>
+            </article>
+          ))}
+        </section>
       </section>
 
-      {/* Single locked 2-col body — matches mockup column edges */}
       <div className="rad-body">
         <div className="rad-col rad-col--main">
           <article className="rad-card rad-trend">
@@ -257,10 +259,10 @@ export function RetailAnalyticsDashboard({
 }
 
 function kpiIcon(kind: RetailKpi["icon"]) {
-  if (kind === "orders") return <FileText size={16} strokeWidth={1.75} />;
-  if (kind === "invites") return <Hourglass size={16} strokeWidth={1.75} />;
-  if (kind === "orgs") return <Users size={16} strokeWidth={1.75} />;
-  return <Fuel size={16} strokeWidth={1.75} />;
+  if (kind === "orders") return <FileText size={22} strokeWidth={1.75} />;
+  if (kind === "invites") return <Hourglass size={22} strokeWidth={1.75} />;
+  if (kind === "orgs") return <Users size={22} strokeWidth={1.75} />;
+  return <Fuel size={22} strokeWidth={1.75} />;
 }
 
 function OrderTrendChart({ points }: { points: TrendPoint[] }) {

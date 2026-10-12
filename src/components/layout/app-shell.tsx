@@ -21,12 +21,15 @@ import "../dashboard/modules.css";
 export function AppShell({
   children,
   fullBleed = false,
+  suppressIntelligenceBackground = false,
 }: {
   children: React.ReactNode;
   /** @deprecated Nav links removed from header; prop kept for call-site compatibility */
   activeNav?: string;
   /** Drop tri-main max-width/padding (Retail Interface workspace). */
   fullBleed?: boolean;
+  /** Retail Interface uses solid Analytics navy — do not paint the brighter intel glow. */
+  suppressIntelligenceBackground?: boolean;
 }) {
   const { data } = useSession();
   const initials = `${data?.user?.firstName?.[0] ?? ""}${data?.user?.lastName?.[0] ?? ""}`.toUpperCase() || "TE";
@@ -38,8 +41,11 @@ export function AppShell({
       : (data?.user?.role ?? data?.user?.department ?? "Staff").replaceAll("_", " ");
 
   return (
-    <div className="tri-shell">
-      <IntelligenceBackground />
+    <div
+      className={cn("tri-shell", suppressIntelligenceBackground && "tri-shell--retail-navy")}
+      style={suppressIntelligenceBackground ? { background: "#0a192f" } : undefined}
+    >
+      {suppressIntelligenceBackground ? null : <IntelligenceBackground />}
 
       <header className="tri-header">
         <div className="tri-header__inner">

@@ -25,11 +25,19 @@ export async function listConversationsForUser(userId: string) {
                   id: true,
                   firstName: true,
                   lastName: true,
+                  email: true,
+                  department: true,
                   accountType: true,
+                  lastLoginAt: true,
+                  dealerOrganizationId: true,
                   dealerOrganization: {
                     select: {
+                      id: true,
                       name: true,
-                      stations: { select: { tradingName: true, name: true }, take: 1 },
+                      stations: {
+                        select: { id: true, tradingName: true, name: true, code: true },
+                        take: 1,
+                      },
                     },
                   },
                 },
@@ -40,6 +48,7 @@ export async function listConversationsForUser(userId: string) {
             where: { deletedAt: null },
             orderBy: { createdAt: "desc" },
             take: 1,
+            select: { id: true, body: true, createdAt: true, senderId: true },
           },
         },
       },
@@ -47,17 +56,40 @@ export async function listConversationsForUser(userId: string) {
     orderBy: { conversation: { lastMessageAt: "desc" } },
   });
 
+  const conversationIds = rows.map((r) => r.conversation.id);
+  // One query (was groupBy + findMany) — count unread receipts per conversation
+  const unreadReceipts =
+    conversationIds.length === 0
+      ? []
+      : await prisma.messageReceipt.findMany({
+          where: {
+            userId,
+            status: { in: ["SENT", "DELIVERED"] },
+            message: {
+              conversationId: { in: conversationIds },
+              senderId: { not: userId },
+              deletedAt: null,
+            },
+          },
+          select: { message: { select: { conversationId: true } } },
+        });
+  const unreadByConversation = new Map<string, number>();
+  for (const r of unreadReceipts) {
+    const cid = r.message.conversationId;
+    unreadByConversation.set(cid, (unreadByConversation.get(cid) ?? 0) + 1);
+  }
+
   return rows.map((row) => {
     const others = row.conversation.participants.filter((p) => p.userId !== userId);
     const peer = others[0]?.user;
+    const station = peer?.dealerOrganization?.stations?.[0];
     const trading =
-      peer?.dealerOrganization?.stations?.[0]?.tradingName ||
-      peer?.dealerOrganization?.stations?.[0]?.name ||
-      peer?.dealerOrganization?.name;
+      station?.tradingName || station?.name || peer?.dealerOrganization?.name;
     const displayName = peer
       ? trading || `${peer.firstName} ${peer.lastName}`
       : "Conversation";
     const last = row.conversation.messages[0] ?? null;
+    const stationLabel = station?.tradingName || station?.name || null;
     return {
       id: row.conversation.id,
       displayName,
@@ -66,7 +98,14 @@ export async function listConversationsForUser(userId: string) {
             id: peer.id,
             firstName: peer.firstName,
             lastName: peer.lastName,
+            email: peer.email,
+            department: peer.department,
             accountType: peer.accountType,
+            lastLoginAt: peer.lastLoginAt,
+            dealerOrganizationId: peer.dealerOrganizationId,
+            organizationName: peer.dealerOrganization?.name ?? null,
+            stationLabel,
+            stationCode: station?.code ?? null,
           }
         : null,
       lastMessage: last
@@ -74,8 +113,160 @@ export async function listConversationsForUser(userId: string) {
         : null,
       lastMessageAt: row.conversation.lastMessageAt,
       lastReadAt: row.lastReadAt,
+      unreadCount: unreadByConversation.get(row.conversation.id) ?? 0,
     };
   });
+}
+
+/** Operational context for the selected conversation (peer profile, orders, docs). */
+export async function getConversationContext(conversationId: string, viewerId: string) {
+  const [viewer, conversation] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: viewerId },
+      select: { id: true, accountType: true, dealerOrganizationId: true },
+    }),
+    prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                department: true,
+                accountType: true,
+                lastLoginAt: true,
+                dealerOrganizationId: true,
+                dealerOrganization: {
+                  select: {
+                    id: true,
+                    name: true,
+                    stations: {
+                      select: { id: true, tradingName: true, name: true, code: true },
+                      take: 1,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+  if (!viewer || !conversation) throw new Error("Forbidden");
+  if (!conversation.participants.some((p) => p.userId === viewerId)) {
+    throw new Error("Forbidden");
+  }
+
+  const peerRow = conversation.participants.find((p) => p.userId !== viewerId);
+  const peer = peerRow?.user ?? null;
+  const station = peer?.dealerOrganization?.stations?.[0] ?? null;
+  const displayName = peer
+    ? station?.tradingName ||
+      station?.name ||
+      peer.dealerOrganization?.name ||
+      `${peer.firstName} ${peer.lastName}`
+    : "Conversation";
+
+  const orgId = peer?.dealerOrganizationId ?? null;
+  const canSeeOrders =
+    Boolean(orgId) &&
+    (viewer.accountType === "INTERNAL" ||
+      (viewer.accountType === "DEALER" && viewer.dealerOrganizationId === orgId));
+
+  const [recentOrders, documents, pfis] = canSeeOrders
+    ? await Promise.all([
+        prisma.dealerOrder.findMany({
+          where: { dealerOrganizationId: orgId! },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: {
+            id: true,
+            reference: true,
+            status: true,
+            createdAt: true,
+            station: { select: { name: true, tradingName: true } },
+          },
+        }),
+        prisma.orderDocument.findMany({
+          where: { order: { dealerOrganizationId: orgId! } },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+          select: {
+            id: true,
+            fileName: true,
+            kind: true,
+            storagePath: true,
+            createdAt: true,
+            order: { select: { id: true, reference: true } },
+          },
+        }),
+        prisma.proFormaInvoice.findMany({
+          where: {
+            order: { dealerOrganizationId: orgId! },
+            documentPath: { not: null },
+          },
+          orderBy: { issuedAt: "desc" },
+          take: 8,
+          select: {
+            id: true,
+            number: true,
+            documentPath: true,
+            issuedAt: true,
+            order: { select: { id: true, reference: true } },
+          },
+        }),
+      ])
+    : [[], [], []] as [never[], never[], never[]];
+
+  return {
+    conversationId,
+    displayName,
+    peer: peer
+      ? {
+          id: peer.id,
+          firstName: peer.firstName,
+          lastName: peer.lastName,
+          email: peer.email,
+          department: peer.department,
+          accountType: peer.accountType,
+          lastLoginAt: peer.lastLoginAt,
+          organizationName: peer.dealerOrganization?.name ?? null,
+          stationLabel: station?.tradingName || station?.name || null,
+          stationCode: station?.code ?? null,
+          locationHint: station?.name || peer.dealerOrganization?.name || peer.department || null,
+        }
+      : null,
+    recentOrders,
+    files: [
+      ...documents.map((d) => ({
+        id: d.id,
+        source: "order_document" as const,
+        fileName: d.fileName,
+        kind: d.kind,
+        createdAt: d.createdAt,
+        orderId: d.order.id,
+        orderReference: d.order.reference,
+        downloadPath: `/api/messaging/files/order-document/${d.id}`,
+      })),
+      ...pfis.map((p) => ({
+        id: p.id,
+        source: "pfi" as const,
+        fileName: `${p.number}.pdf`,
+        kind: "PFI",
+        createdAt: p.issuedAt,
+        orderId: p.order.id,
+        orderReference: p.order.reference,
+        downloadPath: `/api/messaging/files/pfi/${p.id}`,
+      })),
+    ]
+      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      .slice(0, 8),
+  };
 }
 
 export async function getOrCreateDirectConversation(actorId: string, peerId: string) {
