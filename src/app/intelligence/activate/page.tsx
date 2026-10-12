@@ -1,16 +1,15 @@
 import { Suspense } from "react";
-import ActivateClient from "./activate-client";
+import { ActivatePasswordForm } from "@/components/auth/activate-password-form";
 
-export default function ActivatePage() {
+export default function StaffActivatePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="grid min-h-screen place-items-center text-sm text-slate-500">
-          Loading...
-        </div>
-      }
-    >
-      <ActivateClient />
+    <Suspense fallback={<div className="login-page">Loading…</div>}>
+      <ActivatePasswordForm
+        portal="staff"
+        loginHref="/intelligence/login"
+        title="Activate staff account"
+        subtitle="Set your password to access Trinity Retail Intelligence."
+      />
     </Suspense>
   );
 }

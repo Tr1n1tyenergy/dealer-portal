@@ -1,106 +1,308 @@
 /**
- * Confirmed quotation fulfillment model (2026-10-05).
+ * Confirmed quotation fulfillment model.
  *
  * Only four loading warehouses are used for dealer fuel orders.
  * Station → warehouse is fixed; source location is fixed per warehouse.
- * Pricing is station-based via station.station.pricelist_id (not dealer).
- * Portal does not send unit price — Odoo applies the station pricelist.
+ * Stable Odoo identifiers are External IDs (`__export__.…`); live JSON-RPC
+ * resolves them to database IDs via ir.model.data before writing sale.order.
  *
  * PFI = PDF from sale.order report `delivery_report.sale_pro_invoice_report`
  * (Sale PRO-FORMA Invoice). Sample: Sale_PRO-FORMA_Invoice_-_S01177.pdf
- * Quotation field on SO: station_id → station.station
+ * Quotation station identifier: Odoo External ID (resolved at live sync).
+ * Banana was provided as account.analytic.account — confirm this matches the
+ * Station field on sale.order (vs station.station) before full cutover.
  */
 
-export const LOADING_WAREHOUSES = {
+/**
+ * Source-location candidates from Odoo stock.quant export (2026-10-08).
+ * These External IDs are stock.quant rows (product @ location), not stock.location.
+ * Live sync reads quant.location_id to set sale.order.source_location_id.
+ * Switch active pick via odooLocationExternalId or env ODOO_SOURCE_LOCATION_<WH>_EXTERNAL_ID.
+ */
+export type SourceLocationCandidate = {
+  key: string;
+  externalId: string;
+  productCode: string;
+  productName: string;
+};
+
+export type SourceLocationConfig = {
+  name: string;
+  /** Active candidate External ID used for live quotation create */
+  odooLocationExternalId: string | null;
+  candidates: SourceLocationCandidate[];
+};
+
+export const LOADING_WAREHOUSES: Record<
+  string,
+  {
+    key: string;
+    name: string;
+    odooWarehouseExternalId: string;
+    odooWarehouseCode: string;
+    sourceLocation: SourceLocationConfig;
+  }
+> = {
   KPC_ELDORET: {
     key: "KPC_ELDORET",
     name: "KPC ELDORET TERMINAL",
-    odooWarehouseId: 66,
+    odooWarehouseExternalId: "__export__.stock_warehouse_141_2be39467",
     odooWarehouseCode: "KPCED",
     sourceLocation: {
       name: "KPC-ELDORET/Stock",
-      odooLocationId: 403,
+      odooLocationExternalId: "__export__.stock_quant_9382_5fced216",
+      candidates: [
+        {
+          key: "ELDORET_AGO_EXPORT",
+          externalId: "__export__.stock_quant_9449_75b9ceed",
+          productCode: "AGOE001",
+          productName: "AGO EXPORT",
+        },
+        {
+          key: "ELDORET_AGO_LOCAL",
+          externalId: "__export__.stock_quant_11568_fc1e067b",
+          productCode: "AGOL001",
+          productName: "AGO LOCAL",
+        },
+        {
+          key: "ELDORET_PMS_EXPORT",
+          externalId: "__export__.stock_quant_9393_467dc15f",
+          productCode: "PMSE001",
+          productName: "PMS EXPORT",
+        },
+        {
+          key: "ELDORET_PMS_LOCAL",
+          externalId: "__export__.stock_quant_9382_5fced216",
+          productCode: "PMSL001",
+          productName: "PMS LOCAL",
+        },
+      ],
     },
   },
   KPC_NAKURU: {
     key: "KPC_NAKURU",
     name: "KPC  NAKURU TERMINAL",
-    odooWarehouseId: 67,
+    odooWarehouseExternalId: "__export__.stock_warehouse_143_2ab4577e",
     odooWarehouseCode: "KPCNK",
     sourceLocation: {
       name: "KPC-NAKURU/Stock",
-      odooLocationId: 409,
+      odooLocationExternalId: "__export__.stock_quant_10902_860a9d8d",
+      candidates: [
+        {
+          key: "NAKURU_PMS_LOCAL",
+          externalId: "__export__.stock_quant_10902_860a9d8d",
+          productCode: "PMSL001",
+          productName: "PMS LOCAL",
+        },
+        {
+          key: "NAKURU_AGO_EXPORT",
+          externalId: "__export__.stock_quant_11588_69fb8c73",
+          productCode: "AGOE001",
+          productName: "AGO EXPORT",
+        },
+        {
+          key: "NAKURU_AGO_LOCAL",
+          externalId: "__export__.stock_quant_9385_066bd768",
+          productCode: "AGOL001",
+          productName: "AGO LOCAL",
+        },
+        {
+          key: "NAKURU_PMS_EXPORT",
+          externalId: "__export__.stock_quant_9082_838c0f7d",
+          productCode: "PMSE001",
+          productName: "PMS EXPORT",
+        },
+      ],
     },
   },
   KPC_KISUMU: {
     key: "KPC_KISUMU",
     name: "KPC KISUMU TERMINAL",
-    odooWarehouseId: 68,
+    odooWarehouseExternalId: "__export__.stock_warehouse_144_1efecfce",
     odooWarehouseCode: "KPCKS",
     sourceLocation: {
       name: "KPC-KISUMU/Stock",
-      odooLocationId: 415,
+      odooLocationExternalId: "__export__.stock_quant_9384_2d26b934",
+      candidates: [
+        {
+          key: "KISUMU_AGO_LOCAL",
+          externalId: "__export__.stock_quant_38853_699e2bca",
+          productCode: "AGOL001",
+          productName: "AGO LOCAL",
+        },
+        {
+          key: "KISUMU_PMS_LOCAL",
+          externalId: "__export__.stock_quant_9384_2d26b934",
+          productCode: "PMSL001",
+          productName: "PMS LOCAL",
+        },
+      ],
     },
   },
   LAKE_OIL_NRB: {
     key: "LAKE_OIL_NRB",
     name: "LAKE OIL GROUP (NBI)",
-    odooWarehouseId: 63,
+    odooWarehouseExternalId: "__export__.stock_warehouse_138_2263a4fc",
     odooWarehouseCode: "LakeO",
     sourceLocation: {
       name: "LakeO/Stock",
-      odooLocationId: 385,
+      odooLocationExternalId: "__export__.stock_quant_9329_2b09d1f5",
+      candidates: [
+        {
+          key: "LAKEO_AGO_LOCAL",
+          externalId: "__export__.stock_quant_9288_a1243fdf",
+          productCode: "AGOL001",
+          productName: "AGO LOCAL",
+        },
+        {
+          key: "LAKEO_PMS_LOCAL",
+          externalId: "__export__.stock_quant_9329_2b09d1f5",
+          productCode: "PMSL001",
+          productName: "PMS LOCAL",
+        },
+      ],
     },
   },
-} as const;
+};
 
 export type LoadingWarehouseKey = keyof typeof LOADING_WAREHOUSES;
+
+const SOURCE_LOCATION_ENV: Record<LoadingWarehouseKey, string> = {
+  KPC_ELDORET: "ODOO_SOURCE_LOCATION_KPC_ELDORET_EXTERNAL_ID",
+  KPC_NAKURU: "ODOO_SOURCE_LOCATION_KPC_NAKURU_EXTERNAL_ID",
+  KPC_KISUMU: "ODOO_SOURCE_LOCATION_KPC_KISUMU_EXTERNAL_ID",
+  LAKE_OIL_NRB: "ODOO_SOURCE_LOCATION_LAKE_OIL_NRB_EXTERNAL_ID",
+};
+
+/** Active source-location External ID for a warehouse (env override wins). */
+export function resolveSourceLocationExternalId(warehouseKey: LoadingWarehouseKey): string | null {
+  const envName = SOURCE_LOCATION_ENV[warehouseKey];
+  const fromEnv = (process.env[envName] ?? "").trim();
+  if (fromEnv) return fromEnv;
+  return LOADING_WAREHOUSES[warehouseKey].sourceLocation.odooLocationExternalId;
+}
 
 export type StationFulfillment = {
   portalCode: string;
   name: string;
   warehouseKey: LoadingWarehouseKey;
-  /** station.station id for sale.order.station_id — null if not yet in Odoo */
-  odooStationId: number | null;
+  /**
+   * Preferred: Odoo External ID for the station record used on quotations.
+   * Banana example is account.analytic.account (not station.station).
+   */
+  odooStationExternalId: string | null;
+  /** Display name in Odoo, when known */
   odooStationName: string | null;
-  /** product.pricelist id on station.station — pricing is station-scoped */
+  /** Legacy numeric id — used only when External ID is not yet set */
+  odooStationId: number | null;
+  /** product.pricelist id when known — pricing is station-scoped */
   odooPricelistId: number | null;
 };
 
+function station(
+  portalCode: string,
+  name: string,
+  warehouseKey: LoadingWarehouseKey,
+  opts: {
+    odooStationExternalId?: string | null;
+    odooStationName?: string | null;
+    odooStationId?: number | null;
+    odooPricelistId?: number | null;
+  } = {}
+): StationFulfillment {
+  return {
+    portalCode,
+    name,
+    warehouseKey,
+    odooStationExternalId: opts.odooStationExternalId ?? null,
+    odooStationName: opts.odooStationName ?? null,
+    odooStationId: opts.odooStationId ?? null,
+    odooPricelistId: opts.odooPricelistId ?? null,
+  };
+}
+
 /**
- * Station → loading warehouse (from Trinity) + station.station ids (from live Odoo).
- * Only 13 stations currently exist in station.station; the rest need creating in Odoo.
+ * Station → loading warehouse + Odoo station External ID (when provided).
+ * Prefer External IDs; legacy numeric ids remain only as temporary fallback.
  */
 export const STATION_FULFILLMENT: StationFulfillment[] = [
   // KPC ELDORET
-  { portalCode: "kitale", name: "Kitale", warehouseKey: "KPC_ELDORET", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "outspan-eldoret", name: "Outspan Eldoret", warehouseKey: "KPC_ELDORET", odooStationId: 13, odooStationName: "OUTSPAN STATION", odooPricelistId: 6 },
+  station("kitale", "Kitale", "KPC_ELDORET"),
+  station("outspan-eldoret", "Outspan Eldoret", "KPC_ELDORET", {
+    odooStationExternalId: "__export__.account_analytic_account_5_46f067c5",
+    odooStationName: "OUTSPAN STATION",
+    odooPricelistId: 6,
+  }),
 
   // KPC NAKURU
-  { portalCode: "ol-joro-orok", name: "Ol'Joro-Orok", warehouseKey: "KPC_NAKURU", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "greensted", name: "Greensted", warehouseKey: "KPC_NAKURU", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "sobea", name: "Sobea", warehouseKey: "KPC_NAKURU", odooStationId: 14, odooStationName: "SOBEA STATION", odooPricelistId: 7 },
-  { portalCode: "nakuru", name: "Nakuru", warehouseKey: "KPC_NAKURU", odooStationId: 16, odooStationName: "NAKURU TOWN STATION", odooPricelistId: 9 },
+  station("ol-joro-orok", "Ol'Joro-Orok", "KPC_NAKURU"),
+  station("greensted", "Greensted", "KPC_NAKURU"),
+  station("sobea", "Sobea", "KPC_NAKURU", {
+    odooStationExternalId: "__export__.account_analytic_account_9_0cc2c2de",
+    odooStationName: "SOBEA STATION",
+    odooPricelistId: 7,
+  }),
+  station("nakuru", "Nakuru", "KPC_NAKURU", {
+    odooStationExternalId: "__export__.account_analytic_account_4_a1852057",
+    odooStationName: "NAKURU TOWN STATION",
+    odooPricelistId: 9,
+  }),
 
   // KPC KISUMU
-  { portalCode: "mumias", name: "Mumias", warehouseKey: "KPC_KISUMU", odooStationId: 22, odooStationName: "MUMIAS STATION", odooPricelistId: 15 },
-  { portalCode: "migori", name: "Migori", warehouseKey: "KPC_KISUMU", odooStationId: 21, odooStationName: "MIGORI  STATION", odooPricelistId: 14 },
-  { portalCode: "kisii", name: "Kisii", warehouseKey: "KPC_KISUMU", odooStationId: 18, odooStationName: "KISII STATION", odooPricelistId: 11 },
+  station("mumias", "Mumias", "KPC_KISUMU", {
+    odooStationExternalId: "__export__.account_analytic_account_7_54337094",
+    odooStationName: "MUMIAS STATION",
+    odooPricelistId: 15,
+  }),
+  station("migori", "Migori", "KPC_KISUMU", {
+    odooStationExternalId: "__export__.account_analytic_account_128_330c5416",
+    odooStationName: "MIGORI  STATION",
+    odooPricelistId: 14,
+  }),
+  station("kisii", "Kisii", "KPC_KISUMU", {
+    odooStationName: "KISII STATION",
+    odooStationId: 18,
+    odooPricelistId: 11,
+  }),
 
   // LAKE OIL GROUP (NRB)
-  { portalCode: "meru-gaitu", name: "Meru-Gaitu", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "athiriver", name: "Athiriver", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "rimpa", name: "Rimpa", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "kabati-kitui", name: "Kabati Kitui", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "thome", name: "Thome", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "maili-tatu", name: "Maili Tatu", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "banana", name: "Banana", warehouseKey: "LAKE_OIL_NRB", odooStationId: 1, odooStationName: "BANANA STATION", odooPricelistId: 4 },
-  { portalCode: "magumu", name: "Magumu", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "kitanga", name: "Kitanga", warehouseKey: "LAKE_OIL_NRB", odooStationId: 19, odooStationName: "KITANGA  STATION", odooPricelistId: 12 },
-  { portalCode: "maua-town", name: "Maua Town", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "kiserian", name: "Kiserian", warehouseKey: "LAKE_OIL_NRB", odooStationId: 2, odooStationName: "KISERIAN STATION", odooPricelistId: 2 },
-  { portalCode: "dagoretti", name: "Dagoretti", warehouseKey: "LAKE_OIL_NRB", odooStationId: null, odooStationName: null, odooPricelistId: null },
-  { portalCode: "kambiti", name: "Kambiti", warehouseKey: "LAKE_OIL_NRB", odooStationId: 12, odooStationName: "KAMBITI STATION", odooPricelistId: 5 },
+  station("meru-gaitu", "Meru-Gaitu", "LAKE_OIL_NRB"),
+  station("athiriver", "Athiriver", "LAKE_OIL_NRB"),
+  station("rimpa", "Rimpa", "LAKE_OIL_NRB"),
+  station("kabati-kitui", "Kabati Kitui", "LAKE_OIL_NRB"),
+  station("thome", "Thome", "LAKE_OIL_NRB"),
+  station("maili-tatu", "Maili Tatu", "LAKE_OIL_NRB"),
+  station("malaa", "Malaa", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_6_fc268fb1",
+    odooStationName: "MALAA STATION",
+  }),
+  station("mariakani", "Mariakani", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_3_1462ffa8",
+    odooStationName: "MARIAKANI STATION",
+  }),
+  station("banana", "Banana", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_1_7bdf628f",
+    odooStationName: "BANANA STATION",
+    odooPricelistId: 4,
+  }),
+  station("magumu", "Magumu", "LAKE_OIL_NRB"),
+  station("kitanga", "Kitanga", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_130_9dc98478",
+    odooStationName: "KITANGA  STATION",
+    odooPricelistId: 12,
+  }),
+  station("maua-town", "Maua Town", "LAKE_OIL_NRB"),
+  station("kiserian", "Kiserian", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_2_687baa4d",
+    odooStationName: "KISERIAN STATION",
+    odooPricelistId: 2,
+  }),
+  station("dagoretti", "Dagoretti", "LAKE_OIL_NRB"),
+  station("kambiti", "Kambiti", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_8_13ad42a3",
+    odooStationName: "KAMBITI STATION",
+    odooPricelistId: 5,
+  }),
 ];
 
 export function fulfillmentForStation(stationCode: string) {
@@ -109,22 +311,28 @@ export function fulfillmentForStation(stationCode: string) {
   const wh = LOADING_WAREHOUSES[row.warehouseKey];
   return {
     ...row,
-    warehouseId: wh.odooWarehouseId,
+    warehouseKey: row.warehouseKey,
+    warehouseExternalId: wh.odooWarehouseExternalId,
     warehouseName: wh.name,
-    sourceLocationId: wh.sourceLocation.odooLocationId,
+    sourceLocationExternalId: resolveSourceLocationExternalId(row.warehouseKey),
     sourceLocationName: wh.sourceLocation.name,
+    sourceLocationCandidates: wh.sourceLocation.candidates,
   };
 }
 
+/**
+ * Fields written on sale.order when the portal creates a quotation.
+ * Provide Odoo External IDs for every many2one we must resolve.
+ */
 export const QUOTATION_CREATE_CONTRACT = {
   saleType: "fuels" as const,
   substantialFields: [
-    "partner_id", // dealer customer
+    "partner_id", // dealer customer (res.partner)
     "sale_type", // fuels
-    "station_id", // station.station — drives station pricelist
-    "warehouse_id", // loading terminal from station map
-    "source_location_id", // fixed from warehouse
-    "order_line.product_id",
+    "station_id", // station External ID (Banana = account.analytic.account)
+    "warehouse_id", // loading terminal — External ID on LOADING_WAREHOUSES
+    "source_location_id", // stock.location — External ID pending per warehouse
+    "order_line.product_id", // product.product — External ID pending for PMS/AGO
     "order_line.product_uom_qty",
   ],
   unitPriceSource: "temporary_epra_regional_by_warehouse",
@@ -141,9 +349,11 @@ export const QUOTATION_CREATE_CONTRACT = {
 
 /** Still awaiting / incomplete */
 export const INTEGRATION_GAPS = [
-  "station.station IDs missing in Odoo for: Kitale, Ol'Joro-Orok, Greensted, Meru-Gaitu, Athiriver, Rimpa, Kabati Kitui, Thome, Maili Tatu, Magumu, Maua Town, Dagoretti (create in Odoo or send IDs)",
-  "Confirm warehouse/source IDs we prefilled from live Odoo (66/67/68/63 and 403/409/415/385)",
+  "Confirm which stock.quant candidate maps to the correct source location per warehouse (all candidates stored; active test pick = PMS LOCAL quant where available)",
+  "PMS/AGO products confirmed: PMSL001 + AGOL001 (see fuel-products.json externalIds)",
+  "Station External IDs still needed for remaining portal stations (have: Banana, Kambiti, Kiserian, Kitanga, Malaa, Mariakani, Migori, Mumias, Nakuru Town, Eldoret Outspan, Sobea; model: account.analytic.account)",
+  "Malaa and Mariakani are mapped in STATION_FULFILLMENT but not yet in official-dealers.json / dealer portal stations; confirm Mariakani loading warehouse (currently LAKE_OIL_NRB)",
   "Replace temporary EPRA retail prices with station-discounted dealer wholesale once Odoo pricelists are authoritative",
-  "Lubricants + LPG product.product IDs if orderable from portal",
+  "Lubricants + LPG product.product External IDs if orderable from portal",
   "Real dealer names + partner IDs for Kambiti, Dagoretti, Outspan placeholders",
 ] as const;

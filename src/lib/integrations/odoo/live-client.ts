@@ -1,9 +1,11 @@
 import type { CreateQuotationInput, OdooClient, OdooProForma, OdooQuotation } from "./types";
 import { odooEnv, odooProductIdForKind, ODOO_TRINITY } from "./config";
 import type { FuelProductKind } from "./fuel-products";
+import { resolveFuelProductExternalId } from "./fuel-products";
 import { SALE_ORDER_QUOTATION_FIELDS } from "./quotation-fields";
 import { fulfillmentForStation } from "./quotation-contract";
 import { epraUnitPriceForStation, type EpraFuelProduct } from "./epra-temp-prices";
+import { parseOdooExternalId } from "./external-ids";
 
 type JsonRpcResult<T> = { jsonrpc: string; id: number | null; result?: T; error?: { message: string; data?: unknown } };
 
@@ -29,6 +31,8 @@ export class LiveOdooClient implements OdooClient {
   readonly mode = "live" as const;
   private uid: number | null = null;
   private readonly env = odooEnv();
+  /** Cache External ID → database id for this client instance */
+  private readonly externalIdCache = new Map<string, number>();
 
   private async rpc<T>(service: string, method: string, args: unknown[]): Promise<T> {
     const res = await fetch(`${this.env.baseUrl}/jsonrpc`, {
@@ -80,17 +84,153 @@ export class LiveOdooClient implements OdooClient {
     ]);
   }
 
-  private productId(product: FuelProductKind, explicitId?: number | null) {
-    const id = explicitId || odooProductIdForKind(product);
-    if (!id) {
+  /**
+   * Resolve an Odoo External ID (`module.name`) to a database id via ir.model.data.
+   */
+  private async resolveExternalId(externalId: string, expectedModel?: string): Promise<number> {
+    const cached = this.externalIdCache.get(externalId);
+    if (cached != null) return cached;
+
+    const { module, name } = parseOdooExternalId(externalId);
+    const rows = await this.execute<Array<{ res_id: number; model: string }>>(
+      M.modelData,
+      "search_read",
+      [
+        [
+          ["module", "=", module],
+          ["name", "=", name],
+        ],
+      ],
+      { fields: ["res_id", "model"], limit: 1 }
+    );
+    const row = rows[0];
+    if (!row?.res_id) {
+      throw new Error(`Odoo External ID "${externalId}" was not found in ir.model.data.`);
+    }
+    if (expectedModel && row.model !== expectedModel) {
       throw new Error(
-        `Missing Odoo product id for ${product}. Set ODOO_PRODUCT_${product}_ID in .env or add it to fuel-products.json (${M.productVariant} id).`
+        `Odoo External ID "${externalId}" points to ${row.model}, expected ${expectedModel}.`
       );
     }
-    return id;
+    this.externalIdCache.set(externalId, row.res_id);
+    return row.res_id;
+  }
+
+  /**
+   * Resolve source location External ID for sale.order.source_location_id.
+   * Exports may be stock.location or stock.quant (product@location) — quants yield location_id.
+   */
+  private async resolveSourceLocationId(externalId: string): Promise<number> {
+    const cached = this.externalIdCache.get(`location:${externalId}`);
+    if (cached != null) return cached;
+
+    const { module, name } = parseOdooExternalId(externalId);
+    const rows = await this.execute<Array<{ res_id: number; model: string }>>(
+      M.modelData,
+      "search_read",
+      [
+        [
+          ["module", "=", module],
+          ["name", "=", name],
+        ],
+      ],
+      { fields: ["res_id", "model"], limit: 1 }
+    );
+    const row = rows[0];
+    if (!row?.res_id) {
+      throw new Error(`Odoo External ID "${externalId}" was not found in ir.model.data.`);
+    }
+
+    if (row.model === M.stockLocation) {
+      this.externalIdCache.set(`location:${externalId}`, row.res_id);
+      return row.res_id;
+    }
+
+    if (row.model === M.stockQuant) {
+      const quants = await this.execute<Array<{ location_id: [number, string] }>>(
+        M.stockQuant,
+        "read",
+        [[row.res_id], ["location_id"]]
+      );
+      const locationId = quants[0]?.location_id?.[0];
+      if (!locationId) {
+        throw new Error(
+          `Odoo stock.quant "${externalId}" (id ${row.res_id}) has no location_id.`
+        );
+      }
+      this.externalIdCache.set(`location:${externalId}`, locationId);
+      return locationId;
+    }
+
+    throw new Error(
+      `Odoo External ID "${externalId}" points to ${row.model}; expected ${M.stockLocation} or ${M.stockQuant}.`
+    );
+  }
+
+  /**
+   * Resolve a product External ID to product.product for sale.order.line.product_id.
+   * Candidates from Odoo export are product.template — find the related variant.
+   */
+  private async productId(product: FuelProductKind, explicitId?: number | null): Promise<number> {
+    if (explicitId) return explicitId;
+
+    const externalId = resolveFuelProductExternalId(product);
+    if (externalId) {
+      const { module, name } = parseOdooExternalId(externalId);
+      const rows = await this.execute<Array<{ res_id: number; model: string }>>(
+        M.modelData,
+        "search_read",
+        [
+          [
+            ["module", "=", module],
+            ["name", "=", name],
+          ],
+        ],
+        { fields: ["res_id", "model"], limit: 1 }
+      );
+      const row = rows[0];
+      if (!row?.res_id) {
+        throw new Error(`Odoo External ID "${externalId}" was not found in ir.model.data.`);
+      }
+
+      if (row.model === M.productVariant) {
+        this.externalIdCache.set(externalId, row.res_id);
+        return row.res_id;
+      }
+
+      if (row.model === M.productTemplate) {
+        const variantIds = await this.execute<number[]>(
+          M.productVariant,
+          "search",
+          [[["product_tmpl_id", "=", row.res_id]]],
+          { limit: 1 }
+        );
+        if (!variantIds[0]) {
+          throw new Error(
+            `Odoo product template "${externalId}" (id ${row.res_id}) has no product.product variant.`
+          );
+        }
+        this.externalIdCache.set(externalId, variantIds[0]);
+        return variantIds[0];
+      }
+
+      throw new Error(
+        `Odoo External ID "${externalId}" points to ${row.model}; expected ${M.productTemplate} or ${M.productVariant}.`
+      );
+    }
+
+    const legacyId = odooProductIdForKind(product);
+    if (legacyId) return legacyId;
+
+    throw new Error(
+      `Missing Odoo product External ID for ${product}. Set fuel-products.json externalIds.${product} or ODOO_PRODUCT_${product}_EXTERNAL_ID.`
+    );
   }
 
   private async resolvePartnerId(input: CreateQuotationInput): Promise<number> {
+    if (input.odooPartnerExternalId) {
+      return this.resolveExternalId(input.odooPartnerExternalId, M.partner);
+    }
     if (input.odooPartnerId) return input.odooPartnerId;
 
     const byRef = await this.execute<number[]>(
@@ -120,7 +260,7 @@ export class LiveOdooClient implements OdooClient {
     if (byName[0]) return byName[0];
 
     throw new Error(
-      `No Odoo customer found for dealer "${input.dealerName}" (code ${input.dealerCode}). Set odooPartnerId on the dealer organization (${M.partner}).`
+      `No Odoo customer found for dealer "${input.dealerName}" (code ${input.dealerCode}). Set odooPartnerExternalId or odooPartnerId on the dealer organization (${M.partner}).`
     );
   }
 
@@ -138,7 +278,6 @@ export class LiveOdooClient implements OdooClient {
 
     const partnerId = await this.resolvePartnerId(input);
     const fulfillment = input.stationCode ? fulfillmentForStation(input.stationCode) : null;
-    const stationId = input.odooStationId ?? fulfillment?.odooStationId ?? null;
 
     const noteParts = [
       `Portal order: ${input.idempotencyKey}`,
@@ -152,28 +291,51 @@ export class LiveOdooClient implements OdooClient {
       input.notes ? `Notes: ${input.notes}` : null,
     ].filter(Boolean);
 
-    const orderLines = input.lines.map((line) => {
-      const epraProduct = (line.product === "PMS" || line.product === "AGO"
-        ? line.product
-        : null) as EpraFuelProduct | null;
-      const unitPrice =
-        line.unitPrice ??
-        (input.stationCode && epraProduct
-          ? epraUnitPriceForStation(input.stationCode, epraProduct)
-          : null);
+    const orderLines = await Promise.all(
+      input.lines.map(async (line) => {
+        const epraProduct = (line.product === "PMS" || line.product === "AGO"
+          ? line.product
+          : null) as EpraFuelProduct | null;
+        const unitPrice =
+          line.unitPrice ??
+          (input.stationCode && epraProduct
+            ? epraUnitPriceForStation(input.stationCode, epraProduct)
+            : null);
 
-      return [
-        0,
-        0,
-        {
-          /** product.product variant id (API); UI also exposes product_template_id */
-          product_id: this.productId(line.product, line.odooProductId),
-          product_uom_qty: line.quantityLitres,
-          ...(unitPrice != null ? { price_unit: unitPrice } : {}),
-          name: `${line.product} — ${line.quantityLitres.toLocaleString()} L`,
-        },
-      ];
-    });
+        return [
+          0,
+          0,
+          {
+            /** product.product variant id (API); resolved from External ID when set */
+            product_id: await this.productId(line.product, line.odooProductId),
+            product_uom_qty: line.quantityLitres,
+            ...(unitPrice != null ? { price_unit: unitPrice } : {}),
+            name: `${line.product} — ${line.quantityLitres.toLocaleString()} L`,
+          },
+        ];
+      })
+    );
+
+    let warehouseId: number | undefined;
+    let sourceLocationId: number | undefined;
+    let stationId: number | undefined;
+    if (fulfillment) {
+      warehouseId = await this.resolveExternalId(
+        fulfillment.warehouseExternalId,
+        "stock.warehouse"
+      );
+      if (fulfillment.sourceLocationExternalId) {
+        sourceLocationId = await this.resolveSourceLocationId(fulfillment.sourceLocationExternalId);
+      }
+      if (fulfillment.odooStationExternalId) {
+        // Model comes from External ID (Banana = account.analytic.account).
+        stationId = await this.resolveExternalId(fulfillment.odooStationExternalId);
+      } else if (input.odooStationId ?? fulfillment.odooStationId) {
+        stationId = input.odooStationId ?? fulfillment.odooStationId ?? undefined;
+      }
+    } else if (input.odooStationId) {
+      stationId = input.odooStationId;
+    }
 
     const orderId = await this.execute<number>(M.saleOrder, "create", [
       {
@@ -187,13 +349,9 @@ export class LiveOdooClient implements OdooClient {
         note: noteParts.join("\n"),
         origin: input.idempotencyKey,
         order_line: orderLines,
-        ...(stationId ? { station_id: stationId } : {}),
-        ...(fulfillment
-          ? {
-              warehouse_id: fulfillment.warehouseId,
-              source_location_id: fulfillment.sourceLocationId,
-            }
-          : {}),
+        ...(stationId != null ? { station_id: stationId } : {}),
+        ...(warehouseId != null ? { warehouse_id: warehouseId } : {}),
+        ...(sourceLocationId != null ? { source_location_id: sourceLocationId } : {}),
         ...(input.requestedDeliveryDate
           ? { validity_date: input.requestedDeliveryDate.slice(0, 10) }
           : {}),

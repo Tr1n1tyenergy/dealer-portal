@@ -39,7 +39,7 @@ console.info(
 const cmdLine = args.join(" ");
 const isMigrateDeploy =
   /\bprisma\b/.test(cmdLine) && /\bmigrate\b/.test(cmdLine) && /\bdeploy\b/.test(cmdLine);
-const isBootstrap = /bootstrap-production-admin/.test(cmdLine);
+const isBootstrap = /bootstrap-production-(admin|dealer)/.test(cmdLine);
 const isForbidden =
   /\bdb\s+push\b/.test(cmdLine) ||
   /\bmigrate\s+dev\b/.test(cmdLine) ||

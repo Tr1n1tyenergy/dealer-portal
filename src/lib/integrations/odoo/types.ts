@@ -18,6 +18,8 @@ export type CreateQuotationInput = {
   dealerName: string;
   /** Odoo res.partner id for this dealer — preferred over name/code search. */
   odooPartnerId?: number | null;
+  /** Odoo res.partner External ID — preferred over numeric id when present. */
+  odooPartnerExternalId?: string | null;
   stationName: string;
   /** Portal station code — resolves warehouse, source location, temp EPRA price */
   stationCode?: string | null;

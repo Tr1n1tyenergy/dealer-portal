@@ -184,6 +184,10 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
       idempotencyKey: current.odooSyncKey,
       dealerCode: current.dealerOrganization.code,
       dealerName: current.dealerOrganization.name,
+      odooPartnerExternalId:
+        current.station.odooPartnerExternalId ??
+        current.dealerOrganization.odooPartnerExternalId ??
+        null,
       odooPartnerId: resolveOdooPartnerId(
         current.station.odooPartnerId,
         current.dealerOrganization.odooPartnerId

@@ -130,6 +130,9 @@ model User {
   activityLogs   ActivityLog[]       @relation("ActorLogs")
   ordersCreated  DealerOrder[]       @relation("OrderCreator")
   statusChanges  OrderStatusHistory[]
+  conversationParticipants ConversationParticipant[]
+  messagesSent             Message[]                 @relation("MessageSender")
+  messageReceipts          MessageReceipt[]
 
   @@index([email])
   @@index([role])
@@ -236,6 +239,8 @@ model DealerOrganization {
   code          String   @unique
   /** Odoo res.partner id for this dealer customer */
   odooPartnerId Int?
+  /** Odoo res.partner External ID (`__export__.res_partner_…`) */
+  odooPartnerExternalId String?
   /** JSON array of ProductCode values this dealer may order */
   products      String   @default("[\"PMS\",\"AGO\",\"LUBRICANTS\",\"LPG\"]")
   createdAt     DateTime @default(now())
@@ -247,6 +252,7 @@ model DealerOrganization {
 
   @@index([name])
   @@index([odooPartnerId])
+  @@index([odooPartnerExternalId])
 }
 
 model Station {
@@ -254,10 +260,16 @@ model Station {
   /** Stable slug used for seed/upsert (e.g. banana, nakuru) */
   code                 String?  @unique
   name                 String
+  /** Company trading name shown as primary label after dealer activation */
+  tradingName          String?
   dealerOrganizationId String
   dealerOrganization   DealerOrganization @relation(fields: [dealerOrganizationId], references: [id], onDelete: Cascade)
   /** Odoo res.partner id for this station customer (preferred over org-level) */
   odooPartnerId        Int?
+  /** Odoo res.partner External ID for this station’s dealer customer */
+  odooPartnerExternalId String?
+  /** Odoo station External ID (account.analytic.account for TRI) */
+  odooStationExternalId String?
   /** JSON array of ProductCode values for this station (may differ from org defaults later) */
   products             String   @default("[\"PMS\",\"AGO\",\"LUBRICANTS\",\"LPG\"]")
   createdAt            DateTime @default(now())
@@ -266,6 +278,8 @@ model Station {
 
   @@index([dealerOrganizationId])
   @@index([odooPartnerId])
+  @@index([odooPartnerExternalId])
+  @@index([odooStationExternalId])
 }
 
 model Depot {
@@ -416,4 +430,73 @@ model ActivityLog {
 
   @@index([actorId])
   @@index([createdAt])
+}
+
+enum ConversationKind {
+  DIRECT
+}
+
+model Conversation {
+  id           String   @id @default(cuid())
+  kind         ConversationKind @default(DIRECT)
+  /** Stable pair key for direct chats: sorted userIdA:userIdB */
+  directKey    String?  @unique
+  lastMessageAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime @default(now())
+  lastReadAt     DateTime?
+  muted          Boolean  @default(false)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  body           String
+  createdAt      DateTime @default(now())
+  editedAt       DateTime?
+  deletedAt      DateTime?
+
+  receipts MessageReceipt[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+enum MessageReceiptStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
+model MessageReceipt {
+  id        String               @id @default(cuid())
+  messageId String
+  message   Message              @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    MessageReceiptStatus @default(SENT)
+  updatedAt DateTime             @updatedAt
+
+  @@unique([messageId, userId])
+  @@index([userId])
 }
