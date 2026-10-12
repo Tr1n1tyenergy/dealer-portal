@@ -14,6 +14,7 @@ import {
   syncQuotation,
 } from "@/lib/orders/service";
 import { prisma } from "@/lib/prisma";
+import { ignoreStaleTransition } from "@/lib/orders/state-machine";
 
 function litres(value: FormDataEntryValue | null) {
   const n = Number(value || 0);
@@ -65,17 +66,18 @@ export async function internalOrderAction(formData: FormData) {
   const orderId = String(formData.get("orderId") || "");
   const action = String(formData.get("action") || "");
 
-  if (action === "retry-sync") await syncQuotation(orderId, session.user.id);
-  if (action === "generate-pfi") await generatePfi(orderId, session.user.id);
+  if (action === "retry-sync") await ignoreStaleTransition(() => syncQuotation(orderId, session.user.id));
+  if (action === "generate-pfi") await ignoreStaleTransition(() => generatePfi(orderId, session.user.id));
   if (action === "confirm-payment" || action === "reject-payment") {
     if (!canVerifyPayment(role)) throw new Error("Payment verification is restricted.");
-    await confirmPayment(orderId, session.user.id, action === "confirm-payment");
+    await ignoreStaleTransition(() => confirmPayment(orderId, session.user.id, action === "confirm-payment"));
   }
   if (action === "release") {
     if (!canReleaseToDepot(role)) throw new Error("Only authorised staff can release to depot.");
     const depot = await prisma.depot.findFirst({ orderBy: { name: "asc" } });
     if (!depot) throw new Error("No depot is configured.");
-    await releaseToDepot(orderId, session.user.id, String(formData.get("depotId") || depot.id));
+    const depotId = String(formData.get("depotId") || depot.id);
+    await ignoreStaleTransition(() => releaseToDepot(orderId, session.user.id, depotId));
   }
   revalidatePath("/intelligence/reports/dealer-operations");
   revalidatePath(`/intelligence/reports/dealer-operations/${orderId}`);
@@ -86,7 +88,7 @@ export async function depotOrderAction(formData: FormData) {
   if (!canOperateDepot(session.user.role)) throw new Error("Depot action is not permitted.");
   const orderId = String(formData.get("orderId") || "");
   const action = String(formData.get("action") || "") as "accept" | "complete" | "dispatch" | "deliver" | "close";
-  await applyDepotAction(orderId, session.user.id, action, {
+  await ignoreStaleTransition(() => applyDepotAction(orderId, session.user.id, action, {
     truckRegistration: String(formData.get("truckRegistration") || "") || undefined,
     driverName: String(formData.get("driverName") || "") || undefined,
     transporter: String(formData.get("transporter") || "") || undefined,
@@ -95,7 +97,7 @@ export async function depotOrderAction(formData: FormData) {
     loadingReference: String(formData.get("loadingReference") || "") || undefined,
     sealNumbers: String(formData.get("sealNumbers") || "") || undefined,
     deliveryNoteRef: String(formData.get("deliveryNoteRef") || "") || undefined,
-  });
+  }));
   revalidatePath("/depot/dashboard");
   revalidatePath(`/depot/orders/${orderId}`);
 }

@@ -5,7 +5,7 @@ import { resolveOdooPartnerId } from "@/lib/dealers/registry";
 import { getOdooClient } from "@/lib/integrations/odoo/client";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
-import { assertTransition } from "@/lib/orders/state-machine";
+import { assertTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
 import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode";
 
 const orderInclude = {
@@ -38,13 +38,19 @@ async function recordTransition(
     to: DealerOrderStatus;
     actorId?: string | null;
     note?: string;
-    data?: Prisma.DealerOrderUpdateInput;
+    data?: Prisma.DealerOrderUncheckedUpdateManyInput;
   }
 ) {
   assertTransition(params.from, params.to);
-  const order = await tx.dealerOrder.update({
-    where: { id: params.orderId },
+  // Only move the order if it is still in the status the caller read. A concurrent request
+  // that already moved it makes this match no rows, so the transition cannot apply twice.
+  const { count } = await tx.dealerOrder.updateMany({
+    where: { id: params.orderId, status: params.from },
     data: { status: params.to, ...params.data },
+  });
+  if (count === 0) throw new StaleOrderTransition(params.from, params.to);
+  const order = await tx.dealerOrder.findUniqueOrThrow({
+    where: { id: params.orderId },
     include: orderInclude,
   });
   await tx.orderStatusHistory.create({
@@ -374,7 +380,7 @@ export async function releaseToDepot(orderId: string, actorId: string, depotId: 
       to: "RELEASED_TO_DEPOT",
       actorId,
       note: `Released to ${depot.name}`,
-      data: { depot: { connect: { id: depot.id } } },
+      data: { depotId: depot.id },
     })
   );
   await logActivity({
@@ -413,7 +419,7 @@ export async function applyDepotAction(
     close: { to: "CLOSED" as const, action: "ORDER_CLOSED", note: "Order closed" },
   }[action];
 
-  const data: Prisma.DealerOrderUpdateInput = {};
+  const data: Prisma.DealerOrderUncheckedUpdateManyInput = {};
   if (fields.truckRegistration) data.truckRegistration = fields.truckRegistration;
   if (fields.driverName) data.driverName = fields.driverName;
   if (fields.transporter) data.transporter = fields.transporter;

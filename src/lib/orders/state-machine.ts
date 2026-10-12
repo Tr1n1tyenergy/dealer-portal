@@ -35,6 +35,27 @@ export class InvalidOrderTransition extends Error {
   }
 }
 
+/** The order left `from` before this request could move it (e.g. a double click). */
+export class StaleOrderTransition extends Error {
+  constructor(from: DealerOrderStatus, to: DealerOrderStatus) {
+    super(`This order was already updated by someone else (expected ${from} before ${to}). Refresh and try again.`);
+    this.name = "StaleOrderTransition";
+  }
+}
+
+/**
+ * Runs a status change from a button click. If another click already moved the order,
+ * that is the outcome the user wanted, so return null instead of showing an error page.
+ */
+export async function ignoreStaleTransition<T>(transition: () => Promise<T>): Promise<T | null> {
+  try {
+    return await transition();
+  } catch (error) {
+    if (error instanceof StaleOrderTransition) return null;
+    throw error;
+  }
+}
+
 export function canTransition(from: DealerOrderStatus, to: DealerOrderStatus) {
   return ORDER_TRANSITIONS[from].includes(to);
 }
