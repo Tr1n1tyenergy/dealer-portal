@@ -260,18 +260,45 @@ export async function generatePfi(orderId: string, actorId: string) {
   const existing = await prisma.proFormaInvoice.findUnique({ where: { orderId } });
   if (existing) return order;
 
-  await prisma.$transaction((tx) =>
-    recordTransition(tx, {
-      orderId,
-      from: order.status,
-      to: "PFI_PENDING",
-      actorId,
-      note: "Requesting pro-forma from Odoo",
-    })
-  );
+  // A previous attempt may have left the order in PFI_PENDING; retry straight from there.
+  if (order.status !== "PFI_PENDING") {
+    await prisma.$transaction((tx) =>
+      recordTransition(tx, {
+        orderId,
+        from: order.status,
+        to: "PFI_PENDING",
+        actorId,
+        note: "Requesting pro-forma from Odoo",
+      })
+    );
+  }
 
   const client = getOdooClient();
-  const pfi = await client.generateProForma(order.odooQuotationId);
+  let pfi: Awaited<ReturnType<typeof client.generateProForma>>;
+  try {
+    pfi = await client.generateProForma(order.odooQuotationId);
+  } catch (error) {
+    // Hand the order back to staff with the reason, so "Generate PFI" can simply be retried.
+    const message = error instanceof Error ? error.message : "Odoo could not produce the PFI.";
+    const returned = await prisma.$transaction((tx) =>
+      recordTransition(tx, {
+        orderId,
+        from: "PFI_PENDING",
+        to: "QUOTATION_READY",
+        actorId,
+        note: `PFI not issued: ${message}`,
+        data: { odooSyncError: message },
+      })
+    );
+    await logActivity({
+      actorId,
+      action: "PFI_FAILED",
+      entity: "DealerOrder",
+      entityId: orderId,
+      meta: { message, mode: client.mode },
+    });
+    return returned;
+  }
   const saved = await prisma.$transaction(async (tx) => {
     await tx.proFormaInvoice.create({
       data: {
@@ -288,7 +315,7 @@ export async function generatePfi(orderId: string, actorId: string) {
       to: "PFI_ISSUED",
       actorId,
       note: `PFI ${pfi.number}`,
-      data: { amountDue: pfi.amount },
+      data: { amountDue: pfi.amount, odooSyncError: null },
     });
   });
   await prisma.$transaction((tx) =>
@@ -325,37 +352,35 @@ export async function submitPayment(params: {
   });
   if (!order) throw new Error("Order not found.");
 
-  await prisma.paymentRecord.create({
-    data: {
-      orderId: order.id,
-      amount: params.amount,
-      bankReference: params.bankReference,
-      transactionReference: params.transactionReference,
-      paymentDate: params.paymentDate ? new Date(params.paymentDate) : null,
-      note: params.note,
-      submittedById: params.actorId,
-      status: "SUBMITTED",
-    },
-  });
-
-  const saved = await prisma.$transaction((tx) =>
-    recordTransition(tx, {
+  // One transaction: if the order cannot take a payment, no payment record is left behind.
+  const saved = await prisma.$transaction(async (tx) => {
+    await recordTransition(tx, {
       orderId: order.id,
       from: order.status,
       to: "PAYMENT_SUBMITTED",
       actorId: params.actorId,
       note: "Dealer submitted payment details",
-    })
-  );
-  await prisma.$transaction((tx) =>
-    recordTransition(tx, {
+    });
+    await tx.paymentRecord.create({
+      data: {
+        orderId: order.id,
+        amount: params.amount,
+        bankReference: params.bankReference,
+        transactionReference: params.transactionReference,
+        paymentDate: params.paymentDate ? new Date(params.paymentDate) : null,
+        note: params.note,
+        submittedById: params.actorId,
+        status: "SUBMITTED",
+      },
+    });
+    return recordTransition(tx, {
       orderId: order.id,
       from: "PAYMENT_SUBMITTED",
       to: "PAYMENT_VERIFICATION",
       actorId: params.actorId,
       note: "Queued for finance verification",
-    })
-  );
+    });
+  });
   await logActivity({
     actorId: params.actorId,
     action: "PAYMENT_SUBMITTED",

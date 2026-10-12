@@ -20,12 +20,13 @@ describe(
     let depotId = "";
     let sequence = 0;
 
-    async function createOrder(status: DealerOrderStatus) {
+    async function createOrder(status: DealerOrderStatus, odooQuotationId: string | null = null) {
       sequence += 1;
       return prisma.dealerOrder.create({
         data: {
           reference: `TEST-${run}-${sequence}`,
           odooSyncKey: `test:${run}:${sequence}`,
+          odooQuotationId,
           status,
           dealerOrganizationId: organizationId,
           stationId,
@@ -116,6 +117,56 @@ describe(
       assert.equal(orders, 1);
       const ids = results.map((r) => (r.status === "fulfilled" ? (r.value as { id: string }).id : "rejected"));
       assert.equal(ids[0], ids[1], "both submits should land on the same order");
+    });
+
+    it("returns an order to QUOTATION_READY with the reason when Odoo cannot produce a PFI", async () => {
+      const order = await createOrder("QUOTATION_READY", "unknown-quotation");
+
+      await service.generatePfi(order.id, actorId);
+
+      const saved = await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } });
+      assert.equal(saved.status, "QUOTATION_READY");
+      assert.match(saved.odooSyncError ?? "", /not found/i);
+    });
+
+    it("issues the PFI for an order left stuck in PFI_PENDING", async () => {
+      const order = await createOrder("PFI_PENDING", `mock-quot-quotation:${run}-stuck`);
+
+      await service.generatePfi(order.id, actorId);
+
+      const saved = await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } });
+      assert.equal(saved.status, "AWAITING_PAYMENT");
+      assert.equal(saved.odooSyncError, null);
+    });
+
+    it("lets a dealer resubmit a payment after finance flags it", async () => {
+      const order = await createOrder("PAYMENT_EXCEPTION");
+
+      await service.submitPayment({
+        orderId: order.id,
+        actorId,
+        dealerOrganizationId: organizationId,
+        amount: "1070150.00",
+      });
+
+      const saved = await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } });
+      assert.equal(saved.status, "PAYMENT_VERIFICATION");
+      assert.equal(await prisma.paymentRecord.count({ where: { orderId: order.id } }), 1);
+    });
+
+    it("keeps no payment record when the payment cannot be accepted", async () => {
+      const order = await createOrder("QUOTATION_READY");
+
+      await assert.rejects(
+        service.submitPayment({
+          orderId: order.id,
+          actorId,
+          dealerOrganizationId: organizationId,
+          amount: "1070150.00",
+        })
+      );
+
+      assert.equal(await prisma.paymentRecord.count({ where: { orderId: order.id } }), 0);
     });
   }
 );

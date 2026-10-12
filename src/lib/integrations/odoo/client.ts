@@ -18,6 +18,22 @@ function hashKey(key: string) {
   return n;
 }
 
+const MOCK_QUOTATION_PREFIX = "mock-quot-";
+
+/** Mock quotations are derived from their idempotency key, so any page or process can rebuild one. */
+function mockQuotation(idempotencyKey: string, lines: CreateQuotationInput["lines"]): OdooQuotation {
+  const n = hashKey(idempotencyKey) % 90000;
+  return {
+    id: `${MOCK_QUOTATION_PREFIX}${idempotencyKey}`,
+    number: `${mockCommercialDocumentPrefix()}-S${String(10000 + (n % 89999)).padStart(5, "0")}`,
+    currency: "KES",
+    amountTotal: "0.00",
+    status: "draft",
+    lines,
+    model: "sale.order",
+  };
+}
+
 export class MockOdooClient implements OdooClient {
   readonly mode = "mock" as const;
 
@@ -25,17 +41,7 @@ export class MockOdooClient implements OdooClient {
     const existing = memory.get(input.idempotencyKey);
     if (existing) return existing.quotation;
 
-    const n = hashKey(input.idempotencyKey) % 90000;
-    const prefix = mockCommercialDocumentPrefix();
-    const quotation: OdooQuotation = {
-      id: `mock-quot-${input.idempotencyKey}`,
-      number: `${prefix}-S${String(10000 + (n % 89999)).padStart(5, "0")}`,
-      currency: "KES",
-      amountTotal: "0.00",
-      status: "draft",
-      lines: input.lines,
-      model: "sale.order",
-    };
+    const quotation = mockQuotation(input.idempotencyKey, input.lines);
     memory.set(input.idempotencyKey, { quotation });
     return quotation;
   }
@@ -48,6 +54,11 @@ export class MockOdooClient implements OdooClient {
   }
 
   async generateProForma(quotationId: string): Promise<OdooProForma> {
+    // Memory is per server bundle and lost on restart; rebuild quotations created elsewhere.
+    const rebuildKey = quotationId.startsWith(MOCK_QUOTATION_PREFIX)
+      ? quotationId.slice(MOCK_QUOTATION_PREFIX.length)
+      : null;
+    if (rebuildKey && !memory.has(rebuildKey)) memory.set(rebuildKey, { quotation: mockQuotation(rebuildKey, []) });
     for (const [key, entry] of memory.entries()) {
       if (entry.quotation.id !== quotationId) continue;
       if (entry.proforma) return entry.proforma;
