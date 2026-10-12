@@ -98,5 +98,24 @@ describe(
       assert.equal(saved.status, "RELEASED_TO_DEPOT");
       assert.equal(saved.depotId, depotId);
     });
+
+    it("creates one order when the same Place Order submission arrives twice", async () => {
+      const submission = {
+        actorId,
+        dealerOrganizationId: organizationId,
+        stationId,
+        requestedDeliveryDate: "2026-10-20",
+        dealerReference: `PO-${run}`,
+        lines: [{ product: "PMS" as const, quantityLitres: 5000 }],
+        submissionKey: `${run}-place-order`,
+      };
+
+      const results = await attemptsInParallel(2, () => service.submitDealerOrder(submission));
+
+      const orders = await prisma.dealerOrder.count({ where: { dealerReference: submission.dealerReference } });
+      assert.equal(orders, 1);
+      const ids = results.map((r) => (r.status === "fulfilled" ? (r.value as { id: string }).id : "rejected"));
+      assert.equal(ids[0], ids[1], "both submits should land on the same order");
+    });
   }
 );

@@ -3,7 +3,7 @@
 import "./place-order.css";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -111,6 +111,12 @@ function stepClass(current: WizardStep, index: 1 | 2 | 3) {
   return "";
 }
 
+function newSubmissionKey() {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  // randomUUID needs a secure context; fall back for plain-http LAN testing.
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 function SubmitOrderButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
@@ -125,6 +131,10 @@ function SubmitOrderButton({ disabled }: { disabled: boolean }) {
 
 export function PlaceOrderForm({ stations }: { stations: Station[] }) {
   const [step, setStep] = useState<WizardStep>("details");
+  // One id per form load, created in the browser after mount (not during server render):
+  // a resubmit of this page (retry, double submit) returns the order it already created.
+  const [submissionKey, setSubmissionKey] = useState("");
+  useEffect(() => setSubmissionKey(newSubmissionKey()), []);
   const [stationId, setStationId] = useState(stations[0]?.id ?? "");
   const [pms, setPms] = useState(20000);
   const [ago, setAgo] = useState(10000);
@@ -244,6 +254,7 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
           <input type="hidden" name="pms" value={pms} />
           <input type="hidden" name="ago" value={ago} />
           <input type="hidden" name="requestedDeliveryDate" value={deliveryDate} />
+          <input type="hidden" name="submissionKey" value={submissionKey} />
 
           <div className="dp-po-main">
             {step === "details" ? (

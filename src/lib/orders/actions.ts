@@ -16,6 +16,11 @@ import {
 import { prisma } from "@/lib/prisma";
 import { ignoreStaleTransition } from "@/lib/orders/state-machine";
 
+function submissionKey(value: FormDataEntryValue | null) {
+  const key = String(value || "");
+  return /^[A-Za-z0-9-]{16,64}$/.test(key) ? key : null;
+}
+
 function litres(value: FormDataEntryValue | null) {
   const n = Number(value || 0);
   return Number.isFinite(n) ? Math.round(n) : 0;
@@ -36,6 +41,7 @@ export async function placeOrderAction(formData: FormData) {
     dealerReference: String(formData.get("dealerReference") || "") || null,
     notes: String(formData.get("notes") || "") || null,
     lines,
+    submissionKey: submissionKey(formData.get("submissionKey")),
   });
   revalidatePath("/dealer/dashboard");
   revalidatePath("/dealer/orders");

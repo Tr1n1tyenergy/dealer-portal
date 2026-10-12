@@ -65,6 +65,15 @@ async function recordTransition(
   return order;
 }
 
+async function findSubmittedOrder(submissionKey: string | null | undefined, dealerOrganizationId: string) {
+  if (!submissionKey) return null;
+  const order = await prisma.dealerOrder.findUnique({ where: { submissionKey }, include: orderInclude });
+  if (order && order.dealerOrganizationId !== dealerOrganizationId) {
+    throw new Error("This order submission belongs to another dealer.");
+  }
+  return order;
+}
+
 export async function submitDealerOrder(params: {
   actorId: string;
   dealerOrganizationId: string;
@@ -73,6 +82,7 @@ export async function submitDealerOrder(params: {
   dealerReference?: string | null;
   notes?: string | null;
   lines: { product: "PMS" | "AGO"; quantityLitres: number }[];
+  submissionKey?: string | null;
 }) {
   assertDealerCommercialOrdersAllowed();
   if (!params.lines.length) throw new Error("Add at least one product.");
@@ -88,35 +98,48 @@ export async function submitDealerOrder(params: {
   });
   if (!station) throw new Error("That station is not available to this dealer.");
 
-  const created = await prisma.$transaction(async (tx) => {
-    const reference = await nextReference(tx);
-    const order = await tx.dealerOrder.create({
-      data: {
-        reference,
-        dealerOrganizationId: params.dealerOrganizationId,
-        stationId: station.id,
-        createdById: params.actorId,
-        status: "SUBMITTED",
-        requestedDeliveryDate: params.requestedDeliveryDate
-          ? new Date(params.requestedDeliveryDate)
-          : null,
-        dealerReference: params.dealerReference || null,
-        notes: params.notes || null,
-        odooSyncKey: `quotation:${reference}`,
-        lines: { create: params.lines },
-      },
+  // A repeated submit of the same Place Order form returns the order it already created.
+  const alreadySubmitted = await findSubmittedOrder(params.submissionKey, params.dealerOrganizationId);
+  if (alreadySubmitted) return alreadySubmitted;
+
+  let created: string;
+  try {
+    created = await prisma.$transaction(async (tx) => {
+      const reference = await nextReference(tx);
+      const order = await tx.dealerOrder.create({
+        data: {
+          reference,
+          dealerOrganizationId: params.dealerOrganizationId,
+          stationId: station.id,
+          createdById: params.actorId,
+          status: "SUBMITTED",
+          requestedDeliveryDate: params.requestedDeliveryDate
+            ? new Date(params.requestedDeliveryDate)
+            : null,
+          dealerReference: params.dealerReference || null,
+          notes: params.notes || null,
+          odooSyncKey: `quotation:${reference}`,
+          submissionKey: params.submissionKey || null,
+          lines: { create: params.lines },
+        },
+      });
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId: order.id,
+          fromStatus: "DRAFT",
+          toStatus: "SUBMITTED",
+          actorId: params.actorId,
+          note: "Dealer submitted fuel order",
+        },
+      });
+      return order.id;
     });
-    await tx.orderStatusHistory.create({
-      data: {
-        orderId: order.id,
-        fromStatus: "DRAFT",
-        toStatus: "SUBMITTED",
-        actorId: params.actorId,
-        note: "Dealer submitted fuel order",
-      },
-    });
-    return order.id;
-  });
+  } catch (error) {
+    // Two identical submits raced past the check above; the unique key let only one through.
+    const winner = await findSubmittedOrder(params.submissionKey, params.dealerOrganizationId);
+    if (winner && (error as { code?: string }).code === "P2002") return winner;
+    throw error;
+  }
 
   await logActivity({
     actorId: params.actorId,
