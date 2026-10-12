@@ -5,7 +5,7 @@ import { resolveOdooPartnerId } from "@/lib/dealers/registry";
 import { getOdooClient } from "@/lib/integrations/odoo/client";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
-import { assertTransition } from "@/lib/orders/state-machine";
+import { assertTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
 import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode";
 
 const orderInclude = {
@@ -38,13 +38,19 @@ async function recordTransition(
     to: DealerOrderStatus;
     actorId?: string | null;
     note?: string;
-    data?: Prisma.DealerOrderUpdateInput;
+    data?: Prisma.DealerOrderUncheckedUpdateManyInput;
   }
 ) {
   assertTransition(params.from, params.to);
-  const order = await tx.dealerOrder.update({
-    where: { id: params.orderId },
+  // Only move the order if it is still in the status the caller read. A concurrent request
+  // that already moved it makes this match no rows, so the transition cannot apply twice.
+  const { count } = await tx.dealerOrder.updateMany({
+    where: { id: params.orderId, status: params.from },
     data: { status: params.to, ...params.data },
+  });
+  if (count === 0) throw new StaleOrderTransition(params.from, params.to);
+  const order = await tx.dealerOrder.findUniqueOrThrow({
+    where: { id: params.orderId },
     include: orderInclude,
   });
   await tx.orderStatusHistory.create({
@@ -59,6 +65,15 @@ async function recordTransition(
   return order;
 }
 
+async function findSubmittedOrder(submissionKey: string | null | undefined, dealerOrganizationId: string) {
+  if (!submissionKey) return null;
+  const order = await prisma.dealerOrder.findUnique({ where: { submissionKey }, include: orderInclude });
+  if (order && order.dealerOrganizationId !== dealerOrganizationId) {
+    throw new Error("This order submission belongs to another dealer.");
+  }
+  return order;
+}
+
 export async function submitDealerOrder(params: {
   actorId: string;
   dealerOrganizationId: string;
@@ -67,6 +82,7 @@ export async function submitDealerOrder(params: {
   dealerReference?: string | null;
   notes?: string | null;
   lines: { product: "PMS" | "AGO"; quantityLitres: number }[];
+  submissionKey?: string | null;
 }) {
   assertDealerCommercialOrdersAllowed();
   if (!params.lines.length) throw new Error("Add at least one product.");
@@ -82,35 +98,48 @@ export async function submitDealerOrder(params: {
   });
   if (!station) throw new Error("That station is not available to this dealer.");
 
-  const created = await prisma.$transaction(async (tx) => {
-    const reference = await nextReference(tx);
-    const order = await tx.dealerOrder.create({
-      data: {
-        reference,
-        dealerOrganizationId: params.dealerOrganizationId,
-        stationId: station.id,
-        createdById: params.actorId,
-        status: "SUBMITTED",
-        requestedDeliveryDate: params.requestedDeliveryDate
-          ? new Date(params.requestedDeliveryDate)
-          : null,
-        dealerReference: params.dealerReference || null,
-        notes: params.notes || null,
-        odooSyncKey: `quotation:${reference}`,
-        lines: { create: params.lines },
-      },
+  // A repeated submit of the same Place Order form returns the order it already created.
+  const alreadySubmitted = await findSubmittedOrder(params.submissionKey, params.dealerOrganizationId);
+  if (alreadySubmitted) return alreadySubmitted;
+
+  let created: string;
+  try {
+    created = await prisma.$transaction(async (tx) => {
+      const reference = await nextReference(tx);
+      const order = await tx.dealerOrder.create({
+        data: {
+          reference,
+          dealerOrganizationId: params.dealerOrganizationId,
+          stationId: station.id,
+          createdById: params.actorId,
+          status: "SUBMITTED",
+          requestedDeliveryDate: params.requestedDeliveryDate
+            ? new Date(params.requestedDeliveryDate)
+            : null,
+          dealerReference: params.dealerReference || null,
+          notes: params.notes || null,
+          odooSyncKey: `quotation:${reference}`,
+          submissionKey: params.submissionKey || null,
+          lines: { create: params.lines },
+        },
+      });
+      await tx.orderStatusHistory.create({
+        data: {
+          orderId: order.id,
+          fromStatus: "DRAFT",
+          toStatus: "SUBMITTED",
+          actorId: params.actorId,
+          note: "Dealer submitted fuel order",
+        },
+      });
+      return order.id;
     });
-    await tx.orderStatusHistory.create({
-      data: {
-        orderId: order.id,
-        fromStatus: "DRAFT",
-        toStatus: "SUBMITTED",
-        actorId: params.actorId,
-        note: "Dealer submitted fuel order",
-      },
-    });
-    return order.id;
-  });
+  } catch (error) {
+    // Two identical submits raced past the check above; the unique key let only one through.
+    const winner = await findSubmittedOrder(params.submissionKey, params.dealerOrganizationId);
+    if (winner && (error as { code?: string }).code === "P2002") return winner;
+    throw error;
+  }
 
   await logActivity({
     actorId: params.actorId,
@@ -235,18 +264,45 @@ export async function generatePfi(orderId: string, actorId: string) {
   const existing = await prisma.proFormaInvoice.findUnique({ where: { orderId } });
   if (existing) return order;
 
-  await prisma.$transaction((tx) =>
-    recordTransition(tx, {
-      orderId,
-      from: order.status,
-      to: "PFI_PENDING",
-      actorId,
-      note: "Requesting pro-forma from Odoo",
-    })
-  );
+  // A previous attempt may have left the order in PFI_PENDING; retry straight from there.
+  if (order.status !== "PFI_PENDING") {
+    await prisma.$transaction((tx) =>
+      recordTransition(tx, {
+        orderId,
+        from: order.status,
+        to: "PFI_PENDING",
+        actorId,
+        note: "Requesting pro-forma from Odoo",
+      })
+    );
+  }
 
   const client = getOdooClient();
-  const pfi = await client.generateProForma(order.odooQuotationId);
+  let pfi: Awaited<ReturnType<typeof client.generateProForma>>;
+  try {
+    pfi = await client.generateProForma(order.odooQuotationId);
+  } catch (error) {
+    // Hand the order back to staff with the reason, so "Generate PFI" can simply be retried.
+    const message = error instanceof Error ? error.message : "Odoo could not produce the PFI.";
+    const returned = await prisma.$transaction((tx) =>
+      recordTransition(tx, {
+        orderId,
+        from: "PFI_PENDING",
+        to: "QUOTATION_READY",
+        actorId,
+        note: `PFI not issued: ${message}`,
+        data: { odooSyncError: message },
+      })
+    );
+    await logActivity({
+      actorId,
+      action: "PFI_FAILED",
+      entity: "DealerOrder",
+      entityId: orderId,
+      meta: { message, mode: client.mode },
+    });
+    return returned;
+  }
   const saved = await prisma.$transaction(async (tx) => {
     await tx.proFormaInvoice.create({
       data: {
@@ -263,7 +319,7 @@ export async function generatePfi(orderId: string, actorId: string) {
       to: "PFI_ISSUED",
       actorId,
       note: `PFI ${pfi.number}`,
-      data: { amountDue: pfi.amount },
+      data: { amountDue: pfi.amount, odooSyncError: null },
     });
   });
   await prisma.$transaction((tx) =>
@@ -300,37 +356,35 @@ export async function submitPayment(params: {
   });
   if (!order) throw new Error("Order not found.");
 
-  await prisma.paymentRecord.create({
-    data: {
-      orderId: order.id,
-      amount: params.amount,
-      bankReference: params.bankReference,
-      transactionReference: params.transactionReference,
-      paymentDate: params.paymentDate ? new Date(params.paymentDate) : null,
-      note: params.note,
-      submittedById: params.actorId,
-      status: "SUBMITTED",
-    },
-  });
-
-  const saved = await prisma.$transaction((tx) =>
-    recordTransition(tx, {
+  // One transaction: if the order cannot take a payment, no payment record is left behind.
+  const saved = await prisma.$transaction(async (tx) => {
+    await recordTransition(tx, {
       orderId: order.id,
       from: order.status,
       to: "PAYMENT_SUBMITTED",
       actorId: params.actorId,
       note: "Dealer submitted payment details",
-    })
-  );
-  await prisma.$transaction((tx) =>
-    recordTransition(tx, {
+    });
+    await tx.paymentRecord.create({
+      data: {
+        orderId: order.id,
+        amount: params.amount,
+        bankReference: params.bankReference,
+        transactionReference: params.transactionReference,
+        paymentDate: params.paymentDate ? new Date(params.paymentDate) : null,
+        note: params.note,
+        submittedById: params.actorId,
+        status: "SUBMITTED",
+      },
+    });
+    return recordTransition(tx, {
       orderId: order.id,
       from: "PAYMENT_SUBMITTED",
       to: "PAYMENT_VERIFICATION",
       actorId: params.actorId,
       note: "Queued for finance verification",
-    })
-  );
+    });
+  });
   await logActivity({
     actorId: params.actorId,
     action: "PAYMENT_SUBMITTED",
@@ -378,7 +432,7 @@ export async function releaseToDepot(orderId: string, actorId: string, depotId: 
       to: "RELEASED_TO_DEPOT",
       actorId,
       note: `Released to ${depot.name}`,
-      data: { depot: { connect: { id: depot.id } } },
+      data: { depotId: depot.id },
     })
   );
   await logActivity({
@@ -417,7 +471,7 @@ export async function applyDepotAction(
     close: { to: "CLOSED" as const, action: "ORDER_CLOSED", note: "Order closed" },
   }[action];
 
-  const data: Prisma.DealerOrderUpdateInput = {};
+  const data: Prisma.DealerOrderUncheckedUpdateManyInput = {};
   if (fields.truckRegistration) data.truckRegistration = fields.truckRegistration;
   if (fields.driverName) data.driverName = fields.driverName;
   if (fields.transporter) data.transporter = fields.transporter;

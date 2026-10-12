@@ -92,6 +92,11 @@ function statusCopy(status: DealerOrderStatus) {
         label,
         detail: "Payment details have been received and are being verified by Trinity finance.",
       };
+    case "PAYMENT_EXCEPTION":
+      return {
+        label,
+        detail: "Trinity finance couldn't verify your payment. Check the details below and submit them again.",
+      };
     case "DELIVERED":
     case "CLOSED":
       return {

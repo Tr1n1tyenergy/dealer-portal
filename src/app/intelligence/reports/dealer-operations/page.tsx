@@ -46,12 +46,17 @@ export default async function DealerOperationsPage() {
                 <td className="p-3">{order.station.name}</td>
                 <td className="p-3">{order.odooQuotationNumber ?? "—"}</td>
                 <td className="p-3">{order.proforma?.number ?? "—"}</td>
-                <td className="p-3">{order.status}</td>
+                <td className="p-3">
+                  {order.status}
+                  {order.odooSyncError && order.status === "QUOTATION_READY" ? (
+                    <div className="mt-1 max-w-xs text-xs text-amber-700">Last PFI attempt failed: {order.odooSyncError}</div>
+                  ) : null}
+                </td>
                 <td className="p-3">
                   <form action={internalOrderAction} className="flex flex-wrap gap-2">
                     <input type="hidden" name="orderId" value={order.id} />
                     {order.status === "ODOO_SYNC_FAILED" ? <button className="rounded-lg bg-slate-900 px-2 py-1 text-xs text-white" name="action" value="retry-sync">Retry sync</button> : null}
-                    {order.status === "QUOTATION_READY" ? <button className="rounded-lg bg-slate-900 px-2 py-1 text-xs text-white" name="action" value="generate-pfi">Generate PFI</button> : null}
+                    {order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" ? <button className="rounded-lg bg-slate-900 px-2 py-1 text-xs text-white" name="action" value="generate-pfi">Generate PFI</button> : null}
                     {order.status === "PAYMENT_VERIFICATION" && canVerifyPayment(session.user.role) ? (
                       <>
                         <button className="rounded-lg bg-emerald-700 px-2 py-1 text-xs text-white" name="action" value="confirm-payment">Confirm payment</button>

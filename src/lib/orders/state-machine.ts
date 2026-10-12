@@ -7,7 +7,7 @@ export const ORDER_TRANSITIONS: Record<DealerOrderStatus, DealerOrderStatus[]> =
   ODOO_SYNC_FAILED: ["ODOO_SYNC_PENDING", "CANCELLED"],
   QUOTATION_CREATING: ["QUOTATION_READY", "ODOO_SYNC_FAILED"],
   QUOTATION_READY: ["PFI_PENDING", "REQUIRES_AMENDMENT", "CANCELLED"],
-  PFI_PENDING: ["PFI_ISSUED", "ODOO_SYNC_FAILED"],
+  PFI_PENDING: ["PFI_ISSUED", "ODOO_SYNC_FAILED", "QUOTATION_READY"],
   PFI_ISSUED: ["AWAITING_PAYMENT"],
   AWAITING_PAYMENT: ["PAYMENT_SUBMITTED", "CANCELLED"],
   PAYMENT_SUBMITTED: ["PAYMENT_VERIFICATION", "PAYMENT_EXCEPTION"],
@@ -23,7 +23,7 @@ export const ORDER_TRANSITIONS: Record<DealerOrderStatus, DealerOrderStatus[]> =
   REQUIRES_AMENDMENT: ["SUBMITTED", "CANCELLED"],
   REJECTED: [],
   CANCELLED: [],
-  PAYMENT_EXCEPTION: ["AWAITING_PAYMENT", "PAYMENT_VERIFICATION"],
+  PAYMENT_EXCEPTION: ["AWAITING_PAYMENT", "PAYMENT_VERIFICATION", "PAYMENT_SUBMITTED"],
   STOCK_EXCEPTION: ["RELEASED_TO_DEPOT", "LOADING"],
   DELIVERY_EXCEPTION: ["IN_TRANSIT", "DELIVERED"],
 };
@@ -32,6 +32,27 @@ export class InvalidOrderTransition extends Error {
   constructor(from: DealerOrderStatus, to: DealerOrderStatus) {
     super(`Invalid order transition: ${from} -> ${to}`);
     this.name = "InvalidOrderTransition";
+  }
+}
+
+/** The order left `from` before this request could move it (e.g. a double click). */
+export class StaleOrderTransition extends Error {
+  constructor(from: DealerOrderStatus, to: DealerOrderStatus) {
+    super(`This order was already updated by someone else (expected ${from} before ${to}). Refresh and try again.`);
+    this.name = "StaleOrderTransition";
+  }
+}
+
+/**
+ * Runs a status change from a button click. If another click already moved the order,
+ * that is the outcome the user wanted, so return null instead of showing an error page.
+ */
+export async function ignoreStaleTransition<T>(transition: () => Promise<T>): Promise<T | null> {
+  try {
+    return await transition();
+  } catch (error) {
+    if (error instanceof StaleOrderTransition) return null;
+    throw error;
   }
 }
 

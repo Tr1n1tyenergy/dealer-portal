@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { assertTransition, canTransition, dealerStatusLabel } from "./state-machine";
+import {
+  assertTransition,
+  canTransition,
+  dealerStatusLabel,
+  ignoreStaleTransition,
+  StaleOrderTransition,
+} from "./state-machine";
 
 describe("order state machine", () => {
   it("rejects jumping from submitted to delivered", () => {
@@ -30,5 +36,25 @@ describe("order state machine", () => {
     assert.equal(dealerStatusLabel("SUBMITTED"), "Order Submitted");
     assert.equal(dealerStatusLabel("ODOO_SYNC_PENDING"), "Quotation Processing");
     assert.equal(dealerStatusLabel("ODOO_SYNC_FAILED"), "Quotation Processing");
+  });
+});
+
+describe("ignoreStaleTransition", () => {
+  it("treats a click that lost the race as already done", async () => {
+    const result = await ignoreStaleTransition(async () => {
+      throw new StaleOrderTransition("PAYMENT_VERIFICATION", "PAYMENT_CONFIRMED");
+    });
+    assert.equal(result, null);
+  });
+
+  it("returns the result of a transition that succeeds", async () => {
+    assert.equal(await ignoreStaleTransition(async () => "moved"), "moved");
+  });
+
+  it("still surfaces every other error", async () => {
+    await assert.rejects(
+      ignoreStaleTransition(async () => assertTransition("SUBMITTED", "DELIVERED")),
+      { name: "InvalidOrderTransition" }
+    );
   });
 });

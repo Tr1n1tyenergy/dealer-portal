@@ -32,4 +32,16 @@ describe("mock Odoo adapter", () => {
     assert.equal(first.id, second.id);
     assert.match(first.number, /^MOCK-/);
   });
+
+  it("issues a pro-forma for a mock quotation created by another page or before a restart", async () => {
+    const client = new MockOdooClient();
+    const pfi = await client.generateProForma("mock-quot-quotation:elsewhere-1");
+    assert.equal(pfi.quotationId, "mock-quot-quotation:elsewhere-1");
+    assert.match(pfi.number, /^MOCK-PFI-/);
+  });
+
+  it("still rejects a quotation id that is not a mock quotation", async () => {
+    const client = new MockOdooClient();
+    await assert.rejects(client.generateProForma("12345"), /not found/i);
+  });
 });
