@@ -2,6 +2,8 @@
 
 :root {
   --ri-navy: #001b3a;
+  /* Height of the sticky .tri-header (72px row + 2px border). */
+  --ri-header-h: 74px;
   --ri-navy-deep: #0a192f;
   --ri-navy-mid: #0a235b;
   --ri-canvas: #0a192f;
@@ -63,7 +65,13 @@
   padding: 1rem 0.75rem;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   background: var(--ri-navy);
-  position: relative;
+  /* Stay in view while the page scrolls: pinned under the sticky app header, one screen tall. */
+  position: sticky;
+  top: var(--ri-header-h);
+  align-self: flex-start;
+  height: calc(100vh - var(--ri-header-h));
+  overflow-y: auto;
+  box-sizing: border-box;
   z-index: 5;
 }
 
@@ -320,6 +328,11 @@
     flex-direction: column;
   }
   .ri-sidebar {
+    /* On phones the nav is a row at the top that scrolls away with the page. */
+    position: relative;
+    top: auto;
+    height: auto;
+    overflow-y: visible;
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--ri-line);
