@@ -40,8 +40,33 @@ async function secondsUntilUnder(
 }
 
 async function record(kind: AuthAttemptKind, email: string, ip: string) {
-  await prisma.authAttempt.create({ data: { kind, email: normalizeEmail(email), ip } });
+  const row = await prisma.authAttempt.create({ data: { kind, email: normalizeEmail(email), ip } });
   await prisma.authAttempt.deleteMany({ where: { createdAt: { lt: new Date(Date.now() - RETENTION_MS) } } });
+  return row;
+}
+
+function countSince(kind: AuthAttemptKind, where: { email: string } | { ip: string }, windowMs: number) {
+  return prisma.authAttempt.count({ where: { kind, ...where, createdAt: { gte: new Date(Date.now() - windowMs) } } });
+}
+
+/**
+ * Record first, then count: a burst of simultaneous requests all see each other's rows, so at most
+ * `limit` of them get through. A request over the limit removes its own row (refusals aren't counted).
+ */
+async function claim(
+  kind: AuthAttemptKind,
+  email: string,
+  ip: string,
+  limits: { email: number; ip: number; windowMs: number }
+) {
+  const row = await record(kind, email, ip);
+  const [byEmail, byIp] = await Promise.all([
+    countSince(kind, { email: row.email }, limits.windowMs),
+    countSince(kind, { ip }, limits.windowMs),
+  ]);
+  if (byEmail <= limits.email && byIp <= limits.ip) return true;
+  await prisma.authAttempt.delete({ where: { id: row.id } }).catch(() => undefined);
+  return false;
 }
 
 export async function checkLoginLock(
@@ -56,6 +81,24 @@ export async function checkLoginLock(
   return wait > 0 ? { locked: true, retryAfterSeconds: wait } : { locked: false };
 }
 
+/**
+ * Start a sign-in: records it as a failure up front (cleared by clearLoginFailures on success) and
+ * reports a lock when this attempt would go over the limit. Call before checking the password.
+ */
+export async function beginLoginAttempt(
+  email: string,
+  ip: string
+): Promise<{ locked: false } | { locked: true; retryAfterSeconds: number }> {
+  const allowed = await claim("LOGIN_FAILURE", email, ip, {
+    email: LOGIN_EMAIL_LIMIT,
+    ip: LOGIN_IP_LIMIT,
+    windowMs: LOGIN_WINDOW_MS,
+  });
+  if (allowed) return { locked: false };
+  const lock = await checkLoginLock(email, ip);
+  return { locked: true, retryAfterSeconds: lock.locked ? lock.retryAfterSeconds : 1 };
+}
+
 export function recordLoginFailure(email: string, ip: string) {
   return record("LOGIN_FAILURE", email, ip);
 }
@@ -65,12 +108,10 @@ export async function clearLoginFailures(email: string) {
 }
 
 /** Records the request and returns true while under both reset limits. */
-export async function allowPasswordReset(email: string, ip: string) {
-  const [byEmail, byIp] = await Promise.all([
-    secondsUntilUnder("PASSWORD_RESET", { email: normalizeEmail(email) }, RESET_EMAIL_LIMIT, RESET_WINDOW_MS),
-    secondsUntilUnder("PASSWORD_RESET", { ip }, RESET_IP_LIMIT, RESET_WINDOW_MS),
-  ]);
-  if (byEmail > 0 || byIp > 0) return false;
-  await record("PASSWORD_RESET", email, ip);
-  return true;
+export function allowPasswordReset(email: string, ip: string) {
+  return claim("PASSWORD_RESET", email, ip, {
+    email: RESET_EMAIL_LIMIT,
+    ip: RESET_IP_LIMIT,
+    windowMs: RESET_WINDOW_MS,
+  });
 }

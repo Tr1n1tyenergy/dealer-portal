@@ -68,6 +68,26 @@ describe(
       assert.equal((await throttle.checkLoginLock(address, ip())).locked, true);
     });
 
+    it("lets at most five of twenty simultaneous sign-ins through to the password check", async () => {
+      const address = email();
+      const from = ip();
+
+      const results = await Promise.all(Array.from({ length: 20 }, () => throttle.beginLoginAttempt(address, from)));
+
+      const through = results.filter((r) => !r.locked).length;
+      assert.ok(through <= 5, `${through} got through`);
+      // Only the attempts that got through stay recorded (as failures until a success clears them).
+      assert.equal(await prisma.authAttempt.count({ where: { email: address } }), through);
+    });
+
+    it("sends at most three of ten simultaneous reset requests", async () => {
+      const address = email();
+
+      const results = await Promise.all(Array.from({ length: 10 }, () => throttle.allowPasswordReset(address, ip())));
+
+      assert.ok(results.filter(Boolean).length <= 3, `${results.filter(Boolean).length} allowed`);
+    });
+
     it("unlocks once failures are older than the window", async () => {
       const address = email();
       await fail(5, address, ip());

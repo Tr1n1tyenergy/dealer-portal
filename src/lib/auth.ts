@@ -3,12 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
-import {
-  checkLoginLock,
-  clearLoginFailures,
-  normalizeEmail,
-  recordLoginFailure,
-} from "@/lib/security/auth-throttle";
+import { beginLoginAttempt, clearLoginFailures, normalizeEmail } from "@/lib/security/auth-throttle";
 import { clientIp } from "@/lib/security/client-ip";
 import { lockedError } from "@/lib/security/login-errors";
 
@@ -54,29 +49,21 @@ export const authOptions: NextAuthOptions = {
 
         if (!email || !password) return null;
 
-        // Lock first: while locked even the right password is refused, so a lucky guess isn't revealed.
+        // Recorded as a failure up front, so a burst of parallel guesses can't slip past the limit.
+        // While locked even the right password is refused, so a lucky guess isn't revealed.
         const ip = clientIp(req?.headers);
-        const lock = await checkLoginLock(email, ip);
+        const lock = await beginLoginAttempt(email, ip);
         if (lock.locked) throw new Error(lockedError(lock.retryAfterSeconds));
 
-        const refuse = async () => {
-          await recordLoginFailure(email, ip);
-          return null;
-        };
-
+        // Check the password before anything else so every refusal takes the same time.
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user || !user.passwordHash) {
-          await bcrypt.compare(password, DUMMY_HASH);
-          return refuse();
-        }
-        if (user.status === "DISABLED" || user.status === "PENDING") return refuse();
+        const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
+        if (!user?.passwordHash || !valid) return null;
+        if (user.status === "DISABLED" || user.status === "PENDING") return null;
 
         const portalAccount =
           portal === "dealer" ? "DEALER" : portal === "depot" ? "DEPOT" : "INTERNAL";
-        if (user.accountType !== portalAccount) return refuse();
-
-        const valid = await bcrypt.compare(password, user.passwordHash);
-        if (!valid) return refuse();
+        if (user.accountType !== portalAccount) return null;
 
         await clearLoginFailures(email);
 
