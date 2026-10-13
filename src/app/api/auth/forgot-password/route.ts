@@ -10,6 +10,8 @@ import {
   sendEmail,
 } from "@/lib/email";
 import { logActivity } from "@/lib/activity";
+import { allowPasswordReset } from "@/lib/security/auth-throttle";
+import { clientIp } from "@/lib/security/client-ip";
 
 const schema = z.object({
   email: z.string().email(),
@@ -24,6 +26,11 @@ export async function POST(req: Request) {
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
   const email = parsed.data.email.toLowerCase().trim();
+
+  // Over the limit: same answer as success, but no email (protects inboxes and the Resend quota).
+  if (!(await allowPasswordReset(email, clientIp(req.headers)))) {
+    return NextResponse.json(GENERIC_OK);
+  }
   const user = await prisma.user.findUnique({ where: { email } });
 
   // Always succeed to avoid account enumeration

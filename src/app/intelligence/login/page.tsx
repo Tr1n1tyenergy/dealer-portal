@@ -21,6 +21,7 @@ import {
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { cn } from "@/lib/utils";
 import "./login.css";
+import { loginErrorMessage } from "@/lib/security/login-errors";
 
 const features = [
   {
@@ -82,7 +83,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Invalid credentials or inactive account.");
+      setError(loginErrorMessage(result.error, "Invalid credentials or inactive account."));
       return;
     }
 
