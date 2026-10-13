@@ -93,6 +93,11 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-10-13 — Lock trial source-location External IDs per warehouse
+
+- Added `ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS`: PMS LOCAL quant External ID for Eldoret / Nakuru / Kisumu / Lake Oil.
+- Local `.env` set `ODOO_MODE=live` for dealer portal quotation trial (not committed).
+
 ### 2026-10-13 — Retail Users edit/delete + additional Super Admin
 
 - Active/Pending Users ⋮ menu: Edit (modal) and Delete for `SUPER_ADMIN` sessions.

@@ -33,6 +33,19 @@ export type SourceLocationConfig = {
   candidates: SourceLocationCandidate[];
 };
 
+/**
+ * Locked trial mapping (2026-10-13): one active source-location External ID per warehouse.
+ * Picked from the stock.quant export list — PMS LOCAL quant for each terminal.
+ * Live client resolves quant → stock.location id before writing sale.order.source_location_id.
+ * Ops can still override via ODOO_SOURCE_LOCATION_*_EXTERNAL_ID.
+ */
+export const ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS = {
+  KPC_ELDORET: "__export__.stock_quant_9382_5fced216", // KPC-ELDORET/Stock via PMS LOCAL quant
+  KPC_NAKURU: "__export__.stock_quant_10902_860a9d8d", // KPC-NAKURU/Stock via PMS LOCAL quant
+  KPC_KISUMU: "__export__.stock_quant_9384_2d26b934", // KPC-KISUMU/Stock via PMS LOCAL quant
+  LAKE_OIL_NRB: "__export__.stock_quant_9329_2b09d1f5", // LakeO/Stock via PMS LOCAL quant
+} as const satisfies Record<string, string>;
+
 export const LOADING_WAREHOUSES: Record<
   string,
   {
@@ -50,7 +63,7 @@ export const LOADING_WAREHOUSES: Record<
     odooWarehouseCode: "KPCED",
     sourceLocation: {
       name: "KPC-ELDORET/Stock",
-      odooLocationExternalId: "__export__.stock_quant_9382_5fced216",
+      odooLocationExternalId: ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS.KPC_ELDORET,
       candidates: [
         {
           key: "ELDORET_AGO_EXPORT",
@@ -86,7 +99,7 @@ export const LOADING_WAREHOUSES: Record<
     odooWarehouseCode: "KPCNK",
     sourceLocation: {
       name: "KPC-NAKURU/Stock",
-      odooLocationExternalId: "__export__.stock_quant_10902_860a9d8d",
+      odooLocationExternalId: ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS.KPC_NAKURU,
       candidates: [
         {
           key: "NAKURU_PMS_LOCAL",
@@ -122,7 +135,7 @@ export const LOADING_WAREHOUSES: Record<
     odooWarehouseCode: "KPCKS",
     sourceLocation: {
       name: "KPC-KISUMU/Stock",
-      odooLocationExternalId: "__export__.stock_quant_9384_2d26b934",
+      odooLocationExternalId: ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS.KPC_KISUMU,
       candidates: [
         {
           key: "KISUMU_AGO_LOCAL",
@@ -146,7 +159,7 @@ export const LOADING_WAREHOUSES: Record<
     odooWarehouseCode: "LakeO",
     sourceLocation: {
       name: "LakeO/Stock",
-      odooLocationExternalId: "__export__.stock_quant_9329_2b09d1f5",
+      odooLocationExternalId: ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS.LAKE_OIL_NRB,
       candidates: [
         {
           key: "LAKEO_AGO_LOCAL",
@@ -331,8 +344,8 @@ export const QUOTATION_CREATE_CONTRACT = {
     "sale_type", // fuels
     "station_id", // station External ID (Banana = account.analytic.account)
     "warehouse_id", // loading terminal — External ID on LOADING_WAREHOUSES
-    "source_location_id", // stock.location — External ID pending per warehouse
-    "order_line.product_id", // product.product — External ID pending for PMS/AGO
+    "source_location_id", // stock.location — via ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS (quant → location)
+    "order_line.product_id", // product.product — PMSL001 / AGOL001 External IDs
     "order_line.product_uom_qty",
   ],
   unitPriceSource: "temporary_epra_regional_by_warehouse",
@@ -349,7 +362,7 @@ export const QUOTATION_CREATE_CONTRACT = {
 
 /** Still awaiting / incomplete */
 export const INTEGRATION_GAPS = [
-  "Confirm which stock.quant candidate maps to the correct source location per warehouse (all candidates stored; active test pick = PMS LOCAL quant where available)",
+  "Source location trial mapping locked to PMS LOCAL quant External IDs per warehouse (ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS); confirm with Odoo ops that quant→location is the intended Stock location",
   "PMS/AGO products confirmed: PMSL001 + AGOL001 (see fuel-products.json externalIds)",
   "Station External IDs still needed for remaining portal stations (have: Banana, Kambiti, Kiserian, Kitanga, Malaa, Mariakani, Migori, Mumias, Nakuru Town, Eldoret Outspan, Sobea; model: account.analytic.account)",
   "Malaa and Mariakani are mapped in STATION_FULFILLMENT but not yet in official-dealers.json / dealer portal stations; confirm Mariakani loading warehouse (currently LAKE_OIL_NRB)",
