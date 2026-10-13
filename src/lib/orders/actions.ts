@@ -94,7 +94,7 @@ export async function depotOrderAction(formData: FormData) {
   if (!canOperateDepot(session.user.role)) throw new Error("Depot action is not permitted.");
   const orderId = String(formData.get("orderId") || "");
   const action = String(formData.get("action") || "") as "accept" | "complete" | "dispatch" | "deliver" | "close";
-  await ignoreStaleTransition(() => applyDepotAction(orderId, session.user.id, action, {
+  await ignoreStaleTransition(() => applyDepotAction(orderId, session.user, action, {
     truckRegistration: String(formData.get("truckRegistration") || "") || undefined,
     driverName: String(formData.get("driverName") || "") || undefined,
     transporter: String(formData.get("transporter") || "") || undefined,

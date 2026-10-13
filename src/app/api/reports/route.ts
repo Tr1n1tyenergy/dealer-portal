@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireInternalApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 
 const createSchema = z.object({
@@ -13,7 +13,7 @@ const createSchema = z.object({
 });
 
 export async function GET(req: Request) {
-  const auth = await requireSessionApi();
+  const auth = await requireInternalApi();
   if ("error" in auth) return auth.error;
 
   const { searchParams } = new URL(req.url);
@@ -54,7 +54,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireSessionApi();
+  const auth = await requireInternalApi();
   if ("error" in auth) return auth.error;
 
   const body = await req.json();

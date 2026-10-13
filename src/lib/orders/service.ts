@@ -1,5 +1,6 @@
 import type { DealerOrderStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { canActOnDepotOrder } from "@/lib/access";
 import { logActivity } from "@/lib/activity";
 import { resolveOdooPartnerId } from "@/lib/dealers/registry";
 import { getOdooClient } from "@/lib/integrations/odoo/client";
@@ -447,7 +448,7 @@ export async function releaseToDepot(orderId: string, actorId: string, depotId: 
 
 export async function applyDepotAction(
   orderId: string,
-  actorId: string,
+  actor: { id: string; role: string; depotId: string | null },
   action: "accept" | "complete" | "dispatch" | "deliver" | "close",
   fields: {
     truckRegistration?: string;
@@ -460,8 +461,10 @@ export async function applyDepotAction(
     deliveryNoteRef?: string;
   }
 ) {
+  const actorId = actor.id;
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
-  if (!order) throw new Error("Order not found.");
+  // Another depot's order is reported as missing, so a manager cannot probe which orders exist.
+  if (!order || !canActOnDepotOrder(actor, order.depotId)) throw new Error("Order not found.");
 
   const map = {
     accept: { to: "LOADING" as const, action: "LOADING_STARTED", note: "Loading started" },
