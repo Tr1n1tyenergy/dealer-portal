@@ -611,12 +611,166 @@
   border-radius: 8px;
   display: grid;
   place-items: center;
-  cursor: default;
+  cursor: pointer;
 }
 
-.ru-actions:hover {
+.ru-actions:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.ru-actions:hover:not(:disabled),
+.ru-actions.is-open {
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
+}
+
+.ru-menu {
+  position: relative;
+  display: inline-flex;
+  justify-content: flex-end;
+}
+
+.ru-menu__panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 160px;
+  padding: 0.35rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: #0d213d;
+  box-shadow: 0 12px 32px rgba(2, 10, 28, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ru-menu__panel button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.ru-menu__panel button:hover {
+  background: rgba(22, 135, 255, 0.16);
+  color: #fff;
+}
+
+.ru-menu__panel button.is-danger {
+  color: #fca5a5;
+}
+
+.ru-menu__panel button.is-danger:hover {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fecaca;
+}
+
+.ru-menu__panel button:disabled,
+.ru-menu__panel button.is-danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: #94a3b8;
+}
+
+.ru-menu__panel button.is-danger:disabled:hover {
+  background: transparent;
+  color: #94a3b8;
+}
+
+.ru-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(2, 8, 20, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.ru-modal__panel {
+  width: min(480px, 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: #122a4a !important;
+  box-shadow: 0 24px 60px rgba(2, 10, 28, 0.55);
+  padding: 1.15rem 1.2rem 1.2rem;
+}
+
+.ru-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ru-modal__head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ru-modal__head p {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ru-muted);
+}
+
+.ru-modal__close {
+  appearance: none;
+  border: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ru-muted);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.ru-modal__close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ru-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ru-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.ru-btn--ghost {
+  background: transparent !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  color: #cbd5e1 !important;
+}
+
+.ru-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #fff !important;
 }
 
 .ru-empty {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Building2,
   ChevronRight,
@@ -10,13 +11,20 @@ import {
   Mail,
   MapPin,
   MoreVertical,
+  Pencil,
   Search,
   Send,
   Shield,
   Store,
+  Trash2,
   UserRound,
   Users,
+  X,
 } from "lucide-react";
+import {
+  isProtectedSuperAdminEmail,
+  mayDeleteProtectedAdmin,
+} from "@/lib/security/protected-admins";
 import "@/app/intelligence/retail/retail-users.css";
 
 type StationOpt = {
@@ -87,7 +95,18 @@ function matchesQuery(u: RetailUser, q: string) {
   return hay.includes(q);
 }
 
+type EditForm = {
+  firstName: string;
+  lastName: string;
+  department: string;
+  role: string;
+  status: "PENDING" | "ACTIVE" | "DISABLED";
+};
+
 export function RetailUsersClient() {
+  const { data: session } = useSession();
+  const canManageUsers = session?.user?.role === "SUPER_ADMIN";
+
   const [stations, setStations] = useState<StationOpt[]>([]);
   const [users, setUsers] = useState<RetailUser[]>([]);
   const [error, setError] = useState("");
@@ -109,6 +128,11 @@ export function RetailUsersClient() {
   const [activeQuery, setActiveQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
 
+  const [menuUserId, setMenuUserId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<RetailUser | null>(null);
+  const [editForm, setEditForm] = useState<EditForm | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
   const load = useCallback(async () => {
     const [sRes, uRes] = await Promise.all([
       fetch("/api/retail/stations"),
@@ -127,6 +151,135 @@ export function RetailUsersClient() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (!menuUserId) return;
+    function onDoc(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuUserId(null);
+      }
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [menuUserId]);
+
+  function openEdit(u: RetailUser) {
+    setMenuUserId(null);
+    setEditing(u);
+    setEditForm({
+      firstName: u.firstName,
+      lastName: u.lastName,
+      department: u.department || "Operations",
+      role: u.role,
+      status: (u.status as EditForm["status"]) || "ACTIVE",
+    });
+  }
+
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editing || !editForm) return;
+    setBusy(true);
+    setError("");
+    setOk("");
+    const res = await fetch(`/api/retail/users/${editing.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: editForm.firstName,
+        lastName: editForm.lastName,
+        department: editing.accountType === "INTERNAL" ? editForm.department : undefined,
+        role: editForm.role,
+        status: editForm.status,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) {
+      setError(typeof data.error === "string" ? data.error : "Could not update user");
+      return;
+    }
+    setOk(`Updated ${editForm.firstName} ${editForm.lastName}.`);
+    setEditing(null);
+    setEditForm(null);
+    await load();
+  }
+
+  async function deleteUser(u: RetailUser) {
+    setMenuUserId(null);
+    if (
+      !confirm(
+        `Delete ${u.firstName} ${u.lastName} (${u.email})?\n\nThis cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setOk("");
+    const res = await fetch(`/api/retail/users/${u.id}`, { method: "DELETE" });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (!res.ok) {
+      setError(typeof data.error === "string" ? data.error : "Could not delete user");
+      return;
+    }
+    setOk(`Deleted ${u.firstName} ${u.lastName}.`);
+    await load();
+  }
+
+  function renderActions(u: RetailUser) {
+    if (!canManageUsers) {
+      return (
+        <button type="button" className="ru-actions" aria-label="More actions" disabled title="Super Admin only">
+          <MoreVertical size={16} />
+        </button>
+      );
+    }
+    const open = menuUserId === u.id;
+    const actorEmail = session?.user?.email ?? "";
+    const canDelete = mayDeleteProtectedAdmin(actorEmail, u.email);
+    const protectedTarget = isProtectedSuperAdminEmail(u.email);
+    return (
+      <div className="ru-menu" ref={open ? menuRef : undefined}>
+        <button
+          type="button"
+          className={`ru-actions ${open ? "is-open" : ""}`}
+          aria-label="More actions"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          onClick={() => setMenuUserId(open ? null : u.id)}
+        >
+          <MoreVertical size={16} />
+        </button>
+        {open ? (
+          <div className="ru-menu__panel" role="menu">
+            <button type="button" role="menuitem" onClick={() => openEdit(u)}>
+              <Pencil size={14} strokeWidth={1.75} />
+              Edit user
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="is-danger"
+              disabled={!canDelete}
+              title={
+                !canDelete && protectedTarget
+                  ? "Only admin@trinityenergyltd.com can delete this Super Admin"
+                  : undefined
+              }
+              onClick={() => {
+                if (!canDelete) return;
+                void deleteUser(u);
+              }}
+            >
+              <Trash2 size={14} strokeWidth={1.75} />
+              Delete user
+            </button>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
 
   async function inviteDealer(e: React.FormEvent) {
     e.preventDefault();
@@ -536,11 +689,7 @@ export function RetailUsersClient() {
                         <i className="ru-status__dot" /> Pending
                       </span>
                     </td>
-                    <td>
-                      <button type="button" className="ru-actions" aria-label="More actions" disabled>
-                        <MoreVertical size={16} />
-                      </button>
-                    </td>
+                    <td>{renderActions(u)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -640,11 +789,7 @@ export function RetailUsersClient() {
                       </span>
                     </td>
                     <td>{formatDay(u.lastLoginAt ?? u.createdAt)}</td>
-                    <td>
-                      <button type="button" className="ru-actions" aria-label="More actions" disabled>
-                        <MoreVertical size={16} />
-                      </button>
-                    </td>
+                    <td>{renderActions(u)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -652,6 +797,135 @@ export function RetailUsersClient() {
           </div>
         )}
       </section>
+
+      {editing && editForm ? (
+        <div className="ru-modal" role="dialog" aria-modal aria-labelledby="ru-edit-title">
+          <div className="ru-modal__panel" style={{ background: "#122a4a" }}>
+            <header className="ru-modal__head">
+              <div>
+                <h2 id="ru-edit-title">Edit user</h2>
+                <p>{editing.email}</p>
+              </div>
+              <button
+                type="button"
+                className="ru-modal__close"
+                aria-label="Close"
+                onClick={() => {
+                  setEditing(null);
+                  setEditForm(null);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </header>
+            <form onSubmit={saveEdit} className="ru-modal__form">
+              <div className="ru-form__row ru-form__row--2">
+                <div className="ru-field">
+                  <label htmlFor="edit-first">First name</label>
+                  <div className="ru-field__control">
+                    <UserRound size={15} strokeWidth={1.75} />
+                    <input
+                      id="edit-first"
+                      required
+                      value={editForm.firstName}
+                      onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="ru-field">
+                  <label htmlFor="edit-last">Last name</label>
+                  <div className="ru-field__control">
+                    <UserRound size={15} strokeWidth={1.75} />
+                    <input
+                      id="edit-last"
+                      required
+                      value={editForm.lastName}
+                      onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {editing.accountType === "INTERNAL" ? (
+                <div className="ru-field">
+                  <label htmlFor="edit-dept">Department</label>
+                  <div className="ru-field__control">
+                    <Building2 size={15} strokeWidth={1.75} />
+                    <input
+                      id="edit-dept"
+                      required
+                      value={editForm.department}
+                      onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="ru-form__row ru-form__row--2">
+                <div className="ru-field">
+                  <label htmlFor="edit-role">Role</label>
+                  <div className="ru-field__control">
+                    <Shield size={15} strokeWidth={1.75} />
+                    <select
+                      id="edit-role"
+                      value={editForm.role}
+                      onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                    >
+                      {editing.accountType === "INTERNAL" ? (
+                        <>
+                          <option value="STANDARD_USER">Standard User</option>
+                          <option value="SUPER_ADMIN">Super Admin</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="DEALER_ADMIN">Dealer Admin</option>
+                          <option value="DEALER_USER">Dealer User</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+                <div className="ru-field">
+                  <label htmlFor="edit-status">Status</label>
+                  <div className="ru-field__control">
+                    <Clock3 size={15} strokeWidth={1.75} />
+                    <select
+                      id="edit-status"
+                      value={editForm.status}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          status: e.target.value as EditForm["status"],
+                        })
+                      }
+                    >
+                      <option value="ACTIVE">Active</option>
+                      <option value="PENDING">Pending</option>
+                      <option value="DISABLED">Disabled</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="ru-modal__actions">
+                <button
+                  type="button"
+                  className="ru-btn ru-btn--ghost"
+                  onClick={() => {
+                    setEditing(null);
+                    setEditForm(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="ru-btn" disabled={busy}>
+                  {busy ? "Saving…" : "Save changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
