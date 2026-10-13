@@ -3,6 +3,13 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
+import { beginLoginAttempt, clearLoginFailures, normalizeEmail } from "@/lib/security/auth-throttle";
+import { clientIp } from "@/lib/security/client-ip";
+import { lockedError } from "@/lib/security/login-errors";
+
+/** Compared against when there is no real hash, so every refusal takes about as long as a real check. */
+// Cost-12 bcrypt hash of a random throwaway string (matches real hashes); precomputed to keep cold starts fast.
+const DUMMY_HASH = "$2b$12$/It9sYuAHtJEye3YXjINqeM2LnwnY5fDT.mI5bRv4PWzD.jGMuC3q";
 
 async function hydrateTokenFromUser(userId: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -35,23 +42,30 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
         portal: { label: "Portal", type: "text" },
       },
-      async authorize(credentials) {
-        const email = credentials?.email?.toLowerCase().trim();
+      async authorize(credentials, req) {
+        const email = normalizeEmail(credentials?.email ?? "");
         const password = credentials?.password;
         const portal = credentials?.portal || "staff";
 
         if (!email || !password) return null;
 
+        // Recorded as a failure up front, so a burst of parallel guesses can't slip past the limit.
+        // While locked even the right password is refused, so a lucky guess isn't revealed.
+        const ip = clientIp(req?.headers);
+        const lock = await beginLoginAttempt(email, ip);
+        if (lock.locked) throw new Error(lockedError(lock.retryAfterSeconds));
+
+        // Check the password before anything else so every refusal takes the same time.
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user || !user.passwordHash) return null;
+        const valid = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
+        if (!user?.passwordHash || !valid) return null;
         if (user.status === "DISABLED" || user.status === "PENDING") return null;
 
         const portalAccount =
           portal === "dealer" ? "DEALER" : portal === "depot" ? "DEPOT" : "INTERNAL";
         if (user.accountType !== portalAccount) return null;
 
-        const valid = await bcrypt.compare(password, user.passwordHash);
-        if (!valid) return null;
+        await clearLoginFailures(email);
 
         await prisma.user.update({
           where: { id: user.id },

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { validatePasswordStrength } from "@/lib/security/password-policy";
+import { clearLoginFailures } from "@/lib/security/auth-throttle";
 
 const schema = z.object({
   token: z.string().min(10),
@@ -29,16 +30,20 @@ export async function POST(req: Request) {
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
 
-  await prisma.$transaction([
+  const [user] = await prisma.$transaction([
     prisma.user.update({
       where: { id: reset.userId },
       data: { passwordHash, status: "ACTIVE" },
+      select: { email: true },
     }),
     prisma.passwordResetToken.update({
       where: { id: reset.id },
       data: { usedAt: new Date() },
     }),
   ]);
+
+  // The lock message tells people to reset their password, so a reset has to lift it.
+  await clearLoginFailures(user.email);
 
   await logActivity({
     actorId: reset.userId,

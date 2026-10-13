@@ -9,6 +9,7 @@ import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { cn } from "@/lib/utils";
 import "@/app/intelligence/login/login.css";
+import { loginErrorMessage } from "@/lib/security/login-errors";
 
 export function BrandPanel({
   image,
@@ -119,7 +120,7 @@ export function PortalLogin({
     const result = await signIn("credentials", { email, password, portal, redirect: false });
     setLoading(false);
     if (result?.error) {
-      setError("Invalid credentials, or this account is not provisioned for this portal.");
+      setError(loginErrorMessage(result.error, "Invalid credentials, or this account is not provisioned for this portal."));
       return;
     }
     router.push(destination);
