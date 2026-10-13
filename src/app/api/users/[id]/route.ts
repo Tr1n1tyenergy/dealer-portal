@@ -11,6 +11,7 @@ import {
 } from "@/lib/email";
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
+import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
 
 const updateSchema = z.object({
   firstName: z.string().min(1).optional(),
@@ -122,6 +123,16 @@ export async function DELETE(
   const { id } = await params;
   if (id === auth.session.user.id) {
     return jsonError("You cannot delete your own account.", 400);
+  }
+
+  const user = await prisma.user.findUnique({ where: { id }, select: { email: true } });
+  if (!user) return jsonError("User not found", 404);
+
+  if (!mayDeleteProtectedAdmin(auth.session.user.email ?? "", user.email)) {
+    return jsonError(
+      "This Super Admin account can only be deleted by admin@trinityenergyltd.com.",
+      403
+    );
   }
 
   await prisma.user.delete({ where: { id } });

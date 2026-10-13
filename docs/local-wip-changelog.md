@@ -93,6 +93,13 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-10-13 — Retail Users edit/delete + additional Super Admin
+
+- Active/Pending Users ⋮ menu: Edit (modal) and Delete for `SUPER_ADMIN` sessions.
+- New `PATCH`/`DELETE` `/api/retail/users/[id]` (last Super Admin protected; self-delete blocked).
+- Script `scripts/ensure-additional-super-admin.ts` (+ `production:ensure:super-admin`) to create another ACTIVE INTERNAL SUPER_ADMIN without emptying the User table.
+- Protected Super Admins (`admin@…`, `executive.admin@…`) can only be deleted by `admin@trinityenergyltd.com` (API + UI).
+
 ### 2026-10-12 — Dealer portal Messaging matches TRI staff Messaging
 
 - `/dealer/messaging` now uses the same dark 3-column UI as staff (hero, filters, New Chat, contact intelligence, composer).
