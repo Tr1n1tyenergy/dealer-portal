@@ -4,7 +4,8 @@
   position: relative;
   min-height: 100vh;
   background: #041638;
-  overflow-x: hidden;
+  /* clip, not hidden: hidden would make this a scroll container and stop sticky headers/sidebars working. */
+  overflow-x: clip;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
