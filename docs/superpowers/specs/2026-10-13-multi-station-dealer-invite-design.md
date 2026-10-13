@@ -26,7 +26,7 @@ No schema change. The dealer portal is unchanged: after activation the login see
 | Case | HTTP | Message |
 |---|---|---|
 | Stations from different dealer companies | 400 | `<A> and <B> belong to separate dealer companies (<Company A>, <Company B>) and can't be linked to one user.` (more than two stations: `These stations belong to separate dealer companies (…) and can't be linked to one user.`) |
-| Company already has a login | 409 | `<Company> already has a dealer login (<email>). Disable it before inviting someone else.` |
+| Company already has a login | 409 | `<Company> already has a dealer login (<email>). Ask a Super Admin to disable it in Admin → Users before inviting someone else.` |
 | Station owned by another company in the database | 409 | `<Station> is already linked to <Other company> and can't be moved to <Company>.` |
 | Station not invitable | 400 | existing message (`… not invitable yet — partner and station External IDs are required.`) |
 | Unknown station code | 400 | `Unknown station code: <code>.` |

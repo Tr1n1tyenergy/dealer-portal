@@ -96,7 +96,7 @@ describe(
       assert.equal(result.status, 409);
       assert.equal(
         result.message,
-        `${co.orgName} already has a dealer login (${email("first")}). Disable it before inviting someone else.`
+        `${co.orgName} already has a dealer login (${email("first")}). Ask a Super Admin to disable it in Admin → Users before inviting someone else.`
       );
       assert.equal((await usersOf(co.orgCode)).length, 1);
     });
