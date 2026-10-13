@@ -5,8 +5,7 @@ Date: 2026-10-13 · Portal: **Admin/Staff → Retail Interface → Users → Inv
 ## Goal
 
 Let internal staff invite one dealer login for **several stations of the same dealer company** in a single invite
-(e.g. VERECA ENTERPRISES LIMITED → Banana + Nakuru), using the station/partner External IDs from the official
-dealer catalog (`src/lib/dealers/official-dealers.json`).
+(e.g. VERECA ENTERPRISES LIMITED → Banana + Nakuru), using the station/partner External IDs from the official dealer catalog (`src/lib/dealers/official-dealers.json`).
 
 ## Business rules
 
