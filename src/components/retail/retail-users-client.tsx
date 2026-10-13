@@ -8,7 +8,6 @@ import {
   Filter,
   Info,
   Mail,
-  MapPin,
   MoreVertical,
   Search,
   Send,
@@ -18,12 +17,18 @@ import {
   Users,
 } from "lucide-react";
 import "@/app/intelligence/retail/retail-users.css";
+import { checkStationSelection } from "@/lib/dealers/station-selection";
+import { StationMultiSelect } from "@/components/retail/station-multi-select";
 
 type StationOpt = {
   stationCode: string;
   stationName: string;
   tradingName: string;
+  orgCode: string;
+  orgName: string;
   invitable: boolean;
+  hasLogin: boolean;
+  loginEmail: string | null;
 };
 
 type RetailUser = {
@@ -94,7 +99,7 @@ export function RetailUsersClient() {
   const [ok, setOk] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const [stationCode, setStationCode] = useState("");
+  const [stationCodes, setStationCodes] = useState<string[]>([]);
   const [dealerEmail, setDealerEmail] = useState("");
   const [dealerFirst, setDealerFirst] = useState("");
   const [dealerLast, setDealerLast] = useState("");
@@ -137,7 +142,7 @@ export function RetailUsersClient() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        stationCode,
+        stationCodes,
         email: dealerEmail,
         firstName: dealerFirst,
         lastName: dealerLast,
@@ -150,6 +155,7 @@ export function RetailUsersClient() {
       return;
     }
     setOk(`Dealer invite sent to ${dealerEmail}${data.activateUrl ? ` — ${data.activateUrl}` : ""}`);
+    setStationCodes([]);
     setDealerEmail("");
     setDealerFirst("");
     setDealerLast("");
@@ -185,7 +191,8 @@ export function RetailUsersClient() {
     await load();
   }
 
-  const invitable = stations.filter((s) => s.invitable);
+  // Same rules as the API, so staff see why a selection can't be invited before sending.
+  const selection = stationCodes.length ? checkStationSelection(stations, stationCodes) : null;
   const pendingAll = users.filter((u) => u.status === "PENDING");
   const activeAll = users.filter((u) => u.status === "ACTIVE");
 
@@ -242,7 +249,7 @@ export function RetailUsersClient() {
               </span>
               <div>
                 <h2>Invite dealer</h2>
-                <p>Send an invitation to a dealer from a specific station.</p>
+                <p>Send an invitation to a dealer for one or more of their stations.</p>
               </div>
             </div>
 
@@ -250,22 +257,12 @@ export function RetailUsersClient() {
               <div className="ru-form__row ru-form__row--4">
                 <div className="ru-field">
                   <label htmlFor="station">Station</label>
-                  <div className="ru-field__control">
-                    <MapPin size={15} strokeWidth={1.75} />
-                    <select
-                      id="station"
-                      required
-                      value={stationCode}
-                      onChange={(e) => setStationCode(e.target.value)}
-                    >
-                      <option value="">Select station…</option>
-                      {invitable.map((s) => (
-                        <option key={s.stationCode} value={s.stationCode}>
-                          {s.stationName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <StationMultiSelect
+                    id="station"
+                    stations={stations}
+                    value={stationCodes}
+                    onChange={setStationCodes}
+                  />
                 </div>
                 <div className="ru-field">
                   <label htmlFor="d-email">Email address</label>
@@ -309,8 +306,16 @@ export function RetailUsersClient() {
                 </div>
               </div>
 
+              {selection ? (
+                <div className={selection.ok ? "ru-selection" : "ru-selection ru-selection--error"} role="status">
+                  {selection.ok
+                    ? `${selection.orgName} · ${selection.rows.length} station${selection.rows.length === 1 ? "" : "s"}: ${selection.rows.map((r) => r.stationName).join(", ")}`
+                    : selection.message}
+                </div>
+              ) : null}
+
               <div className="ru-form__foot">
-                <button type="submit" className="ru-btn ru-btn--gold" disabled={busy}>
+                <button type="submit" className="ru-btn ru-btn--gold" disabled={busy || !selection?.ok}>
                   <Send size={15} strokeWidth={1.75} />
                   Send dealer invite
                 </button>
