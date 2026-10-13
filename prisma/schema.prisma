@@ -500,3 +500,21 @@ model MessageReceipt {
   @@unique([messageId, userId])
   @@index([userId])
 }
+
+enum AuthAttemptKind {
+  LOGIN_FAILURE
+  PASSWORD_RESET
+}
+
+/// Failed sign-ins and password-reset requests, counted over short windows to lock out guessing (E1).
+model AuthAttempt {
+  id        String          @id @default(cuid())
+  kind      AuthAttemptKind
+  /// Normalized (lowercase, trimmed); unknown emails are recorded too.
+  email     String
+  ip        String
+  createdAt DateTime        @default(now())
+
+  @@index([kind, email, createdAt])
+  @@index([kind, ip, createdAt])
+}
