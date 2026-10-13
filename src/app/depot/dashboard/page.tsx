@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { DealerOrderStatus } from "@prisma/client";
+import { depotOrderScope } from "@/lib/access";
 import { requireDepot } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { depotOrderAction } from "@/lib/orders/actions";
@@ -25,9 +26,7 @@ export default async function DepotDashboardPage() {
   const orders = await prisma.dealerOrder.findMany({
     where: {
       status: { in: active },
-      ...(session.user.role === "SUPER_ADMIN" || !session.user.depotId
-        ? {}
-        : { depotId: session.user.depotId }),
+      ...depotOrderScope(session.user),
     },
     include: { station: true, dealerOrganization: true, lines: true, depot: true },
     orderBy: { updatedAt: "desc" },

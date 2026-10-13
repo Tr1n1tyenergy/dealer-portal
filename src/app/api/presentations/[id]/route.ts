@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireInternalApi, jsonError } from "@/lib/api-auth";
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireSessionApi();
+  const auth = await requireInternalApi();
   if ("error" in auth) return auth.error;
 
   const { id } = await params;
