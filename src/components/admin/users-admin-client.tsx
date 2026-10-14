@@ -156,6 +156,8 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
               >
                 <option value="STANDARD_USER">Standard User</option>
+                <option value="FINANCE">Finance</option>
+                <option value="SALES_REP">Sales Rep</option>
                 <option value="SUPER_ADMIN">Super Admin</option>
               </select>
             </div>

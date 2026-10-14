@@ -17,7 +17,7 @@ const createUserSchema = z.object({
   lastName: z.string().min(1),
   email: z.string().email(),
   department: z.string().min(1),
-  role: z.enum(["SUPER_ADMIN", "STANDARD_USER"]).default("STANDARD_USER"),
+  role: z.enum(["SUPER_ADMIN", "STANDARD_USER", "FINANCE", "SALES_REP"]).default("STANDARD_USER"),
   permissions: z.array(z.string()).default([]),
 });
 
@@ -48,16 +48,17 @@ export async function POST(req: Request) {
   const auth = await requireSuperAdminApi();
   if ("error" in auth) return auth.error;
 
+  const body = await req.json();
+  const parsed = createUserSchema.safeParse(body);
+  if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
+
+  // Checked after validation so input errors aren't hidden behind "email not configured".
   if (!emailDeliveryConfigured()) {
     return jsonError(
       "Email delivery is not configured. Set RESEND_API_KEY before inviting users.",
       503
     );
   }
-
-  const body = await req.json();
-  const parsed = createUserSchema.safeParse(body);
-  if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
   const email = parsed.data.email.toLowerCase().trim();
   const existing = await prisma.user.findUnique({ where: { email } });

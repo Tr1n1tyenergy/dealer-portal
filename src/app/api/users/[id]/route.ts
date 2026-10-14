@@ -12,12 +12,13 @@ import {
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
+import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 
 const updateSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
   department: z.string().min(1).optional(),
-  role: z.enum(["SUPER_ADMIN", "STANDARD_USER"]).optional(),
+  role: z.enum(["SUPER_ADMIN", "STANDARD_USER", "FINANCE", "SALES_REP"]).optional(),
   status: z.enum(["PENDING", "ACTIVE", "DISABLED"]).optional(),
   permissions: z.array(z.string()).optional(),
   resetInvite: z.boolean().optional(),
@@ -37,6 +38,16 @@ export async function PATCH(
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  if (parsed.data.role && user.accountType !== "INTERNAL") {
+    return jsonError("Only staff accounts can be given a staff role.", 400);
+  }
+
+  // A re-sent invite puts the account back to PENDING, so it counts as a status change.
+  const nextStatus = parsed.data.resetInvite ? "PENDING" : parsed.data.status;
+  const refusal =
+    (await lastSuperAdminRefusal(user, { role: parsed.data.role, status: nextStatus })) ??
+    (await dealerLoginRefusal(user, nextStatus));
+  if (refusal) return jsonError(refusal.message, refusal.status);
 
   const updated = await prisma.user.update({
     where: { id },
@@ -125,7 +136,7 @@ export async function DELETE(
     return jsonError("You cannot delete your own account.", 400);
   }
 
-  const user = await prisma.user.findUnique({ where: { id }, select: { email: true } });
+  const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
 
   if (!mayDeleteProtectedAdmin(auth.session.user.email ?? "", user.email)) {
@@ -134,6 +145,9 @@ export async function DELETE(
       403
     );
   }
+
+  const refusal = (await lastSuperAdminRefusal(user, { deleting: true })) ?? (await historyRefusal(id));
+  if (refusal) return jsonError(refusal.message, refusal.status);
 
   await prisma.user.delete({ where: { id } });
   await logActivity({
