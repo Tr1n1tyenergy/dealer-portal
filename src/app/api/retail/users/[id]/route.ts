@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
+import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 
 const updateSchema = z.object({
   firstName: z.string().min(1).optional(),
@@ -42,25 +43,10 @@ export async function PATCH(req: Request, ctx: Ctx) {
     }
   }
 
-  // Do not demote/disable the last active SUPER_ADMIN
-  if (
-    user.role === "SUPER_ADMIN" &&
-    user.status === "ACTIVE" &&
-    ((parsed.data.role && parsed.data.role !== "SUPER_ADMIN") ||
-      (parsed.data.status && parsed.data.status !== "ACTIVE"))
-  ) {
-    const otherAdmins = await prisma.user.count({
-      where: {
-        id: { not: id },
-        role: "SUPER_ADMIN",
-        status: "ACTIVE",
-        accountType: "INTERNAL",
-      },
-    });
-    if (otherAdmins === 0) {
-      return jsonError("Cannot demote or disable the last active Super Admin.", 400);
-    }
-  }
+  const refusal =
+    (await lastSuperAdminRefusal(user, { role: parsed.data.role, status: parsed.data.status })) ??
+    (await dealerLoginRefusal(user, parsed.data.status));
+  if (refusal) return jsonError(refusal.message, refusal.status);
 
   const updated = await prisma.user.update({
     where: { id },
@@ -124,19 +110,8 @@ export async function DELETE(_req: Request, ctx: Ctx) {
     );
   }
 
-  if (user.role === "SUPER_ADMIN" && user.status === "ACTIVE") {
-    const otherAdmins = await prisma.user.count({
-      where: {
-        id: { not: id },
-        role: "SUPER_ADMIN",
-        status: "ACTIVE",
-        accountType: "INTERNAL",
-      },
-    });
-    if (otherAdmins === 0) {
-      return jsonError("Cannot delete the last active Super Admin.", 400);
-    }
-  }
+  const refusal = (await lastSuperAdminRefusal(user, { deleting: true })) ?? (await historyRefusal(id));
+  if (refusal) return jsonError(refusal.message, refusal.status);
 
   await prisma.user.delete({ where: { id } });
   await logActivity({
