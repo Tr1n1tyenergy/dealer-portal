@@ -15,7 +15,14 @@ import {
 } from "@/lib/orders/service";
 import { prisma } from "@/lib/prisma";
 import { ignoreStaleTransition, InvalidOrderTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
-import { isDepotAction, OrderInputError, parseDeliveryDate, parseOrderLines, parsePaymentAmount } from "@/lib/orders/order-input";
+import {
+  isDepotAction,
+  OrderInputError,
+  parseDeliveryDate,
+  parseLitres,
+  parseOrderLines,
+  parsePaymentAmount,
+} from "@/lib/orders/order-input";
 import { dealerCommercialOrdersBlockedReason } from "@/lib/security/launch-mode";
 
 /** What the dealer forms get back: a message to show, or null when the action went through. */
@@ -26,10 +33,6 @@ function submissionKey(value: FormDataEntryValue | null) {
   return /^[A-Za-z0-9-]{16,64}$/.test(key) ? key : null;
 }
 
-function litres(value: FormDataEntryValue | null) {
-  const n = Number(value || 0);
-  return Number.isFinite(n) ? Math.round(n) : 0;
-}
 
 export async function placeOrderAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const session = await requireDealer();
@@ -118,23 +121,30 @@ export async function depotOrderAction(formData: FormData) {
   if (!canOperateDepot(session.user.role)) throw new Error("Depot action is not permitted.");
   const orderId = String(formData.get("orderId") || "");
   const action = formData.get("action");
-  // A crafted or stale request changes nothing rather than failing with a server error.
-  if (!isDepotAction(action)) return;
+  const refresh = () => {
+    revalidatePath("/depot/dashboard");
+    revalidatePath(`/depot/orders/${orderId}`);
+  };
+  // A crafted or stale request changes nothing and refreshes the board, rather than an error page.
+  if (!isDepotAction(action)) return refresh();
+  const loadedPms = parseLitres(formData.get("loadedPmsLitres"));
+  const loadedAgo = parseLitres(formData.get("loadedAgoLitres"));
+  if (!loadedPms.ok || !loadedAgo.ok) return refresh();
   try {
     await ignoreStaleTransition(() => applyDepotAction(orderId, session.user, action, {
     truckRegistration: String(formData.get("truckRegistration") || "") || undefined,
     driverName: String(formData.get("driverName") || "") || undefined,
     transporter: String(formData.get("transporter") || "") || undefined,
-    loadedPmsLitres: litres(formData.get("loadedPmsLitres")) || undefined,
-    loadedAgoLitres: litres(formData.get("loadedAgoLitres")) || undefined,
+    loadedPmsLitres: loadedPms.value || undefined,
+    loadedAgoLitres: loadedAgo.value || undefined,
     loadingReference: String(formData.get("loadingReference") || "") || undefined,
     sealNumbers: String(formData.get("sealNumbers") || "") || undefined,
     deliveryNoteRef: String(formData.get("deliveryNoteRef") || "") || undefined,
     }));
   } catch (error) {
-    if (error instanceof OrderInputError) return;
+    // Another depot's order, or a second click from a stale tab: nothing to do but show the current board.
+    if (error instanceof OrderInputError || error instanceof InvalidOrderTransition) return refresh();
     throw error;
   }
-  revalidatePath("/depot/dashboard");
-  revalidatePath(`/depot/orders/${orderId}`);
+  refresh();
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { DealerOrderStatus } from "@prisma/client";
 import { depotOrderScope } from "@/lib/access";
+import { MAX_LITRES } from "@/lib/orders/order-input";
 import { requireDepot } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { depotOrderAction } from "@/lib/orders/actions";
@@ -62,8 +63,8 @@ export default async function DepotDashboardPage() {
                 ) : null}
                 {order.status === "LOADING" ? (
                   <>
-                    <label>Loaded PMS<input name="loadedPmsLitres" type="number" /></label>
-                    <label>Loaded AGO<input name="loadedAgoLitres" type="number" /></label>
+                    <label>Loaded PMS<input name="loadedPmsLitres" type="number" min={0} max={MAX_LITRES} step={1} /></label>
+                    <label>Loaded AGO<input name="loadedAgoLitres" type="number" min={0} max={MAX_LITRES} step={1} /></label>
                     <label>Loading reference<input name="loadingReference" /></label>
                     <button name="action" value="complete" type="submit">Loading complete</button>
                   </>

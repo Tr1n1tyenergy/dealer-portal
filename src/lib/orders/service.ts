@@ -485,7 +485,12 @@ export async function applyDepotAction(
   const actorId = actor.id;
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
   // Another depot's order is reported as missing, so a manager cannot probe which orders exist.
-  if (!order || !canActOnDepotOrder(actor, order.depotId)) throw new Error("Order not found.");
+  if (!order || !canActOnDepotOrder(actor, order.depotId)) throw new OrderInputError("Order not found.");
+  for (const loaded of [fields.loadedPmsLitres, fields.loadedAgoLitres]) {
+    if (loaded === undefined) continue;
+    const litres = parseLitres(String(loaded));
+    if (!litres.ok) throw new OrderInputError(litres.message);
+  }
 
   const map = {
     accept: { to: "LOADING" as const, action: "LOADING_STARTED", note: "Loading started" },

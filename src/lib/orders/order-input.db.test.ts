@@ -102,6 +102,24 @@ describe(
       assert.equal(record.amount, "1070150.00");
     });
 
+    it("applyDepotAction refuses another depot's order as an input error", async () => {
+      const o = await order("RELEASED_TO_DEPOT");
+      const otherDepot = { id: actorId, role: "DEPOT_MANAGER", depotId: "some-other-depot" };
+
+      await assert.rejects(service.applyDepotAction(o.id, otherDepot, "accept", {}), rules.OrderInputError);
+    });
+
+    it("applyDepotAction refuses loaded litres over 100,000 or negative", async () => {
+      const o = await order("RELEASED_TO_DEPOT");
+      const admin = { id: actorId, role: "SUPER_ADMIN", depotId: null };
+      await service.applyDepotAction(o.id, admin, "accept", {});
+
+      for (const loadedPmsLitres of [3_000_000_000, -500]) {
+        await assert.rejects(service.applyDepotAction(o.id, admin, "complete", { loadedPmsLitres }), rules.OrderInputError);
+      }
+      assert.equal((await prisma.dealerOrder.findUniqueOrThrow({ where: { id: o.id } })).status, "LOADING");
+    });
+
     it("applyDepotAction refuses an unknown action", async () => {
       const o = await order("RELEASED_TO_DEPOT");
 
