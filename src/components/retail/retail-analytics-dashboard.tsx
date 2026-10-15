@@ -146,7 +146,7 @@ export function RetailAnalyticsDashboard({
                 <FileText size={16} strokeWidth={1.75} />
                 <span>Recent Orders</span>
               </div>
-              <Link href="/intelligence/reports/dealer-operations" className="rad-link">
+              <Link href="/intelligence/retail/orders" className="rad-link">
                 View all orders
               </Link>
             </header>
