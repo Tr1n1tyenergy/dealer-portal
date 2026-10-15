@@ -1320,3 +1320,14 @@
   }
 }
 
+
+.dp-po-body .dp-po-error {
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  color: #fecaca;
+  font-size: 0.86rem;
+  font-weight: 600;
+}

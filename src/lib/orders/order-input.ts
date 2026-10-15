@@ -71,7 +71,8 @@ export function deliveryWindow(now: Date = new Date()): { min: string; max: stri
   return { min, max: addDays(min, DELIVERY_WINDOW_DAYS) };
 }
 
-function isRealDate(text: string): boolean {
+/** A real calendar date written as YYYY-MM-DD. */
+export function isRealDate(text: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return false;
   const [y, m, d] = text.split("-").map(Number);
   const date = new Date(Date.UTC(y, m - 1, d));

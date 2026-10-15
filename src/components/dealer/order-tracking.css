@@ -772,3 +772,10 @@
     display: none;
   }
 }
+
+.dp-dash .dp-ot-pay .dp-ot-pay__error {
+  margin: -0.2rem 0 0.4rem;
+  color: #b42318;
+  font-size: 0.82rem;
+  font-weight: 600;
+}

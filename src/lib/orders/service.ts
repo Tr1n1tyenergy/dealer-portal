@@ -8,6 +8,15 @@ import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contrac
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
 import { assertTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
 import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode";
+import {
+  OrderInputError,
+  isDepotAction,
+  isRealDate,
+  parseDeliveryDate,
+  parseLitres,
+  parseOrderLines,
+  parsePaymentAmount,
+} from "@/lib/orders/order-input";
 
 const orderInclude = {
   lines: true,
@@ -86,18 +95,23 @@ export async function submitDealerOrder(params: {
   submissionKey?: string | null;
 }) {
   assertDealerCommercialOrdersAllowed();
-  if (!params.lines.length) throw new Error("Add at least one product.");
+  // Same rules as the order form, re-checked here for any other caller.
   for (const line of params.lines) {
-    if (!Number.isInteger(line.quantityLitres) || line.quantityLitres <= 0) {
-      throw new Error("Quantities must be positive whole litres.");
-    }
+    const litres = parseLitres(String(line.quantityLitres));
+    if (!litres.ok) throw new OrderInputError(litres.message);
   }
+  const quantity = (product: "PMS" | "AGO") =>
+    params.lines.filter((l) => l.product === product).reduce((sum, l) => sum + l.quantityLitres, 0);
+  const lines = parseOrderLines({ pms: String(quantity("PMS")), ago: String(quantity("AGO")) });
+  if (!lines.ok) throw new OrderInputError(lines.message);
+  const deliveryDate = parseDeliveryDate(params.requestedDeliveryDate);
+  if (!deliveryDate.ok) throw new OrderInputError(deliveryDate.message);
 
   const station = await prisma.station.findFirst({
     where: { id: params.stationId, dealerOrganizationId: params.dealerOrganizationId },
     include: { dealerOrganization: true },
   });
-  if (!station) throw new Error("That station is not available to this dealer.");
+  if (!station) throw new OrderInputError("That station is not available to this dealer.");
 
   // A repeated submit of the same Place Order form returns the order it already created.
   const alreadySubmitted = await findSubmittedOrder(params.submissionKey, params.dealerOrganizationId);
@@ -114,14 +128,14 @@ export async function submitDealerOrder(params: {
           stationId: station.id,
           createdById: params.actorId,
           status: "SUBMITTED",
-          requestedDeliveryDate: params.requestedDeliveryDate
-            ? new Date(params.requestedDeliveryDate)
+          requestedDeliveryDate: deliveryDate.value
+            ? new Date(deliveryDate.value)
             : null,
           dealerReference: params.dealerReference || null,
           notes: params.notes || null,
           odooSyncKey: `quotation:${reference}`,
           submissionKey: params.submissionKey || null,
-          lines: { create: params.lines },
+          lines: { create: lines.value },
         },
       });
       await tx.orderStatusHistory.create({
@@ -352,10 +366,16 @@ export async function submitPayment(params: {
   paymentDate?: string;
   note?: string;
 }) {
+  const amount = parsePaymentAmount(params.amount);
+  if (!amount.ok) throw new OrderInputError(amount.message);
+  if (params.paymentDate && !isRealDate(params.paymentDate)) {
+    throw new OrderInputError("Enter the payment date as a valid date.");
+  }
+
   const order = await prisma.dealerOrder.findFirst({
     where: { id: params.orderId, dealerOrganizationId: params.dealerOrganizationId },
   });
-  if (!order) throw new Error("Order not found.");
+  if (!order) throw new OrderInputError("Order not found.");
 
   // One transaction: if the order cannot take a payment, no payment record is left behind.
   const saved = await prisma.$transaction(async (tx) => {
@@ -369,7 +389,7 @@ export async function submitPayment(params: {
     await tx.paymentRecord.create({
       data: {
         orderId: order.id,
-        amount: params.amount,
+        amount: amount.value,
         bankReference: params.bankReference,
         transactionReference: params.transactionReference,
         paymentDate: params.paymentDate ? new Date(params.paymentDate) : null,
@@ -461,6 +481,7 @@ export async function applyDepotAction(
     deliveryNoteRef?: string;
   }
 ) {
+  if (!isDepotAction(action)) throw new OrderInputError("Unknown depot action.");
   const actorId = actor.id;
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
   // Another depot's order is reported as missing, so a manager cannot probe which orders exist.
