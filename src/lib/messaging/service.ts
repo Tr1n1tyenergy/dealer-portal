@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { canMessageUser } from "./authz";
+import { canMessageUser, MESSAGING_STAFF_ROLES } from "./authz";
 import { directConversationKey } from "./direct-key";
 import { triggerConversationEvent } from "@/lib/pusher/server";
 
@@ -276,7 +276,9 @@ export async function getOrCreateDirectConversation(actorId: string, peerId: str
 
   const gate = canMessageUser({
     actorAccountType: actor.accountType,
+    actorRole: actor.role,
     targetAccountType: peer.accountType,
+    targetRole: peer.role,
     targetStatus: peer.status,
     actorId,
     targetId: peerId,
@@ -414,7 +416,7 @@ export async function listDirectory(actorId: string) {
       where: {
         id: { not: actorId },
         status: "ACTIVE",
-        accountType: { in: ["INTERNAL", "DEALER"] },
+        OR: [{ accountType: "DEALER" }, { accountType: "INTERNAL", role: { in: [...MESSAGING_STAFF_ROLES] } }],
       },
       orderBy: [{ accountType: "asc" }, { firstName: "asc" }],
       select: {
@@ -438,7 +440,7 @@ export async function listDirectory(actorId: string) {
       where: {
         id: { not: actorId },
         status: "ACTIVE",
-        accountType: { in: ["INTERNAL", "DEALER"] },
+        OR: [{ accountType: "DEALER" }, { accountType: "INTERNAL", role: { in: [...MESSAGING_STAFF_ROLES] } }],
       },
       orderBy: [{ accountType: "asc" }, { firstName: "asc" }],
       select: {

@@ -17,7 +17,7 @@ describe(
     let organizationId = "";
     let stationId = "";
     let depotId = "";
-    const users: Record<"staff" | "spe", string> = { staff: "", spe: "" };
+    const users: Record<"staff" | "spe" | "dealer", string> = { staff: "", spe: "", dealer: "" };
     let sequence = 0;
 
     function form(fields: Record<string, string>) {
@@ -56,6 +56,20 @@ describe(
           })
         ).id;
       }
+      users.dealer = (
+        await prisma.user.create({
+          data: {
+            firstName: "T",
+            lastName: "dealer",
+            email: `dealer.${run}@example.test`,
+            department: "Dealer",
+            role: "DEALER_ADMIN",
+            accountType: "DEALER",
+            status: "ACTIVE",
+            dealerOrganizationId: organizationId,
+          },
+        })
+      ).id;
     });
 
     after(async () => {
@@ -78,6 +92,15 @@ describe(
       assert.equal(result, "refused");
       assert.equal((await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } })).status, "PAYMENT_VERIFICATION");
       assert.equal(await prisma.activityLog.count({ where: { actorId: users.staff, action: "ORDER_ACTION_REFUSED" } }), 1);
+    });
+
+    it("hides Staff Members from a dealer's directory", async () => {
+      const { listDirectory } = await import("@/lib/messaging/service");
+
+      const ids = (await listDirectory(users.dealer)).map((u) => u.id);
+
+      assert.equal(ids.includes(users.spe), true);
+      assert.equal(ids.includes(users.staff), false);
     });
 
     it("lets a Sales Person Executive confirm the payment", async () => {
