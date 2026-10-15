@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import { assertParticipant } from "@/lib/messaging/service";
 import { triggerConversationEvent } from "@/lib/pusher/server";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
@@ -11,7 +11,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
 
   const body = await readJson(req);

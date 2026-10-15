@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { assertParticipant } from "@/lib/messaging/service";
 
@@ -22,7 +22,7 @@ function resolveSafePath(storagePath: string) {
 }
 
 export async function GET(req: Request, ctx: Ctx) {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
   const { id } = await ctx.params;
 

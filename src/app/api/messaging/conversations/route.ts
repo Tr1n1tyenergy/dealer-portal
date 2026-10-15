@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import {
   getOrCreateDirectConversation,
   listConversationsForUser,
@@ -8,7 +8,7 @@ import {
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 export async function GET() {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
 
   const conversations = await listConversationsForUser(auth.session.user.id);
@@ -20,7 +20,7 @@ const createSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
 
   const body = await readJson(req);

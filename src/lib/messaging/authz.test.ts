@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { canMessageUser } from "./authz";
+import { canMessageUser, canUseMessaging } from "./authz";
 
 describe("canMessageUser", () => {
   it("allows staff to message dealers", () => {
@@ -45,5 +45,14 @@ describe("canMessageUser", () => {
       targetId: "b",
     });
     assert.equal(r.ok, false);
+  });
+});
+
+describe("canUseMessaging", () => {
+  it("lets staff and dealers use messaging, and nobody else", () => {
+    assert.equal(canUseMessaging("INTERNAL"), true);
+    assert.equal(canUseMessaging("DEALER"), true);
+    assert.equal(canUseMessaging("DEPOT"), false);
+    assert.equal(canUseMessaging(undefined), false);
   });
 });

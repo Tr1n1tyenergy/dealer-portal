@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { requireSessionApi } from "@/lib/api-auth";
+import { requireMessagingApi } from "@/lib/api-auth";
 import { listDirectory } from "@/lib/messaging/service";
 
 export async function GET() {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
 
   const users = await listDirectory(auth.session.user.id);

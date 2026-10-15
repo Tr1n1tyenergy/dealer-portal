@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import { getConversationContext } from "@/lib/messaging/service";
 import { analyticsStatusBucket } from "@/lib/retail/analytics";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, ctx: Ctx) {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
   const { id } = await ctx.params;
 
