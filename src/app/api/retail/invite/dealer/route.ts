@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireInternalApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import {
   EmailDeliveryError,
   emailDeliveryConfigured,
@@ -23,7 +23,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("retail.users");
   if ("error" in auth) return auth.error;
 
   const body = await readJson(req);

@@ -12,6 +12,7 @@ import {
   roleLabel,
   STAFF_ROLES,
 } from "./access";
+import { TRI_MODULES, visibleModules } from "./modules";
 
 describe("staff-only API access", () => {
   it("allows internal staff accounts", () => {
@@ -128,5 +129,24 @@ describe("permissions", () => {
     }
     assert.equal(canAccessRetail("SALES_PERSON_EXECUTIVE"), true);
     assert.equal(canAccessRetail("SUPER_ADMIN"), true);
+  });
+});
+
+describe("dashboard modules", () => {
+  const ids = (role: string) => visibleModules(role).map((m) => m.id);
+  const adminIds = ["users", "activity", "settings"];
+
+  it("hides the Retail Interface and admin tiles from Staff Members", () => {
+    assert.equal(ids("STANDARD_USER").includes("reports"), false);
+    adminIds.forEach((id) => assert.equal(ids("STANDARD_USER").includes(id), false, id));
+  });
+
+  it("shows the Retail Interface but not admin tiles to a Sales Person Executive", () => {
+    assert.equal(ids("SALES_PERSON_EXECUTIVE").includes("reports"), true);
+    adminIds.forEach((id) => assert.equal(ids("SALES_PERSON_EXECUTIVE").includes(id), false, id));
+  });
+
+  it("shows every tile to an Admin", () => {
+    assert.deepEqual(ids("SUPER_ADMIN"), TRI_MODULES.map((m) => m.id));
   });
 });

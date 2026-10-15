@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { can } from "@/lib/access";
 import { requireInternal } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
@@ -27,6 +29,7 @@ function formatDay(d: Date) {
 
 export default async function RetailDashboardPage() {
   const session = await requireInternal();
+  if (!can(session.user.role, "retail.analytics")) redirect("/intelligence/dashboard");
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
