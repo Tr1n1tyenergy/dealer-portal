@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { placeOrderAction } from "@/lib/orders/actions";
-import { deliveryWindow, MAX_LITRES } from "@/lib/orders/order-input";
+import { deliveryWindow, MAX_LITRES, typedLitres } from "@/lib/orders/order-input";
 
 type Station = { id: string; name: string };
 type WizardStep = "details" | "review";
@@ -362,7 +362,15 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
                         >
                           <Minus size={16} strokeWidth={2.5} />
                         </button>
-                        <strong aria-label="PMS litres">{pms.toLocaleString()}</strong>
+                        <input
+                          className="dp-po-qty__input"
+                          aria-label="PMS litres"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          value={pms.toLocaleString("en-US")}
+                          onChange={(e) => setPms(typedLitres(e.target.value))}
+                          onFocus={(e) => e.target.select()}
+                        />
                         <button
                           type="button"
                           className="dp-po-qty__btn"
@@ -414,7 +422,15 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
                         >
                           <Minus size={16} strokeWidth={2.5} />
                         </button>
-                        <strong aria-label="AGO litres">{ago.toLocaleString()}</strong>
+                        <input
+                          className="dp-po-qty__input"
+                          aria-label="AGO litres"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          value={ago.toLocaleString("en-US")}
+                          onChange={(e) => setAgo(typedLitres(e.target.value))}
+                          onFocus={(e) => e.target.select()}
+                        />
                         <button
                           type="button"
                           className="dp-po-qty__btn"

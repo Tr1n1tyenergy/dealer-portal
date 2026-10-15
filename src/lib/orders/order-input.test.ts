@@ -8,6 +8,7 @@ import {
   parseLitres,
   parseOrderLines,
   parsePaymentAmount,
+  typedLitres,
 } from "./order-input";
 
 const now = new Date("2026-10-15T09:00:00+03:00");
@@ -81,5 +82,19 @@ describe("depot action", () => {
     assert.equal(isDepotAction("close"), true);
     assert.equal(isDepotAction("bogus"), false);
     assert.equal(isDepotAction(""), false);
+  });
+});
+
+describe("typed litres", () => {
+  it("keeps only digits, so commas and pasted text work", () => {
+    assert.equal(typedLitres("25000"), 25000);
+    assert.equal(typedLitres("25,000"), 25000);
+    assert.equal(typedLitres("12a3.5-"), 1235);
+  });
+
+  it("treats an empty box as 0 and stops at 100,000", () => {
+    assert.equal(typedLitres(""), 0);
+    assert.equal(typedLitres("100001"), 100000);
+    assert.equal(typedLitres("99999999999999999999"), 100000);
   });
 });

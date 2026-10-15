@@ -31,6 +31,12 @@ export function parseLitres(value: unknown): Parsed<number> {
   return litres <= MAX_LITRES ? { ok: true, value: litres } : refuse(QUANTITY_MESSAGE);
 }
 
+/** What a dealer typed in a litres box: digits only, empty as 0, capped at MAX_LITRES. */
+export function typedLitres(text: string): number {
+  const digits = text.replace(/\D/g, "");
+  return digits === "" ? 0 : Math.min(MAX_LITRES, Number(digits));
+}
+
 export function parseOrderLines(input: {
   pms: unknown;
   ago: unknown;
