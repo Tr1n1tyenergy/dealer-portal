@@ -175,7 +175,7 @@ One Prisma migration:
 
 ## Branch and commits
 
-`feat/phase1-roles-orders`, from main once X1 and A1 are merged (both are, as of 2026-10-15). Commits:
+`feat/phase1-roles-orders`, from main fbbab6c (includes X1, A1 and X8). Commits:
 1. roles and migration;
 2. access rules and guards;
 3. Orders page;
