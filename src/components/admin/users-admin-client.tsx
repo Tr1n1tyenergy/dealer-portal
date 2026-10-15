@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { roleLabel, STAFF_ROLES } from "@/lib/access";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -155,10 +156,11 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
               >
-                <option value="STANDARD_USER">Standard User</option>
-                <option value="FINANCE">Finance</option>
-                <option value="SALES_REP">Sales Rep</option>
-                <option value="SUPER_ADMIN">Super Admin</option>
+                {STAFF_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {roleLabel(role)}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -212,7 +214,7 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
                   </td>
                   <td className="px-6 py-4">{u.email}</td>
                   <td className="px-6 py-4">{u.department}</td>
-                  <td className="px-6 py-4">{u.role}</td>
+                  <td className="px-6 py-4">{roleLabel(u.role)}</td>
                   <td className="px-6 py-4">{u.status}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-2">

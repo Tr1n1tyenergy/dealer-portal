@@ -12,13 +12,14 @@ import {
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { STAFF_ROLES } from "@/lib/access";
 
 const createUserSchema = z.object({
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
   email: z.string().max(254).email(),
   department: z.string().min(1).max(100),
-  role: z.enum(["SUPER_ADMIN", "STANDARD_USER", "FINANCE", "SALES_REP"]).default("STANDARD_USER"),
+  role: z.enum(STAFF_ROLES).default("STANDARD_USER"),
   permissions: z.array(z.string().max(254)).max(50).default([]),
 });
 

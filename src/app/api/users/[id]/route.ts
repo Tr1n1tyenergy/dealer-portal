@@ -14,12 +14,13 @@ import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
 import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { STAFF_ROLES } from "@/lib/access";
 
 const updateSchema = z.object({
   firstName: z.string().min(1).max(100).optional(),
   lastName: z.string().min(1).max(100).optional(),
   department: z.string().min(1).max(100).optional(),
-  role: z.enum(["SUPER_ADMIN", "STANDARD_USER", "FINANCE", "SALES_REP"]).optional(),
+  role: z.enum(STAFF_ROLES).optional(),
   status: z.enum(["PENDING", "ACTIVE", "DISABLED"]).optional(),
   permissions: z.array(z.string().max(254)).max(50).optional(),
   resetInvite: z.boolean().optional(),

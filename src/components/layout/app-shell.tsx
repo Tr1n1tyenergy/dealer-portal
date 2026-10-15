@@ -15,6 +15,7 @@ import {
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { IntelligenceBackground } from "@/components/layout/intelligence-background";
 import { cn } from "@/lib/utils";
+import { roleLabel } from "@/lib/access";
 import "./app-shell.css";
 import "../dashboard/modules.css";
 
@@ -35,10 +36,7 @@ export function AppShell({
   const initials = `${data?.user?.firstName?.[0] ?? ""}${data?.user?.lastName?.[0] ?? ""}`.toUpperCase() || "TE";
   const displayName =
     [data?.user?.firstName, data?.user?.lastName].filter(Boolean).join(" ") || "User";
-  const roleLabel =
-    data?.user?.role === "SUPER_ADMIN"
-      ? "Super Admin"
-      : (data?.user?.role ?? data?.user?.department ?? "Staff").replaceAll("_", " ");
+  const roleText = data?.user?.role ? roleLabel(data.user.role) : (data?.user?.department ?? "Staff");
 
   return (
     <div
@@ -78,7 +76,7 @@ export function AppShell({
               <div className="tri-user__avatar">{initials}</div>
               <div className="tri-user__meta">
                 <div className="tri-user__name">{displayName}</div>
-                <div className="tri-user__role">{roleLabel}</div>
+                <div className="tri-user__role">{roleText}</div>
               </div>
               <ChevronDown className="h-3.5 w-3.5 text-slate-400" aria-hidden />
             </div>

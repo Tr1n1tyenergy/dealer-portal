@@ -54,10 +54,10 @@ describe(
         await prisma.user.create({
           data: {
             firstName: "Test",
-            lastName: "Finance",
+            lastName: "Executive",
             email: `finance.${run}@example.test`,
             department: "Finance",
-            role: "FINANCE",
+            role: "SALES_PERSON_EXECUTIVE",
             status: "ACTIVE",
           },
         })

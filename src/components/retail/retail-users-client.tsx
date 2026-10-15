@@ -26,6 +26,7 @@ import {
 } from "@/lib/security/protected-admins";
 import "@/app/intelligence/retail/retail-users.css";
 import { checkStationSelection } from "@/lib/dealers/station-selection";
+import { roleLabel, STAFF_ROLES, type StaffRole } from "@/lib/access";
 import { StationMultiSelect } from "@/components/retail/station-multi-select";
 
 type StationOpt = {
@@ -68,10 +69,6 @@ function formatDay(iso: string | null | undefined) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-}
-
-function roleLabel(role: string) {
-  return role.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function orgLabel(u: RetailUser) {
@@ -127,7 +124,7 @@ export function RetailUsersClient() {
   const [staffFirst, setStaffFirst] = useState("");
   const [staffLast, setStaffLast] = useState("");
   const [staffDept, setStaffDept] = useState("Operations");
-  const [staffRole, setStaffRole] = useState<"STANDARD_USER" | "SUPER_ADMIN">("STANDARD_USER");
+  const [staffRole, setStaffRole] = useState<StaffRole>("STANDARD_USER");
 
   const [pendingQuery, setPendingQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
@@ -587,11 +584,14 @@ export function RetailUsersClient() {
                       id="s-role"
                       value={staffRole}
                       onChange={(e) =>
-                        setStaffRole(e.target.value as "STANDARD_USER" | "SUPER_ADMIN")
+                        setStaffRole(e.target.value as StaffRole)
                       }
                     >
-                      <option value="STANDARD_USER">Standard User</option>
-                      <option value="SUPER_ADMIN">Super Admin</option>
+                      {STAFF_ROLES.map((role) => (
+                        <option key={role} value={role}>
+                          {roleLabel(role)}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -878,8 +878,11 @@ export function RetailUsersClient() {
                     >
                       {editing.accountType === "INTERNAL" ? (
                         <>
-                          <option value="STANDARD_USER">Standard User</option>
-                          <option value="SUPER_ADMIN">Super Admin</option>
+                          {STAFF_ROLES.map((role) => (
+                            <option key={role} value={role}>
+                              {roleLabel(role)}
+                            </option>
+                          ))}
                         </>
                       ) : (
                         <>

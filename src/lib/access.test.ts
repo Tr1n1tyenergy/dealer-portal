@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { canActOnDepotOrder, depotOrderScope, isPublicPath, isStaffAccount, loginPathFor } from "./access";
+import {
+  canActOnDepotOrder,
+  depotOrderScope,
+  isInternalRole,
+  isPublicPath,
+  isStaffAccount,
+  loginPathFor,
+  roleLabel,
+  STAFF_ROLES,
+} from "./access";
 
 describe("staff-only API access", () => {
   it("allows internal staff accounts", () => {
@@ -80,5 +89,23 @@ describe("logged-out redirects", () => {
     for (const path of ["/dealer/dashboard", "/depot/dashboard", "/intelligence/dashboard", "/dealer/loginx"]) {
       assert.equal(isPublicPath(path), false, path);
     }
+  });
+});
+
+describe("staff roles", () => {
+  it("has exactly three staff roles", () => {
+    assert.deepEqual([...STAFF_ROLES], ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE", "STANDARD_USER"]);
+    assert.equal(isInternalRole("FINANCE"), false);
+    assert.equal(isInternalRole("SALES_REP"), false);
+    assert.equal(isInternalRole("SALES_PERSON_EXECUTIVE"), true);
+  });
+
+  it("labels roles for people", () => {
+    assert.equal(roleLabel("SUPER_ADMIN"), "Admin");
+    assert.equal(roleLabel("SALES_PERSON_EXECUTIVE"), "Sales Person Executive");
+    assert.equal(roleLabel("STANDARD_USER"), "Staff Member");
+    assert.equal(roleLabel("DEPOT_MANAGER"), "Depot Manager");
+    assert.equal(roleLabel("SOMETHING_NEW"), "SOMETHING_NEW");
+    assert.equal(roleLabel(undefined), "Staff");
   });
 });
