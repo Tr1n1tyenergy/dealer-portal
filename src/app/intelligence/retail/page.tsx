@@ -181,7 +181,7 @@ export default async function RetailDashboardPage() {
 
   const welcomeName =
     session.user.role === "SUPER_ADMIN"
-      ? "Super Admin"
+      ? "Admin"
       : session.user.firstName || "there";
 
   return (

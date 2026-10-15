@@ -203,7 +203,7 @@ export default function LoginPage() {
               </div>
               <h2 className="login-title">Sign in</h2>
               <p className="login-copy">
-                Accounts are provisioned by Super Admin only. There is no public registration.
+                Accounts are provisioned by an Admin only. There is no public registration.
               </p>
               <p className="login-copy">
                 <Link href="/access">Back to access options</Link>

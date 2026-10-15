@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     parsed.data.role === "SUPER_ADMIN" &&
     auth.session.user.role !== "SUPER_ADMIN"
   ) {
-    return jsonError("Only Super Admins can invite Super Admins.", 403);
+    return jsonError("Only Admins can invite Admins.", 403);
   }
 
   const email = parsed.data.email.toLowerCase().trim();

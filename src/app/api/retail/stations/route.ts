@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { requireInternalApi } from "@/lib/api-auth";
+import { requirePermissionApi } from "@/lib/api-auth";
 import { listStationInviteCatalog } from "@/lib/dealers/station-invite-catalog";
 import { findCompanyLogins } from "@/lib/dealers/dealer-invite";
 
 export async function GET() {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("retail.users");
   if ("error" in auth) return auth.error;
 
   const catalog = listStationInviteCatalog();

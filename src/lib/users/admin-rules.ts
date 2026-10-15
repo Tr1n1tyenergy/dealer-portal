@@ -25,8 +25,8 @@ export async function lastSuperAdminRefusal(
   return {
     status: 400,
     message: change.deleting
-      ? "Cannot delete the last active Super Admin."
-      : "Cannot demote or disable the last active Super Admin.",
+      ? "Cannot delete the last active Admin."
+      : "Cannot demote or disable the last active Admin.",
   };
 }
 

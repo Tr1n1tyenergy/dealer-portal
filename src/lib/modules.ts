@@ -85,7 +85,7 @@ export const TRI_MODULES: TriModule[] = [
     title: "Users",
     shortLabel: "Users",
     tagline: "Provision · Manage · Control",
-    description: "Super Admin user provisioning, invites, and access control.",
+    description: "Admin user provisioning, invites, and access control.",
     href: "/intelligence/admin/users",
     icon: Users,
     category: "Admin",

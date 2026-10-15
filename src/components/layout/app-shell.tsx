@@ -146,7 +146,7 @@ export function ModulesFooterStrip() {
         <div>
           <div className="mod-footer__title">Role-Based Access</div>
           <div className="mod-footer__desc">
-            Permissions are provisioned by Super Admin with full auditability.
+            Permissions are provisioned by an Admin with full auditability.
           </div>
         </div>
       </div>

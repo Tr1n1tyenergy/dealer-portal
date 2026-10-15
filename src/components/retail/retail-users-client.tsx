@@ -232,7 +232,7 @@ export function RetailUsersClient() {
   function renderActions(u: RetailUser) {
     if (!canManageUsers) {
       return (
-        <button type="button" className="ru-actions" aria-label="More actions" disabled title="Super Admin only">
+        <button type="button" className="ru-actions" aria-label="More actions" disabled title="Admin only">
           <MoreVertical size={16} />
         </button>
       );
@@ -266,7 +266,7 @@ export function RetailUsersClient() {
               disabled={!canDelete}
               title={
                 !canDelete && protectedTarget
-                  ? "Only admin@trinityenergyltd.com can delete this Super Admin"
+                  ? "Only admin@trinityenergyltd.com can delete this Admin"
                   : undefined
               }
               onClick={() => {

@@ -144,7 +144,7 @@ export async function DELETE(
 
   if (!mayDeleteProtectedAdmin(auth.session.user.email ?? "", user.email)) {
     return jsonError(
-      "This Super Admin account can only be deleted by admin@trinityenergyltd.com.",
+      "This Admin account can only be deleted by admin@trinityenergyltd.com.",
       403
     );
   }
