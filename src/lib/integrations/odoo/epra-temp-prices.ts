@@ -1,9 +1,10 @@
 /**
  * Temporary EPRA regional unit prices (KES/L) for portal → Odoo quotations.
  *
- * Source: EPRA maximum retail petroleum prices
- * Period: 15 Sep 2026 – 14 Oct 2026
- * https://www.epra.go.ke/maximum-retail-petroleum-prices-kenya-period-15th-september-2026-14th-october-2026
+ * Source: EPRA maximum retail petroleum prices (press release, Annex I)
+ * Period: 15 Oct 2026 – 14 Nov 2026. The list changes on the 15th of every month.
+ * https://www.epra.go.ke/sites/default/files/2026-10/EPRA%20Press%20Release%20-Oct%20Fuel%20Prices.pdf
+ * (The EPRA website price ticker still showed the Sep–Oct figures on 15 Oct; the press release is authoritative.)
  *
  * Warehouse region → EPRA town:
  * - LAKE_OIL_NRB  → Nairobi
@@ -11,9 +12,8 @@
  * - KPC_ELDORET   → Eldoret
  * - KPC_KISUMU    → Kisumu
  *
- * NOTE: These are EPRA maximum *retail* pump prices. Sample PFIs use lower
- * dealer/wholesale unit prices. Replace with station-discounted dealer prices
- * once Odoo station pricelists are the source of truth.
+ * The table holds EPRA's published maximum *pump* prices unchanged; dealer unit prices are
+ * those less STATION_DISCOUNT_KES. Replace once Odoo station pricelists are the source of truth.
  */
 
 import type { LoadingWarehouseKey } from "./quotation-contract";
@@ -30,39 +30,39 @@ export type EpraRegionPrices = {
   periodTo: string;
 };
 
-/** EPRA max retail prices by loading-warehouse region (KES per litre). */
+/** EPRA maximum pump prices by loading-warehouse region (KES per litre), as published. */
 export const EPRA_TEMP_PRICES_BY_WAREHOUSE: Record<LoadingWarehouseKey, EpraRegionPrices> = {
   LAKE_OIL_NRB: {
     region: "LAKE_OIL_NRB",
     epraTown: "Nairobi",
-    pms: 214.03,
-    ago: 217.86,
-    periodFrom: "2026-09-15",
-    periodTo: "2026-10-14",
+    pms: 226.96,
+    ago: 227.76,
+    periodFrom: "2026-10-15",
+    periodTo: "2026-11-14",
   },
   KPC_NAKURU: {
     region: "KPC_NAKURU",
     epraTown: "Nakuru",
-    pms: 212.92,
-    ago: 217.27,
-    periodFrom: "2026-09-15",
-    periodTo: "2026-10-14",
+    pms: 225.73,
+    ago: 226.93,
+    periodFrom: "2026-10-15",
+    periodTo: "2026-11-14",
   },
   KPC_ELDORET: {
     region: "KPC_ELDORET",
     epraTown: "Eldoret",
-    pms: 213.69,
-    ago: 218.09,
-    periodFrom: "2026-09-15",
-    periodTo: "2026-10-14",
+    pms: 226.51,
+    ago: 227.71,
+    periodFrom: "2026-10-15",
+    periodTo: "2026-11-14",
   },
   KPC_KISUMU: {
     region: "KPC_KISUMU",
     epraTown: "Kisumu",
-    pms: 213.69,
-    ago: 218.08,
-    periodFrom: "2026-09-15",
-    periodTo: "2026-10-14",
+    pms: 226.51,
+    ago: 227.71,
+    periodFrom: "2026-10-15",
+    periodTo: "2026-11-14",
   },
 };
 
@@ -104,12 +104,17 @@ export const SALE_ORDER_LINE_FIELDS = {
   },
 } as const;
 
+/** Trinity's dealer discount off the EPRA price, KES per litre, for every station (PMS and AGO). */
+export const STATION_DISCOUNT_KES = 3;
+
+/** Dealer unit price: the EPRA price less the station discount, in whole cents. */
 export function epraUnitPriceForWarehouse(
   warehouseKey: LoadingWarehouseKey,
   product: EpraFuelProduct
 ): number {
   const row = EPRA_TEMP_PRICES_BY_WAREHOUSE[warehouseKey];
-  return product === "PMS" ? row.pms : row.ago;
+  const epra = product === "PMS" ? row.pms : row.ago;
+  return Math.round((epra - STATION_DISCOUNT_KES) * 100) / 100;
 }
 
 /** Resolve temporary unit price for a portal station code. */
