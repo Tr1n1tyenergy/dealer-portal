@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  can,
+  canAccessRetail,
   canActOnDepotOrder,
   depotOrderScope,
   isInternalRole,
@@ -107,5 +109,24 @@ describe("staff roles", () => {
     assert.equal(roleLabel("DEPOT_MANAGER"), "Depot Manager");
     assert.equal(roleLabel("SOMETHING_NEW"), "SOMETHING_NEW");
     assert.equal(roleLabel(undefined), "Staff");
+  });
+});
+
+describe("permissions", () => {
+  const all = ["retail.analytics", "retail.orders", "retail.messaging", "retail.users", "orders.act"] as const;
+
+  it("gives Admin everything", () => all.forEach((p) => assert.equal(can("SUPER_ADMIN", p), true, p)));
+
+  it("gives Sales Person Executive everything except retail users", () => {
+    all.forEach((p) => assert.equal(can("SALES_PERSON_EXECUTIVE", p), p !== "retail.users", p));
+  });
+
+  it("gives everyone else nothing", () => {
+    for (const role of ["STANDARD_USER", "DEPOT_MANAGER", "DEALER_ADMIN", "DEALER_USER", "", undefined]) {
+      all.forEach((p) => assert.equal(can(role, p), false, `${role} ${p}`));
+      assert.equal(canAccessRetail(role), false);
+    }
+    assert.equal(canAccessRetail("SALES_PERSON_EXECUTIVE"), true);
+    assert.equal(canAccessRetail("SUPER_ADMIN"), true);
   });
 });

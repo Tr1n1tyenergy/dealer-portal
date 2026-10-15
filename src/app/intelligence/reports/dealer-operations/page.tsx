@@ -3,7 +3,7 @@ import { requireInternal } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/layout/app-shell";
 import { internalOrderAction } from "@/lib/orders/actions";
-import { canReleaseToDepot, canVerifyPayment } from "@/lib/access";
+import { can } from "@/lib/access";
 import { formatKes, sameAmount } from "@/lib/orders/money";
 
 export default async function DealerOperationsPage() {
@@ -74,17 +74,18 @@ export default async function DealerOperationsPage() {
                   ) : null}
                 </td>
                 <td className="p-3">
+                  {can(session.user.role, "orders.act") ? (
                   <form action={internalOrderAction} className="flex flex-wrap gap-2">
                     <input type="hidden" name="orderId" value={order.id} />
                     {order.status === "ODOO_SYNC_FAILED" ? <button className="rounded-lg bg-slate-900 px-2 py-1 text-xs text-white" name="action" value="retry-sync">Retry sync</button> : null}
                     {order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" ? <button className="rounded-lg bg-slate-900 px-2 py-1 text-xs text-white" name="action" value="generate-pfi">Generate PFI</button> : null}
-                    {order.status === "PAYMENT_VERIFICATION" && canVerifyPayment(session.user.role) ? (
+                    {order.status === "PAYMENT_VERIFICATION" ? (
                       <>
                         <button className="rounded-lg bg-emerald-700 px-2 py-1 text-xs text-white" name="action" value="confirm-payment">Confirm payment</button>
                         <button className="rounded-lg bg-amber-600 px-2 py-1 text-xs text-white" name="action" value="reject-payment">Flag exception</button>
                       </>
                     ) : null}
-                    {order.status === "PAYMENT_CONFIRMED" && canReleaseToDepot(session.user.role) ? (
+                    {order.status === "PAYMENT_CONFIRMED" ? (
                       <>
                         <select name="depotId" className="rounded border px-2 py-1 text-xs" defaultValue={depots[0]?.id}>
                           {depots.map((depot) => <option key={depot.id} value={depot.id}>{depot.name}</option>)}
@@ -93,6 +94,7 @@ export default async function DealerOperationsPage() {
                       </>
                     ) : null}
                   </form>
+                  ) : null}
                 </td>
               </tr>
             ))}
