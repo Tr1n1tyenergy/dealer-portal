@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { canActOnDepotOrder, depotOrderScope, isStaffAccount } from "./access";
+import { canActOnDepotOrder, depotOrderScope, isPublicPath, isStaffAccount, loginPathFor } from "./access";
 
 describe("staff-only API access", () => {
   it("allows internal staff accounts", () => {
@@ -52,5 +52,33 @@ describe("depot order access", () => {
 
   it("lists every depot for a super admin", () => {
     assert.deepEqual(depotOrderScope({ role: "SUPER_ADMIN", depotId: null }), {});
+  });
+});
+
+describe("logged-out redirects", () => {
+  it("sends each portal to its own login page", () => {
+    assert.equal(loginPathFor("/dealer/orders/abc"), "/dealer/login");
+    assert.equal(loginPathFor("/depot/dashboard"), "/depot/login");
+    assert.equal(loginPathFor("/intelligence/reports/dealer-operations"), "/intelligence/login");
+    assert.equal(loginPathFor("/somewhere-else"), "/access");
+  });
+
+  it("keeps the landing, chooser, login, activation and password pages public", () => {
+    for (const path of [
+      "/",
+      "/access",
+      "/dealer/login",
+      "/dealer/activate",
+      "/depot/login",
+      "/intelligence/login",
+      "/intelligence/forgot-password",
+      "/intelligence/reset-password",
+      "/intelligence/activate",
+    ]) {
+      assert.equal(isPublicPath(path), true, path);
+    }
+    for (const path of ["/dealer/dashboard", "/depot/dashboard", "/intelligence/dashboard", "/dealer/loginx"]) {
+      assert.equal(isPublicPath(path), false, path);
+    }
   });
 });
