@@ -44,6 +44,30 @@ export function depotOrderScope(actor: DepotActor) {
   return { depotId: actor.depotId };
 }
 
+const PUBLIC_PATHS = [
+  "/access",
+  "/dealer/login",
+  "/dealer/activate",
+  "/depot/login",
+  "/intelligence/login",
+  "/intelligence/forgot-password",
+  "/intelligence/reset-password",
+  "/intelligence/activate",
+];
+
+/** Pages anyone may open without a session (a path or anything below it, e.g. /dealer/activate/<token>). */
+export function isPublicPath(path: string) {
+  return path === "/" || PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
+}
+
+/** Where a logged-out visitor goes: the login page of the portal they were trying to reach. */
+export function loginPathFor(path: string) {
+  if (path === "/dealer" || path.startsWith("/dealer/")) return "/dealer/login";
+  if (path === "/depot" || path.startsWith("/depot/")) return "/depot/login";
+  if (path === "/intelligence" || path.startsWith("/intelligence/")) return "/intelligence/login";
+  return "/access";
+}
+
 export function homeForAccount(accountType: string) {
   if (accountType === "DEALER") return "/dealer/dashboard";
   if (accountType === "DEPOT") return "/depot/dashboard";

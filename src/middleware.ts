@@ -1,23 +1,24 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import { homeForAccount } from "@/lib/access";
-
-const staffPublic = [
-  "/intelligence/login",
-  "/intelligence/forgot-password",
-  "/intelligence/reset-password",
-  "/intelligence/activate",
-];
+import { homeForAccount, isPublicPath, loginPathFor } from "@/lib/access";
 
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
-    const role = token?.role;
-    const accountType = (token?.accountType as string) || "INTERNAL";
     const path = req.nextUrl.pathname;
+    if (isPublicPath(path)) return NextResponse.next();
+
+    // withAuth would send logged-out visitors to NextAuth's built-in sign-in page;
+    // send them to the login page of the portal they were trying to reach instead.
+    if (!token || token.error === "SessionRevoked") {
+      return NextResponse.redirect(new URL(loginPathFor(path), req.url));
+    }
+
+    const role = token.role;
+    const accountType = (token.accountType as string) || "INTERNAL";
     const home = homeForAccount(accountType);
 
-    if (path.startsWith("/intelligence") && !staffPublic.some((p) => path.startsWith(p))) {
+    if (path.startsWith("/intelligence")) {
       if (accountType !== "INTERNAL") {
         return NextResponse.redirect(new URL(home, req.url));
       }
@@ -26,17 +27,13 @@ export default withAuth(
       }
     }
 
-    if (
-      path.startsWith("/dealer") &&
-      !path.startsWith("/dealer/login") &&
-      !path.startsWith("/dealer/activate")
-    ) {
+    if (path.startsWith("/dealer")) {
       if (accountType !== "DEALER") {
         return NextResponse.redirect(new URL(accountType === "INTERNAL" ? "/intelligence/dashboard" : home, req.url));
       }
     }
 
-    if (path.startsWith("/depot") && !path.startsWith("/depot/login")) {
+    if (path.startsWith("/depot")) {
       if (accountType !== "DEPOT" && role !== "SUPER_ADMIN") {
         return NextResponse.redirect(new URL(home, req.url));
       }
@@ -45,26 +42,8 @@ export default withAuth(
     return NextResponse.next();
   },
   {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const path = req.nextUrl.pathname;
-        if (
-          path.startsWith("/access") ||
-          path === "/" ||
-          staffPublic.some((p) => path.startsWith(p)) ||
-          path.startsWith("/dealer/login") ||
-          path.startsWith("/dealer/activate") ||
-          path.startsWith("/depot/login")
-        ) {
-          return true;
-        }
-        if (path.startsWith("/intelligence") || path.startsWith("/dealer") || path.startsWith("/depot")) {
-          if (!token || token.error === "SessionRevoked") return false;
-          return true;
-        }
-        return true;
-      },
-    },
+    // Every request reaches the function above, which decides where logged-out visitors go.
+    callbacks: { authorized: () => true },
   }
 );
 
