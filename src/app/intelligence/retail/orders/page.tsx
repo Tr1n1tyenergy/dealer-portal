@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 import { can } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
+import { likeLiteral } from "@/lib/search";
 import { requireInternal } from "@/lib/session";
 import { internalOrderAction } from "@/lib/orders/actions";
 import { formatKes, sameAmount } from "@/lib/orders/money";
@@ -22,12 +23,13 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
   const stage = parseStage(first(params.stage));
   const q = String(first(params.q) ?? "").trim().slice(0, 100);
 
+  const term = likeLiteral(q);
   const searchWhere: Prisma.DealerOrderWhereInput = q
     ? {
         OR: [
-          { reference: { contains: q, mode: "insensitive" } },
-          { dealerOrganization: { name: { contains: q, mode: "insensitive" } } },
-          { station: { name: { contains: q, mode: "insensitive" } } },
+          { reference: { contains: term, mode: "insensitive" } },
+          { dealerOrganization: { name: { contains: term, mode: "insensitive" } } },
+          { station: { name: { contains: term, mode: "insensitive" } } },
         ],
       }
     : {};
