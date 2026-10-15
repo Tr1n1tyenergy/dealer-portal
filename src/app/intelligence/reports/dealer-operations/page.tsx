@@ -4,12 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/layout/app-shell";
 import { internalOrderAction } from "@/lib/orders/actions";
 import { canReleaseToDepot, canVerifyPayment } from "@/lib/access";
+import { formatKes, sameAmount } from "@/lib/orders/money";
 
 export default async function DealerOperationsPage() {
   const session = await requireInternal();
   const [orders, depots] = await Promise.all([
     prisma.dealerOrder.findMany({
-      include: { dealerOrganization: true, station: true, lines: true, proforma: true, depot: true },
+      include: {
+        dealerOrganization: true,
+        station: true,
+        lines: true,
+        proforma: true,
+        depot: true,
+        payments: { orderBy: { createdAt: "desc" }, take: 1 },
+      },
       orderBy: { createdAt: "desc" },
     }),
     prisma.depot.findMany({ orderBy: { name: "asc" } }),
@@ -34,6 +42,7 @@ export default async function DealerOperationsPage() {
               <th className="p-3">Station</th>
               <th className="p-3">Quotation</th>
               <th className="p-3">PFI</th>
+              <th className="p-3">Amount</th>
               <th className="p-3">Status</th>
               <th className="p-3">Action</th>
             </tr>
@@ -46,6 +55,18 @@ export default async function DealerOperationsPage() {
                 <td className="p-3">{order.station.name}</td>
                 <td className="p-3">{order.odooQuotationNumber ?? "—"}</td>
                 <td className="p-3">{order.proforma?.number ?? "—"}</td>
+                <td className="whitespace-nowrap p-3">
+                  {formatKes(order.amountDue)}
+                  {order.payments[0] ? (
+                    sameAmount(order.amountDue, order.payments[0].amount) ? (
+                      <div className="mt-1 text-xs text-emerald-700">Paid: {formatKes(order.payments[0].amount)}</div>
+                    ) : (
+                      <div className="mt-1 text-xs font-semibold text-amber-700">
+                        Paid: {formatKes(order.payments[0].amount)} (does not match)
+                      </div>
+                    )
+                  ) : null}
+                </td>
                 <td className="p-3">
                   {order.status}
                   {order.odooSyncError && order.status === "QUOTATION_READY" ? (
@@ -75,7 +96,7 @@ export default async function DealerOperationsPage() {
                 </td>
               </tr>
             ))}
-            {orders.length === 0 ? <tr><td className="p-4" colSpan={7}>No dealer orders yet.</td></tr> : null}
+            {orders.length === 0 ? <tr><td className="p-4" colSpan={8}>No dealer orders yet.</td></tr> : null}
           </tbody>
         </table>
       </div>
