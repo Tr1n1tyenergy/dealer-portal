@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import { listMessages, markConversationRead, sendMessage } from "@/lib/messaging/service";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function GET(req: Request, ctx: Ctx) {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
   const { id } = await ctx.params;
   const before = new URL(req.url).searchParams.get("before") ?? undefined;
@@ -26,7 +26,7 @@ const sendSchema = z.object({
 });
 
 export async function POST(req: Request, ctx: Ctx) {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
   const { id } = await ctx.params;
   const body = await readJson(req);

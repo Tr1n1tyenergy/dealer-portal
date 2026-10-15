@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { requireSessionApi, jsonError } from "@/lib/api-auth";
+import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import { getPusherServer, pusherConfigured } from "@/lib/pusher/server";
 import { assertParticipant } from "@/lib/messaging/service";
 
 export async function POST(req: Request) {
-  const auth = await requireSessionApi();
+  const auth = await requireMessagingApi();
   if ("error" in auth) return auth.error;
 
   if (!pusherConfigured()) {

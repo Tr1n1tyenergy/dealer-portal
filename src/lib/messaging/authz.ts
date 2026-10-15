@@ -1,5 +1,10 @@
 import type { AccountType } from "@prisma/client";
 
+/** Messaging is for staff and dealers; depot (and any other) accounts have no access. */
+export function canUseMessaging(accountType: AccountType | string | null | undefined): boolean {
+  return accountType === "INTERNAL" || accountType === "DEALER";
+}
+
 /**
  * Who may start a direct conversation with whom.
  * - Staff may message any ACTIVE internal or dealer user (except self).
@@ -17,6 +22,9 @@ export function canMessageUser(params: {
   }
   if (params.targetStatus !== "ACTIVE") {
     return { ok: false, reason: "Target user is not active." };
+  }
+  if (!canUseMessaging(params.actorAccountType)) {
+    return { ok: false, reason: "Messaging is not available for this account type." };
   }
   if (params.actorAccountType === "INTERNAL") {
     if (params.targetAccountType === "INTERNAL" || params.targetAccountType === "DEALER") {
