@@ -534,7 +534,7 @@ export function MessagingApp({
 
   const ordersHref = isDealerPortal
     ? "/dealer/orders"
-    : "/intelligence/reports/dealer-operations";
+    : "/intelligence/retail/orders";
   const profileHref = isDealerPortal ? "/dealer/dashboard" : "/intelligence/retail/users";
 
   return (

@@ -1,10 +1,13 @@
 import { MessagingApp } from "@/components/messaging/messaging-app";
 import { listConversationsForUser } from "@/lib/messaging/service";
+import { redirect } from "next/navigation";
+import { can } from "@/lib/access";
 import { requireInternal } from "@/lib/session";
 import "@/app/intelligence/retail/retail-messaging.css";
 
 export default async function RetailMessagingPage() {
   const session = await requireInternal();
+  if (!can(session.user.role, "retail.messaging")) redirect("/intelligence/retail");
   const conversations = await listConversationsForUser(session.user.id).catch(() => []);
 
   const initialConversations = conversations.map((c) => ({

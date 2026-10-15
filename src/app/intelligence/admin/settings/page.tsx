@@ -12,7 +12,7 @@ export default async function AdminSettingsPage() {
     <AppShell>
       <div className="mb-8">
         <div className="text-xs font-bold uppercase tracking-[0.16em] text-trinity-gold">
-          Super Admin
+          Admin
         </div>
         <h1 className="mt-2 text-3xl font-black text-trinity-navy">System Settings</h1>
         <p className="mt-2 text-slate-500">

@@ -3,17 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireDealer, requireDepot, requireInternal } from "@/lib/session";
-import { canOperateDepot, canReleaseToDepot, canVerifyPayment, canManageCommercialOrders } from "@/lib/access";
+import { canOperateDepot } from "@/lib/access";
+import { applyInternalOrderAction } from "@/lib/orders/internal-order-actions";
 import {
   applyDepotAction,
-  confirmPayment,
-  generatePfi,
-  releaseToDepot,
   submitDealerOrder,
   submitPayment,
-  syncQuotation,
 } from "@/lib/orders/service";
-import { prisma } from "@/lib/prisma";
 import { ignoreStaleTransition, InvalidOrderTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
 import {
   isDepotAction,
@@ -94,26 +90,8 @@ export async function paymentAction(_prev: ActionResult, formData: FormData): Pr
 
 export async function internalOrderAction(formData: FormData) {
   const session = await requireInternal();
-  const role = session.user.role;
-  if (!canManageCommercialOrders(role)) throw new Error("You cannot manage dealer orders.");
-  const orderId = String(formData.get("orderId") || "");
-  const action = String(formData.get("action") || "");
-
-  if (action === "retry-sync") await ignoreStaleTransition(() => syncQuotation(orderId, session.user.id));
-  if (action === "generate-pfi") await ignoreStaleTransition(() => generatePfi(orderId, session.user.id));
-  if (action === "confirm-payment" || action === "reject-payment") {
-    if (!canVerifyPayment(role)) throw new Error("Payment verification is restricted.");
-    await ignoreStaleTransition(() => confirmPayment(orderId, session.user.id, action === "confirm-payment"));
-  }
-  if (action === "release") {
-    if (!canReleaseToDepot(role)) throw new Error("Only authorised staff can release to depot.");
-    const depot = await prisma.depot.findFirst({ orderBy: { name: "asc" } });
-    if (!depot) throw new Error("No depot is configured.");
-    const depotId = String(formData.get("depotId") || depot.id);
-    await ignoreStaleTransition(() => releaseToDepot(orderId, session.user.id, depotId));
-  }
-  revalidatePath("/intelligence/reports/dealer-operations");
-  revalidatePath(`/intelligence/reports/dealer-operations/${orderId}`);
+  await applyInternalOrderAction(session.user, formData);
+  revalidatePath("/intelligence/retail/orders");
 }
 
 export async function depotOrderAction(formData: FormData) {

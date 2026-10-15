@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { isStaffAccount } from "@/lib/access";
+import { can, isStaffAccount, type Permission } from "@/lib/access";
 import { authOptions } from "@/lib/auth";
 import { canUseMessaging } from "@/lib/messaging/authz";
 
@@ -42,8 +42,18 @@ export async function requireInternalApi() {
 export async function requireMessagingApi() {
   const result = await requireSessionApi();
   if ("error" in result) return result;
-  if (!canUseMessaging(result.session.user.accountType)) {
+  if (!canUseMessaging(result.session.user.accountType, result.session.user.role)) {
     return { error: jsonError("Messaging is not available for this account.", 403) as NextResponse };
+  }
+  return result;
+}
+
+/** Staff with a given permission (e.g. "retail.users" for dealer and staff account management). */
+export async function requirePermissionApi(permission: Permission) {
+  const result = await requireInternalApi();
+  if ("error" in result) return result;
+  if (!can(result.session.user.role, permission)) {
+    return { error: jsonError("Forbidden", 403) as NextResponse };
   }
   return result;
 }

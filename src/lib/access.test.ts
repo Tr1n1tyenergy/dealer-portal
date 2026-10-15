@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { canActOnDepotOrder, depotOrderScope, isPublicPath, isStaffAccount, loginPathFor } from "./access";
+import {
+  can,
+  canAccessRetail,
+  canActOnDepotOrder,
+  depotOrderScope,
+  isInternalRole,
+  isPublicPath,
+  isStaffAccount,
+  loginPathFor,
+  roleLabel,
+  STAFF_ROLES,
+} from "./access";
+import { TRI_MODULES, visibleModules } from "./modules";
 
 describe("staff-only API access", () => {
   it("allows internal staff accounts", () => {
@@ -80,5 +92,61 @@ describe("logged-out redirects", () => {
     for (const path of ["/dealer/dashboard", "/depot/dashboard", "/intelligence/dashboard", "/dealer/loginx"]) {
       assert.equal(isPublicPath(path), false, path);
     }
+  });
+});
+
+describe("staff roles", () => {
+  it("has exactly three staff roles", () => {
+    assert.deepEqual([...STAFF_ROLES], ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE", "STANDARD_USER"]);
+    assert.equal(isInternalRole("FINANCE"), false);
+    assert.equal(isInternalRole("SALES_REP"), false);
+    assert.equal(isInternalRole("SALES_PERSON_EXECUTIVE"), true);
+  });
+
+  it("labels roles for people", () => {
+    assert.equal(roleLabel("SUPER_ADMIN"), "Admin");
+    assert.equal(roleLabel("SALES_PERSON_EXECUTIVE"), "Sales Person Executive");
+    assert.equal(roleLabel("STANDARD_USER"), "Staff Member");
+    assert.equal(roleLabel("DEPOT_MANAGER"), "Depot Manager");
+    assert.equal(roleLabel("SOMETHING_NEW"), "SOMETHING_NEW");
+    assert.equal(roleLabel(undefined), "Staff");
+  });
+});
+
+describe("permissions", () => {
+  const all = ["retail.analytics", "retail.orders", "retail.messaging", "retail.users", "orders.act"] as const;
+
+  it("gives Admin everything", () => all.forEach((p) => assert.equal(can("SUPER_ADMIN", p), true, p)));
+
+  it("gives Sales Person Executive everything except retail users", () => {
+    all.forEach((p) => assert.equal(can("SALES_PERSON_EXECUTIVE", p), p !== "retail.users", p));
+  });
+
+  it("gives everyone else nothing", () => {
+    for (const role of ["STANDARD_USER", "DEPOT_MANAGER", "DEALER_ADMIN", "DEALER_USER", "", undefined]) {
+      all.forEach((p) => assert.equal(can(role, p), false, `${role} ${p}`));
+      assert.equal(canAccessRetail(role), false);
+    }
+    assert.equal(canAccessRetail("SALES_PERSON_EXECUTIVE"), true);
+    assert.equal(canAccessRetail("SUPER_ADMIN"), true);
+  });
+});
+
+describe("dashboard modules", () => {
+  const ids = (role: string) => visibleModules(role).map((m) => m.id);
+  const adminIds = ["users", "activity", "settings"];
+
+  it("hides the Retail Interface and admin tiles from Staff Members", () => {
+    assert.equal(ids("STANDARD_USER").includes("reports"), false);
+    adminIds.forEach((id) => assert.equal(ids("STANDARD_USER").includes(id), false, id));
+  });
+
+  it("shows the Retail Interface but not admin tiles to a Sales Person Executive", () => {
+    assert.equal(ids("SALES_PERSON_EXECUTIVE").includes("reports"), true);
+    adminIds.forEach((id) => assert.equal(ids("SALES_PERSON_EXECUTIVE").includes(id), false, id));
+  });
+
+  it("shows every tile to an Admin", () => {
+    assert.deepEqual(ids("SUPER_ADMIN"), TRI_MODULES.map((m) => m.id));
   });
 });

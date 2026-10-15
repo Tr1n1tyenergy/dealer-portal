@@ -6,14 +6,13 @@ import { logActivity } from "@/lib/activity";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
 import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { STAFF_ROLES } from "@/lib/access";
 
 const updateSchema = z.object({
   firstName: z.string().min(1).max(100).optional(),
   lastName: z.string().min(1).max(100).optional(),
   department: z.string().min(1).max(100).optional(),
-  role: z
-    .enum(["SUPER_ADMIN", "STANDARD_USER", "DEALER_ADMIN", "DEALER_USER"])
-    .optional(),
+  role: z.enum([...STAFF_ROLES, "DEALER_ADMIN", "DEALER_USER"]).optional(),
   status: z.enum(["PENDING", "ACTIVE", "DISABLED"]).optional(),
 });
 
@@ -37,8 +36,8 @@ export async function PATCH(req: Request, ctx: Ctx) {
 
   if (parsed.data.role) {
     const role = parsed.data.role;
-    if (user.accountType === "INTERNAL" && role !== "SUPER_ADMIN" && role !== "STANDARD_USER") {
-      return jsonError("Internal users may only be Super Admin or Standard User.", 400);
+    if (user.accountType === "INTERNAL" && !(STAFF_ROLES as readonly string[]).includes(role)) {
+      return jsonError("Staff users may only be Admin, Sales Person Executive or Staff Member.", 400);
     }
     if (user.accountType === "DEALER" && role !== "DEALER_ADMIN" && role !== "DEALER_USER") {
       return jsonError("Dealer users may only be Dealer Admin or Dealer User.", 400);
@@ -107,7 +106,7 @@ export async function DELETE(_req: Request, ctx: Ctx) {
 
   if (!mayDeleteProtectedAdmin(auth.session.user.email ?? "", user.email)) {
     return jsonError(
-      "This Super Admin account can only be deleted by admin@trinityenergyltd.com.",
+      "This Admin account can only be deleted by admin@trinityenergyltd.com.",
       403
     );
   }

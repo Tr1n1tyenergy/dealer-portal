@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireInternalApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { generateSecureToken, daysFromNow } from "@/lib/tokens";
 import {
   EmailDeliveryError,
@@ -12,17 +12,18 @@ import {
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { STAFF_ROLES } from "@/lib/access";
 
 const schema = z.object({
   email: z.string().max(254).email(),
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
   department: z.string().min(1).max(100).default("Operations"),
-  role: z.enum(["SUPER_ADMIN", "STANDARD_USER"]).default("STANDARD_USER"),
+  role: z.enum(STAFF_ROLES).default("STANDARD_USER"),
 });
 
 export async function POST(req: Request) {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("retail.users");
   if ("error" in auth) return auth.error;
 
   if (!emailDeliveryConfigured()) {
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
     parsed.data.role === "SUPER_ADMIN" &&
     auth.session.user.role !== "SUPER_ADMIN"
   ) {
-    return jsonError("Only Super Admins can invite Super Admins.", 403);
+    return jsonError("Only Admins can invite Admins.", 403);
   }
 
   const email = parsed.data.email.toLowerCase().trim();

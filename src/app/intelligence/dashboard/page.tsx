@@ -7,12 +7,12 @@ import {
 import { ModuleCards } from "@/components/dashboard/module-cards";
 
 export default async function DashboardPage() {
-  await requireSession();
+  const session = await requireSession();
 
   return (
     <AppShell activeNav="modules">
       <ModulesHero />
-      <ModuleCards />
+      <ModuleCards role={session.user.role} />
       <ModulesFooterStrip />
     </AppShell>
   );

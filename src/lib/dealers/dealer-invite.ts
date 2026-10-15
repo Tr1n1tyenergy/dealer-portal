@@ -58,7 +58,7 @@ async function conflictIn(db: Db, target: InviteTarget): Promise<InviteConflict 
   if (login) {
     return {
       status: 409,
-      message: `${target.orgName} already has a dealer login (${login.email}). Ask a Super Admin to disable it in Admin → Users before inviting someone else.`,
+      message: `${target.orgName} already has a dealer login (${login.email}). Ask an Admin to disable it in Admin → Users before inviting someone else.`,
     };
   }
 

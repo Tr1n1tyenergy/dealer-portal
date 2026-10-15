@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Grid2x2, X } from "lucide-react";
-import { TRI_MODULES } from "@/lib/modules";
+import { visibleModules } from "@/lib/modules";
 import "./modules-launcher.css";
 
 const TILE_STYLE: CSSProperties = {
@@ -58,12 +58,14 @@ const PANEL_STYLE: CSSProperties = {
 export function ModulesLauncher({
   open,
   onClose,
+  role,
 }: {
   open: boolean;
   onClose: () => void;
+  role: string;
 }) {
   const router = useRouter();
-  const modules = TRI_MODULES;
+  const modules = visibleModules(role);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

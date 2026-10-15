@@ -4,18 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, Grid2x2 } from "lucide-react";
-import { FEATURED_MODULES } from "@/lib/modules";
+import { FEATURED_MODULES, visibleModules } from "@/lib/modules";
 import { ModulesLauncher } from "@/components/dashboard/modules-launcher";
 import "./modules.css";
 import "./modules-launcher.css";
 
-export function ModuleCards() {
+export function ModuleCards({ role }: { role: string }) {
   const [launcherOpen, setLauncherOpen] = useState(false);
+  const visible = new Set(visibleModules(role).map((m) => m.id));
+  const featured = FEATURED_MODULES.filter((m) => visible.has(m.id));
 
   return (
     <>
       <div className="mod-grid">
-        {FEATURED_MODULES.map((mod, index) => {
+        {featured.map((mod, index) => {
           const Icon = mod.icon;
           return (
             <motion.div
@@ -75,7 +77,7 @@ export function ModuleCards() {
         </button>
       </div>
 
-      <ModulesLauncher open={launcherOpen} onClose={() => setLauncherOpen(false)} />
+      <ModulesLauncher open={launcherOpen} onClose={() => setLauncherOpen(false)} role={role} />
     </>
   );
 }

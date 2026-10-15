@@ -1,23 +1,45 @@
 export type AccountType = "INTERNAL" | "DEALER" | "DEPOT";
 
-export const INTERNAL_ROLES = ["SUPER_ADMIN", "STANDARD_USER", "SALES_REP", "FINANCE"] as const;
+/** The three staff roles: Admin, Sales Person Executive and Staff Member. */
+export const STAFF_ROLES = ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE", "STANDARD_USER"] as const;
+export type StaffRole = (typeof STAFF_ROLES)[number];
 export const DEPOT_ROLES = ["DEPOT_MANAGER"] as const;
 export const DEALER_ROLES = ["DEALER_ADMIN", "DEALER_USER"] as const;
 
 export function isInternalRole(role: string) {
-  return (INTERNAL_ROLES as readonly string[]).includes(role);
+  return (STAFF_ROLES as readonly string[]).includes(role);
 }
 
-export function canManageCommercialOrders(role: string) {
-  return role === "SUPER_ADMIN" || role === "SALES_REP" || role === "FINANCE" || role === "STANDARD_USER";
+/** What people see for each stored role value. */
+export const ROLE_LABELS: Record<string, string> = {
+  SUPER_ADMIN: "Admin",
+  SALES_PERSON_EXECUTIVE: "Sales Person Executive",
+  STANDARD_USER: "Staff Member",
+  DEPOT_MANAGER: "Depot Manager",
+  DEALER_ADMIN: "Dealer Admin",
+  DEALER_USER: "Dealer User",
+};
+
+export function roleLabel(role: string | null | undefined): string {
+  if (!role) return "Staff";
+  return ROLE_LABELS[role] ?? role;
 }
 
-export function canVerifyPayment(role: string) {
-  return role === "SUPER_ADMIN" || role === "FINANCE" || role === "SALES_REP";
+export type Permission = "retail.analytics" | "retail.orders" | "retail.messaging" | "retail.users" | "orders.act";
+
+const PERMISSIONS: Record<string, readonly Permission[]> = {
+  SUPER_ADMIN: ["retail.analytics", "retail.orders", "retail.messaging", "retail.users", "orders.act"],
+  SALES_PERSON_EXECUTIVE: ["retail.analytics", "retail.orders", "retail.messaging", "orders.act"],
+};
+
+/** Whether a role may use an area of the staff portal or act on dealer orders. */
+export function can(role: string | null | undefined, permission: Permission): boolean {
+  return Boolean(role && PERMISSIONS[role]?.includes(permission));
 }
 
-export function canReleaseToDepot(role: string) {
-  return role === "SUPER_ADMIN" || role === "SALES_REP";
+/** The Retail Interface opens for anyone with at least one retail permission. */
+export function canAccessRetail(role: string | null | undefined): boolean {
+  return (["retail.analytics", "retail.orders", "retail.messaging", "retail.users"] as const).some((p) => can(role, p));
 }
 
 export function canOperateDepot(role: string) {

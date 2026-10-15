@@ -1,0 +1,218 @@
+/* Retail Orders — same tokens as Retail Users / Analytics */
+
+.ro {
+  --ro-card: #122a4a;
+  --ro-border: rgba(148, 163, 184, 0.14);
+  --ro-muted: #94a3b8;
+  --ro-gold: #f5b800;
+  --ro-blue: #3b82f6;
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  padding: 1.15rem 24px 28px;
+  box-sizing: border-box;
+  color: #f8fafc;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #0a192f;
+}
+
+.ro-head h1 {
+  margin: 0;
+  font-size: clamp(1.85rem, 2.4vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.ro-head p {
+  margin: 0.4rem 0 1.15rem;
+  max-width: 42rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ro-muted);
+}
+
+.ro-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.9rem;
+}
+
+.ro-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--ro-border);
+  background: var(--ro-card);
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.ro-tab:hover {
+  border-color: rgba(59, 130, 246, 0.55);
+}
+
+.ro-tab[aria-current="page"] {
+  background: var(--ro-blue);
+  border-color: var(--ro-blue);
+  color: #fff;
+}
+
+.ro-tab__count {
+  min-width: 1.4rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgba(10, 25, 47, 0.55);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.ro-search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  max-width: 30rem;
+}
+
+.ro-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--ro-border);
+  background: #0a192f;
+  color: #f8fafc;
+  font-size: 0.88rem;
+}
+
+.ro-search button {
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ro-gold);
+  color: #0a192f;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ro-panel {
+  border-radius: 12px;
+  background: var(--ro-card);
+  border: 1px solid var(--ro-border);
+  overflow: hidden;
+}
+
+.ro-table-wrap {
+  overflow-x: auto;
+}
+
+.ro-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.ro-table th {
+  text-align: left;
+  padding: 0.7rem 0.65rem;
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(159, 181, 215, 0.85);
+  border-bottom: 1px solid var(--ro-border);
+  background: rgba(4, 22, 48, 0.28);
+  white-space: nowrap;
+}
+
+.ro-table td {
+  padding: 0.85rem 0.65rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  color: #e8eef8;
+  vertical-align: middle;
+}
+
+.ro-table tbody tr:hover td {
+  background: rgba(22, 135, 255, 0.06);
+}
+
+.ro-ref {
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.ro-amount {
+  white-space: nowrap;
+}
+
+.ro-paid {
+  margin-top: 0.25rem;
+  font-size: 0.74rem;
+  color: #4ade80;
+}
+
+.ro-paid--mismatch {
+  color: #fbbf24;
+  font-weight: 650;
+}
+
+.ro-note {
+  margin-top: 0.25rem;
+  max-width: 18rem;
+  font-size: 0.74rem;
+  color: #fbbf24;
+}
+
+.ro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ro-btn {
+  padding: 0.35rem 0.6rem;
+  border: 0;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fff;
+  background: #1e3a5f;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ro-btn--go {
+  background: #15803d;
+}
+
+.ro-btn--warn {
+  background: #d97706;
+}
+
+.ro-btn--blue {
+  background: var(--ro-blue);
+}
+
+.ro-select {
+  padding: 0.3rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid var(--ro-border);
+  background: #0a192f;
+  color: #f8fafc;
+  font-size: 0.74rem;
+}
+
+.ro-empty {
+  padding: 1.25rem;
+  color: var(--ro-muted);
+}
+
+@media (max-width: 640px) {
+  .ro {
+    padding: 1rem 16px 24px;
+  }
+}

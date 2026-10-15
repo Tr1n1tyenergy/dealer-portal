@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireInternalApi } from "@/lib/api-auth";
+import { requirePermissionApi } from "@/lib/api-auth";
 
 export async function GET() {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("retail.users");
   if ("error" in auth) return auth.error;
 
   const users = await prisma.user.findMany({

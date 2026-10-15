@@ -7,6 +7,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { canAccessRetail } from "@/lib/access";
 
 export type TriModule = {
   id: string;
@@ -18,12 +19,17 @@ export type TriModule = {
   icon: LucideIcon;
   features: string[];
   category: string;
+  /** Who may open it; everyone when absent. */
+  allowed?: (role: string | null | undefined) => boolean;
 };
+
+const adminOnly = (role: string | null | undefined) => role === "SUPER_ADMIN";
 
 /** All TRI modules available in the launcher */
 export const TRI_MODULES: TriModule[] = [
   {
     id: "reports",
+    allowed: canAccessRetail,
     title: "Retail Interface",
     shortLabel: "Interface",
     tagline: "Performance · Insights · Archive",
@@ -75,10 +81,11 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "users",
+    allowed: adminOnly,
     title: "Users",
     shortLabel: "Users",
     tagline: "Provision · Manage · Control",
-    description: "Super Admin user provisioning, invites, and access control.",
+    description: "Admin user provisioning, invites, and access control.",
     href: "/intelligence/admin/users",
     icon: Users,
     category: "Admin",
@@ -91,6 +98,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "activity",
+    allowed: adminOnly,
     title: "Activity Logs",
     shortLabel: "Activity",
     tagline: "Monitor · Audit · Trace",
@@ -107,6 +115,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "settings",
+    allowed: adminOnly,
     title: "Settings",
     shortLabel: "Settings",
     tagline: "Configure · Connect · Secure",
@@ -126,3 +135,8 @@ export const TRI_MODULES: TriModule[] = [
 export const FEATURED_MODULES = TRI_MODULES.filter((m) =>
   ["reports", "note-taker", "presentations"].includes(m.id)
 );
+
+/** The tiles a role may open (the dashboard and launcher show only these). */
+export function visibleModules(role: string | null | undefined): TriModule[] {
+  return TRI_MODULES.filter((module) => !module.allowed || module.allowed(role));
+}
