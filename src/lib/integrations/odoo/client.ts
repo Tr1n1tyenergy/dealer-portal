@@ -20,18 +20,43 @@ function hashKey(key: string) {
 
 const MOCK_QUOTATION_PREFIX = "mock-quot-";
 
-/** Mock quotations are derived from their idempotency key, so any page or process can rebuild one. */
-function mockQuotation(idempotencyKey: string, lines: CreateQuotationInput["lines"]): OdooQuotation {
+/** Litres x unit price per line, each rounded to cents; a line with no price counts as 0. */
+function mockAmountTotal(lines: CreateQuotationInput["lines"]): string {
+  const cents = lines.reduce(
+    (sum, line) => sum + Math.round(line.quantityLitres * (line.unitPrice ?? 0) * 100),
+    0
+  );
+  return (cents / 100).toFixed(2);
+}
+
+/**
+ * Mock quotations are derived from their idempotency key, so any page or process can rebuild one.
+ * The id carries the total (mock-quot-<total>-<key>) so a rebuilt quotation keeps its amount;
+ * older ids without a total (mock-quot-<key>) rebuild as 0.00.
+ */
+function mockQuotation(idempotencyKey: string, amountTotal: string, lines: CreateQuotationInput["lines"]): OdooQuotation {
   const n = hashKey(idempotencyKey) % 90000;
   return {
-    id: `${MOCK_QUOTATION_PREFIX}${idempotencyKey}`,
+    id: `${MOCK_QUOTATION_PREFIX}${amountTotal}-${idempotencyKey}`,
     number: `${mockCommercialDocumentPrefix()}-S${String(10000 + (n % 89999)).padStart(5, "0")}`,
     currency: "KES",
-    amountTotal: "0.00",
+    amountTotal,
     status: "draft",
     lines,
     model: "sale.order",
   };
+}
+
+function parseMockQuotationId(quotationId: string): { key: string; amountTotal: string } | null {
+  if (!quotationId.startsWith(MOCK_QUOTATION_PREFIX)) return null;
+  const rest = quotationId.slice(MOCK_QUOTATION_PREFIX.length);
+  const priced = /^(\d+\.\d{2})-(.+)$/.exec(rest);
+  return priced ? { amountTotal: priced[1], key: priced[2] } : { amountTotal: "0.00", key: rest };
+}
+
+/** Test helper: forget every mock quotation, as a server restart would. */
+export function clearMockOdooMemory() {
+  memory.clear();
 }
 
 export class MockOdooClient implements OdooClient {
@@ -41,7 +66,7 @@ export class MockOdooClient implements OdooClient {
     const existing = memory.get(input.idempotencyKey);
     if (existing) return existing.quotation;
 
-    const quotation = mockQuotation(input.idempotencyKey, input.lines);
+    const quotation = mockQuotation(input.idempotencyKey, mockAmountTotal(input.lines), input.lines);
     memory.set(input.idempotencyKey, { quotation });
     return quotation;
   }
@@ -55,10 +80,12 @@ export class MockOdooClient implements OdooClient {
 
   async generateProForma(quotationId: string): Promise<OdooProForma> {
     // Memory is per server bundle and lost on restart; rebuild quotations created elsewhere.
-    const rebuildKey = quotationId.startsWith(MOCK_QUOTATION_PREFIX)
-      ? quotationId.slice(MOCK_QUOTATION_PREFIX.length)
-      : null;
-    if (rebuildKey && !memory.has(rebuildKey)) memory.set(rebuildKey, { quotation: mockQuotation(rebuildKey, []) });
+    const rebuild = parseMockQuotationId(quotationId);
+    if (rebuild && !memory.has(rebuild.key)) {
+      const quotation = mockQuotation(rebuild.key, rebuild.amountTotal, []);
+      // Keep the id exactly as stored on the order (old ids have no total in them).
+      memory.set(rebuild.key, { quotation: { ...quotation, id: quotationId } });
+    }
     for (const [key, entry] of memory.entries()) {
       if (entry.quotation.id !== quotationId) continue;
       if (entry.proforma) return entry.proforma;

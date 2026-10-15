@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { MockOdooClient } from "./client";
+import { clearMockOdooMemory, MockOdooClient } from "./client";
 
 const sample = {
   idempotencyKey: "quotation:order-1",
@@ -43,5 +43,50 @@ describe("mock Odoo adapter", () => {
   it("still rejects a quotation id that is not a mock quotation", async () => {
     const client = new MockOdooClient();
     await assert.rejects(client.generateProForma("12345"), /not found/i);
+  });
+  it("prices the quotation as litres x unit price, rounded to cents", async () => {
+    const client = new MockOdooClient();
+    const quotation = await client.createQuotation({
+      ...sample,
+      idempotencyKey: "quotation:priced-1",
+      lines: [
+        { product: "PMS", quantityLitres: 100000, unitPrice: 212.92 },
+        { product: "AGO", quantityLitres: 100000, unitPrice: 217.27 },
+      ],
+    });
+    assert.equal(quotation.amountTotal, "43019000.00");
+    assert.equal((await client.generateProForma(quotation.id)).amount, "43019000.00");
+  });
+
+  it("rounds each line to cents and counts a line with no price as 0", async () => {
+    const client = new MockOdooClient();
+    const quotation = await client.createQuotation({
+      ...sample,
+      idempotencyKey: "quotation:priced-2",
+      lines: [
+        { product: "PMS", quantityLitres: 3, unitPrice: 0.335 },
+        { product: "AGO", quantityLitres: 5000, unitPrice: null },
+      ],
+    });
+    assert.equal(quotation.amountTotal, "1.01");
+  });
+
+  it("keeps the PFI amount for a priced quotation rebuilt after a restart", async () => {
+    const quotation = await new MockOdooClient().createQuotation({
+      ...sample,
+      idempotencyKey: "quotation:priced-3",
+      lines: [{ product: "PMS", quantityLitres: 5000, unitPrice: 212.92 }],
+    });
+    const original = await new MockOdooClient().generateProForma(quotation.id);
+    clearMockOdooMemory();
+    const pfi = await new MockOdooClient().generateProForma(quotation.id);
+    assert.equal(pfi.amount, "1064600.00");
+    assert.equal(pfi.number, original.number);
+  });
+
+  it("still issues a 0.00 pro-forma for an old-style mock quotation id", async () => {
+    clearMockOdooMemory();
+    const pfi = await new MockOdooClient().generateProForma("mock-quot-quotation:TRI-OLD-1");
+    assert.equal(pfi.amount, "0.00");
   });
 });
