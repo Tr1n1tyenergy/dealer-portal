@@ -17,7 +17,7 @@ import type { DealerOrderStatus } from "@prisma/client";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { dealerProgressIndex, dealerStatusLabel } from "@/lib/orders/state-machine";
-import { paymentAction } from "@/lib/orders/actions";
+import { PaymentForm } from "@/components/dealer/payment-form";
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
 import "@/components/dealer/order-tracking.css";
 
@@ -409,31 +409,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
             </article>
 
             {canPay ? (
-              <form action={paymentAction} className="dp-ot-card dp-ot-pay">
-                <input type="hidden" name="orderId" value={order.id} />
-                <h3>Submit payment details</h3>
-                <label>
-                  Amount
-                  <input name="amount" required defaultValue={order.amountDue ?? ""} />
-                </label>
-                <label>
-                  Bank reference
-                  <input name="bankReference" />
-                </label>
-                <label>
-                  Transaction reference
-                  <input name="transactionReference" />
-                </label>
-                <label>
-                  Payment date
-                  <input name="paymentDate" type="date" />
-                </label>
-                <label>
-                  Note
-                  <textarea name="note" rows={2} />
-                </label>
-                <button type="submit">Submit payment</button>
-              </form>
+              <PaymentForm orderId={order.id} amountDue={order.amountDue ?? null} />
             ) : null}
           </aside>
         </div>

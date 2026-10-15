@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireInternalApi, jsonError } from "@/lib/api-auth";
 import { completeNoteSession } from "@/lib/note-sessions";
 import { logActivity } from "@/lib/activity";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const patchSchema = z.object({
   action: z.enum(["start", "pause", "resume", "stop"]),
@@ -38,7 +39,8 @@ export async function PATCH(
   if ("error" in auth) return auth.error;
 
   const { id } = await params;
-  const body = await req.json();
+  const body = await readJson(req);
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

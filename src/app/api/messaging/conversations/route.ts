@@ -5,6 +5,7 @@ import {
   getOrCreateDirectConversation,
   listConversationsForUser,
 } from "@/lib/messaging/service";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 export async function GET() {
   const auth = await requireSessionApi();
@@ -15,14 +16,16 @@ export async function GET() {
 }
 
 const createSchema = z.object({
-  peerUserId: z.string().min(1),
+  peerUserId: z.string().min(1).max(200),
 });
 
 export async function POST(req: Request) {
   const auth = await requireSessionApi();
   if ("error" in auth) return auth.error;
 
-  const body = await req.json();
+  const body = await readJson(req);
+
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

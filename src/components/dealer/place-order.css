@@ -659,7 +659,7 @@
   color: #b45309;
 }
 
-.dp-po-body .dp-po-qty > strong {
+.dp-po-body .dp-po-qty > .dp-po-qty__input {
   flex: 1 1 auto;
   min-width: 0;
   text-align: center;
@@ -668,6 +668,17 @@
   color: #0a235b;
   letter-spacing: -0.02em;
   line-height: 1;
+  width: 100%;
+  padding: 0.2rem 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-family: inherit;
+}
+
+.dp-po-body .dp-po-qty > .dp-po-qty__input:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
 }
 
 .dp-po-body .dp-po-qty__unit {
@@ -1320,3 +1331,14 @@
   }
 }
 
+
+.dp-po-body .dp-po-error {
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  color: #fecaca;
+  font-size: 0.86rem;
+  font-weight: 600;
+}

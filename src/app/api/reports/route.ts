@@ -3,11 +3,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireInternalApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const createSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(1).max(200),
   category: z.enum(["FUEL_RETAIL", "NON_FUEL_RETAIL", "GENERAL"]).default("GENERAL"),
-  description: z.string().optional(),
+  description: z.string().max(2000).optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
 });
@@ -21,6 +22,12 @@ export async function GET(req: Request) {
   const q = searchParams.get("q");
   const from = searchParams.get("from");
   const to = searchParams.get("to");
+  if ([from, to].some((d) => d && Number.isNaN(new Date(d).getTime()))) {
+    return jsonError("Invalid date filter.", 400);
+  }
+  if (category && category !== "ALL" && !["FUEL_RETAIL", "NON_FUEL_RETAIL", "GENERAL"].includes(category)) {
+    return jsonError("Invalid category filter.", 400);
+  }
 
   const isAdmin = auth.session.user.role === "SUPER_ADMIN";
 
@@ -57,7 +64,9 @@ export async function POST(req: Request) {
   const auth = await requireInternalApi();
   if ("error" in auth) return auth.error;
 
-  const body = await req.json();
+  const body = await readJson(req);
+
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

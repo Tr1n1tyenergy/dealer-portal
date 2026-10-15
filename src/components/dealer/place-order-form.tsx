@@ -3,7 +3,7 @@
 import "./place-order.css";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { placeOrderAction } from "@/lib/orders/actions";
+import { deliveryWindow, MAX_LITRES, typedLitres } from "@/lib/orders/order-input";
 
 type Station = { id: string; name: string };
 type WizardStep = "details" | "review";
@@ -85,7 +86,7 @@ function stationArea(name: string) {
 }
 
 function bumpQty(value: number, delta: number) {
-  return Math.max(0, value + delta);
+  return Math.min(MAX_LITRES, Math.max(0, value + delta));
 }
 
 function formatLitres(n: number) {
@@ -138,10 +139,10 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
   const [stationId, setStationId] = useState(stations[0]?.id ?? "");
   const [pms, setPms] = useState(20000);
   const [ago, setAgo] = useState(10000);
-  const [deliveryDate, setDeliveryDate] = useState(() => {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
-  });
+  // Nairobi's calendar day, so the default is never "yesterday" between midnight and 3am.
+  const dateWindow = useMemo(() => deliveryWindow(), []);
+  const [deliveryDate, setDeliveryDate] = useState(() => dateWindow.min);
+  const [state, formAction] = useActionState(placeOrderAction, null);
 
   const station = stations.find((s) => s.id === stationId) ?? stations[0];
   const total = pms + ago;
@@ -162,7 +163,7 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
 
   function guardSubmit(formData: FormData) {
     if (step !== "review") return;
-    return placeOrderAction(formData);
+    formAction(formData);
   }
 
   return (
@@ -316,6 +317,8 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
                           id="delivery-date"
                           type="date"
                           value={deliveryDate}
+                          min={dateWindow.min}
+                          max={dateWindow.max}
                           onChange={(e) => setDeliveryDate(e.target.value)}
                           required
                           aria-label="Requested delivery date"
@@ -359,7 +362,15 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
                         >
                           <Minus size={16} strokeWidth={2.5} />
                         </button>
-                        <strong aria-label="PMS litres">{pms.toLocaleString()}</strong>
+                        <input
+                          className="dp-po-qty__input"
+                          aria-label="PMS litres"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          value={pms.toLocaleString("en-US")}
+                          onChange={(e) => setPms(typedLitres(e.target.value))}
+                          onFocus={(e) => e.target.select()}
+                        />
                         <button
                           type="button"
                           className="dp-po-qty__btn"
@@ -411,7 +422,15 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
                         >
                           <Minus size={16} strokeWidth={2.5} />
                         </button>
-                        <strong aria-label="AGO litres">{ago.toLocaleString()}</strong>
+                        <input
+                          className="dp-po-qty__input"
+                          aria-label="AGO litres"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          value={ago.toLocaleString("en-US")}
+                          onChange={(e) => setAgo(typedLitres(e.target.value))}
+                          onFocus={(e) => e.target.select()}
+                        />
                         <button
                           type="button"
                           className="dp-po-qty__btn"
@@ -619,7 +638,14 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
                   </span>
                 </button>
               ) : (
-                <SubmitOrderButton disabled={total <= 0} />
+                <>
+                  {state?.error ? (
+                    <p className="dp-po-error" role="alert">
+                      {state.error}
+                    </p>
+                  ) : null}
+                  <SubmitOrderButton disabled={total <= 0} />
+                </>
               )}
             </div>
 
