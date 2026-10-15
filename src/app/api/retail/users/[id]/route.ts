@@ -5,11 +5,12 @@ import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
 import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const updateSchema = z.object({
-  firstName: z.string().min(1).optional(),
-  lastName: z.string().min(1).optional(),
-  department: z.string().min(1).optional(),
+  firstName: z.string().min(1).max(100).optional(),
+  lastName: z.string().min(1).max(100).optional(),
+  department: z.string().min(1).max(100).optional(),
   role: z
     .enum(["SUPER_ADMIN", "STANDARD_USER", "DEALER_ADMIN", "DEALER_USER"])
     .optional(),
@@ -23,7 +24,8 @@ export async function PATCH(req: Request, ctx: Ctx) {
   if ("error" in auth) return auth.error;
 
   const { id } = await ctx.params;
-  const body = await req.json();
+  const body = await readJson(req);
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

@@ -11,14 +11,15 @@ import {
 } from "@/lib/email";
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const createUserSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.string().email(),
-  department: z.string().min(1),
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+  email: z.string().max(254).email(),
+  department: z.string().min(1).max(100),
   role: z.enum(["SUPER_ADMIN", "STANDARD_USER", "FINANCE", "SALES_REP"]).default("STANDARD_USER"),
-  permissions: z.array(z.string()).default([]),
+  permissions: z.array(z.string().max(254)).max(50).default([]),
 });
 
 export async function GET() {
@@ -48,7 +49,9 @@ export async function POST(req: Request) {
   const auth = await requireSuperAdminApi();
   if ("error" in auth) return auth.error;
 
-  const body = await req.json();
+  const body = await readJson(req);
+
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = createUserSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

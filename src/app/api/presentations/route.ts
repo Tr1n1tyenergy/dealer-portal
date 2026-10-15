@@ -6,10 +6,11 @@ import { generatePresentationSlides, type MeetingNotes } from "@/lib/notes";
 import { parseJsonObject } from "@/lib/utils";
 import { logActivity } from "@/lib/activity";
 import { format } from "date-fns";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const createSchema = z.object({
-  noteSessionId: z.string().min(1),
-  presenter: z.string().optional(),
+  noteSessionId: z.string().min(1).max(200),
+  presenter: z.string().max(2000).optional(),
 });
 
 export async function GET() {
@@ -30,7 +31,9 @@ export async function POST(req: Request) {
   const auth = await requireInternalApi();
   if ("error" in auth) return auth.error;
 
-  const body = await req.json();
+  const body = await readJson(req);
+
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

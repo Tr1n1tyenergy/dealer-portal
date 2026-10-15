@@ -13,14 +13,15 @@ import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
 import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const updateSchema = z.object({
-  firstName: z.string().min(1).optional(),
-  lastName: z.string().min(1).optional(),
-  department: z.string().min(1).optional(),
+  firstName: z.string().min(1).max(100).optional(),
+  lastName: z.string().min(1).max(100).optional(),
+  department: z.string().min(1).max(100).optional(),
   role: z.enum(["SUPER_ADMIN", "STANDARD_USER", "FINANCE", "SALES_REP"]).optional(),
   status: z.enum(["PENDING", "ACTIVE", "DISABLED"]).optional(),
-  permissions: z.array(z.string()).optional(),
+  permissions: z.array(z.string().max(254)).max(50).optional(),
   resetInvite: z.boolean().optional(),
 });
 
@@ -32,7 +33,8 @@ export async function PATCH(
   if ("error" in auth) return auth.error;
 
   const { id } = await params;
-  const body = await req.json();
+  const body = await readJson(req);
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

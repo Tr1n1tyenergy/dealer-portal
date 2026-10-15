@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireSessionApi, jsonError } from "@/lib/api-auth";
 import { listMessages, markConversationRead, sendMessage } from "@/lib/messaging/service";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -28,7 +29,9 @@ export async function POST(req: Request, ctx: Ctx) {
   const auth = await requireSessionApi();
   if ("error" in auth) return auth.error;
   const { id } = await ctx.params;
-  const parsed = sendSchema.safeParse(await req.json());
+  const body = await readJson(req);
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
+  const parsed = sendSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
   try {

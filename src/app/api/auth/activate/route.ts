@@ -5,10 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { validatePasswordStrength } from "@/lib/security/password-policy";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const schema = z.object({
-  token: z.string().min(10),
-  password: z.string().min(1),
+  token: z.string().min(10).max(200),
+  password: z.string().min(1).max(200),
 });
 
 /** Lookup invite email for activate UI (read-only; no secrets). */
@@ -33,7 +34,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  const body = await readJson(req);
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

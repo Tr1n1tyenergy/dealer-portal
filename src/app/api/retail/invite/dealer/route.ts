@@ -13,19 +13,22 @@ import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls
 import { listStationInviteCatalog } from "@/lib/dealers/station-invite-catalog";
 import { checkStationSelection } from "@/lib/dealers/station-selection";
 import { createDealerInvite, findInviteConflict } from "@/lib/dealers/dealer-invite";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const schema = z.object({
-  stationCodes: z.array(z.string().min(1)).default([]),
-  email: z.string().email(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  stationCodes: z.array(z.string().min(1).max(100)).max(20).default([]),
+  email: z.string().max(254).email(),
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
 });
 
 export async function POST(req: Request) {
   const auth = await requireInternalApi();
   if ("error" in auth) return auth.error;
 
-  const body = await req.json();
+  const body = await readJson(req);
+
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 

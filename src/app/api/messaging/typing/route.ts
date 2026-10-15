@@ -3,9 +3,10 @@ import { z } from "zod";
 import { requireSessionApi, jsonError } from "@/lib/api-auth";
 import { assertParticipant } from "@/lib/messaging/service";
 import { triggerConversationEvent } from "@/lib/pusher/server";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const schema = z.object({
-  conversationId: z.string().min(1),
+  conversationId: z.string().min(1).max(200),
   isTyping: z.boolean(),
 });
 
@@ -13,7 +14,11 @@ export async function POST(req: Request) {
   const auth = await requireSessionApi();
   if ("error" in auth) return auth.error;
 
-  const parsed = schema.safeParse(await req.json());
+  const body = await readJson(req);
+
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
+
+  const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
   const ok = await assertParticipant(parsed.data.conversationId, auth.session.user.id);

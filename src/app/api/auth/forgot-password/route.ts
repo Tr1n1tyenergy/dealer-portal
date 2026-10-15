@@ -12,16 +12,18 @@ import {
 import { logActivity } from "@/lib/activity";
 import { allowPasswordReset } from "@/lib/security/auth-throttle";
 import { clientIp } from "@/lib/security/client-ip";
+import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
 const schema = z.object({
-  email: z.string().email(),
+  email: z.string().max(254).email(),
 });
 
 /** Generic success — never reveals whether the account exists or returns reset URLs. */
 const GENERIC_OK = { ok: true as const };
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  const body = await readJson(req);
+  if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
