@@ -236,11 +236,15 @@ function station(
 
 /**
  * Station → loading warehouse + Odoo station External ID (when provided).
- * Prefer External IDs; legacy numeric ids remain only as temporary fallback.
+ * IDs from the Odoo account.analytic.account export of 2026-10-15. Malaa, Mariakani and Outspan each
+ * have a second account in Odoo (146, 147, 151); the ones below are in use until the Odoo admin confirms.
  */
 export const STATION_FULFILLMENT: StationFulfillment[] = [
   // KPC ELDORET
-  station("kitale", "Kitale", "KPC_ELDORET"),
+  station("kitale", "Kitale", "KPC_ELDORET", {
+    odooStationExternalId: "__export__.account_analytic_account_143_5a6308ab",
+    odooStationName: "KITALE STATION",
+  }),
   station("outspan-eldoret", "Outspan Eldoret", "KPC_ELDORET", {
     odooStationExternalId: "__export__.account_analytic_account_5_46f067c5",
     odooStationName: "OUTSPAN STATION",
@@ -248,8 +252,14 @@ export const STATION_FULFILLMENT: StationFulfillment[] = [
   }),
 
   // KPC NAKURU
-  station("ol-joro-orok", "Ol'Joro-Orok", "KPC_NAKURU"),
-  station("greensted", "Greensted", "KPC_NAKURU"),
+  station("ol-joro-orok", "Ol'Joro-Orok", "KPC_NAKURU", {
+    odooStationExternalId: "__export__.account_analytic_account_150_ae4945f6",
+    odooStationName: "OLJOROROK STATION",
+  }),
+  station("greensted", "Greensted", "KPC_NAKURU", {
+    odooStationExternalId: "__export__.account_analytic_account_139_a6e7a612",
+    odooStationName: "GREENSTED STATION",
+  }),
   station("sobea", "Sobea", "KPC_NAKURU", {
     odooStationExternalId: "__export__.account_analytic_account_9_0cc2c2de",
     odooStationName: "SOBEA STATION",
@@ -273,18 +283,36 @@ export const STATION_FULFILLMENT: StationFulfillment[] = [
     odooPricelistId: 14,
   }),
   station("kisii", "Kisii", "KPC_KISUMU", {
+    odooStationExternalId: "__export__.account_analytic_account_142_05fb5c2b",
     odooStationName: "KISII STATION",
-    odooStationId: 18,
     odooPricelistId: 11,
   }),
 
   // LAKE OIL GROUP (NRB)
-  station("meru-gaitu", "Meru-Gaitu", "LAKE_OIL_NRB"),
-  station("athiriver", "Athiriver", "LAKE_OIL_NRB"),
-  station("rimpa", "Rimpa", "LAKE_OIL_NRB"),
-  station("kabati-kitui", "Kabati Kitui", "LAKE_OIL_NRB"),
-  station("thome", "Thome", "LAKE_OIL_NRB"),
-  station("maili-tatu", "Maili Tatu", "LAKE_OIL_NRB"),
+  station("meru-gaitu", "Meru-Gaitu", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_149_7854a54b",
+    odooStationName: "MERU GAITU STATION",
+  }),
+  station("athiriver", "Athiriver", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_137_1bc29443",
+    odooStationName: "ATHI RIVER STATION",
+  }),
+  station("rimpa", "Rimpa", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_136_24fd484a",
+    odooStationName: "RIMPA STATION",
+  }),
+  station("kabati-kitui", "Kabati Kitui", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_141_6a6f482b",
+    odooStationName: "KABATI KITUI STATION",
+  }),
+  station("thome", "Thome", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_152_55d29a81",
+    odooStationName: "THOME STATION",
+  }),
+  station("maili-tatu", "Maili Tatu", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_145_147ddc2d",
+    odooStationName: "MAILI TATU STATION",
+  }),
   station("malaa", "Malaa", "LAKE_OIL_NRB", {
     odooStationExternalId: "__export__.account_analytic_account_6_fc268fb1",
     odooStationName: "MALAA STATION",
@@ -298,19 +326,28 @@ export const STATION_FULFILLMENT: StationFulfillment[] = [
     odooStationName: "BANANA STATION",
     odooPricelistId: 4,
   }),
-  station("magumu", "Magumu", "LAKE_OIL_NRB"),
+  station("magumu", "Magumu", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_144_ecb08948",
+    odooStationName: "MAGUMU STATION",
+  }),
   station("kitanga", "Kitanga", "LAKE_OIL_NRB", {
     odooStationExternalId: "__export__.account_analytic_account_130_9dc98478",
     odooStationName: "KITANGA  STATION",
     odooPricelistId: 12,
   }),
-  station("maua-town", "Maua Town", "LAKE_OIL_NRB"),
+  station("maua-town", "Maua Town", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_148_13dbdb6a",
+    odooStationName: "MAUA TOWN STATION",
+  }),
   station("kiserian", "Kiserian", "LAKE_OIL_NRB", {
     odooStationExternalId: "__export__.account_analytic_account_2_687baa4d",
     odooStationName: "KISERIAN STATION",
     odooPricelistId: 2,
   }),
-  station("dagoretti", "Dagoretti", "LAKE_OIL_NRB"),
+  station("dagoretti", "Dagoretti", "LAKE_OIL_NRB", {
+    odooStationExternalId: "__export__.account_analytic_account_138_021e1f39",
+    odooStationName: "DAGORETTI STATION",
+  }),
   station("kambiti", "Kambiti", "LAKE_OIL_NRB", {
     odooStationExternalId: "__export__.account_analytic_account_8_13ad42a3",
     odooStationName: "KAMBITI STATION",
@@ -364,7 +401,7 @@ export const QUOTATION_CREATE_CONTRACT = {
 export const INTEGRATION_GAPS = [
   "Source location trial mapping locked to PMS LOCAL quant External IDs per warehouse (ACTIVE_SOURCE_LOCATION_EXTERNAL_IDS); confirm with Odoo ops that quant→location is the intended Stock location",
   "PMS/AGO products confirmed: PMSL001 + AGOL001 (see fuel-products.json externalIds)",
-  "Station External IDs still needed for remaining portal stations (have: Banana, Kambiti, Kiserian, Kitanga, Malaa, Mariakani, Migori, Mumias, Nakuru Town, Eldoret Outspan, Sobea; model: account.analytic.account)",
+  "All portal stations have account.analytic.account External IDs (export 2026-10-15). Confirm with the Odoo admin which account is current for Malaa (6 or 146), Mariakani (3 or 147) and Outspan (5 or 151)",
   "Malaa and Mariakani are mapped in STATION_FULFILLMENT but not yet in official-dealers.json / dealer portal stations; confirm Mariakani loading warehouse (currently LAKE_OIL_NRB)",
   "Replace temporary EPRA retail prices with station-discounted dealer wholesale once Odoo pricelists are authoritative",
   "Lubricants + LPG product.product External IDs if orderable from portal",
