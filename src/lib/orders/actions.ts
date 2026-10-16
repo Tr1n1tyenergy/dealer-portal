@@ -19,7 +19,7 @@ import {
   parseOrderLines,
   parsePaymentAmount,
 } from "@/lib/orders/order-input";
-import { dealerCommercialOrdersBlockedReason } from "@/lib/security/launch-mode";
+import { DEALER_ORDERING_UNAVAILABLE, dealerCommercialOrdersBlockedReason } from "@/lib/security/launch-mode";
 
 /** What the dealer forms get back: a message to show, or null when the action went through. */
 export type ActionResult = { error: string } | null;
@@ -33,7 +33,10 @@ function submissionKey(value: FormDataEntryValue | null) {
 export async function placeOrderAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const session = await requireDealer();
   const blocked = dealerCommercialOrdersBlockedReason();
-  if (blocked) return { error: blocked };
+  if (blocked) {
+    console.warn(`[orders] dealer order refused: ${blocked}`);
+    return { error: DEALER_ORDERING_UNAVAILABLE };
+  }
   const lines = parseOrderLines({ pms: formData.get("pms"), ago: formData.get("ago") });
   if (!lines.ok) return { error: lines.message };
   const deliveryDate = parseDeliveryDate(formData.get("requestedDeliveryDate"));

@@ -118,11 +118,11 @@ function newSubmissionKey() {
   return Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function SubmitOrderButton({ disabled }: { disabled: boolean }) {
+function SubmitOrderButton({ disabled, unavailable }: { disabled: boolean; unavailable: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className="dp-po-submit" disabled={disabled || pending}>
-      {pending ? "Submitting…" : "Submit Order"}
+    <button type="submit" className="dp-po-submit" disabled={disabled || unavailable || pending}>
+      {unavailable ? "Ordering unavailable" : pending ? "Submitting…" : "Submit Order"}
       <span>
         <ArrowRight size={18} strokeWidth={2.5} />
       </span>
@@ -130,7 +130,8 @@ function SubmitOrderButton({ disabled }: { disabled: boolean }) {
   );
 }
 
-export function PlaceOrderForm({ stations }: { stations: Station[] }) {
+/** orderingNotice: shown up front when dealer ordering is switched off (Submit is then disabled). */
+export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station[]; orderingNotice: string | null }) {
   const [step, setStep] = useState<WizardStep>("details");
   // One id per form load, created in the browser after mount (not during server render):
   // a resubmit of this page (retry, double submit) returns the order it already created.
@@ -250,6 +251,11 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
       </section>
 
       <section className="dp-body dp-po-body">
+        {orderingNotice ? (
+          <div className="dp-po-notice" role="status">
+            <strong>{orderingNotice.split(". ")[0]}.</strong> {orderingNotice.split(". ").slice(1).join(". ")}
+          </div>
+        ) : null}
         <form action={guardSubmit} className="dp-po-layout">
           <input type="hidden" name="stationId" value={stationId} />
           <input type="hidden" name="pms" value={pms} />
@@ -644,7 +650,7 @@ export function PlaceOrderForm({ stations }: { stations: Station[] }) {
                       {state.error}
                     </p>
                   ) : null}
-                  <SubmitOrderButton disabled={total <= 0} />
+                  <SubmitOrderButton disabled={total <= 0} unavailable={Boolean(orderingNotice)} />
                 </>
               )}
             </div>
