@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it, beforeEach, afterEach } from "node:test";
 import {
+  DEALER_ORDERING_UNAVAILABLE,
   dealerCommercialOrdersBlockedReason,
+  dealerOrderingNotice,
   getLaunchMode,
 } from "./launch-mode";
 
@@ -49,5 +51,23 @@ describe("launch mode dealer order gates", () => {
     env.ODOO_MODE = "mock";
     env.TRI_ALLOW_MOCK_DEALER_ORDERS = "1";
     assert.equal(dealerCommercialOrdersBlockedReason(), null);
+  });
+
+  it("gives dealers a plain message, not the technical reason, when ordering is off", () => {
+    env.TRI_LAUNCH_MODE = "staff_preview";
+    delete env.TRI_ALLOW_MOCK_DEALER_ORDERS;
+    assert.equal(dealerOrderingNotice(), DEALER_ORDERING_UNAVAILABLE);
+    assert.equal(
+      DEALER_ORDERING_UNAVAILABLE,
+      "Online ordering isn't available yet. You can't place orders here at the moment. Please contact your Trinity account manager to order."
+    );
+    assert.doesNotMatch(DEALER_ORDERING_UNAVAILABLE, /staff-preview|mock|Odoo/i);
+  });
+
+  it("has no dealer notice when ordering is allowed", () => {
+    env.NODE_ENV = "production";
+    env.ODOO_MODE = "mock";
+    env.TRI_ALLOW_MOCK_DEALER_ORDERS = "1";
+    assert.equal(dealerOrderingNotice(), null);
   });
 });

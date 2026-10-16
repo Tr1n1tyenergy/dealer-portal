@@ -1332,6 +1332,21 @@
 }
 
 
+.dp-po-body .dp-po-notice {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(245, 184, 0, 0.14);
+  border: 1px solid rgba(245, 184, 0, 0.45);
+  color: #fde68a;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.dp-po-body .dp-po-notice strong {
+  color: #fff7d6;
+}
+
 .dp-po-body .dp-po-error {
   margin: 1rem 0 0;
   padding: 0.7rem 0.85rem;

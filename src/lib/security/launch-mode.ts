@@ -48,6 +48,15 @@ export function dealerCommercialOrdersBlockedReason(): string | null {
   return null;
 }
 
+/** What dealers see when ordering is off; the technical reason stays in the server log. */
+export const DEALER_ORDERING_UNAVAILABLE =
+  "Online ordering isn't available yet. You can't place orders here at the moment. Please contact your Trinity account manager to order.";
+
+/** The dealer-facing notice when ordering is off, or null when dealers may order. */
+export function dealerOrderingNotice(): string | null {
+  return dealerCommercialOrdersBlockedReason() ? DEALER_ORDERING_UNAVAILABLE : null;
+}
+
 export function assertDealerCommercialOrdersAllowed(): void {
   const reason = dealerCommercialOrdersBlockedReason();
   if (reason) throw new Error(reason);

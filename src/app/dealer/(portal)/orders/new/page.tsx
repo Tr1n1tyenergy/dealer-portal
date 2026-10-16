@@ -1,6 +1,7 @@
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { PlaceOrderForm } from "@/components/dealer/place-order-form";
+import { dealerOrderingNotice } from "@/lib/security/launch-mode";
 
 export default async function NewOrderPage() {
   const session = await requireDealer();
@@ -10,5 +11,5 @@ export default async function NewOrderPage() {
     select: { id: true, name: true },
   });
 
-  return <PlaceOrderForm stations={stations} />;
+  return <PlaceOrderForm stations={stations} orderingNotice={dealerOrderingNotice()} />;
 }
