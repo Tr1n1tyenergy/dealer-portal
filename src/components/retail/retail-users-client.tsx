@@ -27,6 +27,7 @@ import {
 import "@/app/intelligence/retail/retail-users.css";
 import { checkStationSelection } from "@/lib/dealers/station-selection";
 import { roleLabel, STAFF_ROLES, type StaffRole } from "@/lib/access";
+import { matchesUserQuery } from "@/lib/users/user-search";
 import { StationMultiSelect } from "@/components/retail/station-multi-select";
 
 type StationOpt = {
@@ -82,19 +83,7 @@ function orgLabel(u: RetailUser) {
 }
 
 function matchesQuery(u: RetailUser, q: string) {
-  if (!q) return true;
-  const hay = [
-    u.firstName,
-    u.lastName,
-    u.email,
-    u.role,
-    u.accountType,
-    u.department,
-    orgLabel(u),
-  ]
-    .join(" ")
-    .toLowerCase();
-  return hay.includes(q);
+  return matchesUserQuery({ ...u, organization: orgLabel(u) }, q);
 }
 
 type EditForm = {

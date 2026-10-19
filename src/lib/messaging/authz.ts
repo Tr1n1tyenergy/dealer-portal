@@ -1,8 +1,8 @@
 import type { AccountType } from "@prisma/client";
-import { can } from "@/lib/access";
+import { can, STAFF_ROLES } from "@/lib/access";
 
 /** Staff roles that use messaging (Admin and Sales Person Executive). */
-export const MESSAGING_STAFF_ROLES = ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE"] as const;
+export const MESSAGING_STAFF_ROLES = STAFF_ROLES.filter((role) => can(role, "retail.messaging"));
 
 /** Dealers, Admins and Sales Person Executives use messaging; Staff Members and depots don't. */
 export function canUseMessaging(

@@ -229,9 +229,12 @@ function normalizeConversations(
 export function MessagingApp({
   variant = "staff",
   initialConversations = [],
+  canOpenUsers = false,
 }: {
   variant?: "staff" | "dealer";
   initialConversations?: ConversationRow[];
+  /** Staff only: whether "View Profile" may link to the Retail Users page (Admins). */
+  canOpenUsers?: boolean;
 }) {
   const { data: session } = useSession();
   const myId = session?.user?.id ?? "";
@@ -927,10 +930,12 @@ export function MessagingApp({
                       Email
                     </button>
                   )}
-                  <Link href={profileHref} title={isDealerPortal ? "Open account" : "Open Users"}>
-                    <UserRound size={15} />
-                    View Profile
-                  </Link>
+                  {isDealerPortal || canOpenUsers ? (
+                    <Link href={profileHref} title={isDealerPortal ? "Open account" : "Open Users"}>
+                      <UserRound size={15} />
+                      View Profile
+                    </Link>
+                  ) : null}
                 </div>
               </div>
 
