@@ -18,30 +18,40 @@ export type PfiDocument = {
   approvedBy: string;
 };
 
-/** Bars and the table header, as on the Odoo template. */
-const BAR_BLUE = "#2b76b6";
-/** Footer gradient. */
-const BLUE = "#3854a3";
-const TEAL = "#32c1d1";
-const INK = "#000000";
-const BORDER_WIDTH = 0.85;
-const RULE = "#9ca3af";
+/*
+ * Layout copied 1:1 from Trinity's Odoo template ("Sale PRO-FORMA Invoice - S01177.pdf"):
+ * US Letter, Lato Medium / Lato Bold, blue #2b76b6 bars, black 0.65pt rules, the same
+ * positions (points from the top-left corner) and the template's own footer artwork.
+ */
+const BLUE = "#2b76b6";
+const BLACK = "#000000";
+const RULE = 0.65;
+const LEFT = 9.6;
+/** The right-hand rule sits at 601.8 (0.6 wide), as on the template; the footer artwork runs to 602.4. */
+const RIGHT = 601.8;
+const WIDTH = RIGHT - LEFT;
+const FOOTER_WIDTH = 592.8;
 const DESCRIPTIONS = { PMS: "PMS LOCAL", AGO: "AGO LOCAL" } as const;
 
-// A4 in points; everything is placed explicitly, the template is a fixed one-page form.
-const X = 10;
-const W = 575;
-
-let logo: Buffer | null | undefined;
-function trinityLogo(): Buffer | null {
-  if (logo === undefined) {
+const ASSETS = path.join(process.cwd(), "assets/pfi");
+const assetCache = new Map<string, Buffer | null>();
+function asset(name: string): Buffer | null {
+  if (!assetCache.has(name)) {
     try {
-      logo = readFileSync(path.join(process.cwd(), "public/assets2/img/trinity-logo-pfi.png"));
+      assetCache.set(name, readFileSync(path.join(ASSETS, name)));
     } catch {
-      logo = null;
+      assetCache.set(name, null);
     }
   }
-  return logo;
+  return assetCache.get(name) ?? null;
+}
+
+/** Shorten text to one line of the given width, ending it with "…" when it had to be cut. */
+export function fitLine(text: string, width: number, measure: (text: string) => number): string {
+  if (measure(text) <= width) return text;
+  let cut = text;
+  while (cut.length > 0 && measure(`${cut}…`) > width) cut = cut.slice(0, -1);
+  return `${cut.trimEnd()}…`;
 }
 
 const kenyaDate = (date: Date, style: "long" | "dotted") => {
@@ -53,17 +63,9 @@ const kenyaDate = (date: Date, style: "long" | "dotted") => {
   return style === "long" ? `${parts.day} ${parts.month} ${parts.year}` : `${parts.day}.${parts.month}.${parts.year}`;
 };
 
-/** Shorten text to one line of the given width, ending it with "…" when it had to be cut. */
-export function fitLine(text: string, width: number, measure: (text: string) => number): string {
-  if (measure(text) <= width) return text;
-  let cut = text;
-  while (cut.length > 0 && measure(`${cut}…`) > width) cut = cut.slice(0, -1);
-  return `${cut.trimEnd()}…`;
-}
-
-/** Draw the PFI as a one-page A4 PDF laid out like Trinity's Odoo pro-forma template. */
+/** Draw the PFI as a one-page US Letter PDF laid out exactly like Trinity's Odoo pro-forma template. */
 export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
-  const doc = new PDFDocument({ size: "A4", margin: 0, info: { Title: `Pro-Forma Invoice ${data.number}`, Author: PFI_COMPANY.name } });
+  const doc = new PDFDocument({ size: "LETTER", margin: 0, info: { Title: `Pro-Forma Invoice ${data.number}`, Author: PFI_COMPANY.name } });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
   const done = new Promise<Buffer>((resolve, reject) => {
@@ -71,144 +73,166 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
     doc.on("error", reject);
   });
 
-  const box = (x: number, y: number, w: number, h: number) => doc.lineWidth(BORDER_WIDTH).rect(x, y, w, h).stroke(INK);
-  const bar = (y: number, h: number, label: string, size: number, align: "center" | "left" = "left") => {
-    doc.rect(X, y, W, h).fill(BAR_BLUE);
-    box(X, y, W, h);
-    doc.font("Helvetica-Bold").fontSize(size).fillColor("#ffffff")
-      .text(label, X + 8, y + (h - size) / 2 + 1, { width: W - 16, align, lineBreak: false });
-  };
-  // One line only: anything wider than its column is cut with "…", so it can never wrap into the next row.
-  const text = (value: string, x: number, y: number, w: number, opts: PDFKit.Mixins.TextOptions & { bold?: boolean; size?: number; color?: string } = {}) => {
-    const { bold, size = 8, color = INK, ...rest } = opts;
-    doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(size).fillColor(color);
-    const line = rest.lineBreak ? value : fitLine(value, w, (t) => doc.widthOfString(t));
-    doc.text(line, x, y, { width: w, lineBreak: false, ...rest });
+  const medium = asset("lato-medium.woff");
+  const bold = asset("lato-bold.woff");
+  doc.registerFont("Body", medium ?? "Helvetica");
+  doc.registerFont("Label", bold ?? "Helvetica-Bold");
+
+  // Rules and cells. The template draws each rule as a strip starting at its coordinate (to the
+  // right / below), so strokes are offset by half their width to land on the same pixels.
+  const rect = (x: number, top: number, w: number, h: number) =>
+    doc.lineWidth(RULE).rect(x + RULE / 2, top + RULE / 2, w, h).stroke(BLACK);
+  const blueCell = (x: number, top: number, w: number, h: number) => {
+    doc.rect(x, top, w, h).fill(BLUE);
+    rect(x, top, w, h);
   };
 
-  // Logo
-  const logoImage = trinityLogo();
-  if (logoImage) doc.image(logoImage, 26, 12, { width: 190 });
+  /** One line of text placed on its baseline; anything wider than its column is cut with "…". */
+  const text = (
+    value: string,
+    x: number,
+    baseline: number,
+    width: number,
+    opts: { font?: "Body" | "Label"; size?: number; color?: string; align?: "left" | "center" | "right" } = {},
+  ) => {
+    const { font = "Body", size = 9, color = BLACK, align = "left" } = opts;
+    doc.font(font).fontSize(size).fillColor(color);
+    const line = fitLine(value, width, (t) => doc.widthOfString(t));
+    doc.text(line, x, baseline, { width, align, lineBreak: false, baseline: "alphabetic" });
+  };
 
-  // Title
-  let y = 98;
-  bar(y, 30, "PRO-FORMA INVOICE", 15, "center");
-  y += 30;
+  // Header: the logo where the template has it (its artwork spans x 34.7–209.2, top 16.4–67.9)
+  const logo = asset("logo.png");
+  if (logo) doc.image(logo, 30.5, -0.7, { width: 185.3 });
+
+  // Title bar
+  blueCell(LEFT, 99.2, WIDTH, 31.4);
+  text("PRO-FORMA INVOICE", LEFT, 119.7, WIDTH, { font: "Label", size: 15.4, color: "#ffffff", align: "center" });
 
   // SO number and date
-  const half = 317;
-  box(X, y, 90, 20); box(X + 90, y, half - 90, 20); box(X + half, y, 145, 20); box(X + half + 145, y, W - half - 145, 20);
-  text("SO No.", X + 5, y + 6, 80);
-  text(data.number, X + 95, y + 6, half - 100);
-  text("SO DATE:", X + half + 5, y + 6, 135);
-  text(kenyaDate(data.soDate, "long"), X + half + 150, y + 6, W - half - 155);
-  y += 20;
+  rect(LEFT, 130.6, 89, 20.5);
+  rect(98.6, 130.6, 236.8, 20.5);
+  rect(335.4, 130.6, 147.9, 20.5);
+  rect(483.3, 130.6, RIGHT - 483.3, 20.5);
+  text("SO No.", 13.4, 144.0, 84);
+  text(data.number, 102.4, 144.0, 230);
+  text("SO DATE:", 339.3, 144.0, 140);
+  text(kenyaDate(data.soDate, "long"), 487.2, 144.0, RIGHT - 490);
 
   // Customer and terms
-  const blockH = 78;
-  box(X, y, half, blockH); box(X + half, y, W - half, blockH);
-  text("CUSTOMER:", X + 5, y + 8, 80, { bold: true });
-  text(data.customerName, X + 90, y + 8, half - 98, { lineBreak: true, height: 20, ellipsis: true });
-  text("CUSTOMER ID:", X + 5, y + 32, 80, { bold: true });
-  text(data.customerId, X + 90, y + 32, half - 98, { ellipsis: true });
-  text("ADDRESS:", X + 5, y + 48, 80, { bold: true });
-  data.addressLines.slice(0, 2).forEach((line, i) => text(line, X + 90, y + 48 + i * 11, half - 98, { ellipsis: true }));
+  rect(LEFT, 151.1, 325.8, 80.0);
+  rect(335.4, 151.1, RIGHT - 335.4, 80.0);
+  text("CUSTOMER:", 13.4, 169.0, 86, { font: "Label" });
+  // The customer name may take two lines (8.9pt apart, as on the template), then it is cut.
+  doc.font("Body").fontSize(9);
+  const nameWords = data.customerName.split(/\s+/);
+  let firstLine = "";
+  while (nameWords.length && doc.widthOfString(`${firstLine} ${nameWords[0]}`.trim()) <= 175) firstLine = `${firstLine} ${nameWords.shift()}`.trim();
+  text(firstLine || data.customerName, 101.8, 169.0, 230);
+  if (firstLine && nameWords.length) text(nameWords.join(" "), 101.8, 177.9, 230);
+  text("CUSTOMER ID:", 13.4, 193.3, 86, { font: "Label" });
+  text(data.customerId, 101.8, 193.3, 230);
+  text("ADDRESS:", 13.4, 210.6, 86, { font: "Label" });
+  data.addressLines.slice(0, 2).forEach((line, i) => text(line, 101.8, 210.6 + i * 13.4, 230));
   const terms: [string, string][] = [
     ["Payment Terms:", PFI_COMPANY.paymentTerms],
-    ["Currency", PFI_COMPANY.currency],
+    ["Currency", `${PFI_COMPANY.currency} (1)`],
     ["Source Location:", data.sourceLocation],
   ];
   terms.forEach(([label, value], i) => {
-    text(label, X + half + 5, y + 36 + i * 13, 105, { bold: true });
-    text(value, X + half + 120, y + 36 + i * 13, W - half - 125, { ellipsis: true });
+    text(label, 339.3, 195.9 + i * 15.35, 120, { font: "Label" });
+    text(value, 461.6, 195.9 + i * 15.35, RIGHT - 463);
   });
-  y += blockH;
 
-  // Lines
+  // Line table
   const cols = [
-    { label: "ITEM\nNO", w: 29, align: "left" as const },
-    { label: "DESCRIPTION", w: 132, align: "left" as const },
-    { label: "UOM", w: 58, align: "left" as const },
-    { label: "VOLUME", w: 91, align: "right" as const },
-    { label: "UNIT PRICE", w: 154, align: "right" as const },
-    { label: "AMOUNT", w: W - 29 - 132 - 58 - 91 - 154, align: "right" as const },
+    { x: LEFT, w: 29.5, align: "left" as const },
+    { x: 39.1, w: 135.7, align: "left" as const },
+    { x: 174.8, w: 60.1, align: "left" as const },
+    { x: 234.9, w: 93.5, align: "right" as const },
+    { x: 328.4, w: 158.1, align: "right" as const },
+    { x: 486.5, w: RIGHT - 486.5, align: "right" as const },
   ];
-  doc.rect(X, y, W, 24).fill(BAR_BLUE);
-  let cx = X;
-  for (const col of cols) {
-    box(cx, y, col.w, 24);
-    doc.font("Helvetica-Bold").fontSize(col.label.includes("\n") ? 7.5 : 8.5).fillColor("#ffffff")
-      .text(col.label, cx + 3, y + (col.label.includes("\n") ? 4 : 8), { width: col.w - 6, align: "center" });
-    cx += col.w;
-  }
-  y += 24;
-  data.totals.lines.forEach((line, i) => {
-    const cells = [String(i + 1), DESCRIPTIONS[line.product], "L", formatVolume(line.quantityLitres), formatMoney(line.unitPriceExVat), formatMoney(line.amount)];
-    cx = X;
-    cols.forEach((col, c) => {
-      box(cx, y, col.w, 16);
-      text(cells[c], cx + 4, y + 5, col.w - 8, { align: col.align });
-      cx += col.w;
-    });
-    y += 16;
+  const headers = ["", "DESCRIPTION", "UOM", "VOLUME", "UNIT PRICE", "AMOUNT"];
+  cols.forEach((col) => blueCell(col.x, 231.7, col.w, 24.3));
+  text("ITEM", LEFT, 242.6, 29.5, { font: "Label", color: "#ffffff", align: "center" });
+  text("NO", LEFT, 251.6, 29.5, { font: "Label", color: "#ffffff", align: "center" });
+  headers.forEach((label, i) => {
+    if (label) text(label, cols[i].x, 242.6, cols[i].w, { font: "Label", color: "#ffffff", align: "center" });
   });
-  const labelW = W - cols[5].w;
-  const vatPercent = `${Math.round(Number(data.totals.vatRate) * 100)}%`;
-  for (const [label, value] of [["Sub Total", data.totals.subtotal], [`VAT (${vatPercent})`, data.totals.vat], ["Total", data.totals.total]] as const) {
-    box(X, y, labelW, 20); box(X + labelW, y, cols[5].w, 20);
-    text(label, X, y + 6, labelW, { bold: true, align: "center" });
-    text(formatMoney(value), X + labelW + 4, y + 6, cols[5].w - 8, { align: "right", bold: label === "Total" });
-    y += 20;
+  let top = 256.0;
+  data.totals.lines.forEach((line, i) => {
+    // Unit price is printed exactly as stored.
+    const cells = [String(i + 1), DESCRIPTIONS[line.product], "L", formatVolume(line.quantityLitres), line.unitPriceExVat, formatMoney(line.amount)];
+    cols.forEach((col, c) => {
+      rect(col.x, top, col.w, 16);
+      if (col.align === "right") text(cells[c], col.x, top + 11.6, col.w - 2.6, { align: "right" });
+      else text(cells[c], col.x + 3.8, top + 11.6, col.w - 5);
+    });
+    top += 16;
+  });
+  const labelWidth = 486.5 - LEFT;
+  const totalRows: [string, string][] = [["Sub Total", data.totals.subtotal], ["VAT", data.totals.vat], ["Total", data.totals.total]];
+  for (const [label, value] of totalRows) {
+    rect(LEFT, top, labelWidth, 20.5);
+    rect(486.5, top, RIGHT - 486.5, 20.5);
+    text(label, LEFT, top + 13.5, labelWidth, { font: "Label", align: "center" });
+    text(formatMoney(value), 486.5, top + 13.5, RIGHT - 486.5 - 2.6, { align: "right" });
+    top += 20.5;
   }
-  y += 6;
 
-  // Bank details
-  doc.rect(X, y, W, 12).fill(BAR_BLUE);
-  box(X, y, W, 12);
-  text("Bank Account Details", X + 6, y + 3, 200, { bold: true, size: 7, color: "#ffffff" });
-  y += 12;
+  // Bank account details, at the template's spacing below the totals
+  let bankTop = top + 4.5;
+  blueCell(LEFT, bankTop, WIDTH, 13.4);
+  text("Bank Account Details", 15.4, bankTop + 9.6, 200, { font: "Label", size: 7.7, color: "#ffffff" });
+  bankTop += 13.4;
   const bankRows: [string, keyof (typeof PFI_BANK_ACCOUNTS)[number]][] = [
-    ["Bank:", "bank"], ["Beneficiary:", "beneficiary"], ["Account Number:", "accountNumber"], ["Beneficiary Bank:", "beneficiaryBank"], ["Swift Code:", "swiftCode"],
+    ["Bank:", "bank"],
+    ["Beneficiary:", "beneficiary"],
+    ["Account Number:", "accountNumber"],
+    ["Beneficiary Bank:", "beneficiaryBank"],
+    ["Swift Code:", "swiftCode"],
   ];
-  const bankHalf = W / 2;
+  const bankCols = [
+    { label: LEFT, value: 98.6, end: 306.0 },
+    { label: 306.0, value: 395.0, end: RIGHT },
+  ];
   bankRows.forEach(([label, key]) => {
     PFI_BANK_ACCOUNTS.forEach((account, a) => {
-      const bx = X + a * bankHalf;
-      box(bx, y, 85, 12); box(bx + 85, y, bankHalf - 85, 12);
-      text(label, bx + 4, y + 3, 80, { bold: true, size: 7 });
-      text(account[key], bx + 89, y + 3, bankHalf - 93, { size: 7 });
+      const c = bankCols[a];
+      rect(c.label, bankTop, c.value - c.label, 12.2);
+      rect(c.value, bankTop, c.end - c.value, 12.2);
+      text(label, c.label + 4.5, bankTop + 9.0, c.value - c.label - 6, { font: "Label", size: 7.7 });
+      text(account[key], c.value + 4.5, bankTop + 9.0, c.end - c.value - 6, { size: 7.7 });
     });
-    y += 12;
+    bankTop += 12.2;
   });
-  y += 12;
 
-  // Signatures
+  // Signatures; with two lines the template has Prepared By at 443.0 and Approved By at 491.0
+  const shift = bankTop - 428.4;
   const issued = kenyaDate(data.issuedAt, "dotted");
-  for (const [label, name] of [["Prepared By:", data.preparedBy], ["Approved By:", data.approvedBy]] as const) {
-    text(label, X + 2, y, 200, { bold: true, size: 7.5 });
-    text(name, X + 2, y + 18, 230, { size: 8 });
-    doc.lineWidth(0.5).moveTo(X + 2, y + 34).lineTo(X + 232, y + 34).stroke(RULE);
-    text("Date: ", X + 300, y + 16, 30, { bold: true, size: 7.5 });
-    text(issued, X + 322, y + 16, 120, { size: 7.5 });
-    doc.lineWidth(0.5).moveTo(X + 300, y + 34).lineTo(X + 518, y + 34).stroke(RULE);
-    y += 46;
+  const signatures: [string, string, number][] = [
+    ["Prepared By:", data.preparedBy, 443.0],
+    ["Approved By:", data.approvedBy, 491.0],
+  ];
+  for (const [label, name, at] of signatures) {
+    const y = at + shift;
+    text(label, LEFT, y, 200, { font: "Label", size: 7.7 });
+    text(name, LEFT, y + 17.9, 236, { size: 7.7 });
+    text("Date:", 306.0, y + 15.3, 22, { font: "Label", size: 7.7 });
+    text(issued, 326.5, y + 15.3, 200, { size: 7.7 });
+    for (const x of [LEFT, 305.6]) doc.rect(x, y + 29.5, 236.9, 0.6).fill("#d0d0d0");
   }
-  y += 4;
 
   // Terms and conditions (left empty, as on the template)
-  bar(y, 26, "Terms and Conditions", 10.5);
-  y += 26;
-  box(X, y, W, 13);
+  const termsTop = 532.6 + shift;
+  blueCell(LEFT, termsTop, WIDTH, 28.8);
+  text("Terms and Conditions", 16.6, termsTop + 17.3, 300, { font: "Label", size: 10.2, color: "#ffffff" });
+  rect(LEFT, termsTop + 28.8, WIDTH, 13.4);
 
-  // Footer
-  const footerY = 716;
-  const gradient = doc.linearGradient(X, footerY, X + W, footerY).stop(0, BLUE).stop(1, TEAL);
-  doc.rect(X, footerY, W, 80).fill(gradient);
-  const footerText = (lines: string[], x: number, w: number) =>
-    lines.forEach((line, i) => text(line, x, footerY + 18 + i * 12, w, { size: 7, color: "#ffffff" }));
-  footerText([PFI_COMPANY.name, PFI_COMPANY.email, PFI_COMPANY.website], X + 22, 180);
-  footerText(["PHONE:", ...PFI_COMPANY.phones], X + 252, 120);
-  footerText(["PHYSICAL ADDRESS:", ...PFI_COMPANY.address], X + 425, 145);
+  // Footer: the template's own artwork (company name, contacts and address on the gradient band)
+  const footer = asset("footer.png");
+  if (footer) doc.image(footer, LEFT, 678.4, { width: FOOTER_WIDTH, height: 79.4 });
 
   doc.end();
   return done;

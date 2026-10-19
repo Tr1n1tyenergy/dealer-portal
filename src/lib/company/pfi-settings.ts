@@ -25,12 +25,9 @@ export const PFI_BANK_ACCOUNTS = [
   },
 ] as const;
 
+/** The footer (company name, contacts, address) is the template's own artwork: assets/pfi/footer.png. */
 export const PFI_COMPANY = {
   name: "TRINITY ENERGY KENYA LIMITED",
-  email: "info@trinityenergyltd.com",
-  website: "www.trinityenergyltd.com",
-  phones: ["+254 704 200 900", "+254 780 200 900"],
-  address: ["8th floor, Delta Chambers Building,", "Waiyaki Way, Westlands,", "Nairobi, Kenya"],
   paymentTerms: "Immediate Payment",
   currency: "KES",
 } as const;
