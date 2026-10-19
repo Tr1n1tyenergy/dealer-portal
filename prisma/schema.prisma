@@ -318,6 +318,8 @@ model DealerOrder {
   submissionKey        String?           @unique
   odooQuotationId      String?
   odooQuotationNumber  String?
+  /// When the quotation was saved; the PFI's "SO DATE"
+  quotedAt             DateTime?
   odooSyncError        String?
   truckRegistration    String?
   driverName           String?
@@ -354,6 +356,8 @@ model DealerOrderLine {
   order          DealerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product        ProductCode
   quantityLitres Int
+  /// Unit price before VAT (KES/L) at quotation time, frozen for the PFI
+  unitPriceExVat String?
 
   @@index([orderId])
 }
@@ -368,6 +372,12 @@ model ProFormaInvoice {
   issuedAt        DateTime    @default(now())
   odooDocumentId  String?
   documentPath    String?
+  /// Frozen PFI figures (amount is the total incl. VAT)
+  subtotal        String?
+  vatAmount       String?
+  vatRate         String?
+  preparedByName  String?
+  approvedByName  String?
 
   @@index([number])
 }
