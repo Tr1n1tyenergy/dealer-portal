@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireInternalApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { reportListWhere } from "@/lib/reports/report-filter";
 
 const createSchema = z.object({
   title: z.string().min(1).max(200),
@@ -29,31 +30,8 @@ export async function GET(req: Request) {
     return jsonError("Invalid category filter.", 400);
   }
 
-  const isAdmin = auth.session.user.role === "SUPER_ADMIN";
-
   const reports = await prisma.report.findMany({
-    where: {
-      ...(isAdmin ? {} : { userId: auth.session.user.id }),
-      ...(category && category !== "ALL"
-        ? { category: category as "FUEL_RETAIL" | "NON_FUEL_RETAIL" | "GENERAL" }
-        : {}),
-      ...(q
-        ? {
-            OR: [
-              { title: { contains: q } },
-              { description: { contains: q } },
-            ],
-          }
-        : {}),
-      ...(from || to
-        ? {
-            createdAt: {
-              ...(from ? { gte: new Date(from) } : {}),
-              ...(to ? { lte: new Date(to) } : {}),
-            },
-          }
-        : {}),
-    },
+    where: reportListWhere({ viewer: auth.session.user, category, q, from, to }),
     orderBy: { createdAt: "desc" },
   });
 
