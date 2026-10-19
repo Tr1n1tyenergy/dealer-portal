@@ -8,6 +8,7 @@ import { requireInternal } from "@/lib/session";
 import { internalOrderAction } from "@/lib/orders/actions";
 import { formatKes, sameAmount } from "@/lib/orders/money";
 import { ORDER_STAGES, parseStage, stageOf, statusLabel, type StageKey } from "@/lib/orders/stages";
+import { priceListStatus } from "@/lib/integrations/odoo/price-list-status";
 import "@/app/intelligence/retail/retail-orders.css";
 
 type SearchParams = Promise<{ stage?: string | string[]; q?: string | string[] }>;
@@ -18,6 +19,7 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
   const session = await requireInternal();
   if (!can(session.user.role, "retail.orders")) redirect("/intelligence/retail");
   const mayAct = can(session.user.role, "orders.act");
+  const priceList = priceListStatus(new Date());
 
   const params = await searchParams;
   const stage = parseStage(first(params.stage));
@@ -69,6 +71,12 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
         <h1>Orders</h1>
         <p>Dealer fuel orders by stage. Quotations and PFIs come from Odoo; payments are confirmed and orders released to depots here.</p>
       </header>
+
+      {priceList.message ? (
+        <p className={`ro-price-alert ro-price-alert--${priceList.state}`} role={priceList.state === "expired" ? "alert" : "status"}>
+          {priceList.message}
+        </p>
+      ) : null}
 
       <nav className="ro-tabs" aria-label="Order stages">
         {tabs.map((tab) => (

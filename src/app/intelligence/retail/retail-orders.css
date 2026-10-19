@@ -31,6 +31,27 @@
   color: var(--ro-muted);
 }
 
+.ro-price-alert {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.ro-price-alert--ending {
+  border-color: rgba(245, 184, 0, 0.5);
+  background: rgba(245, 184, 0, 0.12);
+  color: #fde68a;
+}
+
+.ro-price-alert--expired {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+}
+
 .ro-tabs {
   display: flex;
   flex-wrap: wrap;
