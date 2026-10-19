@@ -19,7 +19,8 @@ The dealer can open it as a PDF and pay; staff can open it from the Orders page.
 | When | **Automatically**, straight after the quotation is created. No staff step |
 | Who sees it | The dealer (own organisation only) and Admin / Sales Person Executive |
 | Approach | Freeze the PFI's data when generated; draw the PDF on each request (pdfkit, server-side). No file storage |
-| Colours | Primary blue `#3854a3`; footer gradient `#3854a3` → `#32c1d1` |
+| Colours and borders | Bars and table header `#2b76b6` (measured from the template); footer gradient `#3854a3` → `#32c1d1`; black 0.85pt borders, with outlines on the bars and dividers in the header row |
+| Logo | `public/assets2/img/trinity-logo-pfi.png` (high-resolution file supplied by the user) |
 
 **Effect on the amount due:** the dealer now pays the **VAT-inclusive total**, which is 8% more than the quotation total today.
 The order form shows litres only, so nothing there changes. Every amount shown after the PFI (the order page and the staff Orders table) is the PFI total.
@@ -81,8 +82,8 @@ Checked against the template's figures:
 `PfiDocument` is plain data assembled by `loadPfiDocument(orderId)`, so the renderer has no database access.
 
 The layout follows the template, top to bottom:
-1. The logo (`public/assets2/img/logo.png`).
-2. A `#3854a3` title bar reading "PRO-FORMA INVOICE".
+1. The logo (`public/assets2/img/trinity-logo-pfi.png`).
+2. A `#2b76b6` title bar reading "PRO-FORMA INVOICE".
 3. SO No. / SO DATE.
 4. The customer block:
    - CUSTOMER: the dealer organisation name;
@@ -92,7 +93,7 @@ The layout follows the template, top to bottom:
    - Payment Terms: "Immediate Payment";
    - Currency: "KES";
    - Source Location: the station's warehouse label (LakeO/Stock, KPC-NAKURU/Stock, KPC-ELDORET/Stock, KPC-KISUMU/Stock).
-6. The line table, with a `#3854a3` header: ITEM NO, DESCRIPTION ("PMS LOCAL" / "AGO LOCAL"), UOM "L", VOLUME, UNIT PRICE (before VAT), AMOUNT.
+6. The line table, with a `#2b76b6` header: ITEM NO, DESCRIPTION ("PMS LOCAL" / "AGO LOCAL"), UOM "L", VOLUME, UNIT PRICE (before VAT), AMOUNT.
 7. Sub Total, VAT (8%), Total.
 8. Bank Account Details: the two accounts from the template.
 9. Prepared By / Approved By: the frozen names, each with the issue date (DD.MM.YYYY).

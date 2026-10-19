@@ -18,9 +18,13 @@ export type PfiDocument = {
   approvedBy: string;
 };
 
+/** Bars and the table header, as on the Odoo template. */
+const BAR_BLUE = "#2b76b6";
+/** Footer gradient. */
 const BLUE = "#3854a3";
 const TEAL = "#32c1d1";
-const INK = "#1f2937";
+const INK = "#000000";
+const BORDER_WIDTH = 0.85;
 const RULE = "#9ca3af";
 const DESCRIPTIONS = { PMS: "PMS LOCAL", AGO: "AGO LOCAL" } as const;
 
@@ -32,7 +36,7 @@ let logo: Buffer | null | undefined;
 function trinityLogo(): Buffer | null {
   if (logo === undefined) {
     try {
-      logo = readFileSync(path.join(process.cwd(), "public/assets2/img/logo.png"));
+      logo = readFileSync(path.join(process.cwd(), "public/assets2/img/trinity-logo-pfi.png"));
     } catch {
       logo = null;
     }
@@ -67,9 +71,10 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
     doc.on("error", reject);
   });
 
-  const box = (x: number, y: number, w: number, h: number) => doc.lineWidth(0.6).rect(x, y, w, h).stroke(INK);
+  const box = (x: number, y: number, w: number, h: number) => doc.lineWidth(BORDER_WIDTH).rect(x, y, w, h).stroke(INK);
   const bar = (y: number, h: number, label: string, size: number, align: "center" | "left" = "left") => {
-    doc.rect(X, y, W, h).fill(BLUE);
+    doc.rect(X, y, W, h).fill(BAR_BLUE);
+    box(X, y, W, h);
     doc.font("Helvetica-Bold").fontSize(size).fillColor("#ffffff")
       .text(label, X + 8, y + (h - size) / 2 + 1, { width: W - 16, align, lineBreak: false });
   };
@@ -83,7 +88,7 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
 
   // Logo
   const logoImage = trinityLogo();
-  if (logoImage) doc.image(logoImage, 30, 22, { width: 150 });
+  if (logoImage) doc.image(logoImage, 26, 12, { width: 190 });
 
   // Title
   let y = 98;
@@ -128,9 +133,10 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
     { label: "UNIT PRICE", w: 154, align: "right" as const },
     { label: "AMOUNT", w: W - 29 - 132 - 58 - 91 - 154, align: "right" as const },
   ];
-  doc.rect(X, y, W, 24).fill(BLUE);
+  doc.rect(X, y, W, 24).fill(BAR_BLUE);
   let cx = X;
   for (const col of cols) {
+    box(cx, y, col.w, 24);
     doc.font("Helvetica-Bold").fontSize(col.label.includes("\n") ? 7.5 : 8.5).fillColor("#ffffff")
       .text(col.label, cx + 3, y + (col.label.includes("\n") ? 4 : 8), { width: col.w - 6, align: "center" });
     cx += col.w;
@@ -157,7 +163,8 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
   y += 6;
 
   // Bank details
-  doc.rect(X, y, W, 12).fill(BLUE);
+  doc.rect(X, y, W, 12).fill(BAR_BLUE);
+  box(X, y, W, 12);
   text("Bank Account Details", X + 6, y + 3, 200, { bold: true, size: 7, color: "#ffffff" });
   y += 12;
   const bankRows: [string, keyof (typeof PFI_BANK_ACCOUNTS)[number]][] = [

@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   // pdfkit reads its font metrics from disk, so it must not be bundled; the PFI route also reads the logo.
   serverExternalPackages: ["pdfkit"],
   outputFileTracingIncludes: {
-    "/api/orders/[id]/pfi": ["./public/assets2/img/logo.png", "./node_modules/pdfkit/js/data/**"],
+    "/api/orders/[id]/pfi": ["./public/assets2/img/trinity-logo-pfi.png", "./node_modules/pdfkit/js/data/**"],
   },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
