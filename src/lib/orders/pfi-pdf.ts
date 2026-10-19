@@ -21,13 +21,16 @@ export type PfiDocument = {
 /*
  * Layout copied 1:1 from Trinity's Odoo template ("Sale PRO-FORMA Invoice - S01177.pdf"):
  * US Letter, Lato Medium / Lato Bold, blue #2b76b6 bars, black 0.65pt rules, the same
- * positions (points from the top-left corner) and the template's own footer artwork.
+ * positions (points from the top-left corner). The footer is drawn: a #3854a3 → #32c1d1
+ * gradient band with the company details.
  */
 const BLUE = "#2b76b6";
+const FOOTER_FROM = "#3854a3";
+const FOOTER_TO = "#32c1d1";
 const BLACK = "#000000";
 const RULE = 0.65;
 const LEFT = 9.6;
-/** The right-hand rule sits at 601.8 (0.6 wide), as on the template; the footer artwork runs to 602.4. */
+/** The right-hand rule sits at 601.8 (0.6 wide), as on the template; the footer band runs to 602.4. */
 const RIGHT = 601.8;
 const WIDTH = RIGHT - LEFT;
 const FOOTER_WIDTH = 592.8;
@@ -230,9 +233,22 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
   text("Terms and Conditions", 16.6, termsTop + 17.3, 300, { font: "Label", size: 10.2, color: "#ffffff" });
   rect(LEFT, termsTop + 28.8, WIDTH, 13.4);
 
-  // Footer: the template's own artwork (company name, contacts and address on the gradient band)
-  const footer = asset("footer.png");
-  if (footer) doc.image(footer, LEFT, 678.4, { width: FOOTER_WIDTH, height: 79.4 });
+  // Footer: gradient band with the company name, contacts and address
+  const footerTop = 678.4;
+  const scale = FOOTER_WIDTH / 575;
+  const gradient = doc.linearGradient(LEFT, footerTop, LEFT + FOOTER_WIDTH, footerTop).stop(0, FOOTER_FROM).stop(1, FOOTER_TO);
+  doc.rect(LEFT, footerTop, FOOTER_WIDTH, 80).fill(gradient);
+  const footerText = (lines: readonly string[], offset: number, width: number) =>
+    lines.forEach((line, i) => {
+      doc.font("Helvetica").fontSize(7).fillColor("#ffffff");
+      doc.text(fitLine(line, width * scale, (t) => doc.widthOfString(t)), LEFT + offset * scale, footerTop + 18 + i * 12, {
+        width: width * scale,
+        lineBreak: false,
+      });
+    });
+  footerText([PFI_COMPANY.name, PFI_COMPANY.email, PFI_COMPANY.website], 22, 180);
+  footerText(["PHONE:", ...PFI_COMPANY.phones], 252, 120);
+  footerText(["PHYSICAL ADDRESS:", ...PFI_COMPANY.address], 425, 145);
 
   doc.end();
   return done;

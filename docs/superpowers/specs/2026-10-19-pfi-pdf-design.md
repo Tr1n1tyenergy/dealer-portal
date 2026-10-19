@@ -19,9 +19,9 @@ The dealer can open it as a PDF and pay; staff can open it from the Orders page.
 | When | **Automatically**, straight after the quotation is created. No staff step |
 | Who sees it | The dealer (own organisation only) and Admin / Sales Person Executive |
 | Approach | Freeze the PFI's data when generated; draw the PDF on each request (pdfkit, server-side). No file storage |
-| Colours and borders | Bars and table header `#2b76b6` (measured from the template); footer gradient `#3854a3` → `#32c1d1`; black 0.85pt borders, with outlines on the bars and dividers in the header row |
+| Colours and borders | Bars and table header `#2b76b6` (measured from the template); footer gradient `#3854a3` → `#32c1d1`; black 0.65pt borders, with outlines on the bars and dividers in the header row |
 | Logo | `assets/pfi/logo.png` (high-resolution file supplied by the user) |
-| 1:1 with the template | **US Letter** (612×792pt), **Lato Medium / Lato Bold** at the template's sizes (title 15.4, body 9, bank/signatures 7.7, terms 10.2), the template's exact positions and 0.65pt black rules, and its own footer artwork (`assets/pfi/footer.png`). Fonts: `assets/pfi/*.woff` (SIL OFL 1.1, licence alongside) |
+| 1:1 with the template | **US Letter** (612×792pt), **Lato Medium / Lato Bold** at the template's sizes (title 15.4, body 9, bank/signatures 7.7, terms 10.2), the template's exact positions and 0.65pt black rules. The footer is drawn (gradient band, Helvetica 7pt white text), as in the earlier version the user preferred. Fonts: `assets/pfi/*.woff` (SIL OFL 1.1, licence alongside) |
 
 **Effect on the amount due:** the dealer now pays the **VAT-inclusive total**, which is 8% more than the quotation total today.
 The order form shows litres only, so nothing there changes. Every amount shown after the PFI (the order page and the staff Orders table) is the PFI total.
@@ -99,9 +99,9 @@ The layout follows the template, top to bottom:
 8. Bank Account Details: the two accounts from the template.
 9. Prepared By / Approved By: the frozen names, each with the issue date (DD.MM.YYYY).
 10. A "Terms and Conditions" bar with an empty box.
-11. The footer: the template's own footer artwork (gradient band with company name, contacts and address).
+11. The footer: a drawn gradient band (`#3854a3` → `#32c1d1`) with the company name, email, website, phones and physical address in white Helvetica 7pt.
 
-The bank details and signatory names are constants in `src/lib/company/pfi-settings.ts`.
+The bank details, signatory names and footer details are constants in `src/lib/company/pfi-settings.ts`.
 
 **Number formats:**
 - amounts use thousands separators and 2 dp (`1,110,777.78`);

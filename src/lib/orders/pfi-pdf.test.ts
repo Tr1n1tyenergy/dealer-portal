@@ -33,11 +33,11 @@ describe("renderPfiPdf", () => {
     assert.match(pdf, /\/MediaBox \[0 0 612 792\]/);
   });
 
-  it("uses the template's fonts, Lato Medium and Lato Bold", async () => {
+  it("uses the template's fonts, Lato Medium and Lato Bold (the drawn footer uses Helvetica)", async () => {
     const pdf = (await renderPfiPdf(sample)).toString("latin1");
     assert.match(pdf, /\/BaseFont \/[A-Z]{6}\+Lato-Medium/);
     assert.match(pdf, /\/BaseFont \/[A-Z]{6}\+Lato-Bold/);
-    assert.doesNotMatch(pdf, /\/BaseFont \/Helvetica/);
+    assert.doesNotMatch(pdf, /\/BaseFont \/Helvetica-Bold/);
   });
 
   it("stays on one page with very long customer and station names", async () => {
