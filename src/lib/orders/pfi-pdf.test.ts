@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { pfiTotals } from "./pfi-totals";
-import { renderPfiPdf, type PfiDocument } from "./pfi-pdf";
+import { fitLine, renderPfiPdf, type PfiDocument } from "./pfi-pdf";
 
 const sample: PfiDocument = {
   number: "S01177",
@@ -35,5 +35,20 @@ describe("renderPfiPdf", () => {
       addressLines: ["A STATION WITH AN UNUSUALLY LONG NAME FOR TESTING LAYOUT", "Kenya"],
     });
     assert.equal(pageCount(pdf), 1);
+  });
+});
+
+describe("fitLine", () => {
+  // A stand-in measure: every character is 5pt wide.
+  const measure = (text: string) => text.length * 5;
+
+  it("leaves text that fits unchanged", () => {
+    assert.equal(fitLine("Kitale", 100, measure), "Kitale");
+  });
+
+  it("cuts text that is too wide and ends it with an ellipsis, within the width", () => {
+    const fitted = fitLine("A STATION WITH AN UNUSUALLY LONG NAME FOR TESTING LAYOUT", 100, measure);
+    assert.ok(fitted.endsWith("…"), fitted);
+    assert.ok(measure(fitted) <= 100, `${fitted} is ${measure(fitted)}pt`);
   });
 });

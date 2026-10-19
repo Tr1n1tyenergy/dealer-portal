@@ -49,6 +49,14 @@ const kenyaDate = (date: Date, style: "long" | "dotted") => {
   return style === "long" ? `${parts.day} ${parts.month} ${parts.year}` : `${parts.day}.${parts.month}.${parts.year}`;
 };
 
+/** Shorten text to one line of the given width, ending it with "…" when it had to be cut. */
+export function fitLine(text: string, width: number, measure: (text: string) => number): string {
+  if (measure(text) <= width) return text;
+  let cut = text;
+  while (cut.length > 0 && measure(`${cut}…`) > width) cut = cut.slice(0, -1);
+  return `${cut.trimEnd()}…`;
+}
+
 /** Draw the PFI as a one-page A4 PDF laid out like Trinity's Odoo pro-forma template. */
 export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
   const doc = new PDFDocument({ size: "A4", margin: 0, info: { Title: `Pro-Forma Invoice ${data.number}`, Author: PFI_COMPANY.name } });
@@ -65,9 +73,12 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
     doc.font("Helvetica-Bold").fontSize(size).fillColor("#ffffff")
       .text(label, X + 8, y + (h - size) / 2 + 1, { width: W - 16, align, lineBreak: false });
   };
+  // One line only: anything wider than its column is cut with "…", so it can never wrap into the next row.
   const text = (value: string, x: number, y: number, w: number, opts: PDFKit.Mixins.TextOptions & { bold?: boolean; size?: number; color?: string } = {}) => {
     const { bold, size = 8, color = INK, ...rest } = opts;
-    doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(size).fillColor(color).text(value, x, y, { width: w, lineBreak: false, ...rest });
+    doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(size).fillColor(color);
+    const line = rest.lineBreak ? value : fitLine(value, w, (t) => doc.widthOfString(t));
+    doc.text(line, x, y, { width: w, lineBreak: false, ...rest });
   };
 
   // Logo
