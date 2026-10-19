@@ -166,6 +166,14 @@
   white-space: nowrap;
 }
 
+.ro-pfi-link {
+  color: #93c5fd;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
 .ro-amount {
   white-space: nowrap;
 }

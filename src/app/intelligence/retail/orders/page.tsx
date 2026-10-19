@@ -122,7 +122,15 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
                     <td>{order.dealerOrganization.name}</td>
                     <td>{order.station.name}</td>
                     <td>{order.odooQuotationNumber ?? "—"}</td>
-                    <td>{order.proforma?.number ?? "—"}</td>
+                    <td>
+                      {order.proforma ? (
+                        <a className="ro-pfi-link" href={`/api/orders/${order.id}/pfi`} target="_blank" rel="noopener">
+                          {order.proforma.number}
+                        </a>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="ro-amount">
                       {formatKes(order.amountDue)}
                       {payment ? (

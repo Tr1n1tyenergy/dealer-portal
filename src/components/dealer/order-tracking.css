@@ -678,6 +678,21 @@
   color: #94a3b8 !important;
 }
 
+.dp-dash .dp-ot-docs__link {
+  grid-column: 1 / -1;
+  display: grid !important;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.7rem;
+  align-items: center;
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.dp-dash .dp-ot-docs__link:hover strong,
+.dp-dash .dp-ot-docs__link:focus-visible strong {
+  text-decoration: underline;
+}
+
 .dp-dash .dp-ot-pill {
   display: inline-flex !important;
   align-items: center;

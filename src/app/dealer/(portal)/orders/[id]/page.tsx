@@ -393,18 +393,38 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
               </header>
 
               <ul className="dp-ot-docs">
-                {docs.map((doc) => (
-                  <li key={doc.key}>
-                    <span className="dp-ot-docs__icon">
-                      <FileText size={16} />
-                    </span>
-                    <div>
-                      <strong>{doc.title}</strong>
-                      <em className={`dp-ot-pill is-${doc.tone}`}>{doc.label}</em>
-                    </div>
-                    <ChevronRight size={16} className="dp-ot-docs__chev" />
-                  </li>
-                ))}
+                {docs.map((doc) =>
+                  doc.key === "pfi" && order.proforma ? (
+                    <li key={doc.key}>
+                      <a
+                        className="dp-ot-docs__link"
+                        href={`/api/orders/${order.id}/pfi`}
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        <span className="dp-ot-docs__icon">
+                          <FileText size={16} />
+                        </span>
+                        <div>
+                          <strong>{doc.title}</strong>
+                          <em className="dp-ot-pill is-ready">View PFI</em>
+                        </div>
+                        <ChevronRight size={16} className="dp-ot-docs__chev" />
+                      </a>
+                    </li>
+                  ) : (
+                    <li key={doc.key}>
+                      <span className="dp-ot-docs__icon">
+                        <FileText size={16} />
+                      </span>
+                      <div>
+                        <strong>{doc.title}</strong>
+                        <em className={`dp-ot-pill is-${doc.tone}`}>{doc.label}</em>
+                      </div>
+                      <ChevronRight size={16} className="dp-ot-docs__chev" />
+                    </li>
+                  )
+                )}
               </ul>
             </article>
 
