@@ -45,7 +45,11 @@ export default async function RetailMessagingPage() {
       </header>
 
       <div className="rm-workspace">
-        <MessagingApp variant="staff" initialConversations={initialConversations} />
+        <MessagingApp
+          variant="staff"
+          initialConversations={initialConversations}
+          canOpenUsers={can(session.user.role, "retail.users")}
+        />
       </div>
     </div>
   );
