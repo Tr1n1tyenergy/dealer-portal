@@ -6,6 +6,7 @@ import { logActivity } from "@/lib/activity";
 import { beginLoginAttempt, clearLoginFailures, normalizeEmail } from "@/lib/security/auth-throttle";
 import { clientIp } from "@/lib/security/client-ip";
 import { lockedError } from "@/lib/security/login-errors";
+import { SESSION_MAX_AGE_SECONDS } from "@/lib/security/session-length";
 
 /** Compared against when there is no real hash, so every refusal takes about as long as a real check. */
 // Cost-12 bcrypt hash of a random throwaway string (matches real hashes); precomputed to keep cold starts fast.
@@ -29,7 +30,7 @@ async function hydrateTokenFromUser(userId: string) {
 }
 
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: SESSION_MAX_AGE_SECONDS },
   pages: {
     signIn: "/access",
     error: "/access",
