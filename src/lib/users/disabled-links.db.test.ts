@@ -53,6 +53,17 @@ describe(
       assert.equal(after.passwordHash, null);
     });
 
+    it("doesn't show the set-password form for a disabled account's invite", async () => {
+      const { GET } = await import("@/app/api/auth/activate/route");
+      const user = await disabledUser("lookup");
+      const token = `inv3-${run}-xxxxxxx`;
+      await prisma.invitationToken.create({ data: { token, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
+
+      const res = await GET(new Request(`http://test.local/api?token=${token}`));
+
+      assert.equal(res.status, 400);
+    });
+
     it("refuses a password-reset link for a disabled account", async () => {
       const { POST } = await import("@/app/api/auth/reset-password/route");
       const user = await disabledUser("reset");

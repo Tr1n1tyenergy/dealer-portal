@@ -19,10 +19,10 @@ export async function GET(req: Request) {
 
   const invite = await prisma.invitationToken.findUnique({
     where: { token },
-    include: { user: { select: { email: true, accountType: true, firstName: true } } },
+    include: { user: { select: { email: true, accountType: true, firstName: true, status: true } } },
   });
 
-  if (!invite || invite.usedAt || invite.expiresAt < new Date()) {
+  if (!invite || invite.usedAt || invite.expiresAt < new Date() || invite.user.status === "DISABLED") {
     return jsonError("Invitation is invalid or expired.", 400);
   }
 
