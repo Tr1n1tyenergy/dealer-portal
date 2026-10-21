@@ -1,12 +1,11 @@
 import { EPRA_TEMP_PRICES_BY_WAREHOUSE } from "./epra-temp-prices";
+import { NAIROBI_OFFSET_MS } from "@/lib/time/nairobi";
 
 export type PriceListState = "current" | "ending" | "expired";
 
 /** Days before the end date (inclusive) that staff are warned the list is about to run out. */
 const ENDING_SOON_DAYS = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
-/** Kenya (EAT) is UTC+3 all year. */
-const KENYA_OFFSET_MS = 3 * 60 * 60 * 1000;
 
 /** The earliest last day of any region's prices, e.g. "2026-11-14". */
 export function priceListEndDate(): string {
@@ -17,7 +16,7 @@ export function priceListEndDate(): string {
 
 /** Midnight at the start of a calendar day in Kenya, as an instant. */
 function kenyaMidnight(day: string): number {
-  return Date.parse(`${day}T00:00:00Z`) - KENYA_OFFSET_MS;
+  return Date.parse(`${day}T00:00:00Z`) - NAIROBI_OFFSET_MS;
 }
 
 function formatDay(day: string): string {
