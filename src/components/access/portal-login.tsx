@@ -1,5 +1,6 @@
 "use client";
 
+import { SUPPORT_EMAIL } from "@/lib/company/contact";
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
@@ -175,7 +176,7 @@ export function PortalLogin({
                 <span className="login-submit__arrow"><ArrowRight className="h-3.5 w-3.5" /></span>
               </button>
             </form>
-            <a className="login-support" href="mailto:support@trinityenergyltd.com">
+            <a className="login-support" href={`mailto:${SUPPORT_EMAIL}`}>
               <div>
                 <strong>Contact Trinity Support</strong>
                 <span>{support}</span>

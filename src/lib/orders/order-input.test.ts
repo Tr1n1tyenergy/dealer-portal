@@ -3,6 +3,7 @@ import { priceListEndDate } from "@/lib/integrations/odoo/price-list-status";
 import { describe, it } from "node:test";
 import {
   deliveryWindow,
+  freeText,
   isDepotAction,
   nairobiToday,
   parseDeliveryDate,
@@ -120,5 +121,15 @@ describe("typed litres", () => {
     assert.equal(typedLitres(""), 0);
     assert.equal(typedLitres("100001"), 100000);
     assert.equal(typedLitres("99999999999999999999"), 100000);
+  });
+});
+
+describe("freeText", () => {
+  it("trims, drops empty values and caps at 500 characters", () => {
+    assert.equal(freeText("  PO-123  "), "PO-123");
+    assert.equal(freeText(""), undefined);
+    assert.equal(freeText("   "), undefined);
+    assert.equal(freeText(null), undefined);
+    assert.equal(freeText("x".repeat(5000))?.length, 500);
   });
 });
