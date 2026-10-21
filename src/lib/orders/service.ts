@@ -30,7 +30,6 @@ const orderInclude = {
   history: { orderBy: { createdAt: "asc" as const } },
 } satisfies Prisma.DealerOrderInclude;
 
-export type OrderWithRelations = Prisma.DealerOrderGetPayload<{ include: typeof orderInclude }>;
 
 async function nextReference(tx: Prisma.TransactionClient) {
   const year = new Date().getFullYear();
@@ -597,21 +596,4 @@ export async function applyDepotAction(
     entityId: orderId,
   });
   return saved;
-}
-
-export async function getOrderForActor(orderId: string, actor: {
-  id: string;
-  accountType: string;
-  role: string;
-  dealerOrganizationId?: string | null;
-  depotId?: string | null;
-}) {
-  const order = await prisma.dealerOrder.findUnique({ where: { id: orderId }, include: orderInclude });
-  if (!order) return null;
-  if (actor.accountType === "DEALER" && order.dealerOrganizationId !== actor.dealerOrganizationId) return null;
-  if (actor.accountType === "DEPOT" && order.depotId && actor.depotId && order.depotId !== actor.depotId && actor.role !== "SUPER_ADMIN") {
-    return null;
-  }
-  if (actor.accountType === "DEPOT" && !order.depotId) return null;
-  return order;
 }

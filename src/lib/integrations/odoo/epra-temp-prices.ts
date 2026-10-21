@@ -17,7 +17,7 @@
  */
 
 import type { LoadingWarehouseKey } from "./quotation-contract";
-import { STATION_FULFILLMENT, fulfillmentForStation } from "./quotation-contract";
+import { fulfillmentForStation } from "./quotation-contract";
 
 export type EpraFuelProduct = "PMS" | "AGO";
 
@@ -66,44 +66,6 @@ export const EPRA_TEMP_PRICES_BY_WAREHOUSE: Record<LoadingWarehouseKey, EpraRegi
   },
 };
 
-/**
- * sale.order.line fields used when creating quotation lines
- * (confirmed via Odoo developer tooltips 2026-10-07).
- *
- * UI "Product" widget is product_template_id → product.template;
- * API create uses product_id → product.product (variant) which we already hold.
- */
-export const SALE_ORDER_LINE_FIELDS = {
-  product_template_id: {
-    label: "Product Template",
-    model: "sale.order.line",
-    type: "many2one",
-    relation: "product.template",
-    note: "UI selector; API prefers product_id (variant).",
-  },
-  product_id: {
-    label: "Product",
-    model: "sale.order.line",
-    type: "many2one",
-    relation: "product.product",
-    note: "What we send from fuel-products.json / env IDs.",
-  },
-  product_uom_qty: {
-    label: "Quantity",
-    model: "sale.order.line",
-    type: "float",
-    required: true,
-    note: "Litres from dealer portal order amount.",
-  },
-  price_unit: {
-    label: "Unit Price",
-    model: "sale.order.line",
-    type: "float",
-    required: true,
-    note: "Temporary: EPRA regional price until station pricelists drive this.",
-  },
-} as const;
-
 /** Trinity's dealer discount off the EPRA price, KES per litre, for every station (PMS and AGO). */
 export const STATION_DISCOUNT_KES = 3;
 
@@ -125,20 +87,4 @@ export function epraUnitPriceForStation(
   const fulfillment = fulfillmentForStation(stationCode);
   if (!fulfillment) return null;
   return epraUnitPriceForWarehouse(fulfillment.warehouseKey, product);
-}
-
-/** Flat station → { pms, ago, region } for debugging / admin. */
-export function stationEpraPriceTable() {
-  return STATION_FULFILLMENT.map((s) => {
-    const prices = EPRA_TEMP_PRICES_BY_WAREHOUSE[s.warehouseKey];
-    return {
-      stationCode: s.portalCode,
-      stationName: s.name,
-      warehouse: s.warehouseKey,
-      epraTown: prices.epraTown,
-      pms: prices.pms,
-      ago: prices.ago,
-      period: `${prices.periodFrom} → ${prices.periodTo}`,
-    };
-  });
 }
