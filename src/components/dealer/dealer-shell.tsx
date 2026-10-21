@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   Bell,
-  ChevronDown,
   CreditCard,
   FileText,
   Headphones,
@@ -22,6 +21,8 @@ import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { cn } from "@/lib/utils";
 import { activeDealerNav, type DealerNavKey } from "@/lib/dealer/nav";
 import { openSupport, SupportCard } from "./support-card";
+import { AccountMenu } from "./account-menu";
+import { useQuickSearchShortcut } from "./quick-search";
 
 const nav: { href: string; label: string; icon: typeof Home; key: DealerNavKey | null }[] = [
   { href: "/dealer/dashboard", label: "Dashboard", icon: Home, key: "dashboard" },
@@ -38,11 +39,27 @@ export function DealerShell({
   children,
   orgName,
   initials,
+  name,
+  email,
+  unread,
 }: {
   children: React.ReactNode;
   orgName: string;
   initials: string;
+  name: string;
+  email: string;
+  /** Unread messages in the dealer's visible chats. */
+  unread: number;
 }) {
+  const router = useRouter();
+  useQuickSearchShortcut();
+
+  function onSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const q = String(new FormData(e.currentTarget).get("q") ?? "").trim();
+    if (q) router.push(`/dealer/orders?q=${encodeURIComponent(q)}`);
+  }
+
   const pathname = usePathname();
   const active = activeDealerNav(pathname, useSearchParams().get("view"));
 
@@ -59,25 +76,29 @@ export function DealerShell({
           </div>
         </div>
 
-        <label className="dp-search">
+        <form className="dp-search" role="search" onSubmit={onSearch}>
           <Search size={16} strokeWidth={2} />
-          <input type="search" placeholder="Search orders, PFIs, documents..." />
-        </label>
+          <input
+            type="search"
+            name="q"
+            placeholder="Search orders…"
+            aria-label="Search orders"
+            data-quick-search="top"
+            maxLength={100}
+          />
+        </form>
 
         <div className="dp-topbar__actions">
-          <button type="button" className="dp-bell" aria-label="Notifications">
+          <Link
+            href="/dealer/messaging"
+            className="dp-bell"
+            aria-label={unread > 0 ? `Messages, ${unread} unread` : "Messages"}
+          >
             <Bell size={18} strokeWidth={1.75} />
-            <span>3</span>
-          </button>
+            {unread > 0 ? <span>{unread > 99 ? "99+" : unread}</span> : null}
+          </Link>
 
-          <button type="button" className="dp-user" aria-label="Account menu">
-            <span className="dp-user__avatar">{initials}</span>
-            <span className="dp-user__meta">
-              <strong>{orgName}</strong>
-              <em>Dealer Account</em>
-            </span>
-            <ChevronDown size={16} strokeWidth={2} />
-          </button>
+          <AccountMenu orgName={orgName} initials={initials} name={name} email={email} />
 
           <button
             type="button"

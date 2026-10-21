@@ -475,3 +475,9 @@ export async function listDirectory(actorId: string) {
 
   return [];
 }
+
+/** Unread messages across the user's visible chats (hidden chats, e.g. dealer-to-dealer, don't count). */
+export async function unreadMessageCount(userId: string): Promise<number> {
+  const conversations = await listConversationsForUser(userId);
+  return conversations.reduce((sum, conversation) => sum + conversation.unreadCount, 0);
+}

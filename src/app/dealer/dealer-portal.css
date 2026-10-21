@@ -1664,3 +1664,63 @@ button.dp-sidebar__link {
 .dp-support a:hover {
   text-decoration: underline;
 }
+
+/* Account menu (dealer top bar) */
+.dp-account {
+  position: relative;
+}
+
+.dp-account__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  min-width: 230px;
+  padding: 0.4rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 36px rgba(5, 16, 36, 0.18);
+}
+
+.dp-account__who {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.6rem 0.6rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.3rem;
+}
+
+.dp-account__who strong {
+  font-size: 0.84rem;
+  color: var(--dp-ink);
+}
+
+.dp-account__who span {
+  font-size: 0.75rem;
+  color: var(--dp-muted);
+  overflow-wrap: anywhere;
+}
+
+.dp-account__menu a,
+.dp-account__menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dp-ink);
+  font-family: inherit;
+  font-size: 0.84rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dp-account__menu a:hover,
+.dp-account__menu button:hover {
+  background: #f1f5f9;
+}

@@ -59,6 +59,7 @@ export function OrderTrackingNav({
           placeholder="Find another order..."
           aria-label="Find another order"
           autoComplete="off"
+          data-quick-search="page"
         />
         <kbd>⌘K</kbd>
         {matches.length > 0 ? (
