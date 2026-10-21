@@ -1,15 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loginPathFor } from "@/lib/security/login-path";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Dealers and depots arrive with ?portal=…; "Back to Login" returns them to their own portal.
+  const [loginHref, setLoginHref] = useState("/intelligence/login");
+  useEffect(() => {
+    setLoginHref(loginPathFor(new URLSearchParams(window.location.search).get("portal")));
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,7 +62,7 @@ export default function ForgotPasswordPage() {
             {loading ? "Sending..." : "Send Reset Link"}
           </Button>
           <div className="text-center text-sm">
-            <Link href="/intelligence/login" className="font-semibold text-trinity-blue">
+            <Link href={loginHref} className="font-semibold text-trinity-blue">
               Back to Login
             </Link>
           </div>

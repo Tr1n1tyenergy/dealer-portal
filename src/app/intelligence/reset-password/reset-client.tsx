@@ -34,7 +34,8 @@ export default function ResetPasswordPage() {
       setError(typeof data.error === "string" ? data.error : "Reset failed");
       return;
     }
-    router.push("/intelligence/login");
+    const data = (await res.json().catch(() => ({}))) as { loginPath?: unknown };
+    router.push(typeof data.loginPath === "string" ? data.loginPath : "/intelligence/login");
   }
 
   return (

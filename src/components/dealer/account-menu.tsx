@@ -60,7 +60,7 @@ export function AccountMenu({
             <strong>{name}</strong>
             <span>{email}</span>
           </div>
-          <Link href="/intelligence/forgot-password" role="menuitem" onClick={() => setOpen(false)}>
+          <Link href="/intelligence/forgot-password?portal=dealer" role="menuitem" onClick={() => setOpen(false)}>
             <KeyRound size={15} />
             Change password
           </Link>

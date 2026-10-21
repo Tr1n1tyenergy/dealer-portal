@@ -167,7 +167,7 @@ export function PortalLogin({
                   <span className={cn("login-check", remember && "is-on")}>{remember ? "✓" : ""}</span>
                   Remember me
                 </button>
-                <Link href="/intelligence/forgot-password" className="login-forgot">Forgot Password?</Link>
+                <Link href={`/intelligence/forgot-password?portal=${portal}`} className="login-forgot">Forgot Password?</Link>
               </div>
               {error ? <div className="login-error">{error}</div> : null}
               <button type="submit" className="login-submit" disabled={loading}>
