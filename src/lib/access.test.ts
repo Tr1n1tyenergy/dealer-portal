@@ -5,6 +5,7 @@ import {
   depotOrderScope,
   isInternalRole,
   isPublicPath,
+  isHiddenModulePath,
   isStaffAccount,
   loginPathFor,
   roleLabel,
@@ -126,12 +127,42 @@ describe("dashboard modules", () => {
     adminIds.forEach((id) => assert.equal(ids("SALES_PERSON_EXECUTIVE").includes(id), false, id));
   });
 
-  it("shows every tile to an Admin", () => {
-    assert.deepEqual(ids("SUPER_ADMIN"), TRI_MODULES.map((m) => m.id));
+  it("shows every tile except the hidden demo modules to an Admin", () => {
+    assert.deepEqual(
+      ids("SUPER_ADMIN"),
+      TRI_MODULES.map((m) => m.id).filter((id) => id !== "note-taker" && id !== "presentations"),
+    );
+  });
+
+  it("hides Note Taker and Presentations from every role (their notes are sample text)", () => {
+    for (const role of ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE", "STANDARD_USER"]) {
+      assert.equal(ids(role).includes("note-taker"), false, role);
+      assert.equal(ids(role).includes("presentations"), false, role);
+    }
   });
 
   it("follows a person's ticks: a Staff Member allowed Retail Analytics sees the Retail Interface", () => {
     assert.equal(ids("STANDARD_USER", '{"analytics.view":"allow"}').includes("reports"), true);
     assert.equal(ids("SUPER_ADMIN", '{"settings.view":"deny"}').includes("settings"), false);
+  });
+});
+
+describe("isHiddenModulePath", () => {
+  it("covers every Note Taker and Presentations page", () => {
+    for (const path of [
+      "/intelligence/note-taker",
+      "/intelligence/note-taker/abc123",
+      "/intelligence/note-taker/abc123/notes",
+      "/intelligence/presentations",
+      "/intelligence/presentations/xyz",
+    ]) {
+      assert.equal(isHiddenModulePath(path), true, path);
+    }
+  });
+
+  it("leaves other pages alone", () => {
+    for (const path of ["/intelligence/retail", "/intelligence/dashboard", "/intelligence/note-takers", "/dealer/orders"]) {
+      assert.equal(isHiddenModulePath(path), false, path);
+    }
   });
 });
