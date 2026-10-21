@@ -89,4 +89,12 @@ describe("mock Odoo adapter", () => {
     const pfi = await new MockOdooClient().generateProForma("mock-quot-quotation:TRI-OLD-1");
     assert.equal(pfi.amount, "0.00");
   });
+
+  it("gives different orders different quotation numbers", async () => {
+    // These two order references clashed when the number was cut to 90,000 values.
+    const client = new MockOdooClient();
+    const a = await client.createQuotation({ ...sample, idempotencyKey: "quotation:DO-2026-003090" });
+    const b = await client.createQuotation({ ...sample, idempotencyKey: "quotation:DO-2026-010209" });
+    assert.notEqual(a.number, b.number);
+  });
 });

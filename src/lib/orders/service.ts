@@ -382,9 +382,16 @@ export async function generatePfi(orderId: string, actorId: string | null) {
       });
     });
   } catch (error) {
-    // Another request issued this order's PFI at the same moment.
     if ((error as { code?: string }).code === "P2002") {
-      return prisma.dealerOrder.findUniqueOrThrow({ where: { id: orderId }, include: orderInclude });
+      // Another request issued this order's PFI at the same moment.
+      if (await prisma.proFormaInvoice.findUnique({ where: { orderId } })) {
+        return prisma.dealerOrder.findUniqueOrThrow({ where: { id: orderId }, include: orderInclude });
+      }
+      // Otherwise the number belongs to another order's PFI: say so instead of leaving it at PFI_PENDING.
+      const note = `PFI not issued: number ${number} is already used by another order.`;
+      return prisma.$transaction((tx) =>
+        recordTransition(tx, { orderId, from: "PFI_PENDING", to: "QUOTATION_READY", actorId, note, data: { odooSyncError: note } })
+      );
     }
     throw error;
   }
