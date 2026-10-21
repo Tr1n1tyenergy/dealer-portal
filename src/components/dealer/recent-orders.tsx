@@ -6,13 +6,11 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
-  Calendar,
   Droplets,
   Filter,
   Fuel,
   LayoutList,
   MapPin,
-  MoreVertical,
   Search,
 } from "lucide-react";
 
@@ -58,11 +56,22 @@ function litres(n: number) {
 export function RecentOrders({
   orders,
   stations,
+  title = "Recent Orders",
+  subtitle = "Your latest fuel orders and their current status.",
+  showViewAll = true,
+  initialQuery = "",
+  tabs,
 }: {
   orders: RecentOrderRow[];
   stations: string[];
+  title?: string;
+  subtitle?: string;
+  showViewAll?: boolean;
+  initialQuery?: string;
+  /** Links to the My Orders tabs; the active one is marked for screen readers. */
+  tabs?: { label: string; href: string; active: boolean }[];
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState("all");
   const [station, setStation] = useState("all");
 
@@ -91,14 +100,31 @@ export function RecentOrders({
         <div>
           <div className="dp-ro__title">
             <LayoutList size={18} strokeWidth={1.8} />
-            Recent Orders
+            {title}
           </div>
-          <p>Your latest fuel orders and their current status.</p>
+          <p>{subtitle}</p>
         </div>
-        <Link href="/dealer/orders" className="dp-ro__all">
-          View all orders →
-        </Link>
+        {showViewAll ? (
+          <Link href="/dealer/orders" className="dp-ro__all">
+            View all orders →
+          </Link>
+        ) : null}
       </div>
+
+      {tabs ? (
+        <nav className="dp-ro__tabs" aria-label="Order views">
+          {tabs.map((tab) => (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={tab.active ? "is-active" : undefined}
+              aria-current={tab.active ? "page" : undefined}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
 
       <div className="dp-ro__filters">
         <label className="dp-ro__search">
@@ -130,12 +156,6 @@ export function RecentOrders({
                 {s}
               </option>
             ))}
-          </select>
-        </label>
-        <label className="dp-ro__select">
-          <Calendar size={14} className="dp-ro__select-ico" />
-          <select defaultValue="30" disabled>
-            <option value="30">Last 30 Days</option>
           </select>
         </label>
       </div>
@@ -213,9 +233,16 @@ export function RecentOrders({
                       View
                       <ArrowRight size={14} />
                     </Link>
-                    <button type="button" className="dp-ro__more" aria-label="More actions">
-                      <MoreVertical size={16} />
-                    </button>
+                    {order.hasPfi ? (
+                      <a
+                        href={`/api/orders/${order.id}/pfi`}
+                        target="_blank"
+                        rel="noopener"
+                        className="dp-ro__pfi"
+                      >
+                        View PFI
+                      </a>
+                    ) : null}
                   </div>
                 </td>
               </tr>
