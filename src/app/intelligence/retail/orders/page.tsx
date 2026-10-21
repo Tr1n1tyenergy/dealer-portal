@@ -151,10 +151,10 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
                       {mayAct ? (
                         <form action={internalOrderAction} className="ro-actions">
                           <input type="hidden" name="orderId" value={order.id} />
-                          {order.status === "ODOO_SYNC_FAILED" ? (
+                          {order.status === "ODOO_SYNC_FAILED" || order.status === "ODOO_SYNC_PENDING" ? (
                             <button className="ro-btn" name="action" value="retry-sync">Retry sync</button>
                           ) : null}
-                          {order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" ? (
+                          {order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" || order.status === "PFI_ISSUED" ? (
                             <button className="ro-btn" name="action" value="generate-pfi">Generate PFI</button>
                           ) : null}
                           {order.status === "PAYMENT_VERIFICATION" ? (
