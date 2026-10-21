@@ -72,7 +72,7 @@ export async function PATCH(
     }
 
     const sent = await resendInvite(user);
-    if (!sent.ok) return jsonError(sent.message, 503);
+    if (!sent.ok) return jsonError(sent.message, sent.status);
     invitationSent = true;
   }
 
