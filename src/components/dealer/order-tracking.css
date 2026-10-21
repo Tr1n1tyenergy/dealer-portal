@@ -304,6 +304,8 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding: 0.15rem 0.1rem;
+  margin: 0;
+  list-style: none;
 }
 
 .dp-dash .dp-ot-progress__step {
@@ -411,6 +413,36 @@
 
 .dp-dash .dp-ot-progress__step.is-done .dp-ot-progress__node small {
   color: #93c5fd !important;
+}
+
+/* Something went wrong at this step (payment, stock, delivery, amendment) */
+.dp-dash .dp-ot-progress__step.is-attention .dp-ot-progress__dot {
+  background: #f97316 !important;
+  border-color: #f97316 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25);
+}
+
+.dp-dash .dp-ot-progress__step.is-attention .dp-ot-progress__node em {
+  color: #fff !important;
+}
+
+.dp-dash .dp-ot-progress__step.is-attention .dp-ot-progress__node small {
+  color: #fdba74 !important;
+}
+
+/* Cancelled or rejected: the whole tracker greys out under a notice */
+.dp-dash .dp-ot-progress.is-stopped {
+  opacity: 0.45;
+}
+
+.dp-dash .dp-ot-progress__stopped {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fca5a5;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 /* Body canvas + two-column cards */
