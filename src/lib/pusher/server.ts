@@ -1,7 +1,7 @@
 import Pusher from "pusher";
 import { conversationChannel } from "./server-channels";
 
-export { conversationChannel, userPresenceChannel } from "./server-channels";
+export { conversationChannel } from "./server-channels";
 
 let client: Pusher | null = null;
 

@@ -2,6 +2,7 @@
 
 import { conversationFilters, type ConversationFilter } from "@/lib/messaging/filters";
 import { shouldSendTyping } from "@/lib/messaging/typing";
+import { settleSentMessage } from "@/lib/messaging/thread";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -359,8 +360,16 @@ export function MessagingApp({
   }, []);
 
   useEffect(() => {
-    // Refresh in background; SSR already painted the list when available
+    // Refresh in background; SSR already painted the list when available. Chats other than the
+    // open one have no live channel, so the list also refreshes on focus and every 30 s.
     void loadConversations();
+    const refresh = () => void loadConversations();
+    window.addEventListener("focus", refresh);
+    const timer = window.setInterval(refresh, 30_000);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.clearInterval(timer);
+    };
   }, [loadConversations]);
 
   useEffect(() => {
@@ -417,6 +426,8 @@ export function MessagingApp({
         createdAt: String(payload.message.createdAt),
       };
       setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+      // It's on screen: reloading the thread marks it read, so unread counts stay right.
+      if (msg.senderId !== myId) void loadMessages(activeId);
       void loadConversations();
     });
 
@@ -444,7 +455,7 @@ export function MessagingApp({
       channel.unbind_all();
       pusher.unsubscribe(channelName);
     };
-  }, [activeId, myId, loadConversations]);
+  }, [activeId, myId, loadConversations, loadMessages]);
 
   async function openDirectory() {
     setDirectoryOpen(true);
@@ -515,11 +526,7 @@ export function MessagingApp({
     }
     const data = await res.json();
     setMessages((prev) =>
-      prev.map((m) =>
-        m.id === optimistic.id
-          ? { ...data.message, createdAt: String(data.message.createdAt) }
-          : m
-      )
+      settleSentMessage(prev, optimistic.id, { ...data.message, createdAt: String(data.message.createdAt) })
     );
     await loadConversations();
   }
