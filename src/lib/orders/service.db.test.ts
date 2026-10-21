@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import type { DealerOrderStatus, PrismaClient } from "@prisma/client";
+import { nairobiToday } from "./order-input";
 
 // Integration tests: these need a real PostgreSQL database whose name ends in `_test`
 // (see .env.test.local and `npm run test:db`). They never run against tri_dev or Neon.
@@ -105,7 +106,8 @@ describe(
         actorId,
         dealerOrganizationId: organizationId,
         stationId,
-        requestedDeliveryDate: "2026-10-20",
+        // Today in Nairobi is always inside the delivery window (a fixed date expires).
+        requestedDeliveryDate: nairobiToday(),
         dealerReference: `PO-${run}`,
         lines: [{ product: "PMS" as const, quantityLitres: 5000 }],
         submissionKey: `${run}-place-order`,
