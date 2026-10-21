@@ -103,7 +103,13 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
 
   async function deleteUser(id: string) {
     if (!confirm("Delete this user?")) return;
-    await fetch(`/api/users/${id}`, { method: "DELETE" });
+    setError("");
+    const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(typeof data.error === "string" ? data.error : "Unable to delete user");
+      return;
+    }
     await refresh();
     router.refresh();
   }

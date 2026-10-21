@@ -49,7 +49,7 @@ export function PaymentForm({ orderId, amountDue }: { orderId: string; amountDue
       </label>
       <label>
         Note
-        <textarea name="note" rows={2} maxLength={2000} />
+        <textarea name="note" rows={2} maxLength={500} />
       </label>
       <button type="submit" disabled={pending}>
         {pending ? "Submitting…" : "Submit payment"}

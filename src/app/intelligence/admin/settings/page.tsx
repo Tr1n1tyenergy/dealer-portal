@@ -27,7 +27,7 @@ export default async function AdminSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-slate-600">
             <div>Auth: NextAuth credentials</div>
-            <div>Email: Resend ({process.env.RESEND_API_KEY ? "configured" : "dev console fallback"})</div>
+            <div>Email: Resend ({process.env.RESEND_API_KEY ? "configured" : "not configured — invites and resets can't be sent"})</div>
             <div>Storage: AWS S3 hooks prepared</div>
             <div>AI: Whisper / OpenAI pipeline placeholders ready</div>
           </CardContent>

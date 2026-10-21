@@ -50,18 +50,25 @@ export async function POST(req: Request) {
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return jsonError("A user with this email already exists.", 409);
 
-  const user = await prisma.user.create({
-    data: {
-      firstName: parsed.data.firstName,
-      lastName: parsed.data.lastName,
-      email,
-      department: parsed.data.department,
-      role: parsed.data.role,
-      accountType: "INTERNAL",
-      status: "PENDING",
-      permissions: "[]",
-    },
-  });
+  // Two invites for the same email at once: the unique index stops the second (409, not 500).
+  const user = await prisma.user
+    .create({
+      data: {
+        firstName: parsed.data.firstName,
+        lastName: parsed.data.lastName,
+        email,
+        department: parsed.data.department,
+        role: parsed.data.role,
+        accountType: "INTERNAL",
+        status: "PENDING",
+        permissions: "[]",
+      },
+    })
+    .catch((error: unknown) => {
+      if ((error as { code?: string }).code === "P2002") return null;
+      throw error;
+    });
+  if (!user) return jsonError("A user with this email already exists.", 409);
 
   const token = generateSecureToken();
   await prisma.invitationToken.create({
