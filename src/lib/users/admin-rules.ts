@@ -73,3 +73,11 @@ export async function dealerLoginRefusal(
     message: `${other.dealerOrganization?.name ?? "This company"} already has a dealer login (${other.email}). Disable it before enabling another.`,
   };
 }
+
+/** Cancel a person's open invite and password-reset links (used when they are disabled). */
+export async function revokeOpenLinks(userId: string) {
+  await prisma.$transaction([
+    prisma.invitationToken.deleteMany({ where: { userId } }),
+    prisma.passwordResetToken.deleteMany({ where: { userId } }),
+  ]);
+}

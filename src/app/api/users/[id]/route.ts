@@ -12,7 +12,7 @@ import {
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
-import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal, revokeOpenLinks } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { STAFF_ROLES } from "@/lib/access";
 
@@ -52,6 +52,7 @@ export async function PATCH(
     (await dealerLoginRefusal(user, nextStatus));
   if (refusal) return jsonError(refusal.message, refusal.status);
 
+  if (parsed.data.status === "DISABLED") await revokeOpenLinks(id);
   const updated = await prisma.user.update({
     where: { id },
     data: {
