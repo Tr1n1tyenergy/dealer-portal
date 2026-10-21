@@ -41,17 +41,8 @@ export type OdooQuotation = {
   model?: string;
 };
 
-export type OdooProForma = {
-  id: string;
-  number: string;
-  quotationId: string;
-  amount: string;
-  currency: string;
-};
-
 export interface OdooClient {
   readonly mode: "mock" | "live";
   createQuotation(input: CreateQuotationInput): Promise<OdooQuotation>;
   getQuotation(quotationId: string): Promise<OdooQuotation | null>;
-  generateProForma(quotationId: string): Promise<OdooProForma>;
 }
