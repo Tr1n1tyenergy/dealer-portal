@@ -197,7 +197,8 @@ export default async function DealerDashboardPage() {
           </div>
           <ul className="dp-stations">
             {stations.map((station) => {
-              const products = parseProductsJson(station.products);
+              // The portal orders PMS and AGO only; other products in the catalog aren't shown.
+              const products = parseProductsJson(station.products).filter((p) => p === "PMS" || p === "AGO");
               return (
               <li key={station.id}>
                 <div>
