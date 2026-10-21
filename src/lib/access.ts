@@ -82,6 +82,11 @@ export function isPublicPath(path: string) {
   return path === "/" || PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
+/** Note Taker and Presentations pages, hidden while their notes are sample text (see lib/modules.ts). */
+export function isHiddenModulePath(path: string) {
+  return /^\/intelligence\/(note-taker|presentations)(\/|$)/.test(path);
+}
+
 /** Where a logged-out visitor goes: the login page of the portal they were trying to reach. */
 export function loginPathFor(path: string) {
   if (path === "/dealer" || path.startsWith("/dealer/")) return "/dealer/login";
