@@ -245,19 +245,7 @@ export class LiveOdooClient implements OdooClient {
       { limit: 1 }
     );
     if (byRef[0]) return byRef[0];
-
-    const byName = await this.execute<number[]>(
-      M.partner,
-      "search",
-      [
-        [
-          ["customer_rank", ">", 0],
-          ["name", "=", input.dealerName],
-        ],
-      ],
-      { limit: 1 }
-    );
-    if (byName[0]) return byName[0];
+    // No match by name: two Odoo customers can share one, and the quotation would go to the wrong one.
 
     throw new Error(
       `No Odoo customer found for dealer "${input.dealerName}" (code ${input.dealerCode}). Set odooPartnerExternalId or odooPartnerId on the dealer organization (${M.partner}).`
