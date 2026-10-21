@@ -13,8 +13,8 @@ import {
   FileText,
   Lock,
   Mail,
-  Mic,
-  Presentation,
+  MessageSquare,
+  Package,
   Shield,
   Users,
 } from "lucide-react";
@@ -30,14 +30,14 @@ const features = [
     icon: BarChart3,
   },
   {
-    title: "AI Note Taker",
-    description: "Executive meeting capture & summaries.",
-    icon: Mic,
+    title: "Dealer Orders",
+    description: "Quotations, PFIs, payments and depot release.",
+    icon: Package,
   },
   {
-    title: "Presentations",
-    description: "Board-ready insights & decks.",
-    icon: Presentation,
+    title: "Messaging",
+    description: "Real-time conversations with dealers.",
+    icon: MessageSquare,
   },
 ];
 
