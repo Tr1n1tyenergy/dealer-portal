@@ -6,6 +6,8 @@ import { resolveOdooPartnerId } from "@/lib/dealers/registry";
 import { getOdooClient } from "@/lib/integrations/odoo/client";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
+import { PFI_SIGNATORIES } from "@/lib/company/pfi-settings";
+import { pfiTotals, PFI_VAT_RATE } from "@/lib/orders/pfi-totals";
 import { assertTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
 import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode";
 import {
@@ -195,6 +197,17 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
     const client = getOdooClient();
     const stationCode = current.station.code ?? null;
     const fulfillment = stationCode ? fulfillmentForStation(stationCode) : null;
+    const fuelLines = current.lines
+      .filter((line) => line.product === "PMS" || line.product === "AGO")
+      .map((line) => {
+        const product = line.product as "PMS" | "AGO";
+        return {
+          id: line.id,
+          product,
+          quantityLitres: line.quantityLitres,
+          unitPrice: stationCode ? epraUnitPriceForStation(stationCode, product) : null,
+        };
+      });
     const quotation = await client.createQuotation({
       idempotencyKey: current.odooSyncKey,
       dealerCode: current.dealerOrganization.code,
@@ -213,20 +226,16 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
       requestedDeliveryDate: current.requestedDeliveryDate?.toISOString() ?? null,
       dealerReference: current.dealerReference,
       notes: current.notes,
-      lines: current.lines
-        .filter((line) => line.product === "PMS" || line.product === "AGO")
-        .map((line) => {
-          const product = line.product as "PMS" | "AGO";
-          return {
-            product,
-            quantityLitres: line.quantityLitres,
-            unitPrice: stationCode ? epraUnitPriceForStation(stationCode, product) : null,
-          };
-        }),
+      lines: fuelLines.map(({ product, quantityLitres, unitPrice }) => ({ product, quantityLitres, unitPrice })),
     });
 
-    const saved = await prisma.$transaction((tx) =>
-      recordTransition(tx, {
+    const saved = await prisma.$transaction(async (tx) => {
+      // Freeze the price sent to Odoo on each line; the PFI is worked out from it.
+      for (const line of fuelLines) {
+        if (line.unitPrice == null) continue;
+        await tx.dealerOrderLine.update({ where: { id: line.id }, data: { unitPriceExVat: line.unitPrice.toFixed(2) } });
+      }
+      return recordTransition(tx, {
         orderId,
         from: "ODOO_SYNC_PENDING",
         to: "QUOTATION_READY",
@@ -235,12 +244,13 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
         data: {
           odooQuotationId: quotation.id,
           odooQuotationNumber: quotation.number,
+          quotedAt: new Date(),
           amountDue: quotation.amountTotal,
           currency: quotation.currency,
           odooSyncError: null,
         },
-      })
-    );
+      });
+    });
     await logActivity({
       actorId,
       action: "ODOO_QUOTATION_CREATED",
@@ -248,7 +258,13 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
       entityId: orderId,
       meta: { quotationNumber: quotation.number, mode: client.mode },
     });
-    return saved;
+    // The PFI follows straight away. If it can't be issued the quotation stands and staff can retry.
+    try {
+      return await generatePfi(orderId, actorId ?? null);
+    } catch (error) {
+      console.warn("Automatic PFI failed", orderId, error);
+      return saved;
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Odoo sync failed";
     await prisma.$transaction((tx) =>
@@ -272,8 +288,14 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
   }
 }
 
-export async function generatePfi(orderId: string, actorId: string) {
-  const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
+export const PFI_NO_PRICE_NOTE = "PFI not issued: this station has no price yet.";
+
+/**
+ * Issue the PFI from the order's frozen line prices: 8% VAT on top, numbered with the SO
+ * (quotation) number, fixed signatories. Odoo is not contacted.
+ */
+export async function generatePfi(orderId: string, actorId: string | null) {
+  const order = await prisma.dealerOrder.findUnique({ where: { id: orderId }, include: { lines: true, station: true } });
   if (!order?.odooQuotationId) throw new Error("A quotation is required before a PFI.");
 
   const existing = await prisma.proFormaInvoice.findUnique({ where: { orderId } });
@@ -287,26 +309,29 @@ export async function generatePfi(orderId: string, actorId: string) {
         from: order.status,
         to: "PFI_PENDING",
         actorId,
-        note: "Requesting pro-forma from Odoo",
+        note: "Issuing the PFI",
       })
     );
   }
 
-  const client = getOdooClient();
-  let pfi: Awaited<ReturnType<typeof client.generateProForma>>;
-  try {
-    pfi = await client.generateProForma(order.odooQuotationId);
-  } catch (error) {
-    // Hand the order back to staff with the reason, so "Generate PFI" can simply be retried.
-    const message = error instanceof Error ? error.message : "Odoo could not produce the PFI.";
+  const stationCode = order.station.code ?? null;
+  const fuelLines = order.lines
+    .filter((line) => line.product === "PMS" || line.product === "AGO")
+    .map((line) => {
+      const product = line.product as "PMS" | "AGO";
+      const today = stationCode ? epraUnitPriceForStation(stationCode, product) : null;
+      return { line, product, price: line.unitPriceExVat ?? (today == null ? null : today.toFixed(2)) };
+    });
+
+  if (fuelLines.length === 0 || fuelLines.some((l) => l.price == null)) {
     const returned = await prisma.$transaction((tx) =>
       recordTransition(tx, {
         orderId,
         from: "PFI_PENDING",
         to: "QUOTATION_READY",
         actorId,
-        note: `PFI not issued: ${message}`,
-        data: { odooSyncError: message },
+        note: PFI_NO_PRICE_NOTE,
+        data: { odooSyncError: PFI_NO_PRICE_NOTE },
       })
     );
     await logActivity({
@@ -314,29 +339,55 @@ export async function generatePfi(orderId: string, actorId: string) {
       action: "PFI_FAILED",
       entity: "DealerOrder",
       entityId: orderId,
-      meta: { message, mode: client.mode },
+      meta: { message: PFI_NO_PRICE_NOTE },
     });
     return returned;
   }
-  const saved = await prisma.$transaction(async (tx) => {
-    await tx.proFormaInvoice.create({
-      data: {
+
+  const totals = pfiTotals(
+    fuelLines.map((l) => ({ product: l.product, quantityLitres: l.line.quantityLitres, unitPriceExVat: l.price as string })),
+    PFI_VAT_RATE
+  );
+  const number = order.odooQuotationNumber ?? order.reference;
+
+  let saved;
+  try {
+    saved = await prisma.$transaction(async (tx) => {
+      // Older lines without a stored price are frozen at today's price.
+      for (const l of fuelLines) {
+        if (l.line.unitPriceExVat == null) {
+          await tx.dealerOrderLine.update({ where: { id: l.line.id }, data: { unitPriceExVat: l.price } });
+        }
+      }
+      await tx.proFormaInvoice.create({
+        data: {
+          orderId,
+          number,
+          amount: totals.total,
+          currency: order.currency,
+          subtotal: totals.subtotal,
+          vatAmount: totals.vat,
+          vatRate: totals.vatRate,
+          preparedByName: PFI_SIGNATORIES.preparedBy,
+          approvedByName: PFI_SIGNATORIES.approvedBy,
+        },
+      });
+      return recordTransition(tx, {
         orderId,
-        number: pfi.number,
-        amount: pfi.amount,
-        currency: pfi.currency,
-        odooDocumentId: pfi.id,
-      },
+        from: "PFI_PENDING",
+        to: "PFI_ISSUED",
+        actorId,
+        note: `PFI ${number}`,
+        data: { amountDue: totals.total, odooSyncError: null },
+      });
     });
-    return recordTransition(tx, {
-      orderId,
-      from: "PFI_PENDING",
-      to: "PFI_ISSUED",
-      actorId,
-      note: `PFI ${pfi.number}`,
-      data: { amountDue: pfi.amount, odooSyncError: null },
-    });
-  });
+  } catch (error) {
+    // Another request issued this order's PFI at the same moment.
+    if ((error as { code?: string }).code === "P2002") {
+      return prisma.dealerOrder.findUniqueOrThrow({ where: { id: orderId }, include: orderInclude });
+    }
+    throw error;
+  }
   await prisma.$transaction((tx) =>
     recordTransition(tx, {
       orderId,
@@ -351,7 +402,7 @@ export async function generatePfi(orderId: string, actorId: string) {
     action: "PFI_GENERATED",
     entity: "DealerOrder",
     entityId: orderId,
-    meta: { number: pfi.number, mode: client.mode },
+    meta: { number, total: totals.total },
   });
   return saved;
 }

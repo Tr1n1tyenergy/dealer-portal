@@ -47,9 +47,11 @@ describe(
         data: { name: `Test Dealer ${run}`, code: `TEST-${run}` },
       });
       organizationId = organization.id;
-      stationId = (
-        await prisma.station.create({ data: { name: "Test Station", dealerOrganizationId: organizationId } })
-      ).id;
+      // "kitale" has a price (KPC Eldoret), so PFIs can be issued for these orders.
+      const existingKitale = await prisma.station.findUnique({ where: { code: "kitale" } });
+      stationId = existingKitale
+        ? (await prisma.station.update({ where: { id: existingKitale.id }, data: { dealerOrganizationId: organizationId } })).id
+        : (await prisma.station.create({ data: { code: "kitale", name: "Kitale", dealerOrganizationId: organizationId } })).id;
       depotId = (await prisma.depot.create({ data: { name: "Test Depot", code: `TEST-${run}` } })).id;
       actorId = (
         await prisma.user.create({
@@ -121,18 +123,19 @@ describe(
       assert.equal(ids[0], ids[1], "both submits should land on the same order");
     });
 
-    it("returns an order to QUOTATION_READY with the reason when Odoo cannot produce a PFI", async () => {
+    it("returns an order to QUOTATION_READY with the reason when the PFI cannot be priced", async () => {
       const order = await createOrder("QUOTATION_READY", "unknown-quotation");
 
       await service.generatePfi(order.id, actorId);
 
       const saved = await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } });
       assert.equal(saved.status, "QUOTATION_READY");
-      assert.match(saved.odooSyncError ?? "", /not found/i);
+      assert.equal(saved.odooSyncError, service.PFI_NO_PRICE_NOTE);
     });
 
     it("issues the PFI for an order left stuck in PFI_PENDING", async () => {
       const order = await createOrder("PFI_PENDING", `mock-quot-quotation:${run}-stuck`);
+      await prisma.dealerOrderLine.create({ data: { orderId: order.id, product: "PMS", quantityLitres: 1000 } });
 
       await service.generatePfi(order.id, actorId);
 
