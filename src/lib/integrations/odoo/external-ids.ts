@@ -17,7 +17,3 @@ export function parseOdooExternalId(externalId: string): { module: string; name:
     name: trimmed.slice(dot + 1),
   };
 }
-
-export function isOdooExternalId(value: string | null | undefined): value is string {
-  return Boolean(value && value.includes(".") && !value.startsWith("."));
-}

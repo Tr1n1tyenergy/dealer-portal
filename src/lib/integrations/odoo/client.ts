@@ -1,4 +1,4 @@
-import type { CreateQuotationInput, OdooClient, OdooProForma, OdooQuotation } from "./types";
+import type { CreateQuotationInput, OdooClient, OdooQuotation } from "./types";
 import { odooConfigured, odooEnv } from "./config";
 import { LiveOdooClient } from "./live-client";
 import { mockCommercialDocumentPrefix } from "@/lib/security/launch-mode";
@@ -10,7 +10,7 @@ import { mockCommercialDocumentPrefix } from "@/lib/security/launch-mode";
  * Keep ODOO_MODE=mock for local UI work without touching production.
  * Mock document numbers are always prefixed so they cannot be mistaken for live docs.
  */
-const memory = new Map<string, { quotation: OdooQuotation; proforma?: OdooProForma }>();
+const memory = new Map<string, { quotation: OdooQuotation }>();
 
 function hashKey(key: string) {
   let n = 0;
@@ -29,11 +29,7 @@ function mockAmountTotal(lines: CreateQuotationInput["lines"]): string {
   return (cents / 100).toFixed(2);
 }
 
-/**
- * Mock quotations are derived from their idempotency key, so any page or process can rebuild one.
- * The id carries the total (mock-quot-<total>-<key>) so a rebuilt quotation keeps its amount;
- * older ids without a total (mock-quot-<key>) rebuild as 0.00.
- */
+/** Mock quotations are derived from their idempotency key; the id is mock-quot-<total>-<key>. */
 function mockQuotation(idempotencyKey: string, amountTotal: string, lines: CreateQuotationInput["lines"]): OdooQuotation {
   const n = hashKey(idempotencyKey) % 90000;
   return {
@@ -45,18 +41,6 @@ function mockQuotation(idempotencyKey: string, amountTotal: string, lines: Creat
     lines,
     model: "sale.order",
   };
-}
-
-function parseMockQuotationId(quotationId: string): { key: string; amountTotal: string } | null {
-  if (!quotationId.startsWith(MOCK_QUOTATION_PREFIX)) return null;
-  const rest = quotationId.slice(MOCK_QUOTATION_PREFIX.length);
-  const priced = /^(\d+\.\d{2})-(.+)$/.exec(rest);
-  return priced ? { amountTotal: priced[1], key: priced[2] } : { amountTotal: "0.00", key: rest };
-}
-
-/** Test helper: forget every mock quotation, as a server restart would. */
-export function clearMockOdooMemory() {
-  memory.clear();
 }
 
 export class MockOdooClient implements OdooClient {
@@ -77,31 +61,6 @@ export class MockOdooClient implements OdooClient {
     }
     return null;
   }
-
-  async generateProForma(quotationId: string): Promise<OdooProForma> {
-    // Memory is per server bundle and lost on restart; rebuild quotations created elsewhere.
-    const rebuild = parseMockQuotationId(quotationId);
-    if (rebuild && !memory.has(rebuild.key)) {
-      const quotation = mockQuotation(rebuild.key, rebuild.amountTotal, []);
-      // Keep the id exactly as stored on the order (old ids have no total in them).
-      memory.set(rebuild.key, { quotation: { ...quotation, id: quotationId } });
-    }
-    for (const [key, entry] of memory.entries()) {
-      if (entry.quotation.id !== quotationId) continue;
-      if (entry.proforma) return entry.proforma;
-      const prefix = mockCommercialDocumentPrefix();
-      const proforma: OdooProForma = {
-        id: `mock-pfi-${key}`,
-        number: `${prefix}-PFI-${entry.quotation.number.replace(/^MOCK-/, "")}`,
-        quotationId,
-        amount: entry.quotation.amountTotal,
-        currency: entry.quotation.currency,
-      };
-      entry.proforma = proforma;
-      return proforma;
-    }
-    throw new Error("Quotation not found in the development Odoo adapter.");
-  }
 }
 
 export class UnconfiguredOdooClient implements OdooClient {
@@ -117,9 +76,6 @@ export class UnconfiguredOdooClient implements OdooClient {
     this.fail();
   }
   async getQuotation(): Promise<OdooQuotation | null> {
-    this.fail();
-  }
-  async generateProForma(): Promise<OdooProForma> {
     this.fail();
   }
 }

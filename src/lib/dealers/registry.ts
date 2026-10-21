@@ -53,15 +53,6 @@ export function parseProductsJson(raw: string | null | undefined): ProductCode[]
   }
 }
 
-export function findDealerByCode(code: string): OfficialDealer | undefined {
-  return OFFICIAL_DEALERS.find((d) => d.code.toUpperCase() === code.toUpperCase());
-}
-
-export function findDealerByEmail(email: string): OfficialDealer | undefined {
-  const normalized = email.toLowerCase().trim();
-  return OFFICIAL_DEALERS.find((d) => d.login.email.toLowerCase() === normalized);
-}
-
 /** Prefer station partner id; fall back to org-level. */
 export function resolveOdooPartnerId(
   stationPartnerId: number | null | undefined,
