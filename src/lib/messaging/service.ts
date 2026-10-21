@@ -191,7 +191,7 @@ export async function getConversationContext(conversationId: string, viewerId: s
     (viewer.accountType === "INTERNAL" ||
       (viewer.accountType === "DEALER" && viewer.dealerOrganizationId === orgId));
 
-  const [recentOrders, documents, pfis] = canSeeOrders
+  const [recentOrders, pfis] = canSeeOrders
     ? await Promise.all([
         prisma.dealerOrder.findMany({
           where: { dealerOrganizationId: orgId! },
@@ -205,36 +205,19 @@ export async function getConversationContext(conversationId: string, viewerId: s
             station: { select: { name: true, tradingName: true } },
           },
         }),
-        prisma.orderDocument.findMany({
-          where: { order: { dealerOrganizationId: orgId! } },
-          orderBy: { createdAt: "desc" },
-          take: 8,
-          select: {
-            id: true,
-            fileName: true,
-            kind: true,
-            storagePath: true,
-            createdAt: true,
-            order: { select: { id: true, reference: true } },
-          },
-        }),
         prisma.proFormaInvoice.findMany({
-          where: {
-            order: { dealerOrganizationId: orgId! },
-            documentPath: { not: null },
-          },
+          where: { order: { dealerOrganizationId: orgId! } },
           orderBy: { issuedAt: "desc" },
           take: 8,
           select: {
             id: true,
             number: true,
-            documentPath: true,
             issuedAt: true,
             order: { select: { id: true, reference: true } },
           },
         }),
       ])
-    : [[], [], []] as [never[], never[], never[]];
+    : [[], []] as [never[], never[]];
 
   return {
     conversationId,
@@ -256,16 +239,6 @@ export async function getConversationContext(conversationId: string, viewerId: s
       : null,
     recentOrders,
     files: [
-      ...documents.map((d) => ({
-        id: d.id,
-        source: "order_document" as const,
-        fileName: d.fileName,
-        kind: d.kind,
-        createdAt: d.createdAt,
-        orderId: d.order.id,
-        orderReference: d.order.reference,
-        downloadPath: `/api/messaging/files/order-document/${d.id}`,
-      })),
       ...pfis.map((p) => ({
         id: p.id,
         source: "pfi" as const,
@@ -274,7 +247,8 @@ export async function getConversationContext(conversationId: string, viewerId: s
         createdAt: p.issuedAt,
         orderId: p.order.id,
         orderReference: p.order.reference,
-        downloadPath: `/api/messaging/files/pfi/${p.id}`,
+        // The PFI is drawn on request by the PFI route, which checks access itself.
+        downloadPath: `/api/orders/${p.order.id}/pfi`,
       })),
     ]
       .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))

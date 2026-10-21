@@ -103,6 +103,30 @@ describe(
       assert.ok(listed.includes(withSpe.id));
     });
 
+    it("lists the dealer's PFIs in Shared Files with the working PFI link", async () => {
+      const station = await prisma.station.create({ data: { name: `Files ${run}`, dealerOrganizationId: orgIds[0] } });
+      const order = await prisma.dealerOrder.create({
+        data: {
+          reference: `FILES-${run}`,
+          odooSyncKey: `files:${run}`,
+          status: "AWAITING_PAYMENT",
+          dealerOrganizationId: orgIds[0],
+          stationId: station.id,
+          createdById: users.dealerA,
+          proforma: { create: { number: `S-FILES-${run}`, amount: "1000.00" } },
+        },
+      });
+      const chat = await service.getOrCreateDirectConversation(users.spe, users.dealerA);
+
+      const context = await service.getConversationContext(chat.id, users.spe);
+
+      const pfi = context.files.find((f) => f.orderId === order.id);
+      assert.ok(pfi, "the PFI is listed");
+      assert.equal(pfi.downloadPath, `/api/orders/${order.id}/pfi`);
+      await prisma.dealerOrder.delete({ where: { id: order.id } });
+      await prisma.station.delete({ where: { id: station.id } });
+    });
+
     it("hides an old dealer-to-dealer chat and refuses reading or sending in it", async () => {
       const listed = (await service.listConversationsForUser(users.dealerA)).map((c) => c.id);
       assert.ok(!listed.includes(dealerChatId), "the old dealer chat must not be listed");
