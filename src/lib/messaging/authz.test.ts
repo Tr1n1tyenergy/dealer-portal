@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { canMessageUser, canUseMessaging } from "./authz";
+import { canMessageUser, canUseMessaging, messagingPairAllowed } from "./authz";
 
 describe("canMessageUser", () => {
   it("allows staff to message dealers", () => {
@@ -94,5 +94,48 @@ describe("MESSAGING_STAFF_ROLES", () => {
     const { can, STAFF_ROLES } = await import("@/lib/access");
     assert.deepEqual([...MESSAGING_STAFF_ROLES], ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE"]);
     assert.deepEqual([...MESSAGING_STAFF_ROLES], STAFF_ROLES.filter((role) => can(role, "retail.messaging")));
+  });
+});
+
+describe("who may talk to whom", () => {
+  const dealer = { accountType: "DEALER", role: "DEALER_ADMIN" } as const;
+  const dealerUser = { accountType: "DEALER", role: "DEALER_USER" } as const;
+  const admin = { accountType: "INTERNAL", role: "SUPER_ADMIN" } as const;
+  const spe = { accountType: "INTERNAL", role: "SALES_PERSON_EXECUTIVE" } as const;
+  const staffMember = { accountType: "INTERNAL", role: "STANDARD_USER" } as const;
+  const depot = { accountType: "DEPOT", role: "DEPOT_MANAGER" } as const;
+
+  it("lets dealers talk to Admins and Sales Person Executives, both ways", () => {
+    assert.equal(messagingPairAllowed(dealer, admin), true);
+    assert.equal(messagingPairAllowed(spe, dealerUser), true);
+  });
+
+  it("lets Admins and Sales Person Executives talk to each other", () => {
+    assert.equal(messagingPairAllowed(admin, spe), true);
+    assert.equal(messagingPairAllowed(spe, spe), true);
+  });
+
+  it("never lets two dealers talk", () => {
+    assert.equal(messagingPairAllowed(dealer, dealerUser), false);
+    assert.equal(messagingPairAllowed(dealer, dealer), false);
+  });
+
+  it("keeps Staff Members and depots out", () => {
+    assert.equal(messagingPairAllowed(dealer, staffMember), false);
+    assert.equal(messagingPairAllowed(admin, staffMember), false);
+    assert.equal(messagingPairAllowed(admin, depot), false);
+  });
+
+  it("refuses a dealer starting a chat with another dealer", () => {
+    const r = canMessageUser({
+      actorAccountType: "DEALER",
+      actorRole: "DEALER_ADMIN",
+      targetAccountType: "DEALER",
+      targetRole: "DEALER_ADMIN",
+      targetStatus: "ACTIVE",
+      actorId: "a",
+      targetId: "b",
+    });
+    assert.deepEqual(r, { ok: false, reason: "Dealers can only message Trinity staff." });
   });
 });
