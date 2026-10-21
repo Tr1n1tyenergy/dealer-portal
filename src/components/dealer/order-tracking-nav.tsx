@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { orderNeighbours } from "@/lib/orders/dealer-views";
 
 export type OrderNavItem = {
   id: string;
@@ -22,9 +23,8 @@ export function OrderTrackingNav({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const index = orders.findIndex((o) => o.id === currentId);
-  const prev = index > 0 ? orders[index - 1] : null;
-  const next = index >= 0 && index < orders.length - 1 ? orders[index + 1] : null;
+  // `orders` is newest first: Previous opens the older order, Next the newer one.
+  const { older: prev, newer: next } = orderNeighbours(orders, currentId);
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -78,7 +78,7 @@ export function OrderTrackingNav({
 
       <div className="dp-ot-find__pager">
         {prev ? (
-          <Link href={`/dealer/orders/${prev.id}`} className="dp-ot-page-btn">
+          <Link href={`/dealer/orders/${prev}`} className="dp-ot-page-btn">
             <ChevronLeft size={15} />
             Previous
           </Link>
@@ -89,7 +89,7 @@ export function OrderTrackingNav({
           </span>
         )}
         {next ? (
-          <Link href={`/dealer/orders/${next.id}`} className="dp-ot-page-btn">
+          <Link href={`/dealer/orders/${next}`} className="dp-ot-page-btn">
             Next
             <ChevronRight size={15} />
           </Link>

@@ -5,7 +5,6 @@ import {
   Calendar,
   Check,
   ChevronRight,
-  Download,
   Droplets,
   FileText,
   Fuel,
@@ -210,7 +209,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
               <Home size={14} />
             </Link>
             <span className="sep">/</span>
-            <span className="is-current">My Orders</span>
+            <Link href="/dealer/orders">My Orders</Link>
             <span className="sep">/</span>
             <span className="is-current">{order.reference}</span>
           </nav>
@@ -319,10 +318,6 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                   <p>Fuel products, station and delivery information.</p>
                 </div>
               </div>
-              <button type="button" className="dp-ot-download" disabled title="Coming soon">
-                <Download size={14} />
-                Download Summary
-              </button>
             </header>
 
             <div className="dp-ot-products">
@@ -440,7 +435,6 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                         <strong>{doc.title}</strong>
                         <em className={`dp-ot-pill is-${doc.tone}`}>{doc.label}</em>
                       </div>
-                      <ChevronRight size={16} className="dp-ot-docs__chev" />
                     </li>
                   )
                 )}

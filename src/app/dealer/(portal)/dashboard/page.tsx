@@ -62,21 +62,21 @@ export default async function DealerDashboardPage() {
     {
       label: "Awaiting Payment",
       value: count(["PFI_ISSUED", "AWAITING_PAYMENT", "PAYMENT_EXCEPTION"]),
-      href: "/dealer/orders",
+      href: "/dealer/orders?view=payment",
       link: "View payments",
       icon: Wallet,
     },
     {
       label: "In Transit",
       value: count(["DISPATCHED", "IN_TRANSIT"]),
-      href: "/dealer/orders",
+      href: "/dealer/orders?view=deliveries",
       link: "Track deliveries",
       icon: Truck,
     },
     {
       label: "Delivered",
       value: count(["DELIVERED", "CLOSED"]),
-      href: "/dealer/orders",
+      href: "/dealer/orders?view=deliveries",
       link: "View delivered",
       icon: LayoutList,
     },
@@ -155,7 +155,7 @@ export default async function DealerDashboardPage() {
               </span>
               <ArrowRight size={16} />
             </Link>
-            <Link href="#orders" className="dp-action">
+            <Link href="/dealer/orders?view=documents" className="dp-action">
               <span className="dp-action__icon is-cyan">
                 <FileText size={16} />
               </span>
@@ -165,7 +165,7 @@ export default async function DealerDashboardPage() {
               </span>
               <ArrowRight size={16} />
             </Link>
-            <Link href="#orders" className="dp-action">
+            <Link href="/dealer/orders?view=payment" className="dp-action">
               <span className="dp-action__icon is-gold">
                 <CreditCard size={16} />
               </span>
@@ -175,7 +175,7 @@ export default async function DealerDashboardPage() {
               </span>
               <ArrowRight size={16} />
             </Link>
-            <Link href="#orders" className="dp-action">
+            <Link href="/dealer/orders?view=deliveries" className="dp-action">
               <span className="dp-action__icon is-green">
                 <Truck size={16} />
               </span>
@@ -194,9 +194,6 @@ export default async function DealerDashboardPage() {
               <MapPin size={18} strokeWidth={1.8} />
               Stations
             </div>
-            <Link href="#stations" className="dp-text-link">
-              View stations →
-            </Link>
           </div>
           <ul className="dp-stations">
             {stations.map((station) => {
@@ -209,7 +206,6 @@ export default async function DealerDashboardPage() {
                     <i /> {products.join(" · ")}
                   </span>
                 </div>
-                <ArrowRight size={16} />
               </li>
               );
             })}

@@ -538,7 +538,7 @@ export function MessagingApp({
   const ordersHref = isDealerPortal
     ? "/dealer/orders"
     : "/intelligence/retail/orders";
-  const profileHref = isDealerPortal ? "/dealer/dashboard" : "/intelligence/retail/users";
+  const documentsHref = isDealerPortal ? "/dealer/orders?view=documents" : ordersHref;
 
   return (
     <div className={`msg-app msg-app--staff msg-app--pane-${mobilePane}`}>
@@ -930,8 +930,8 @@ export function MessagingApp({
                       Email
                     </button>
                   )}
-                  {isDealerPortal || canOpenUsers ? (
-                    <Link href={profileHref} title={isDealerPortal ? "Open account" : "Open Users"}>
+                  {!isDealerPortal && canOpenUsers ? (
+                    <Link href="/intelligence/retail/users" title="Open Users">
                       <UserRound size={15} />
                       View Profile
                     </Link>
@@ -978,7 +978,7 @@ export function MessagingApp({
                     <FileText size={15} strokeWidth={1.75} />
                     Shared Files
                   </span>
-                  <Link href={ordersHref}>View all →</Link>
+                  <Link href={documentsHref}>View all →</Link>
                 </header>
                 <div className="msg-card__body">
                   {contextLoading && (context?.files ?? []).length === 0 ? (
