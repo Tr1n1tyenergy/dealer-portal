@@ -14,4 +14,9 @@ describe("settleSentMessage", () => {
     const list = settleSentMessage([tmp, saved], "tmp-1", saved);
     assert.deepEqual(list, [saved]);
   });
+
+  it("adds the saved message when a reload dropped the temporary bubble before it was saved", () => {
+    const reloaded = [{ id: "m0", body: "their reply" }];
+    assert.deepEqual(settleSentMessage(reloaded, "tmp-1", saved), [...reloaded, saved]);
+  });
 });
