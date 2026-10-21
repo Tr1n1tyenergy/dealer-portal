@@ -629,7 +629,11 @@ export function MessagingApp({
             <div className="msg-thread__empty-card">
               <MessageSquarePlus size={28} strokeWidth={1.5} />
               <strong>Select a chat or start a new conversation</strong>
-              <span>Dealer and internal conversations appear here in real time.</span>
+              <span>
+                {isDealerPortal
+                  ? "Your conversations with the Trinity team appear here in real time."
+                  : "Dealer and internal conversations appear here in real time."}
+              </span>
             </div>
           </div>
         ) : (
@@ -835,7 +839,11 @@ export function MessagingApp({
           {!activeId ? (
             <div className="msg-context__empty">
               <strong>Contact intelligence</strong>
-              <span>Select a conversation to view dealer details, orders, and shared files.</span>
+              <span>
+                {isDealerPortal
+                  ? "Select a conversation to see your orders and shared files."
+                  : "Select a conversation to view dealer details, orders, and shared files."}
+              </span>
             </div>
           ) : (
             <>

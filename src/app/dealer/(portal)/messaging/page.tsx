@@ -38,7 +38,7 @@ export default async function DealerMessagingPage() {
 
       <header className="rm-head">
         <h1>Messaging</h1>
-        <p>Real-time conversations with dealers and Trinity teams.</p>
+        <p>Real-time conversations with the Trinity team.</p>
       </header>
 
       <div className="rm-workspace">
