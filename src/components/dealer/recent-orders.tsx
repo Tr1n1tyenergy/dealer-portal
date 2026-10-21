@@ -16,17 +16,9 @@ import {
   Search,
 } from "lucide-react";
 
-export type RecentOrderRow = {
-  id: string;
-  reference: string;
-  stationName: string;
-  createdAt: string;
-  updatedAt: string;
-  statusLabel: string;
-  tone: string;
-  pms: number | null;
-  ago: number | null;
-};
+import type { RecentOrderRow } from "@/lib/orders/dealer-views";
+
+export type { RecentOrderRow };
 
 function formatDay(iso: string) {
   return new Intl.DateTimeFormat("en-GB", {
