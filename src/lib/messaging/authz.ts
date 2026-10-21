@@ -14,10 +14,21 @@ export function canUseMessaging(
   return false;
 }
 
+type MessagingParty = { accountType: AccountType | string; role: string | null | undefined };
+
+/**
+ * Who may talk to whom: a dealer with an Admin or Sales Person Executive, or two of those staff.
+ * Never two dealers; Staff Members and depots don't use messaging. Applies to existing chats too.
+ */
+export function messagingPairAllowed(a: MessagingParty, b: MessagingParty): boolean {
+  if (!canUseMessaging(a.accountType, a.role) || !canUseMessaging(b.accountType, b.role)) return false;
+  return a.accountType === "INTERNAL" || b.accountType === "INTERNAL";
+}
+
 /**
  * Who may start a direct conversation with whom.
  * - Admins and Sales Person Executives may message ACTIVE dealers and each other (not Staff Members).
- * - Dealers may message ACTIVE Admins, Sales Person Executives and other dealers.
+ * - Dealers may message ACTIVE Admins and Sales Person Executives only.
  */
 export function canMessageUser(params: {
   actorAccountType: AccountType;
@@ -47,10 +58,10 @@ export function canMessageUser(params: {
     return { ok: false, reason: "Staff can only message staff or dealers." };
   }
   if (params.actorAccountType === "DEALER") {
-    if (params.targetAccountType === "INTERNAL" || params.targetAccountType === "DEALER") {
+    if (params.targetAccountType === "INTERNAL") {
       return { ok: true };
     }
-    return { ok: false, reason: "Dealers can only message staff or dealers." };
+    return { ok: false, reason: "Dealers can only message Trinity staff." };
   }
   return { ok: false, reason: "Messaging is not available for this account type." };
 }

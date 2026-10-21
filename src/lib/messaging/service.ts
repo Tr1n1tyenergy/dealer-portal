@@ -1,19 +1,24 @@
 import { prisma } from "@/lib/prisma";
-import { canMessageUser, MESSAGING_STAFF_ROLES } from "./authz";
+import { canMessageUser, messagingPairAllowed, MESSAGING_STAFF_ROLES } from "./authz";
 import { directConversationKey } from "./direct-key";
 import { triggerConversationEvent } from "@/lib/pusher/server";
 
+/**
+ * True when the user is in the conversation AND may still talk to everyone in it. Chats that
+ * break the messaging rule (e.g. two dealers) are refused here, so they can't be read or sent to.
+ */
 export async function assertParticipant(conversationId: string, userId: string) {
-  const row = await prisma.conversationParticipant.findUnique({
-    where: {
-      conversationId_userId: { conversationId, userId },
-    },
+  const participants = await prisma.conversationParticipant.findMany({
+    where: { conversationId },
+    select: { userId: true, user: { select: { accountType: true, role: true } } },
   });
-  return Boolean(row);
+  const me = participants.find((p) => p.userId === userId);
+  if (!me) return false;
+  return participants.every((p) => p.userId === userId || messagingPairAllowed(me.user, p.user));
 }
 
 export async function listConversationsForUser(userId: string) {
-  const rows = await prisma.conversationParticipant.findMany({
+  const allRows = await prisma.conversationParticipant.findMany({
     where: { userId },
     include: {
       conversation: {
@@ -28,6 +33,7 @@ export async function listConversationsForUser(userId: string) {
                   email: true,
                   department: true,
                   accountType: true,
+                  role: true,
                   lastLoginAt: true,
                   dealerOrganizationId: true,
                   dealerOrganization: {
@@ -54,6 +60,13 @@ export async function listConversationsForUser(userId: string) {
       },
     },
     orderBy: { conversation: { lastMessageAt: "desc" } },
+  });
+  // Chats that break the messaging rule (e.g. two dealers) stay in the database but are hidden.
+  const rows = allRows.filter((row) => {
+    const people = row.conversation.participants;
+    const me = people.find((p) => p.userId === userId);
+    if (!me) return false;
+    return people.every((p) => p.userId === userId || messagingPairAllowed(me.user, p.user));
   });
 
   const conversationIds = rows.map((r) => r.conversation.id);
@@ -158,7 +171,7 @@ export async function getConversationContext(conversationId: string, viewerId: s
     }),
   ]);
   if (!viewer || !conversation) throw new Error("Forbidden");
-  if (!conversation.participants.some((p) => p.userId === viewerId)) {
+  if (!(await assertParticipant(conversationId, viewerId))) {
     throw new Error("Forbidden");
   }
 
@@ -440,7 +453,8 @@ export async function listDirectory(actorId: string) {
       where: {
         id: { not: actorId },
         status: "ACTIVE",
-        OR: [{ accountType: "DEALER" }, { accountType: "INTERNAL", role: { in: [...MESSAGING_STAFF_ROLES] } }],
+        accountType: "INTERNAL",
+        role: { in: [...MESSAGING_STAFF_ROLES] },
       },
       orderBy: [{ accountType: "asc" }, { firstName: "asc" }],
       select: {
