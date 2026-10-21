@@ -6,7 +6,7 @@ import { logActivity } from "@/lib/activity";
 import { beginLoginAttempt, clearLoginFailures, normalizeEmail } from "@/lib/security/auth-throttle";
 import { clientIp } from "@/lib/security/client-ip";
 import { lockedError } from "@/lib/security/login-errors";
-import { SESSION_MAX_AGE_SECONDS } from "@/lib/security/session-length";
+import { SESSION_MAX_AGE_SECONDS, signedInAfterPasswordChange } from "@/lib/security/session-length";
 
 /** Compared against when there is no real hash, so every refusal takes about as long as a real check. */
 // Cost-12 bcrypt hash of a random throwaway string (matches real hashes); precomputed to keep cold starts fast.
@@ -27,6 +27,7 @@ async function hydrateTokenFromUser(userId: string) {
     dealerOrganizationId: user.dealerOrganizationId,
     depotId: user.depotId,
     permissions: user.permissions,
+    passwordChangedAt: user.passwordChangedAt,
   };
 }
 
@@ -112,6 +113,8 @@ export const authOptions: NextAuthOptions = {
         ).dealerOrganizationId;
         token.depotId = (user as { depotId?: string | null }).depotId;
         token.permissions = (user as { permissions?: string }).permissions;
+        // When this sign-in happened; NextAuth refreshes iat on every request, so it can't tell us.
+        token.loginAt = Date.now();
         delete token.error;
         return token;
       }
@@ -120,7 +123,7 @@ export const authOptions: NextAuthOptions = {
       if (token.id && typeof token.id === "string") {
         try {
           const fresh = await hydrateTokenFromUser(token.id);
-          if (!fresh) {
+          if (!fresh || !signedInAfterPasswordChange(token.loginAt as number | undefined, fresh.passwordChangedAt)) {
             return { ...token, error: "SessionRevoked" };
           }
           token.role = fresh.role;

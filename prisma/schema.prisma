@@ -120,6 +120,8 @@ model User {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   lastLoginAt  DateTime?
+  /** Set when the password is set or reset; sessions signed in earlier are ended. */
+  passwordChangedAt DateTime?
 
   invitations    InvitationToken[]
   passwordResets PasswordResetToken[]
