@@ -66,6 +66,7 @@ export function RetailAnalyticsDashboard({
   recentOrders: RecentOrderRow[];
   topStations: StationVolumeRow[];
 }) {
+  const otherOrders = totalOrders - statusSlices.reduce((sum, s) => sum + s.count, 0);
   return (
     <div className="rad">
       {/* Media uses fixed height (not 100%) so it never stretches behind charts */}
@@ -215,6 +216,14 @@ export function RetailAnalyticsDashboard({
                     <span className="rad-status__pct">{s.pct}%</span>
                   </li>
                 ))}
+                {otherOrders > 0 ? (
+                  // Cancelled, rejected and needs-amendment orders: the grey gap in the donut.
+                  <li>
+                    <span className="rad-status__swatch" style={{ background: "#cbd5e1" }} />
+                    <span className="rad-status__name">Cancelled / other</span>
+                    <span className="rad-status__pct">{Math.round((otherOrders / totalOrders) * 100)}%</span>
+                  </li>
+                ) : null}
               </ul>
             </div>
           </article>

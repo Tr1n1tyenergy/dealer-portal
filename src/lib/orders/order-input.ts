@@ -121,3 +121,9 @@ export function parsePaymentAmount(value: unknown): Parsed<string> {
 export function isDepotAction(value: unknown): value is DepotAction {
   return (DEPOT_ACTIONS as readonly unknown[]).includes(value);
 }
+
+/** A dealer's free-text field (reference, notes, truck, driver…): trimmed, empty → undefined, at most 500 characters. */
+export function freeText(value: unknown): string | undefined {
+  const text = value == null ? "" : String(value).trim();
+  return text ? text.slice(0, 500) : undefined;
+}

@@ -13,6 +13,7 @@ import {
 import { ignoreStaleTransition, InvalidOrderTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
 import {
   isDepotAction,
+  freeText,
   OrderInputError,
   parseDeliveryDate,
   parseLitres,
@@ -49,8 +50,8 @@ export async function placeOrderAction(_prev: ActionResult, formData: FormData):
       dealerOrganizationId: session.user.dealerOrganizationId!,
       stationId: String(formData.get("stationId") || ""),
       requestedDeliveryDate: deliveryDate.value,
-      dealerReference: String(formData.get("dealerReference") || "") || null,
-      notes: String(formData.get("notes") || "") || null,
+      dealerReference: freeText(formData.get("dealerReference")) ?? null,
+      notes: freeText(formData.get("notes")) ?? null,
       lines: lines.value,
       submissionKey: submissionKey(formData.get("submissionKey")),
     });
@@ -75,10 +76,10 @@ export async function paymentAction(_prev: ActionResult, formData: FormData): Pr
       actorId: session.user.id,
       dealerOrganizationId: session.user.dealerOrganizationId!,
       amount: amount.value,
-      bankReference: String(formData.get("bankReference") || "") || undefined,
-      transactionReference: String(formData.get("transactionReference") || "") || undefined,
+      bankReference: freeText(formData.get("bankReference")),
+      transactionReference: freeText(formData.get("transactionReference")),
       paymentDate: String(formData.get("paymentDate") || "") || undefined,
-      note: String(formData.get("note") || "") || undefined,
+      note: freeText(formData.get("note")),
     });
   } catch (error) {
     if (error instanceof OrderInputError) return { error: error.message };
@@ -113,14 +114,14 @@ export async function depotOrderAction(formData: FormData) {
   if (!loadedPms.ok || !loadedAgo.ok) return refresh();
   try {
     await ignoreStaleTransition(() => applyDepotAction(orderId, session.user, action, {
-    truckRegistration: String(formData.get("truckRegistration") || "") || undefined,
-    driverName: String(formData.get("driverName") || "") || undefined,
-    transporter: String(formData.get("transporter") || "") || undefined,
+    truckRegistration: freeText(formData.get("truckRegistration")),
+    driverName: freeText(formData.get("driverName")),
+    transporter: freeText(formData.get("transporter")),
     loadedPmsLitres: loadedPms.value || undefined,
     loadedAgoLitres: loadedAgo.value || undefined,
-    loadingReference: String(formData.get("loadingReference") || "") || undefined,
-    sealNumbers: String(formData.get("sealNumbers") || "") || undefined,
-    deliveryNoteRef: String(formData.get("deliveryNoteRef") || "") || undefined,
+    loadingReference: freeText(formData.get("loadingReference")),
+    sealNumbers: freeText(formData.get("sealNumbers")),
+    deliveryNoteRef: freeText(formData.get("deliveryNoteRef")),
     }));
   } catch (error) {
     // Another depot's order, or a second click from a stale tab: nothing to do but show the current board.

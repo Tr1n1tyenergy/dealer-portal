@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Mail, Phone, X } from "lucide-react";
 import { PFI_COMPANY } from "@/lib/company/pfi-settings";
+import { SUPPORT_EMAIL } from "@/lib/company/contact";
 
 const OPEN_EVENT = "dp:open-support";
 
@@ -74,7 +75,7 @@ export function SupportCard() {
         <ul>
           <li>
             <Mail size={16} />
-            <a href={`mailto:${PFI_COMPANY.email}`}>{PFI_COMPANY.email}</a>
+            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
           </li>
           {PFI_COMPANY.phones.map((phone) => (
             <li key={phone}>

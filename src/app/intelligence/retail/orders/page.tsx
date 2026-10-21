@@ -69,7 +69,7 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
     <div className="ro">
       <header className="ro-head">
         <h1>Orders</h1>
-        <p>Dealer fuel orders by stage. Quotations and PFIs come from Odoo; payments are confirmed and orders released to depots here.</p>
+        <p>Dealer fuel orders by stage. Quotations are created in Odoo and the portal issues the PFI; payments are confirmed and orders released to depots here.</p>
       </header>
 
       {priceList.message ? (
