@@ -230,3 +230,14 @@
   line-height: 1.45 !important;
   color: rgba(186, 205, 235, 0.72) !important;
 }
+
+/* Shown when a role has no modules (e.g. Staff Member while Note Taker is hidden) */
+.mod-empty {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px dashed rgba(23, 61, 143, 0.35);
+  border-radius: 14px;
+  color: #475569;
+  font-size: 0.92rem;
+  text-align: center;
+}

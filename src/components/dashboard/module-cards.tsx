@@ -14,6 +14,14 @@ export function ModuleCards({ role }: { role: string }) {
   const visible = new Set(visibleModules(role).map((m) => m.id));
   const featured = FEATURED_MODULES.filter((m) => visible.has(m.id));
 
+  if (visible.size === 0) {
+    return (
+      <p className="mod-empty">
+        No modules are available for your role yet. Ask an Admin if you need access.
+      </p>
+    );
+  }
+
   return (
     <>
       <div className="mod-grid">
