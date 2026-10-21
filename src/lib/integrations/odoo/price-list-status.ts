@@ -9,7 +9,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const KENYA_OFFSET_MS = 3 * 60 * 60 * 1000;
 
 /** The earliest last day of any region's prices, e.g. "2026-11-14". */
-function priceListEndDate(): string {
+export function priceListEndDate(): string {
   return Object.values(EPRA_TEMP_PRICES_BY_WAREHOUSE)
     .map((row) => row.periodTo)
     .sort()[0];

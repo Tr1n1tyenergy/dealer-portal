@@ -1,6 +1,7 @@
 "use client";
 
 import "./place-order.css";
+import { openSupport } from "./support-card";
 
 import Link from "next/link";
 import { useActionState, useEffect, useMemo, useState } from "react";
@@ -194,10 +195,10 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                 <p>{hero.copy}</p>
               </div>
             </div>
-            <Link href="/dealer/dashboard#support" className="dp-po-help">
+            <button type="button" className="dp-po-help" onClick={openSupport}>
               <Headphones size={16} />
               Need help?
-            </Link>
+            </button>
           </div>
 
           <div className={`dp-po-prog is-${step}`} aria-label="Order progress">
@@ -316,7 +317,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                         <Calendar size={20} strokeWidth={1.8} />
                         <div className="dp-po-date__body">
                           <strong>{summaryDate}</strong>
-                          <em>Requested delivery date</em>
+                          <em>Up to {formatDisplayDate(dateWindow.max)} (current EPRA prices)</em>
                         </div>
                         <ChevronDown size={18} className="dp-po-date__chev" />
                         <input
@@ -326,6 +327,15 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                           min={dateWindow.min}
                           max={dateWindow.max}
                           onChange={(e) => setDeliveryDate(e.target.value)}
+                          // The field covers the whole card; open the calendar wherever it is clicked,
+                          // not only on the browser's small calendar icon.
+                          onClick={(e) => {
+                            try {
+                              e.currentTarget.showPicker();
+                            } catch {
+                              // Older browsers: the native click behaviour still applies.
+                            }
+                          }}
                           required
                           aria-label="Requested delivery date"
                         />

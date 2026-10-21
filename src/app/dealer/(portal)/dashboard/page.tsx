@@ -12,11 +12,10 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
-import type { DealerOrderStatus } from "@prisma/client";
 import { parseProductsJson } from "@/lib/dealers/registry";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { dealerStatusLabel } from "@/lib/orders/state-machine";
+import { toDealerOrderRow } from "@/lib/orders/dealer-views";
 import { RecentOrders } from "@/components/dealer/recent-orders";
 
 function greeting() {
@@ -24,15 +23,6 @@ function greeting() {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
-}
-
-function statusTone(status: DealerOrderStatus) {
-  const label = dealerStatusLabel(status);
-  if (label === "Delivered" || label === "Closed") return "delivered";
-  if (label === "In Transit" || label === "Dispatched" || label === "Loaded") return "transit";
-  if (label === "PFI Ready") return "pfi";
-  if (label === "Awaiting Payment" || label.includes("Payment")) return "payment";
-  return "processing";
 }
 
 export default async function DealerDashboardPage() {
@@ -72,41 +62,27 @@ export default async function DealerDashboardPage() {
     {
       label: "Awaiting Payment",
       value: count(["PFI_ISSUED", "AWAITING_PAYMENT", "PAYMENT_EXCEPTION"]),
-      href: "/dealer/orders",
+      href: "/dealer/orders?view=payment",
       link: "View payments",
       icon: Wallet,
     },
     {
       label: "In Transit",
       value: count(["DISPATCHED", "IN_TRANSIT"]),
-      href: "/dealer/orders",
+      href: "/dealer/orders?view=deliveries",
       link: "Track deliveries",
       icon: Truck,
     },
     {
       label: "Delivered",
       value: count(["DELIVERED", "CLOSED"]),
-      href: "/dealer/orders",
+      href: "/dealer/orders?view=deliveries",
       link: "View delivered",
       icon: LayoutList,
     },
   ];
 
-  const recentRows = orders.slice(0, 8).map((order) => {
-    const pms = order.lines.find((l) => l.product === "PMS")?.quantityLitres ?? null;
-    const ago = order.lines.find((l) => l.product === "AGO")?.quantityLitres ?? null;
-    return {
-      id: order.id,
-      reference: order.reference,
-      stationName: order.station.name,
-      createdAt: order.createdAt.toISOString(),
-      updatedAt: order.updatedAt.toISOString(),
-      statusLabel: dealerStatusLabel(order.status),
-      tone: statusTone(order.status),
-      pms,
-      ago,
-    };
-  });
+  const recentRows = orders.slice(0, 8).map(toDealerOrderRow);
 
   return (
     <div className="dp-dash">
@@ -179,7 +155,7 @@ export default async function DealerDashboardPage() {
               </span>
               <ArrowRight size={16} />
             </Link>
-            <Link href="#orders" className="dp-action">
+            <Link href="/dealer/orders?view=documents" className="dp-action">
               <span className="dp-action__icon is-cyan">
                 <FileText size={16} />
               </span>
@@ -189,7 +165,7 @@ export default async function DealerDashboardPage() {
               </span>
               <ArrowRight size={16} />
             </Link>
-            <Link href="#orders" className="dp-action">
+            <Link href="/dealer/orders?view=payment" className="dp-action">
               <span className="dp-action__icon is-gold">
                 <CreditCard size={16} />
               </span>
@@ -199,7 +175,7 @@ export default async function DealerDashboardPage() {
               </span>
               <ArrowRight size={16} />
             </Link>
-            <Link href="#orders" className="dp-action">
+            <Link href="/dealer/orders?view=deliveries" className="dp-action">
               <span className="dp-action__icon is-green">
                 <Truck size={16} />
               </span>
@@ -218,9 +194,6 @@ export default async function DealerDashboardPage() {
               <MapPin size={18} strokeWidth={1.8} />
               Stations
             </div>
-            <Link href="#stations" className="dp-text-link">
-              View stations →
-            </Link>
           </div>
           <ul className="dp-stations">
             {stations.map((station) => {
@@ -233,7 +206,6 @@ export default async function DealerDashboardPage() {
                     <i /> {products.join(" · ")}
                   </span>
                 </div>
-                <ArrowRight size={16} />
               </li>
               );
             })}

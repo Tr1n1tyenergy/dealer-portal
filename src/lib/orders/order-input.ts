@@ -3,6 +3,8 @@
  * server actions, the order service and the forms' browser limits all use the same numbers and messages.
  */
 
+import { priceListEndDate } from "@/lib/integrations/odoo/price-list-status";
+
 export type Parsed<T> = { ok: true; value: T } | { ok: false; message: string };
 
 /** A refusal meant for the person who typed the input; server actions show its message. */
@@ -72,9 +74,20 @@ function displayDate(isoDate: string): string {
   );
 }
 
-export function deliveryWindow(now: Date = new Date()): { min: string; max: string } {
+/**
+ * Delivery dates a dealer may request: today (Nairobi) up to 90 days ahead, but never past the last
+ * day of the current EPRA price list — later deliveries would be priced on a list we don't have yet.
+ * Once the list has run out (before the new one is loaded), only today is allowed.
+ */
+export function deliveryWindow(
+  now: Date = new Date(),
+  priceListEnd: string = priceListEndDate(),
+): { min: string; max: string } {
   const min = nairobiToday(now);
-  return { min, max: addDays(min, DELIVERY_WINDOW_DAYS) };
+  const windowEnd = addDays(min, DELIVERY_WINDOW_DAYS);
+  // ISO dates compare correctly as strings.
+  const max = priceListEnd < windowEnd ? priceListEnd : windowEnd;
+  return { min, max: max < min ? min : max };
 }
 
 /** A real calendar date written as YYYY-MM-DD. */
@@ -85,10 +98,14 @@ export function isRealDate(text: string): boolean {
   return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
 }
 
-export function parseDeliveryDate(value: unknown, now: Date = new Date()): Parsed<string | null> {
+export function parseDeliveryDate(
+  value: unknown,
+  now: Date = new Date(),
+  priceListEnd: string = priceListEndDate(),
+): Parsed<string | null> {
   const text = value == null ? "" : String(value).trim();
   if (text === "") return { ok: true, value: null };
-  const { min, max } = deliveryWindow(now);
+  const { min, max } = deliveryWindow(now, priceListEnd);
   // ISO dates compare correctly as strings.
   if (isRealDate(text) && text >= min && text <= max) return { ok: true, value: text };
   return refuse(`Choose a delivery date between ${displayDate(min)} and ${displayDate(max)}.`);

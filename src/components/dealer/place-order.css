@@ -73,7 +73,10 @@
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 600;
+  font-family: inherit;
   white-space: nowrap;
+  background: transparent;
+  cursor: pointer;
 }
 
 .dp-dash .dp-po-help:hover {

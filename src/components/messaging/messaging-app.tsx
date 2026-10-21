@@ -1,5 +1,6 @@
 "use client";
 
+import { conversationFilters, type ConversationFilter } from "@/lib/messaging/filters";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -92,7 +93,7 @@ type ConversationContext = {
   files: ContextFile[];
 };
 
-type FilterTab = "all" | "dealers" | "internal" | "unread";
+type FilterTab = ConversationFilter;
 
 function initials(name: string) {
   return (
@@ -538,7 +539,7 @@ export function MessagingApp({
   const ordersHref = isDealerPortal
     ? "/dealer/orders"
     : "/intelligence/retail/orders";
-  const profileHref = isDealerPortal ? "/dealer/dashboard" : "/intelligence/retail/users";
+  const documentsHref = isDealerPortal ? "/dealer/orders?view=documents" : ordersHref;
 
   return (
     <div className={`msg-app msg-app--staff msg-app--pane-${mobilePane}`}>
@@ -562,14 +563,7 @@ export function MessagingApp({
           />
         </div>
         <div className="msg-filters" role="tablist" aria-label="Conversation filters">
-          {(
-            [
-              ["all", "All"],
-              ["dealers", "Dealers"],
-              ["internal", "Internal"],
-              ["unread", "Unread"],
-            ] as const
-          ).map(([key, label]) => (
+          {conversationFilters(isDealerPortal).map(([key, label]) => (
             <button
               key={key}
               type="button"
@@ -635,7 +629,11 @@ export function MessagingApp({
             <div className="msg-thread__empty-card">
               <MessageSquarePlus size={28} strokeWidth={1.5} />
               <strong>Select a chat or start a new conversation</strong>
-              <span>Dealer and internal conversations appear here in real time.</span>
+              <span>
+                {isDealerPortal
+                  ? "Your conversations with the Trinity team appear here in real time."
+                  : "Dealer and internal conversations appear here in real time."}
+              </span>
             </div>
           </div>
         ) : (
@@ -841,7 +839,11 @@ export function MessagingApp({
           {!activeId ? (
             <div className="msg-context__empty">
               <strong>Contact intelligence</strong>
-              <span>Select a conversation to view dealer details, orders, and shared files.</span>
+              <span>
+                {isDealerPortal
+                  ? "Select a conversation to see your orders and shared files."
+                  : "Select a conversation to view dealer details, orders, and shared files."}
+              </span>
             </div>
           ) : (
             <>
@@ -930,8 +932,8 @@ export function MessagingApp({
                       Email
                     </button>
                   )}
-                  {isDealerPortal || canOpenUsers ? (
-                    <Link href={profileHref} title={isDealerPortal ? "Open account" : "Open Users"}>
+                  {!isDealerPortal && canOpenUsers ? (
+                    <Link href="/intelligence/retail/users" title="Open Users">
                       <UserRound size={15} />
                       View Profile
                     </Link>
@@ -978,7 +980,7 @@ export function MessagingApp({
                     <FileText size={15} strokeWidth={1.75} />
                     Shared Files
                   </span>
-                  <Link href={ordersHref}>View all →</Link>
+                  <Link href={documentsHref}>View all →</Link>
                 </header>
                 <div className="msg-card__body">
                   {contextLoading && (context?.files ?? []).length === 0 ? (

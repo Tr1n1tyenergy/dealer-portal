@@ -112,5 +112,28 @@ describe(
       await assert.rejects(() => service.getConversationContext(dealerChatId, users.dealerA), /Forbidden/);
       assert.equal(await prisma.message.count({ where: { conversationId: dealerChatId } }), 1, "nothing is deleted");
     });
+
+    it("counts a dealer's unread messages from staff only, not from hidden dealer chats or themselves", async () => {
+      const withSpe = await service.getOrCreateDirectConversation(users.dealerA, users.spe);
+      const unreadFor = async (conversationId: string, senderId: string, readerId: string, body: string) =>
+        prisma.message.create({
+          data: { conversationId, senderId, body, receipts: { create: [{ userId: readerId, status: "SENT" }] } },
+        });
+      await unreadFor(withSpe.id, users.spe, users.dealerA, "PFI is ready");
+      await unreadFor(withSpe.id, users.spe, users.dealerA, "Please pay today");
+      // The dealer's own message: their receipt is READ, and it isn't theirs to read anyway.
+      await prisma.message.create({
+        data: {
+          conversationId: withSpe.id,
+          senderId: users.dealerA,
+          body: "Thanks",
+          receipts: { create: [{ userId: users.dealerA, status: "READ" }, { userId: users.spe, status: "SENT" }] },
+        },
+      });
+      // An unread message in the hidden dealer-to-dealer chat.
+      await unreadFor(dealerChatId, users.dealerB, users.dealerA, "psst");
+
+      assert.equal(await service.unreadMessageCount(users.dealerA), 2);
+    });
   },
 );

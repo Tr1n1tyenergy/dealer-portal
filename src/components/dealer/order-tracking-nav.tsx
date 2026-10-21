@@ -4,8 +4,10 @@ import "./order-tracking-nav.css";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { orderNeighbours } from "@/lib/orders/dealer-views";
+import { shortcutHint } from "./quick-search";
 
 export type OrderNavItem = {
   id: string;
@@ -22,9 +24,11 @@ export function OrderTrackingNav({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const index = orders.findIndex((o) => o.id === currentId);
-  const prev = index > 0 ? orders[index - 1] : null;
-  const next = index >= 0 && index < orders.length - 1 ? orders[index + 1] : null;
+  // Worked out after hydration: the server can't know the visitor's platform.
+  const [hint, setHint] = useState("Ctrl K");
+  useEffect(() => setHint(shortcutHint(navigator.platform)), []);
+  // `orders` is newest first: Previous opens the older order, Next the newer one.
+  const { older: prev, newer: next } = orderNeighbours(orders, currentId);
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -59,8 +63,9 @@ export function OrderTrackingNav({
           placeholder="Find another order..."
           aria-label="Find another order"
           autoComplete="off"
+          data-quick-search="page"
         />
-        <kbd>⌘K</kbd>
+        <kbd>{hint}</kbd>
         {matches.length > 0 ? (
           <ul className="dp-ot-find__results">
             {matches.map((item) => (
@@ -77,23 +82,23 @@ export function OrderTrackingNav({
 
       <div className="dp-ot-find__pager">
         {prev ? (
-          <Link href={`/dealer/orders/${prev.id}`} className="dp-ot-page-btn">
+          <Link href={`/dealer/orders/${prev}`} className="dp-ot-page-btn">
             <ChevronLeft size={15} />
             Previous
           </Link>
         ) : (
-          <span className="dp-ot-page-btn is-disabled">
+          <span className="dp-ot-page-btn is-disabled" aria-disabled="true">
             <ChevronLeft size={15} />
             Previous
           </span>
         )}
         {next ? (
-          <Link href={`/dealer/orders/${next.id}`} className="dp-ot-page-btn">
+          <Link href={`/dealer/orders/${next}`} className="dp-ot-page-btn">
             Next
             <ChevronRight size={15} />
           </Link>
         ) : (
-          <span className="dp-ot-page-btn is-disabled">
+          <span className="dp-ot-page-btn is-disabled" aria-disabled="true">
             Next
             <ChevronRight size={15} />
           </span>

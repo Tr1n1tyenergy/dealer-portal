@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { priceListEndDate } from "@/lib/integrations/odoo/price-list-status";
 import { describe, it } from "node:test";
 import {
   deliveryWindow,
@@ -41,24 +42,47 @@ describe("litres", () => {
 });
 
 describe("delivery date", () => {
+  // A price list that runs far beyond the 90-day window, so these tests see the window alone.
+  const FAR = "2099-12-31";
+
   it("accepts blank, today and today + 90 days", () => {
-    assert.deepEqual(parseDeliveryDate("", now), { ok: true, value: null });
-    assert.deepEqual(parseDeliveryDate("2026-10-15", now), { ok: true, value: "2026-10-15" });
-    assert.deepEqual(parseDeliveryDate("2027-01-13", now), { ok: true, value: "2027-01-13" });
+    assert.deepEqual(parseDeliveryDate("", now, FAR), { ok: true, value: null });
+    assert.deepEqual(parseDeliveryDate("2026-10-15", now, FAR), { ok: true, value: "2026-10-15" });
+    assert.deepEqual(parseDeliveryDate("2027-01-13", now, FAR), { ok: true, value: "2027-01-13" });
   });
 
   it("refuses past, too-far, impossible and non-dates with the window message", () => {
     const message = "Choose a delivery date between 15 Oct 2026 and 13 Jan 2027.";
     for (const bad of ["2026-10-14", "2027-01-14", "2026-02-30", "banana"]) {
-      assert.deepEqual(parseDeliveryDate(bad, now), { ok: false, message }, bad);
+      assert.deepEqual(parseDeliveryDate(bad, now, FAR), { ok: false, message }, bad);
     }
   });
 
   it("uses the Nairobi calendar day around midnight", () => {
     const justAfterMidnight = new Date("2026-10-14T21:30:00Z"); // 00:30 on 15 Oct in Nairobi
     assert.equal(nairobiToday(justAfterMidnight), "2026-10-15");
-    assert.equal(parseDeliveryDate("2026-10-14", justAfterMidnight).ok, false);
-    assert.deepEqual(deliveryWindow(justAfterMidnight), { min: "2026-10-15", max: "2027-01-13" });
+    assert.equal(parseDeliveryDate("2026-10-14", justAfterMidnight, FAR).ok, false);
+    assert.deepEqual(deliveryWindow(justAfterMidnight, FAR), { min: "2026-10-15", max: "2027-01-13" });
+  });
+
+  it("stops at the last day of the current EPRA price list", () => {
+    assert.deepEqual(deliveryWindow(now, "2026-11-14"), { min: "2026-10-15", max: "2026-11-14" });
+    assert.deepEqual(parseDeliveryDate("2026-11-14", now, "2026-11-14"), { ok: true, value: "2026-11-14" });
+    assert.deepEqual(parseDeliveryDate("2026-11-15", now, "2026-11-14"), {
+      ok: false,
+      message: "Choose a delivery date between 15 Oct 2026 and 14 Nov 2026.",
+    });
+  });
+
+  it("allows only today once the price list has run out", () => {
+    const afterList = new Date("2026-11-16T09:00:00Z");
+    assert.deepEqual(deliveryWindow(afterList, "2026-11-14"), { min: "2026-11-16", max: "2026-11-16" });
+    assert.equal(parseDeliveryDate("2026-11-17", afterList, "2026-11-14").ok, false);
+  });
+
+  it("uses the portal's own price list by default", () => {
+    const { max } = deliveryWindow(now);
+    assert.ok(max <= priceListEndDate(), `${max} should not pass ${priceListEndDate()}`);
   });
 });
 

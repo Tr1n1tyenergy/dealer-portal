@@ -62,7 +62,7 @@
 
 .dp-ro__filters {
   display: grid !important;
-  grid-template-columns: minmax(0, 1.4fr) minmax(118px, 0.72fr) minmax(118px, 0.72fr) minmax(118px, 0.72fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(118px, 0.72fr) minmax(118px, 0.72fr);
   align-items: center;
   gap: 0.55rem;
   flex-shrink: 0;
@@ -393,17 +393,41 @@
   background: #eff6ff !important;
 }
 
-.dp-ro__more {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
+.dp-ro__pfi {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: #0f766e !important;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+.dp-ro__pfi:hover {
+  text-decoration: underline !important;
+}
+
+/* My Orders tabs */
+.dp-ro__tabs {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+}
+
+.dp-ro__tabs a {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
   background: #fff;
-  color: #94a3b8;
-  cursor: pointer;
+  color: #475569 !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+.dp-ro__tabs a.is-active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff !important;
 }
 
 .dp-ro__empty {

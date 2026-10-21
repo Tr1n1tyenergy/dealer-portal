@@ -7,6 +7,7 @@ import { logActivity } from "@/lib/activity";
 import { validatePasswordStrength } from "@/lib/security/password-policy";
 import { clearLoginFailures } from "@/lib/security/auth-throttle";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { loginPathFor } from "@/lib/security/login-path";
 
 const schema = z.object({
   token: z.string().min(10).max(200),
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
     prisma.user.update({
       where: { id: reset.userId },
       data: { passwordHash, status: "ACTIVE" },
-      select: { email: true },
+      select: { email: true, accountType: true },
     }),
     prisma.passwordResetToken.update({
       where: { id: reset.id },
@@ -54,5 +55,6 @@ export async function POST(req: Request) {
     entityId: reset.userId,
   });
 
-  return NextResponse.json({ ok: true });
+  // Each portal only accepts its own accounts, so send the user back to theirs.
+  return NextResponse.json({ ok: true, loginPath: loginPathFor(user.accountType) });
 }
