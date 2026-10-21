@@ -105,6 +105,18 @@ describe(
       assert.equal(line.unitPriceExVat, "223.51");
     });
 
+    it("an order stuck at PFI_ISSUED moves on to AWAITING_PAYMENT when retried", async () => {
+      const order = await quotedOrder(pricedStationId, [{ product: "PMS", quantityLitres: 6000 }]);
+      await service.generatePfi(order.id, staffId);
+      // Simulate the second step having failed: PFI saved, order left at PFI_ISSUED.
+      await prisma.dealerOrder.update({ where: { id: order.id }, data: { status: "PFI_ISSUED" } });
+
+      const retried = await service.generatePfi(order.id, staffId);
+
+      assert.equal(retried.status, "AWAITING_PAYMENT");
+      assert.equal(await prisma.proFormaInvoice.count({ where: { orderId: order.id } }), 1);
+    });
+
     it("a station with no price stays at QUOTATION_READY with the note", async () => {
       const order = await quotedOrder(unpricedStationId, [{ product: "PMS", quantityLitres: 1000 }]);
       await service.generatePfi(order.id, null);

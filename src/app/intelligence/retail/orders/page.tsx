@@ -15,6 +15,9 @@ type SearchParams = Promise<{ stage?: string | string[]; q?: string | string[] }
 
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
+// Retry sync runs the same Odoo calls as placing an order.
+export const maxDuration = 60;
+
 export default async function RetailOrdersPage({ searchParams }: { searchParams: SearchParams }) {
   const session = await requireInternal();
   if (!can(session.user.role, "retail.orders")) redirect("/intelligence/retail");
@@ -151,11 +154,13 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
                       {mayAct ? (
                         <form action={internalOrderAction} className="ro-actions">
                           <input type="hidden" name="orderId" value={order.id} />
-                          {order.status === "ODOO_SYNC_FAILED" ? (
+                          {order.status === "ODOO_SYNC_FAILED" || order.status === "ODOO_SYNC_PENDING" ? (
                             <button className="ro-btn" name="action" value="retry-sync">Retry sync</button>
                           ) : null}
-                          {order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" ? (
-                            <button className="ro-btn" name="action" value="generate-pfi">Generate PFI</button>
+                          {order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" || order.status === "PFI_ISSUED" ? (
+                            <button className="ro-btn" name="action" value="generate-pfi">
+                              {order.status === "PFI_ISSUED" ? "Finish PFI" : "Generate PFI"}
+                            </button>
                           ) : null}
                           {order.status === "PAYMENT_VERIFICATION" ? (
                             <>
