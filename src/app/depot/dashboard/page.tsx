@@ -1,10 +1,10 @@
-import Link from "next/link";
 import type { DealerOrderStatus } from "@prisma/client";
 import { depotOrderScope } from "@/lib/access";
 import { MAX_LITRES } from "@/lib/orders/order-input";
 import { requireDepot } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { depotOrderAction } from "@/lib/orders/actions";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import "../../dealer/dealer-portal.css";
 
 const queues: { title: string; statuses: DealerOrderStatus[] }[] = [
@@ -41,6 +41,7 @@ export default async function DepotDashboardPage() {
           <h1>Today</h1>
           <p>Release queue, loading and dispatch. Only paid orders released by Trinity staff appear here.</p>
         </div>
+        <SignOutButton />
       </header>
       {queues.map((queue) => {
         const rows = orders.filter((order) => (queue.statuses as string[]).includes(order.status));
@@ -82,7 +83,6 @@ export default async function DepotDashboardPage() {
           </section>
         );
       })}
-      <p className="portal-note"><Link href="/access">Access gateway</Link></p>
     </div>
   );
 }
