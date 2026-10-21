@@ -105,6 +105,19 @@ describe(
       assert.equal(line.unitPriceExVat, "223.51");
     });
 
+    it("a PFI number already used by another order is refused with a note, not left stuck", async () => {
+      const first = await quotedOrder(pricedStationId, [{ product: "PMS", quantityLitres: 6000 }]);
+      const second = await quotedOrder(pricedStationId, [{ product: "PMS", quantityLitres: 4000 }]);
+      await prisma.dealerOrder.update({ where: { id: second.id }, data: { odooQuotationNumber: first.odooQuotationNumber } });
+      await service.generatePfi(first.id, staffId);
+
+      const result = await service.generatePfi(second.id, staffId);
+
+      assert.equal(result.status, "QUOTATION_READY");
+      assert.match(result.odooSyncError ?? "", /already used by another order/);
+      assert.equal(await prisma.proFormaInvoice.count({ where: { orderId: second.id } }), 0);
+    });
+
     it("a station with no price stays at QUOTATION_READY with the note", async () => {
       const order = await quotedOrder(unpricedStationId, [{ product: "PMS", quantityLitres: 1000 }]);
       await service.generatePfi(order.id, null);
