@@ -52,6 +52,7 @@ describe(
       const result = await resendInvite(u);
 
       assert.equal(result.ok, false);
+      assert.equal(result.ok ? 0 : result.status, 503, "an email failure is temporary");
       const after = await prisma.user.findUniqueOrThrow({ where: { id: u.id } });
       assert.equal(after.passwordHash, "existing-hash");
       assert.equal(after.status, "ACTIVE");
@@ -87,6 +88,7 @@ describe(
       const u = await user("depot", "DEPOT");
       const result = await resendInvite(u);
       assert.equal(result.ok, false);
+      assert.equal(result.ok ? 0 : result.status, 400, "retrying will never work for a depot account");
       assert.equal((await prisma.user.findUniqueOrThrow({ where: { id: u.id } })).passwordHash, "existing-hash");
     });
   },

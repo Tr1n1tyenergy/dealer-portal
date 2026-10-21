@@ -15,9 +15,11 @@ type Target = { id: string; email: string; firstName: string; accountType: strin
  */
 export async function resendInvite(
   user: Target,
-): Promise<{ ok: true; activateUrl: string } | { ok: false; message: string }> {
+): Promise<{ ok: true; activateUrl: string } | { ok: false; status: 400 | 503; message: string }> {
   const portal = PORTAL[user.accountType as keyof typeof PORTAL];
-  if (!portal) return { ok: false, message: "Depot accounts are set up by an Admin script, not by invitation." };
+  if (!portal) {
+    return { ok: false, status: 400, message: "Depot accounts are set up by an Admin script, not by invitation." };
+  }
 
   const token = generateSecureToken();
   await prisma.invitationToken.create({ data: { token, userId: user.id, expiresAt: daysFromNow(7) } });
@@ -31,7 +33,7 @@ export async function resendInvite(
     });
   } catch (err) {
     await prisma.invitationToken.deleteMany({ where: { token } });
-    return { ok: false, message: err instanceof EmailDeliveryError ? err.message : "Invitation email could not be sent." };
+    return { ok: false, status: 503, message: err instanceof EmailDeliveryError ? err.message : "Invitation email could not be sent." };
   }
 
   await prisma.$transaction([
