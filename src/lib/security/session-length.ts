@@ -3,3 +3,15 @@
  * JWT cookie), so people who are working stay signed in; a laptop left overnight asks again.
  */
 export const SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
+
+/**
+ * A session may continue only if it signed in after the account's last password change, so a
+ * reset ends every other session. No change on record → keep; no sign-in time (older token) → end.
+ */
+const CLOCK_SLACK_MS = 5_000;
+
+export function signedInAfterPasswordChange(loginAtMs: number | undefined, passwordChangedAt: Date | null): boolean {
+  if (!passwordChangedAt) return true;
+  // 5 s slack: the reset and the new login may be stamped by servers whose clocks differ slightly.
+  return loginAtMs !== undefined && loginAtMs >= passwordChangedAt.getTime() - CLOCK_SLACK_MS;
+}

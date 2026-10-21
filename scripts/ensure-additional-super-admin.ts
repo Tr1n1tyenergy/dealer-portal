@@ -54,6 +54,7 @@ async function main() {
           lastName,
           department,
           passwordHash,
+          passwordChangedAt: new Date(),
           role: "SUPER_ADMIN",
           accountType: "INTERNAL",
           status: "ACTIVE",
