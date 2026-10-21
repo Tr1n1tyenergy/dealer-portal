@@ -1,6 +1,7 @@
 "use client";
 
 import { conversationFilters, type ConversationFilter } from "@/lib/messaging/filters";
+import { shouldSendTyping } from "@/lib/messaging/typing";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -265,6 +266,7 @@ export function MessagingApp({
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingSentAt = useRef<number | null>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
   const activeConversation = useMemo(
@@ -469,6 +471,7 @@ export function MessagingApp({
 
   async function notifyTyping(isTyping: boolean) {
     if (!activeId) return;
+    typingSentAt.current = isTyping ? Date.now() : null;
     await fetch("/api/messaging/typing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -478,7 +481,7 @@ export function MessagingApp({
 
   function onDraftChange(value: string) {
     setDraft(value);
-    void notifyTyping(true);
+    if (shouldSendTyping(typingSentAt.current, Date.now())) void notifyTyping(true);
     if (typingTimer.current) clearTimeout(typingTimer.current);
     typingTimer.current = setTimeout(() => void notifyTyping(false), 1200);
   }
