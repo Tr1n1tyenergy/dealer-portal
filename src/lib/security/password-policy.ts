@@ -45,8 +45,3 @@ export function validatePasswordStrength(password: string): PasswordPolicyResult
   }
   return { ok: true };
 }
-
-export function assertPasswordStrength(password: string): void {
-  const result = validatePasswordStrength(password);
-  if (!result.ok) throw new Error(result.message);
-}
