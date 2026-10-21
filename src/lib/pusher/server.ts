@@ -35,5 +35,8 @@ export async function triggerConversationEvent(
 ) {
   const pusher = getPusherServer();
   if (!pusher) return;
-  await pusher.trigger(conversationChannel(conversationId), event, data);
+  // Best-effort: the change is already saved; a Pusher outage must not fail the request.
+  await pusher.trigger(conversationChannel(conversationId), event, data).catch((error: unknown) => {
+    console.warn(`[pusher] ${event} not delivered:`, error instanceof Error ? error.message : error);
+  });
 }
