@@ -317,7 +317,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                         <Calendar size={20} strokeWidth={1.8} />
                         <div className="dp-po-date__body">
                           <strong>{summaryDate}</strong>
-                          <em>Requested delivery date</em>
+                          <em>Up to {formatDisplayDate(dateWindow.max)} (current EPRA prices)</em>
                         </div>
                         <ChevronDown size={18} className="dp-po-date__chev" />
                         <input
@@ -327,6 +327,15 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                           min={dateWindow.min}
                           max={dateWindow.max}
                           onChange={(e) => setDeliveryDate(e.target.value)}
+                          // The field covers the whole card; open the calendar wherever it is clicked,
+                          // not only on the browser's small calendar icon.
+                          onClick={(e) => {
+                            try {
+                              e.currentTarget.showPicker();
+                            } catch {
+                              // Older browsers: the native click behaviour still applies.
+                            }
+                          }}
                           required
                           aria-label="Requested delivery date"
                         />
