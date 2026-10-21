@@ -4,9 +4,10 @@ import "./order-tracking-nav.css";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { orderNeighbours } from "@/lib/orders/dealer-views";
+import { shortcutHint } from "./quick-search";
 
 export type OrderNavItem = {
   id: string;
@@ -23,6 +24,9 @@ export function OrderTrackingNav({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  // Worked out after hydration: the server can't know the visitor's platform.
+  const [hint, setHint] = useState("Ctrl K");
+  useEffect(() => setHint(shortcutHint(navigator.platform)), []);
   // `orders` is newest first: Previous opens the older order, Next the newer one.
   const { older: prev, newer: next } = orderNeighbours(orders, currentId);
 
@@ -61,7 +65,7 @@ export function OrderTrackingNav({
           autoComplete="off"
           data-quick-search="page"
         />
-        <kbd>⌘K</kbd>
+        <kbd>{hint}</kbd>
         {matches.length > 0 ? (
           <ul className="dp-ot-find__results">
             {matches.map((item) => (
@@ -83,7 +87,7 @@ export function OrderTrackingNav({
             Previous
           </Link>
         ) : (
-          <span className="dp-ot-page-btn is-disabled">
+          <span className="dp-ot-page-btn is-disabled" aria-disabled="true">
             <ChevronLeft size={15} />
             Previous
           </span>
@@ -94,7 +98,7 @@ export function OrderTrackingNav({
             <ChevronRight size={15} />
           </Link>
         ) : (
-          <span className="dp-ot-page-btn is-disabled">
+          <span className="dp-ot-page-btn is-disabled" aria-disabled="true">
             Next
             <ChevronRight size={15} />
           </span>

@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   dealerOrderViewWhere,
   DEALER_ORDER_VIEWS,
+  emptyOrdersMessage,
   orderNeighbours,
   parseDealerOrderView,
   toDealerOrderRow,
@@ -103,5 +104,14 @@ describe("toDealerOrderRow", () => {
     const row = toDealerOrderRow({ ...base, lines: [base.lines[0]], proforma: null } as never);
     assert.equal(row.hasPfi, false);
     assert.equal(row.ago, null);
+  });
+});
+
+describe("emptyOrdersMessage", () => {
+  it("says what is missing on each tab instead of 'no orders yet'", () => {
+    assert.equal(emptyOrdersMessage("payment"), "No orders need payment right now.");
+    assert.equal(emptyOrdersMessage("documents"), "No PFIs or documents yet.");
+    assert.equal(emptyOrdersMessage("deliveries"), "No orders on the way or delivered yet.");
+    assert.equal(emptyOrdersMessage("all"), "No orders match your filters.");
   });
 });

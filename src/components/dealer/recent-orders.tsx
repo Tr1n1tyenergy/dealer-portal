@@ -61,6 +61,7 @@ export function RecentOrders({
   showViewAll = true,
   initialQuery = "",
   tabs,
+  emptyMessage = "No orders yet. Place a fuel order when you are ready.",
 }: {
   orders: RecentOrderRow[];
   stations: string[];
@@ -70,6 +71,8 @@ export function RecentOrders({
   initialQuery?: string;
   /** Links to the My Orders tabs; the active one is marked for screen readers. */
   tabs?: { label: string; href: string; active: boolean }[];
+  /** Shown when there are no orders to list (e.g. nothing on this tab). */
+  emptyMessage?: string;
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState("all");
@@ -134,6 +137,7 @@ export function RecentOrders({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by order number, station, or reference..."
+            aria-label="Search orders"
           />
         </label>
         <label className="dp-ro__select">
@@ -250,9 +254,7 @@ export function RecentOrders({
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={6} className="dp-ro__empty">
-                  {orders.length === 0
-                    ? "No orders yet. Place a fuel order when you are ready."
-                    : "No orders match your filters."}
+                  {orders.length === 0 ? emptyMessage : "No orders match your filters."}
                 </td>
               </tr>
             ) : null}

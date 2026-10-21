@@ -94,3 +94,17 @@ export function orderNeighbours(
     newer: index > 0 ? newestFirst[index - 1].id : null,
   };
 }
+
+/** What an empty My Orders table says, per tab (the dealer may have orders on other tabs). */
+export function emptyOrdersMessage(view: DealerOrderView): string {
+  switch (view) {
+    case "payment":
+      return "No orders need payment right now.";
+    case "documents":
+      return "No PFIs or documents yet.";
+    case "deliveries":
+      return "No orders on the way or delivered yet.";
+    default:
+      return "No orders match your filters.";
+  }
+}

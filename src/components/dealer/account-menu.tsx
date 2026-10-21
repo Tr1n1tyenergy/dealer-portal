@@ -19,11 +19,37 @@ export function AccountMenu({
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const items = () => Array.from(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+
+  function close(returnFocus: boolean) {
+    setOpen(false);
+    if (returnFocus) triggerRef.current?.focus();
+  }
+
+  // Menu keyboard: focus the first item on open; arrows move, Home/End jump, Escape closes.
+  function onMenuKeyDown(e: React.KeyboardEvent) {
+    const list = items();
+    const at = list.indexOf(document.activeElement as HTMLElement);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      list[(at + step + list.length) % list.length]?.focus();
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      (e.key === "Home" ? list[0] : list[list.length - 1])?.focus();
+    } else if (e.key === "Tab") {
+      close(false);
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
+    items()[0]?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") close(true);
     };
     const onDown = (e: MouseEvent) => {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
@@ -39,6 +65,7 @@ export function AccountMenu({
   return (
     <div className="dp-account" ref={rootRef}>
       <button
+        ref={triggerRef}
         type="button"
         className="dp-user"
         aria-label="Account menu"
@@ -55,7 +82,7 @@ export function AccountMenu({
       </button>
 
       {open ? (
-        <div className="dp-account__menu" role="menu">
+        <div className="dp-account__menu" role="menu" aria-label="Account" ref={menuRef} onKeyDown={onMenuKeyDown}>
           <div className="dp-account__who">
             <strong>{name}</strong>
             <span>{email}</span>

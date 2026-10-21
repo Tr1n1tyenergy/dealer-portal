@@ -24,3 +24,8 @@ export function useQuickSearchShortcut() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 }
+
+/** The shortcut as shown on the page: ⌘K on Apple devices, Ctrl K elsewhere. */
+export function shortcutHint(platform: string): string {
+  return /mac|iphone|ipad|ipod/i.test(platform) ? "⌘K" : "Ctrl K";
+}

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import {
   DEALER_ORDER_VIEWS,
   dealerOrderViewWhere,
+  emptyOrdersMessage,
   parseDealerOrderView,
   toDealerOrderRow,
 } from "@/lib/orders/dealer-views";
@@ -97,6 +98,7 @@ export default async function MyOrdersPage({
             showViewAll={false}
             initialQuery={query}
             tabs={tabs}
+            emptyMessage={emptyOrdersMessage(view)}
             orders={orders.map(toDealerOrderRow)}
             stations={stations.map((s) => s.name)}
           />

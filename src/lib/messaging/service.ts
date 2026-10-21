@@ -478,6 +478,31 @@ export async function listDirectory(actorId: string) {
 
 /** Unread messages across the user's visible chats (hidden chats, e.g. dealer-to-dealer, don't count). */
 export async function unreadMessageCount(userId: string): Promise<number> {
-  const conversations = await listConversationsForUser(userId);
-  return conversations.reduce((sum, conversation) => sum + conversation.unreadCount, 0);
+  // Only who is in each chat is needed to apply the visibility rule; then one count query.
+  const memberships = await prisma.conversationParticipant.findMany({
+    where: { userId },
+    select: {
+      conversation: {
+        select: {
+          id: true,
+          participants: { select: { userId: true, user: { select: { accountType: true, role: true } } } },
+        },
+      },
+    },
+  });
+  const visible = memberships
+    .filter(({ conversation }) => {
+      const me = conversation.participants.find((p) => p.userId === userId);
+      if (!me) return false;
+      return conversation.participants.every((p) => p.userId === userId || messagingPairAllowed(me.user, p.user));
+    })
+    .map(({ conversation }) => conversation.id);
+  if (visible.length === 0) return 0;
+  return prisma.messageReceipt.count({
+    where: {
+      userId,
+      status: { in: ["SENT", "DELIVERED"] },
+      message: { conversationId: { in: visible }, senderId: { not: userId }, deletedAt: null },
+    },
+  });
 }

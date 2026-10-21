@@ -1,5 +1,6 @@
 "use client";
 
+import { conversationFilters, type ConversationFilter } from "@/lib/messaging/filters";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -92,7 +93,7 @@ type ConversationContext = {
   files: ContextFile[];
 };
 
-type FilterTab = "all" | "dealers" | "internal" | "unread";
+type FilterTab = ConversationFilter;
 
 function initials(name: string) {
   return (
@@ -562,14 +563,7 @@ export function MessagingApp({
           />
         </div>
         <div className="msg-filters" role="tablist" aria-label="Conversation filters">
-          {(
-            [
-              ["all", "All"],
-              ["dealers", "Dealers"],
-              ["internal", "Internal"],
-              ["unread", "Unread"],
-            ] as const
-          ).map(([key, label]) => (
+          {conversationFilters(isDealerPortal).map(([key, label]) => (
             <button
               key={key}
               type="button"
