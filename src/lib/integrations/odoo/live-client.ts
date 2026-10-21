@@ -34,7 +34,7 @@ export class LiveOdooClient implements OdooClient {
   /** Cache External ID → database id for this client instance */
   private readonly externalIdCache = new Map<string, number>();
   /** A hung Odoo fails the call (order → ODOO_SYNC_FAILED, staff retry) instead of hanging the request. */
-  private timeoutMs = 15_000;
+  private timeoutMs = 8_000;
 
   private async rpc<T>(service: string, method: string, args: unknown[]): Promise<T> {
     const res = await fetch(`${this.env.baseUrl}/jsonrpc`, {
