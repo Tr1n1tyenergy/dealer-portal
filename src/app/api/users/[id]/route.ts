@@ -2,18 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
-import { generateSecureToken, daysFromNow } from "@/lib/tokens";
-import {
-  EmailDeliveryError,
-  emailDeliveryConfigured,
-  invitationEmailHtml,
-  sendEmail,
-} from "@/lib/email";
+import { emailDeliveryConfigured } from "@/lib/email";
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
 import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { resendInvite } from "@/lib/users/resend-invite";
 import { STAFF_ROLES } from "@/lib/access";
 
 const updateSchema = z.object({
@@ -76,35 +71,9 @@ export async function PATCH(
       );
     }
 
-    const token = generateSecureToken();
-    await prisma.invitationToken.create({
-      data: {
-        token,
-        userId: user.id,
-        expiresAt: daysFromNow(7),
-      },
-    });
-    await prisma.user.update({
-      where: { id },
-      data: { passwordHash: null, status: "PENDING" },
-    });
-    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-    const activateUrl = `${baseUrl}/intelligence/activate?token=${token}`;
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: "Welcome to Trinity Retail Intelligence",
-        html: invitationEmailHtml({ firstName: user.firstName, activateUrl }),
-      });
-      invitationSent = true;
-    } catch (err) {
-      await prisma.invitationToken.deleteMany({ where: { token } });
-      const message =
-        err instanceof EmailDeliveryError
-          ? err.message
-          : "Invitation email could not be sent.";
-      return jsonError(message, 503);
-    }
+    const sent = await resendInvite(user);
+    if (!sent.ok) return jsonError(sent.message, sent.status);
+    invitationSent = true;
   }
 
   await logActivity({
