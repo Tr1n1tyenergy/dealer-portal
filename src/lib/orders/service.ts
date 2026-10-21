@@ -1,5 +1,6 @@
 import type { DealerOrderStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { nairobiParts } from "@/lib/time/nairobi";
 import { canActOnDepotOrder } from "@/lib/access";
 import { logActivity } from "@/lib/activity";
 import { resolveOdooPartnerId } from "@/lib/dealers/registry";
@@ -33,7 +34,8 @@ const orderInclude = {
 export type OrderWithRelations = Prisma.DealerOrderGetPayload<{ include: typeof orderInclude }>;
 
 async function nextReference(tx: Prisma.TransactionClient) {
-  const year = new Date().getFullYear();
+  // The year on the Nairobi calendar, so an order at 00:30 on 1 January gets the new year's number.
+  const { year } = nairobiParts();
   const row = await tx.orderSequence.upsert({
     where: { year },
     create: { year, lastNumber: 1 },

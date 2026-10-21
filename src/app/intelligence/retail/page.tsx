@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { nairobiMonthStart } from "@/lib/time/nairobi";
 import { can } from "@/lib/access";
 import { requireInternal } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -24,20 +25,21 @@ function formatLitres(n: number) {
 }
 
 function formatDay(d: Date) {
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "Africa/Nairobi" });
 }
 
 export default async function RetailDashboardPage() {
   const session = await requireInternal();
   if (!can(session.user.role, "retail.analytics")) redirect("/intelligence/dashboard");
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  // Month edges on the Nairobi calendar (servers run on UTC).
+  const monthStart = nairobiMonthStart(now);
+  const prevMonthStart = nairobiMonthStart(now, -1);
   const prevMonthEnd = monthStart;
-  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  const sixMonthsAgo = nairobiMonthStart(now, -5);
 
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const prettyRange = `${String(monthStart.getDate()).padStart(2, "0")} ${monthStart.toLocaleString("en-GB", { month: "short" })} ${monthStart.getFullYear()} – ${String(monthEnd.getDate()).padStart(2, "0")} ${monthEnd.toLocaleString("en-GB", { month: "short" })} ${monthEnd.getFullYear()}`;
+  const lastDay = new Date(nairobiMonthStart(now, 1).getTime() - 1);
+  const prettyRange = `${formatDay(monthStart)} – ${formatDay(lastDay)}`;
 
   // Two waves (not 7-way Promise.all) to stay within Neon/Prisma pool limits under Turbopack HMR
   const orders = await prisma.dealerOrder.findMany({
