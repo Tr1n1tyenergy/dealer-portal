@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   Bell,
@@ -17,22 +17,21 @@ import {
   Search,
   ShoppingCart,
   Truck,
-  UserRound,
 } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { cn } from "@/lib/utils";
+import { activeDealerNav, type DealerNavKey } from "@/lib/dealer/nav";
 import { openSupport, SupportCard } from "./support-card";
 
-const nav = [
-  { href: "/dealer/dashboard", label: "Dashboard", icon: Home },
-  { href: "/dealer/orders/new", label: "Place Order", icon: ShoppingCart },
-  { href: "/dealer/orders", label: "My Orders", icon: Package },
-  { href: "/dealer/messaging", label: "Messaging", icon: MessageSquare },
-  { href: "/dealer/orders", label: "PFIs & Documents", icon: FileText },
-  { href: "/dealer/orders", label: "Payments", icon: CreditCard },
-  { href: "/dealer/orders", label: "Deliveries", icon: Truck },
-  { href: "/dealer/dashboard#stations", label: "Stations", icon: MapPin },
-  { href: "/dealer/dashboard", label: "Account", icon: UserRound },
+const nav: { href: string; label: string; icon: typeof Home; key: DealerNavKey | null }[] = [
+  { href: "/dealer/dashboard", label: "Dashboard", icon: Home, key: "dashboard" },
+  { href: "/dealer/orders/new", label: "Place Order", icon: ShoppingCart, key: "place-order" },
+  { href: "/dealer/orders", label: "My Orders", icon: Package, key: "orders" },
+  { href: "/dealer/messaging", label: "Messaging", icon: MessageSquare, key: "messaging" },
+  { href: "/dealer/orders?view=documents", label: "PFIs & Documents", icon: FileText, key: "documents" },
+  { href: "/dealer/orders?view=payment", label: "Payments", icon: CreditCard, key: "payments" },
+  { href: "/dealer/orders?view=deliveries", label: "Deliveries", icon: Truck, key: "deliveries" },
+  { href: "/dealer/dashboard#stations", label: "Stations", icon: MapPin, key: null },
 ];
 
 export function DealerShell({
@@ -45,6 +44,7 @@ export function DealerShell({
   initials: string;
 }) {
   const pathname = usePathname();
+  const active = activeDealerNav(pathname, useSearchParams().get("view"));
 
   return (
     <div className="dp-shell">
@@ -95,22 +95,13 @@ export function DealerShell({
           <nav className="dp-sidebar__nav" aria-label="Dealer portal">
             {nav.map((item) => {
               const Icon = item.icon;
-              const active =
-                item.label === "Dashboard"
-                  ? pathname === "/dealer/dashboard"
-                  : item.label === "Place Order"
-                    ? pathname.startsWith("/dealer/orders/new")
-                    : item.label === "My Orders"
-                      ? pathname === "/dealer/orders" ||
-                        (pathname.startsWith("/dealer/orders/") && !pathname.includes("/new"))
-                      : item.label === "Messaging"
-                        ? pathname.startsWith("/dealer/messaging")
-                        : false;
+              const isActive = item.key !== null && item.key === active;
               return (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={cn("dp-sidebar__link", active && "is-active")}
+                  className={cn("dp-sidebar__link", isActive && "is-active")}
+                  aria-current={isActive ? "page" : undefined}
                 >
                   <Icon size={18} strokeWidth={1.75} />
                   <span>{item.label}</span>
