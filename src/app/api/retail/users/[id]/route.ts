@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
-import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal, revokeOpenLinks } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { STAFF_ROLES } from "@/lib/access";
 
@@ -49,6 +49,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
     (await dealerLoginRefusal(user, parsed.data.status));
   if (refusal) return jsonError(refusal.message, refusal.status);
 
+  if (parsed.data.status === "DISABLED") await revokeOpenLinks(id);
   const updated = await prisma.user.update({
     where: { id },
     data: {
