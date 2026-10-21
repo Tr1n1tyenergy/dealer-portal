@@ -299,7 +299,13 @@ export async function generatePfi(orderId: string, actorId: string | null) {
   if (!order?.odooQuotationId) throw new Error("A quotation is required before a PFI.");
 
   const existing = await prisma.proFormaInvoice.findUnique({ where: { orderId } });
-  if (existing) return order;
+  if (existing) {
+    // The PFI was saved but the order never reached AWAITING_PAYMENT: finish that step.
+    if (order.status !== "PFI_ISSUED") return order;
+    return prisma.$transaction((tx) =>
+      recordTransition(tx, { orderId, from: "PFI_ISSUED", to: "AWAITING_PAYMENT", actorId, note: "Waiting for dealer payment" })
+    );
+  }
 
   // A previous attempt may have left the order in PFI_PENDING; retry straight from there.
   if (order.status !== "PFI_PENDING") {
