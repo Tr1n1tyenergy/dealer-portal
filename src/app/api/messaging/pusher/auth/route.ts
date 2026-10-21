@@ -29,17 +29,5 @@ export async function POST(req: Request) {
     return NextResponse.json(authResponse);
   }
 
-  if (channel.startsWith("presence-user-")) {
-    const presenceUserId = channel.replace("presence-user-", "");
-    if (presenceUserId !== userId) return jsonError("Forbidden", 403);
-    const authResponse = pusher.authorizeChannel(socketId, channel, {
-      user_id: userId,
-      user_info: {
-        name: `${auth.session.user.firstName ?? ""} ${auth.session.user.lastName ?? ""}`.trim(),
-      },
-    });
-    return NextResponse.json(authResponse);
-  }
-
   return jsonError("Unsupported channel", 403);
 }
