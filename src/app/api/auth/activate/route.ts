@@ -47,7 +47,8 @@ export async function POST(req: Request) {
     include: { user: true },
   });
 
-  if (!invite || invite.usedAt || invite.expiresAt < new Date()) {
+  // A disabled account stays disabled, even with an invite issued before it was disabled.
+  if (!invite || invite.usedAt || invite.expiresAt < new Date() || invite.user.status === "DISABLED") {
     return jsonError("Invitation is invalid or expired.", 400);
   }
 
