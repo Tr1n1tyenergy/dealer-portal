@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { cn } from "@/lib/utils";
+import { openSupport, SupportCard } from "./support-card";
 
 const nav = [
   { href: "/dealer/dashboard", label: "Dashboard", icon: Home },
@@ -31,7 +32,6 @@ const nav = [
   { href: "/dealer/orders", label: "Payments", icon: CreditCard },
   { href: "/dealer/orders", label: "Deliveries", icon: Truck },
   { href: "/dealer/dashboard#stations", label: "Stations", icon: MapPin },
-  { href: "/dealer/dashboard#support", label: "Support", icon: Headphones },
   { href: "/dealer/dashboard", label: "Account", icon: UserRound },
 ];
 
@@ -117,6 +117,10 @@ export function DealerShell({
                 </Link>
               );
             })}
+            <button type="button" className="dp-sidebar__link" onClick={openSupport}>
+              <Headphones size={18} strokeWidth={1.75} />
+              <span>Support</span>
+            </button>
           </nav>
 
           <div className="dp-sidebar__promo">
@@ -132,6 +136,7 @@ export function DealerShell({
 
         <div className="dp-content">{children}</div>
       </div>
+      <SupportCard />
     </div>
   );
 }
