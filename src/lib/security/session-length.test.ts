@@ -22,7 +22,11 @@ describe("signedInAfterPasswordChange", () => {
   });
 
   it("ends a session that signed in before the password changed", () => {
-    assert.equal(signedInAfterPasswordChange(Date.parse("2026-10-21T09:59:59Z"), changed), false);
+    assert.equal(signedInAfterPasswordChange(Date.parse("2026-10-21T09:59:50Z"), changed), false);
+  });
+
+  it("allows 5 s of clock difference between servers, so a fresh login right after a reset survives", () => {
+    assert.equal(signedInAfterPasswordChange(Date.parse("2026-10-21T09:59:57Z"), changed), true);
   });
 
   it("keeps a session that signed in after the change", () => {
