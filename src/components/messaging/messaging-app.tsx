@@ -1007,12 +1007,9 @@ export function MessagingApp({
                             void (async () => {
                               setFileNotice("");
                               try {
-                                const url = `${f.downloadPath}${
-                                  activeId ? `?conversationId=${activeId}` : ""
-                                }`;
-                                const res = await fetch(url);
+                                const res = await fetch(f.downloadPath);
                                 if (!res.ok) {
-                                  setFileNotice("File is not available on this server.");
+                                  setFileNotice("Could not open the PFI.");
                                   setTimeout(() => setFileNotice(""), 4000);
                                   return;
                                 }
