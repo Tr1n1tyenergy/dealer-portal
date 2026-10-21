@@ -35,10 +35,10 @@ function mockAmountTotal(lines: CreateQuotationInput["lines"]): string {
  * older ids without a total (mock-quot-<key>) rebuild as 0.00.
  */
 function mockQuotation(idempotencyKey: string, amountTotal: string, lines: CreateQuotationInput["lines"]): OdooQuotation {
-  const n = hashKey(idempotencyKey) % 90000;
   return {
     id: `${MOCK_QUOTATION_PREFIX}${amountTotal}-${idempotencyKey}`,
-    number: `${mockCommercialDocumentPrefix()}-S${String(10000 + (n % 89999)).padStart(5, "0")}`,
+    // The whole hash, so two orders don't share a number (a PFI number must be unique).
+    number: `${mockCommercialDocumentPrefix()}-S${hashKey(idempotencyKey).toString(36).toUpperCase()}`,
     currency: "KES",
     amountTotal,
     status: "draft",
