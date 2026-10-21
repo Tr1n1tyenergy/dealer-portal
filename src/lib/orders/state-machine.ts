@@ -117,53 +117,94 @@ export function dealerStatusLabel(status: DealerOrderStatus): string {
   }
 }
 
-export const DEALER_PROGRESS_STEPS = [
-  "Order Submitted",
-  "Quotation Processed",
-  "PFI Issued",
-  "Payment",
-  "Depot Release",
-  "Loading",
-  "Dispatch",
-  "In Transit",
-  "Delivered",
+export const DEALER_TRACKER_STEPS = [
+  { key: "submitted", label: "Order Submitted" },
+  { key: "quotation", label: "Quotation & PFI" },
+  { key: "payment", label: "Payment" },
+  { key: "release", label: "Released to Depot" },
+  { key: "loading", label: "Loading" },
+  { key: "transit", label: "On the Way" },
+  { key: "delivered", label: "Delivered" },
 ] as const;
 
-export function dealerProgressIndex(status: DealerOrderStatus): number {
+export type DealerTrackerStepKey = (typeof DEALER_TRACKER_STEPS)[number]["key"];
+export type DealerTrackerStepState = "done" | "active" | "attention" | "pending" | "stopped";
+export type DealerTrackerStep = {
+  key: DealerTrackerStepKey;
+  label: string;
+  state: DealerTrackerStepState;
+  note: string | null;
+};
+
+/** Where an order sits on the dealer's tracker: the step it waits on (7 = all done). */
+function trackerPosition(status: DealerOrderStatus): {
+  current: number;
+  attention?: boolean;
+  note?: string;
+  stopped?: string;
+} {
   switch (status) {
     case "DRAFT":
-      return -1;
+      return { current: 0, note: "Draft" };
+    case "REQUIRES_AMENDMENT":
+      return { current: 0, attention: true, note: "Needs attention" };
     case "SUBMITTED":
-      return 0;
     case "ODOO_SYNC_PENDING":
-    case "ODOO_SYNC_FAILED":
     case "QUOTATION_CREATING":
     case "QUOTATION_READY":
     case "PFI_PENDING":
-      return 1;
+      return { current: 1, note: "Preparing" };
+    case "ODOO_SYNC_FAILED":
+      return { current: 1, attention: true, note: "Delayed" };
     case "PFI_ISSUED":
     case "AWAITING_PAYMENT":
-      return 2;
+      return { current: 2, note: "Awaiting payment" };
     case "PAYMENT_SUBMITTED":
     case "PAYMENT_VERIFICATION":
-    case "PAYMENT_CONFIRMED":
+      return { current: 2, note: "Verifying" };
     case "PAYMENT_EXCEPTION":
-      return 3;
+      return { current: 2, attention: true, note: "Needs attention" };
+    case "PAYMENT_CONFIRMED":
+      return { current: 3 };
     case "RELEASED_TO_DEPOT":
-    case "STOCK_EXCEPTION":
-      return 4;
     case "LOADING":
+      return { current: 4 };
     case "LOADED":
-      return 5;
+      return { current: 4, note: "Loaded" };
+    case "STOCK_EXCEPTION":
+      return { current: 4, attention: true, note: "Delayed" };
     case "DISPATCHED":
-      return 6;
     case "IN_TRANSIT":
+      return { current: 5 };
     case "DELIVERY_EXCEPTION":
-      return 7;
+      return { current: 5, attention: true, note: "Needs attention" };
     case "DELIVERED":
     case "CLOSED":
-      return 8;
-    default:
-      return 0;
+      return { current: DEALER_TRACKER_STEPS.length };
+    case "CANCELLED":
+      return { current: 0, stopped: "Order cancelled" };
+    case "REJECTED":
+      return { current: 0, stopped: "Order rejected" };
   }
+}
+
+/**
+ * The dealer's order tracker: finished steps are done, the step the order is waiting on is
+ * active (or "attention" when something went wrong there), later steps are pending.
+ */
+export function dealerTrackerSteps(status: DealerOrderStatus): {
+  steps: DealerTrackerStep[];
+  stopped: string | null;
+} {
+  const position = trackerPosition(status);
+  const steps = DEALER_TRACKER_STEPS.map((step, index): DealerTrackerStep => {
+    let state: DealerTrackerStepState;
+    if (position.stopped) state = "stopped";
+    else if (index < position.current) state = "done";
+    else if (index === position.current) state = position.attention ? "attention" : "active";
+    else state = "pending";
+    const isCurrent = state === "active" || state === "attention";
+    return { key: step.key, label: step.label, state, note: isCurrent ? position.note ?? null : null };
+  });
+  return { steps, stopped: position.stopped ?? null };
 }

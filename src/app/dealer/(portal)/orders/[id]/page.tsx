@@ -16,22 +16,14 @@ import {
 import type { DealerOrderStatus } from "@prisma/client";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { dealerProgressIndex, dealerStatusLabel } from "@/lib/orders/state-machine";
+import {
+  dealerStatusLabel,
+  dealerTrackerSteps,
+  type DealerTrackerStep,
+} from "@/lib/orders/state-machine";
 import { PaymentForm } from "@/components/dealer/payment-form";
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
 import "@/components/dealer/order-tracking.css";
-
-const TRACK_STEPS = [
-  "Order Submitted",
-  "Quotation Processing",
-  "PFI",
-  "Payment",
-  "Depot Release",
-  "Loading",
-  "Dispatch",
-  "In Transit",
-  "Delivered",
-] as const;
 
 function formatLitres(n: number) {
   return `${n.toLocaleString()} L`;
@@ -111,32 +103,44 @@ function statusCopy(status: DealerOrderStatus) {
   }
 }
 
+/** Document badges follow the same tracker as the progress bar, so the two always agree. */
 function docState(
   kind: "quotation" | "pfi" | "payment" | "delivery",
+  steps: DealerTrackerStep[],
   status: DealerOrderStatus,
   hasPfi: boolean,
-  hasPayment: boolean,
 ) {
-  const step = dealerProgressIndex(status);
+  const stateOf = (key: DealerTrackerStep["key"]) => steps.find((s) => s.key === key)?.state;
   if (kind === "quotation") {
-    if (step >= 2 || hasPfi) return { label: "Ready", tone: "ready" as const };
-    if (step >= 1 || status === "SUBMITTED") return { label: "Processing", tone: "processing" as const };
+    if (hasPfi || stateOf("quotation") === "done") return { label: "Ready", tone: "ready" as const };
+    const quotation = stateOf("quotation");
+    if (quotation === "active" || quotation === "attention") {
+      return { label: "Processing", tone: "processing" as const };
+    }
     return { label: "Pending", tone: "pending" as const };
   }
   if (kind === "pfi") {
-    if (hasPfi || step >= 2) return { label: "Ready", tone: "ready" as const };
+    if (hasPfi) return { label: "Ready", tone: "ready" as const };
     return { label: "Pending", tone: "pending" as const };
   }
   if (kind === "payment") {
-    if (hasPayment || step >= 3) return { label: "Ready", tone: "ready" as const };
+    if (stateOf("payment") === "done") return { label: "Ready", tone: "ready" as const };
     if (status === "AWAITING_PAYMENT" || status === "PFI_ISSUED") {
       return { label: "Action needed", tone: "processing" as const };
     }
     return { label: "Pending", tone: "pending" as const };
   }
-  if (step >= 8) return { label: "Ready", tone: "ready" as const };
+  if (stateOf("delivered") === "done") return { label: "Ready", tone: "ready" as const };
   return { label: "Pending", tone: "pending" as const };
 }
+
+const STEP_STATUS_TEXT: Record<DealerTrackerStep["state"], string> = {
+  done: "Done",
+  active: "In Progress",
+  attention: "Needs attention",
+  pending: "Pending",
+  stopped: "—",
+};
 
 export default async function DealerOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireDealer();
@@ -161,7 +165,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
     stationName: item.station.name,
   }));
 
-  const step = dealerProgressIndex(order.status);
+  const tracker = dealerTrackerSteps(order.status);
   const canPay = order.status === "AWAITING_PAYMENT" || order.status === "PAYMENT_EXCEPTION";
   const pms = order.lines.find((l) => l.product === "PMS")?.quantityLitres ?? 0;
   const ago = order.lines.find((l) => l.product === "AGO")?.quantityLitres ?? 0;
@@ -174,22 +178,22 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
     {
       key: "quotation",
       title: "Sales Quotation",
-      ...docState("quotation", order.status, Boolean(order.proforma), order.payments.length > 0),
+      ...docState("quotation", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
       key: "pfi",
       title: "Pro Forma Invoice (PFI)",
-      ...docState("pfi", order.status, Boolean(order.proforma), order.payments.length > 0),
+      ...docState("pfi", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
       key: "payment",
       title: "Payment Confirmation",
-      ...docState("payment", order.status, Boolean(order.proforma), order.payments.length > 0),
+      ...docState("payment", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
       key: "delivery",
       title: "Delivery Note",
-      ...docState("delivery", order.status, Boolean(order.proforma), order.payments.length > 0),
+      ...docState("delivery", tracker.steps, order.status, Boolean(order.proforma)),
     },
   ];
 
@@ -256,33 +260,48 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
           </div>
 
           <div className="dp-ot-progress-wrap">
-            <div className="dp-ot-progress" aria-label="Order progress">
-              {TRACK_STEPS.map((label, index) => {
-                const isDone = step > index;
-                const isActive = step === index;
+            {tracker.stopped ? <p className="dp-ot-progress__stopped">{tracker.stopped}</p> : null}
+            <ol
+              className={`dp-ot-progress ${tracker.stopped ? "is-stopped" : ""}`}
+              aria-label="Order progress"
+            >
+              {tracker.steps.map((item, index) => {
+                const next = tracker.steps[index + 1];
                 const connectorClass =
-                  step > index ? "is-done" : step === index ? "is-active" : "";
+                  item.state === "done"
+                    ? next && next.state !== "done"
+                      ? "is-active"
+                      : "is-done"
+                    : "";
+                const isCurrent = item.state === "active" || item.state === "attention";
                 return (
-                  <div
-                    key={label}
-                    className={`dp-ot-progress__step ${isDone ? "is-done" : ""} ${isActive ? "is-active" : ""}`}
+                  <li
+                    key={item.key}
+                    className={`dp-ot-progress__step is-${item.state}`}
+                    aria-current={isCurrent ? "step" : undefined}
                   >
                     <div className="dp-ot-progress__rail">
                       <div className="dp-ot-progress__node">
                         <span className="dp-ot-progress__dot">
-                          {isDone ? <Check size={14} strokeWidth={3} /> : index + 1}
+                          {item.state === "done" ? (
+                            <Check size={14} strokeWidth={3} />
+                          ) : item.state === "attention" ? (
+                            "!"
+                          ) : (
+                            index + 1
+                          )}
                         </span>
-                        <em>{label}</em>
-                        <small>{isDone ? "Done" : isActive ? "In Progress" : "Pending"}</small>
+                        <em>{item.label}</em>
+                        <small>{item.note ?? STEP_STATUS_TEXT[item.state]}</small>
                       </div>
-                      {index < TRACK_STEPS.length - 1 ? (
+                      {index < tracker.steps.length - 1 ? (
                         <span className={`dp-ot-progress__line ${connectorClass}`} aria-hidden />
                       ) : null}
                     </div>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ol>
           </div>
         </div>
       </section>
