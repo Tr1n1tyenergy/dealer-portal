@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
-  Bell,
   CreditCard,
   FileText,
   Headphones,
@@ -22,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { activeDealerNav, type DealerNavKey } from "@/lib/dealer/nav";
 import { openSupport, SupportCard } from "./support-card";
 import { AccountMenu } from "./account-menu";
+import { UnreadBell } from "./unread-bell";
 import { useQuickSearchShortcut } from "./quick-search";
 
 const nav: { href: string; label: string; icon: typeof Home; key: DealerNavKey | null }[] = [
@@ -89,14 +89,7 @@ export function DealerShell({
         </form>
 
         <div className="dp-topbar__actions">
-          <Link
-            href="/dealer/messaging"
-            className="dp-bell"
-            aria-label={unread > 0 ? `Messages, ${unread} unread` : "Messages"}
-          >
-            <Bell size={18} strokeWidth={1.75} />
-            {unread > 0 ? <span>{unread > 99 ? "99+" : unread}</span> : null}
-          </Link>
+          <UnreadBell initial={unread} />
 
           <AccountMenu orgName={orgName} initials={initials} name={name} email={email} />
 

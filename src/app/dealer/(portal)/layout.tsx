@@ -21,7 +21,8 @@ export default async function DealerPortalLayout({
         },
       },
     }),
-    unreadMessageCount(session.user.id),
+    // The bell is a nicety: a messaging error must not take every dealer page down.
+    unreadMessageCount(session.user.id).catch(() => 0),
   ]);
   // Post-activation: trading name is the primary dealer label
   const orgName =
