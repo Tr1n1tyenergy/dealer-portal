@@ -103,6 +103,30 @@ describe(
       assert.ok(listed.includes(withSpe.id));
     });
 
+    it("saves a message once and reports success even when Pusher fails", async () => {
+      const keys = ["PUSHER_APP_ID", "PUSHER_KEY", "PUSHER_SECRET", "PUSHER_CLUSTER"] as const;
+      const saved = keys.map((k) => process.env[k]);
+      Object.assign(process.env, { PUSHER_APP_ID: "1", PUSHER_KEY: "k", PUSHER_SECRET: "s", PUSHER_CLUSTER: "eu" });
+      try {
+        const { getPusherServer } = await import("@/lib/pusher/server");
+        const pusher = getPusherServer()!;
+        pusher.trigger = (async () => {
+          throw new Error("Pusher is down");
+        }) as typeof pusher.trigger;
+
+        const chat = await service.getOrCreateDirectConversation(users.dealerA, users.spe);
+        const message = await service.sendMessage(chat.id, users.dealerA, "Is my PFI ready?");
+
+        assert.equal(message.body, "Is my PFI ready?");
+        assert.equal(await prisma.message.count({ where: { conversationId: chat.id, body: "Is my PFI ready?" } }), 1);
+        // Opening the chat marks it read, which also notifies Pusher; that must not fail either.
+        await assert.doesNotReject(() => service.listMessages(chat.id, users.spe));
+        await assert.doesNotReject(() => service.markConversationRead(chat.id, users.spe));
+      } finally {
+        keys.forEach((k, i) => (saved[i] === undefined ? delete process.env[k] : (process.env[k] = saved[i])));
+      }
+    });
+
     it("hides an old dealer-to-dealer chat and refuses reading or sending in it", async () => {
       const listed = (await service.listConversationsForUser(users.dealerA)).map((c) => c.id);
       assert.ok(!listed.includes(dealerChatId), "the old dealer chat must not be listed");
