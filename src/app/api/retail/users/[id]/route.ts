@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
-import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { adminTargetRefusal, dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { STAFF_ROLES } from "@/lib/access";
 
@@ -30,6 +30,8 @@ export async function PATCH(req: Request, ctx: Ctx) {
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
   if (user.accountType !== "INTERNAL" && user.accountType !== "DEALER") {
     return jsonError("Only retail (internal/dealer) users can be edited here.", 400);
   }
@@ -103,6 +105,8 @@ export async function DELETE(_req: Request, ctx: Ctx) {
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
   if (user.accountType !== "INTERNAL" && user.accountType !== "DEALER") {
     return jsonError("Only retail (internal/dealer) users can be deleted here.", 400);
   }

@@ -12,7 +12,7 @@ import {
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
-import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { adminTargetRefusal, dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { STAFF_ROLES } from "@/lib/access";
 
@@ -43,6 +43,8 @@ export async function PATCH(
   }
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
   if (parsed.data.role && user.accountType !== "INTERNAL") {
     return jsonError("Only staff accounts can be given a staff role.", 400);
   }
@@ -140,6 +142,8 @@ export async function DELETE(
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
 
   if (!mayDeleteProtectedAdmin(auth.session.user.email ?? "", user.email)) {
     return jsonError(

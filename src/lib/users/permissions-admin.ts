@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
+import { adminTargetRefusal, anotherAbleAdmin } from "@/lib/users/admin-rules";
 import { canUser, parseOverrides, PERMISSION_KEYS, type PermissionKey, type StaffUser } from "@/lib/permissions";
 
 export type PermissionChange = { key: string; value: "allow" | "deny" | "inherit" };
@@ -9,7 +10,8 @@ const MAX_CHANGES = 14;
 
 /**
  * Apply Allow / Deny / inherit ticks to a staff member's permissions. Only people with Act on
- * Admin Users may do it, and at least one active person must keep Act on Admin Users afterwards.
+ * Admin Users may do it, only an Admin may change an Admin, and at least one active Admin must keep
+ * Act on Admin Users afterwards.
  */
 export async function savePermissions(
   actor: StaffUser & { id: string },
@@ -26,6 +28,8 @@ export async function savePermissions(
   if (target.accountType !== "INTERNAL") {
     return { ok: false, status: 400, message: "Permissions apply to staff accounts only." };
   }
+  const notAdmin = adminTargetRefusal(actor, target);
+  if (notAdmin) return { ok: false, status: 403, message: notAdmin.message };
 
   const overrides = parseOverrides(target.permissions);
   for (const { key, value } of changes) {
@@ -34,16 +38,10 @@ export async function savePermissions(
   }
   const next = JSON.stringify(overrides);
 
-  // shortcut: reads every active staff member (fine for ~10 staff), check in SQL if staff grows to hundreds.
-  const staff = await prisma.user.findMany({
-    where: { accountType: "INTERNAL", status: "ACTIVE" },
-    select: { id: true, accountType: true, role: true, permissions: true },
-  });
-  const someoneCanAdminister = staff.some((u) =>
-    canUser(u.id === targetId ? { ...u, permissions: next } : u, "adminUsers", "act"),
-  );
-  if (!someoneCanAdminister) {
-    return { ok: false, status: 400, message: "At least one active person must keep Act on Admin Users." };
+  const losesAct = target.role === "SUPER_ADMIN" && target.status === "ACTIVE" &&
+    !canUser({ ...target, permissions: next }, "adminUsers", "act");
+  if (losesAct && !(await anotherAbleAdmin(targetId))) {
+    return { ok: false, status: 400, message: "At least one active Admin must keep Act on Admin Users." };
   }
 
   await prisma.user.update({ where: { id: targetId }, data: { permissions: next } });

@@ -75,17 +75,24 @@ describe(
       assert.deepEqual(JSON.parse(log.metaJson ?? "{}"), { before: "[]", after: '{"orders.act":"deny"}' });
     });
 
-    it("keeps at least one active person with Act on Admin Users", async () => {
+    it("keeps at least one active Admin with Act on Admin Users", async () => {
       const admin = await actor("admin");
       const lockout = await savePermissions(admin, ids.admin, [{ key: "adminUsers.act", value: "deny" }]);
       assert.equal(lockout.ok, false);
-      assert.match(lockout.ok ? "" : lockout.message, /At least one active person must keep Act on Admin Users/);
+      assert.match(lockout.ok ? "" : lockout.message, /At least one active Admin must keep Act on Admin Users/);
       assert.equal((await actor("admin")).permissions, "[]", "unchanged");
 
-      // Once someone else can act on Admin Users, the Admin may give it up.
+      // A non-Admin holding Act on Admin Users doesn't count: the Admins must keep it.
       await prisma.user.update({ where: { id: ids.spe }, data: { permissions: '{"adminUsers.view":"allow","adminUsers.act":"allow"}' } });
-      const ok = await savePermissions(admin, ids.admin, [{ key: "adminUsers.act", value: "deny" }]);
-      assert.equal(ok.ok, true);
+      const still = await savePermissions(admin, ids.admin, [{ key: "adminUsers.act", value: "deny" }]);
+      assert.equal(still.ok, false);
+    });
+
+    it("refuses a non-Admin with Act on Admin Users changing an Admin's ticks", async () => {
+      await prisma.user.update({ where: { id: ids.spe }, data: { permissions: '{"adminUsers.view":"allow","adminUsers.act":"allow"}' } });
+      const result = await savePermissions(await actor("spe"), ids.admin, [{ key: "settings.view", value: "deny" }]);
+      assert.equal(result.ok ? null : result.status, 403);
+      assert.equal((await actor("admin")).permissions, "[]", "unchanged");
     });
   },
 );
