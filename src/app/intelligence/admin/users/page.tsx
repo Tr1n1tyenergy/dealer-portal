@@ -1,10 +1,11 @@
-import { requireSuperAdmin } from "@/lib/session";
+import { requirePermission } from "@/lib/session";
+import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/layout/app-shell";
 import { UsersAdminClient } from "@/components/admin/users-admin-client";
 
 export default async function AdminUsersPage() {
-  await requireSuperAdmin();
+  const session = await requirePermission("adminUsers", "view");
   const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
 
   return (
@@ -27,7 +28,10 @@ export default async function AdminUsersPage() {
           department: u.department,
           role: u.role,
           status: u.status,
+          accountType: u.accountType,
+          permissions: u.permissions,
         }))}
+        canManage={canUser(session.user, "adminUsers", "act")}
       />
     </AppShell>
   );

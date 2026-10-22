@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
-import { can } from "@/lib/access";
+import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { likeLiteral } from "@/lib/search";
 import { requireInternal } from "@/lib/session";
@@ -17,8 +17,8 @@ const first = (value: string | string[] | undefined) => (Array.isArray(value) ? 
 
 export default async function RetailOrdersPage({ searchParams }: { searchParams: SearchParams }) {
   const session = await requireInternal();
-  if (!can(session.user.role, "retail.orders")) redirect("/intelligence/retail");
-  const mayAct = can(session.user.role, "orders.act");
+  if (!canUser(session.user, "orders", "view")) redirect("/intelligence/retail");
+  const mayAct = canUser(session.user, "orders", "act");
   const priceList = priceListStatus(new Date());
 
   const params = await searchParams;

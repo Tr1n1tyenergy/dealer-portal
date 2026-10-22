@@ -26,6 +26,7 @@ async function hydrateTokenFromUser(userId: string) {
     accountType: user.accountType,
     dealerOrganizationId: user.dealerOrganizationId,
     depotId: user.depotId,
+    permissions: user.permissions,
   };
 }
 
@@ -92,6 +93,7 @@ export const authOptions: NextAuthOptions = {
           accountType: user.accountType,
           dealerOrganizationId: user.dealerOrganizationId,
           depotId: user.depotId,
+          permissions: user.permissions,
         };
       },
     }),
@@ -109,6 +111,7 @@ export const authOptions: NextAuthOptions = {
           user as { dealerOrganizationId?: string | null }
         ).dealerOrganizationId;
         token.depotId = (user as { depotId?: string | null }).depotId;
+        token.permissions = (user as { permissions?: string }).permissions;
         delete token.error;
         return token;
       }
@@ -127,6 +130,7 @@ export const authOptions: NextAuthOptions = {
           token.accountType = fresh.accountType;
           token.dealerOrganizationId = fresh.dealerOrganizationId;
           token.depotId = fresh.depotId;
+          token.permissions = fresh.permissions;
           delete token.error;
         } catch {
           // Keep prior token claims if DB is briefly unreachable
@@ -149,6 +153,7 @@ export const authOptions: NextAuthOptions = {
         session.user.dealerOrganizationId =
           (token.dealerOrganizationId as string | null) ?? null;
         session.user.depotId = (token.depotId as string | null) ?? null;
+        session.user.permissions = (token.permissions as string | undefined) ?? "[]";
       }
       return session;
     },

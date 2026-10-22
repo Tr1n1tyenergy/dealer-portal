@@ -25,23 +25,6 @@ export function roleLabel(role: string | null | undefined): string {
   return ROLE_LABELS[role] ?? role;
 }
 
-export type Permission = "retail.analytics" | "retail.orders" | "retail.messaging" | "retail.users" | "orders.act";
-
-const PERMISSIONS: Record<string, readonly Permission[]> = {
-  SUPER_ADMIN: ["retail.analytics", "retail.orders", "retail.messaging", "retail.users", "orders.act"],
-  SALES_PERSON_EXECUTIVE: ["retail.analytics", "retail.orders", "retail.messaging", "orders.act"],
-};
-
-/** Whether a role may use an area of the staff portal or act on dealer orders. */
-export function can(role: string | null | undefined, permission: Permission): boolean {
-  return Boolean(role && PERMISSIONS[role]?.includes(permission));
-}
-
-/** The Retail Interface opens for anyone with at least one retail permission. */
-export function canAccessRetail(role: string | null | undefined): boolean {
-  return (["retail.analytics", "retail.orders", "retail.messaging", "retail.users"] as const).some((p) => can(role, p));
-}
-
 export function canOperateDepot(role: string) {
   return role === "SUPER_ADMIN" || role === "DEPOT_MANAGER";
 }

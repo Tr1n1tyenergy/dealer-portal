@@ -103,6 +103,20 @@ describe(
       assert.ok(listed.includes(withSpe.id));
     });
 
+    it("follows the person's ticks: an SPE denied Messaging leaves a dealer's contacts and chats", async () => {
+      const chat = await service.getOrCreateDirectConversation(users.dealerA, users.spe);
+      await prisma.user.update({ where: { id: users.spe }, data: { permissions: '{"messaging.view":"deny"}' } });
+      try {
+        const contacts = (await service.listDirectory(users.dealerA)).map((u) => u.id);
+        assert.ok(!contacts.includes(users.spe), "denied SPE is not offered as a contact");
+        const chats = (await service.listConversationsForUser(users.dealerA)).map((c) => c.id);
+        assert.ok(!chats.includes(chat.id), "their chat is hidden");
+        assert.equal(await service.assertParticipant(chat.id, users.dealerA), false);
+      } finally {
+        await prisma.user.update({ where: { id: users.spe }, data: { permissions: "[]" } });
+      }
+    });
+
     it("hides an old dealer-to-dealer chat and refuses reading or sending in it", async () => {
       const listed = (await service.listConversationsForUser(users.dealerA)).map((c) => c.id);
       assert.ok(!listed.includes(dealerChatId), "the old dealer chat must not be listed");

@@ -1,5 +1,6 @@
 "use client";
 
+import { canUser } from "@/lib/permissions";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -96,7 +97,7 @@ type EditForm = {
 
 export function RetailUsersClient() {
   const { data: session } = useSession();
-  const canManageUsers = session?.user?.role === "SUPER_ADMIN";
+  const canManageUsers = canUser(session?.user, "adminUsers", "act");
 
   const [stations, setStations] = useState<StationOpt[]>([]);
   const [users, setUsers] = useState<RetailUser[]>([]);

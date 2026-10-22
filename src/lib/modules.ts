@@ -7,7 +7,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { canAccessRetail } from "@/lib/access";
+import { canAccessRetail, canUser, type StaffUser } from "@/lib/permissions";
 
 export type TriModule = {
   id: string;
@@ -20,10 +20,9 @@ export type TriModule = {
   features: string[];
   category: string;
   /** Who may open it; everyone when absent. */
-  allowed?: (role: string | null | undefined) => boolean;
+  allowed?: (user: StaffUser) => boolean;
 };
 
-const adminOnly = (role: string | null | undefined) => role === "SUPER_ADMIN";
 
 /** All TRI modules available in the launcher */
 export const TRI_MODULES: TriModule[] = [
@@ -81,7 +80,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "users",
-    allowed: adminOnly,
+    allowed: (user) => canUser(user, "adminUsers", "view"),
     title: "Users",
     shortLabel: "Users",
     tagline: "Provision · Manage · Control",
@@ -98,7 +97,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "activity",
-    allowed: adminOnly,
+    allowed: (user) => canUser(user, "activity", "view"),
     title: "Activity Logs",
     shortLabel: "Activity",
     tagline: "Monitor · Audit · Trace",
@@ -115,7 +114,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "settings",
-    allowed: adminOnly,
+    allowed: (user) => canUser(user, "settings", "view"),
     title: "Settings",
     shortLabel: "Settings",
     tagline: "Configure · Connect · Secure",
@@ -137,6 +136,6 @@ export const FEATURED_MODULES = TRI_MODULES.filter((m) =>
 );
 
 /** The tiles a role may open (the dashboard and launcher show only these). */
-export function visibleModules(role: string | null | undefined): TriModule[] {
-  return TRI_MODULES.filter((module) => !module.allowed || module.allowed(role));
+export function visibleModules(user: StaffUser): TriModule[] {
+  return TRI_MODULES.filter((module) => !module.allowed || module.allowed(user));
 }

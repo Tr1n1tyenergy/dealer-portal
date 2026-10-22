@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
-import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { adminTargetRefusal, dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { STAFF_ROLES } from "@/lib/access";
 
@@ -19,7 +19,7 @@ const updateSchema = z.object({
 type Ctx = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: Request, ctx: Ctx) {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "act");
   if ("error" in auth) return auth.error;
 
   const { id } = await ctx.params;
@@ -30,10 +30,15 @@ export async function PATCH(req: Request, ctx: Ctx) {
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
   if (user.accountType !== "INTERNAL" && user.accountType !== "DEALER") {
     return jsonError("Only retail (internal/dealer) users can be edited here.", 400);
   }
 
+  if (parsed.data.role === "SUPER_ADMIN" && auth.session.user.role !== "SUPER_ADMIN") {
+    return jsonError("Only Admins can make someone an Admin.", 403);
+  }
   if (parsed.data.role) {
     const role = parsed.data.role;
     if (user.accountType === "INTERNAL" && !(STAFF_ROLES as readonly string[]).includes(role)) {
@@ -90,7 +95,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
 }
 
 export async function DELETE(_req: Request, ctx: Ctx) {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "act");
   if ("error" in auth) return auth.error;
 
   const { id } = await ctx.params;
@@ -100,6 +105,8 @@ export async function DELETE(_req: Request, ctx: Ctx) {
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
   if (user.accountType !== "INTERNAL" && user.accountType !== "DEALER") {
     return jsonError("Only retail (internal/dealer) users can be deleted here.", 400);
   }
