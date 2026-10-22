@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requirePermissionApi } from "@/lib/api-auth";
 
 export async function GET() {
-  const auth = await requirePermissionApi("retail.users");
+  const auth = await requirePermissionApi("retailUsers", "view");
   if ("error" in auth) return auth.error;
 
   const users = await prisma.user.findMany({

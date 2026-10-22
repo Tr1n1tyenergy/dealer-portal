@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { generateSecureToken, daysFromNow } from "@/lib/tokens";
 import {
   EmailDeliveryError,
@@ -22,7 +22,6 @@ const updateSchema = z.object({
   department: z.string().min(1).max(100).optional(),
   role: z.enum(STAFF_ROLES).optional(),
   status: z.enum(["PENDING", "ACTIVE", "DISABLED"]).optional(),
-  permissions: z.array(z.string().max(254)).max(50).optional(),
   resetInvite: z.boolean().optional(),
 });
 
@@ -30,7 +29,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "act");
   if ("error" in auth) return auth.error;
 
   const { id } = await params;
@@ -39,6 +38,9 @@ export async function PATCH(
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
+  if (parsed.data.role === "SUPER_ADMIN" && auth.session.user.role !== "SUPER_ADMIN") {
+    return jsonError("Only Admins can make someone an Admin.", 403);
+  }
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
   if (parsed.data.role && user.accountType !== "INTERNAL") {
@@ -60,9 +62,6 @@ export async function PATCH(
       department: parsed.data.department,
       role: parsed.data.role,
       status: parsed.data.status,
-      permissions: parsed.data.permissions
-        ? JSON.stringify(parsed.data.permissions)
-        : undefined,
     },
   });
 
@@ -131,7 +130,7 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "act");
   if ("error" in auth) return auth.error;
 
   const { id } = await params;

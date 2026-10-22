@@ -1,8 +1,9 @@
 import type { AccountType } from "@prisma/client";
-import { can, STAFF_ROLES } from "@/lib/access";
+import { STAFF_ROLES } from "@/lib/access";
+import { roleGrants } from "@/lib/permissions";
 
 /** Staff roles that use messaging (Admin and Sales Person Executive). */
-export const MESSAGING_STAFF_ROLES = STAFF_ROLES.filter((role) => can(role, "retail.messaging"));
+export const MESSAGING_STAFF_ROLES = STAFF_ROLES.filter((role) => roleGrants(role, "messaging.view"));
 
 /** Dealers, Admins and Sales Person Executives use messaging; Staff Members and depots don't. */
 export function canUseMessaging(
@@ -10,7 +11,7 @@ export function canUseMessaging(
   role: string | null | undefined
 ): boolean {
   if (accountType === "DEALER") return true;
-  if (accountType === "INTERNAL") return can(role, "retail.messaging");
+  if (accountType === "INTERNAL") return roleGrants(role, "messaging.view");
   return false;
 }
 

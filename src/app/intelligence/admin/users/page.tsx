@@ -1,10 +1,10 @@
-import { requireSuperAdmin } from "@/lib/session";
+import { requirePermission } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/layout/app-shell";
 import { UsersAdminClient } from "@/components/admin/users-admin-client";
 
 export default async function AdminUsersPage() {
-  await requireSuperAdmin();
+  await requirePermission("adminUsers", "view");
   const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
 
   return (

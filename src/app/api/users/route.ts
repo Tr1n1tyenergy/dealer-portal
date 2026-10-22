@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { generateSecureToken, daysFromNow } from "@/lib/tokens";
 import {
   EmailDeliveryError,
@@ -20,11 +20,10 @@ const createUserSchema = z.object({
   email: z.string().max(254).email(),
   department: z.string().min(1).max(100),
   role: z.enum(STAFF_ROLES).default("STANDARD_USER"),
-  permissions: z.array(z.string().max(254)).max(50).default([]),
 });
 
 export async function GET() {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "view");
   if ("error" in auth) return auth.error;
 
   const users = await prisma.user.findMany({
@@ -47,7 +46,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "act");
   if ("error" in auth) return auth.error;
 
   const body = await readJson(req);
@@ -55,6 +54,10 @@ export async function POST(req: Request) {
   if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = createUserSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
+
+  if (parsed.data.role === "SUPER_ADMIN" && auth.session.user.role !== "SUPER_ADMIN") {
+    return jsonError("Only Admins can create Admins.", 403);
+  }
 
   // Checked after validation so input errors aren't hidden behind "email not configured".
   if (!emailDeliveryConfigured()) {
@@ -75,7 +78,6 @@ export async function POST(req: Request) {
       email,
       department: parsed.data.department,
       role: parsed.data.role,
-      permissions: JSON.stringify(parsed.data.permissions),
       status: "PENDING",
     },
   });

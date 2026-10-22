@@ -1,10 +1,10 @@
-import { requireSuperAdmin } from "@/lib/session";
+import { requirePermission } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AdminSettingsPage() {
-  await requireSuperAdmin();
+  await requirePermission("settings", "view");
 
   const settings = await prisma.systemSetting.findMany({ orderBy: { key: "asc" } });
 

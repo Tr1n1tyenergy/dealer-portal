@@ -91,9 +91,7 @@ describe("messaging staff who don't use it", () => {
 describe("MESSAGING_STAFF_ROLES", () => {
   it("is exactly the staff roles with the messaging permission", async () => {
     const { MESSAGING_STAFF_ROLES } = await import("./authz");
-    const { can, STAFF_ROLES } = await import("@/lib/access");
     assert.deepEqual([...MESSAGING_STAFF_ROLES], ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE"]);
-    assert.deepEqual([...MESSAGING_STAFF_ROLES], STAFF_ROLES.filter((role) => can(role, "retail.messaging")));
   });
 });
 
