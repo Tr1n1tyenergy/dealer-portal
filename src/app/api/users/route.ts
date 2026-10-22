@@ -36,6 +36,7 @@ export async function GET() {
       department: true,
       role: true,
       status: true,
+      accountType: true,
       permissions: true,
       createdAt: true,
       lastLoginAt: true,
