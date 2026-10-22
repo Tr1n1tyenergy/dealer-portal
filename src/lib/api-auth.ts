@@ -34,7 +34,7 @@ export async function requireInternalApi() {
 export async function requireMessagingApi() {
   const result = await requireSessionApi();
   if ("error" in result) return result;
-  if (!canUseMessaging(result.session.user.accountType, result.session.user.role)) {
+  if (!canUseMessaging(result.session.user)) {
     return { error: jsonError("Messaging is not available for this account.", 403) as NextResponse };
   }
   return result;

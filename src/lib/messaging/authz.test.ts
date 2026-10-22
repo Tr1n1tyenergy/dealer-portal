@@ -2,107 +2,37 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { canMessageUser, canUseMessaging, messagingPairAllowed } from "./authz";
 
-describe("canMessageUser", () => {
-  it("allows staff to message dealers", () => {
-    const r = canMessageUser({
-      actorAccountType: "INTERNAL",
-      actorRole: "SUPER_ADMIN",
-      targetAccountType: "DEALER",
-      targetRole: "DEALER_ADMIN",
-      targetStatus: "ACTIVE",
-      actorId: "a",
-      targetId: "b",
-    });
-    assert.equal(r.ok, true);
-  });
+const person = (accountType: string, role: string, permissions = "[]") => ({ accountType, role, permissions });
+const dealer = person("DEALER", "DEALER_ADMIN");
+const dealerUser = person("DEALER", "DEALER_USER");
+const admin = person("INTERNAL", "SUPER_ADMIN");
+const spe = person("INTERNAL", "SALES_PERSON_EXECUTIVE");
+const staffMember = person("INTERNAL", "STANDARD_USER");
+const depot = person("DEPOT", "DEPOT_MANAGER");
 
-  it("blocks messaging self", () => {
-    const r = canMessageUser({
-      actorAccountType: "INTERNAL",
-      actorRole: "SUPER_ADMIN",
-      targetAccountType: "INTERNAL",
-      targetRole: "SUPER_ADMIN",
-      targetStatus: "ACTIVE",
-      actorId: "a",
-      targetId: "a",
-    });
-    assert.equal(r.ok, false);
+const start = (actor: ReturnType<typeof person>, target: ReturnType<typeof person>, extra: { status?: string; same?: boolean } = {}) =>
+  canMessageUser({
+    actor: { id: "a", ...actor },
+    target: { id: extra.same ? "a" : "b", status: extra.status ?? "ACTIVE", ...target },
   });
-
-  it("blocks pending targets", () => {
-    const r = canMessageUser({
-      actorAccountType: "DEALER",
-      actorRole: "DEALER_ADMIN",
-      targetAccountType: "INTERNAL",
-      targetRole: "SUPER_ADMIN",
-      targetStatus: "PENDING",
-      actorId: "a",
-      targetId: "b",
-    });
-    assert.equal(r.ok, false);
-  });
-
-  it("blocks depot accounts", () => {
-    const r = canMessageUser({
-      actorAccountType: "INTERNAL",
-      actorRole: "SUPER_ADMIN",
-      targetAccountType: "DEPOT",
-      targetRole: "DEPOT_MANAGER",
-      targetStatus: "ACTIVE",
-      actorId: "a",
-      targetId: "b",
-    });
-    assert.equal(r.ok, false);
-  });
-});
 
 describe("canUseMessaging", () => {
   it("lets dealers, Admins and Sales Person Executives use messaging, and nobody else", () => {
-    assert.equal(canUseMessaging("DEALER", "DEALER_ADMIN"), true);
-    assert.equal(canUseMessaging("INTERNAL", "SUPER_ADMIN"), true);
-    assert.equal(canUseMessaging("INTERNAL", "SALES_PERSON_EXECUTIVE"), true);
-    assert.equal(canUseMessaging("INTERNAL", "STANDARD_USER"), false);
-    assert.equal(canUseMessaging("DEPOT", "DEPOT_MANAGER"), false);
-    assert.equal(canUseMessaging(undefined, undefined), false);
-  });
-});
-
-describe("messaging staff who don't use it", () => {
-  const dealerTo = (targetRole: string) =>
-    canMessageUser({
-      actorAccountType: "DEALER",
-      actorRole: "DEALER_ADMIN",
-      targetAccountType: "INTERNAL",
-      targetRole,
-      targetStatus: "ACTIVE",
-      actorId: "a",
-      targetId: "b",
-    });
-
-  it("refuses a Staff Member as a target", () => {
-    assert.deepEqual(dealerTo("STANDARD_USER"), { ok: false, reason: "This staff member doesn't use messaging." });
+    assert.equal(canUseMessaging(dealer), true);
+    assert.equal(canUseMessaging(admin), true);
+    assert.equal(canUseMessaging(spe), true);
+    assert.equal(canUseMessaging(staffMember), false);
+    assert.equal(canUseMessaging(depot), false);
+    assert.equal(canUseMessaging({ accountType: undefined, role: undefined }), false);
   });
 
-  it("allows a Sales Person Executive as a target", () => {
-    assert.deepEqual(dealerTo("SALES_PERSON_EXECUTIVE"), { ok: true });
-  });
-});
-
-describe("MESSAGING_STAFF_ROLES", () => {
-  it("is exactly the staff roles with the messaging permission", async () => {
-    const { MESSAGING_STAFF_ROLES } = await import("./authz");
-    assert.deepEqual([...MESSAGING_STAFF_ROLES], ["SUPER_ADMIN", "SALES_PERSON_EXECUTIVE"]);
+  it("follows a person's ticks", () => {
+    assert.equal(canUseMessaging(person("INTERNAL", "SALES_PERSON_EXECUTIVE", '{"messaging.view":"deny"}')), false);
+    assert.equal(canUseMessaging(person("INTERNAL", "STANDARD_USER", '{"messaging.view":"allow"}')), true);
   });
 });
 
 describe("who may talk to whom", () => {
-  const dealer = { accountType: "DEALER", role: "DEALER_ADMIN" } as const;
-  const dealerUser = { accountType: "DEALER", role: "DEALER_USER" } as const;
-  const admin = { accountType: "INTERNAL", role: "SUPER_ADMIN" } as const;
-  const spe = { accountType: "INTERNAL", role: "SALES_PERSON_EXECUTIVE" } as const;
-  const staffMember = { accountType: "INTERNAL", role: "STANDARD_USER" } as const;
-  const depot = { accountType: "DEPOT", role: "DEPOT_MANAGER" } as const;
-
   it("lets dealers talk to Admins and Sales Person Executives, both ways", () => {
     assert.equal(messagingPairAllowed(dealer, admin), true);
     assert.equal(messagingPairAllowed(spe, dealerUser), true);
@@ -118,22 +48,39 @@ describe("who may talk to whom", () => {
     assert.equal(messagingPairAllowed(dealer, dealer), false);
   });
 
-  it("keeps Staff Members and depots out", () => {
+  it("keeps Staff Members, depots and staff denied Messaging out", () => {
     assert.equal(messagingPairAllowed(dealer, staffMember), false);
     assert.equal(messagingPairAllowed(admin, staffMember), false);
     assert.equal(messagingPairAllowed(admin, depot), false);
+    assert.equal(messagingPairAllowed(dealer, person("INTERNAL", "SALES_PERSON_EXECUTIVE", '{"messaging.view":"deny"}')), false);
+  });
+});
+
+describe("canMessageUser", () => {
+  it("allows staff to message dealers", () => {
+    assert.deepEqual(start(admin, dealer), { ok: true });
+  });
+
+  it("blocks messaging yourself and inactive people", () => {
+    assert.equal(start(admin, admin, { same: true }).ok, false);
+    assert.equal(start(dealer, admin, { status: "PENDING" }).ok, false);
+  });
+
+  it("blocks depot accounts", () => {
+    assert.equal(start(admin, depot).ok, false);
+  });
+
+  it("refuses a Staff Member as a target, and allows a Sales Person Executive", () => {
+    assert.deepEqual(start(dealer, staffMember), { ok: false, reason: "This staff member doesn't use messaging." });
+    assert.deepEqual(start(dealer, spe), { ok: true });
   });
 
   it("refuses a dealer starting a chat with another dealer", () => {
-    const r = canMessageUser({
-      actorAccountType: "DEALER",
-      actorRole: "DEALER_ADMIN",
-      targetAccountType: "DEALER",
-      targetRole: "DEALER_ADMIN",
-      targetStatus: "ACTIVE",
-      actorId: "a",
-      targetId: "b",
-    });
-    assert.deepEqual(r, { ok: false, reason: "Dealers can only message Trinity staff." });
+    assert.deepEqual(start(dealer, dealer), { ok: false, reason: "Dealers can only message Trinity staff." });
+  });
+
+  it("refuses staff who may view Messaging but not act", () => {
+    const viewOnly = person("INTERNAL", "SALES_PERSON_EXECUTIVE", '{"messaging.act":"deny"}');
+    assert.deepEqual(start(viewOnly, dealer), { ok: false, reason: "You can read messages but not start chats." });
   });
 });
