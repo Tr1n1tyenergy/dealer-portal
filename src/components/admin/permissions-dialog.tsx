@@ -41,12 +41,13 @@ export function PermissionsDialog({ person, onClose, onSaved }: { person: Person
   const pending = { accountType: "INTERNAL", role: person.role, permissions: JSON.stringify(ticks) };
 
   async function save() {
-    setSaving(true);
-    setError("");
     const keys = new Set([...Object.keys(original), ...Object.keys(ticks)]) as Set<PermissionKey>;
     const changes = [...keys]
       .filter((key) => original[key] !== ticks[key])
       .map((key) => ({ key, value: ticks[key] ?? "inherit" }));
+    if (changes.length === 0) return onClose();
+    setSaving(true);
+    setError("");
     const res = await fetch(`/api/users/${person.id}/permissions`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
