@@ -25,9 +25,11 @@ export async function POST(req: Request) {
 
   const reset = await prisma.passwordResetToken.findUnique({
     where: { token: parsed.data.token },
+    include: { user: { select: { status: true } } },
   });
 
-  if (!reset || reset.usedAt || reset.expiresAt < new Date()) {
+  // A disabled account stays disabled: the reset below would otherwise switch it back to ACTIVE.
+  if (!reset || reset.usedAt || reset.expiresAt < new Date() || reset.user.status === "DISABLED") {
     return jsonError("Reset link is invalid or expired.", 400);
   }
 
