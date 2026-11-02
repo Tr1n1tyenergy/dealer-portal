@@ -26,12 +26,12 @@ import { useQuickSearchShortcut } from "./quick-search";
 
 const nav: { href: string; label: string; icon: typeof Home; key: DealerNavKey | null }[] = [
   { href: "/dealer/dashboard", label: "Dashboard", icon: Home, key: "dashboard" },
-  { href: "/dealer/orders/new", label: "Place Order", icon: ShoppingCart, key: "place-order" },
+  { href: "/dealer/orders/new", label: "Place Order", icon: ShoppingCart, key: null },
   { href: "/dealer/orders", label: "My Orders", icon: Package, key: "orders" },
   { href: "/dealer/messaging", label: "Messaging", icon: MessageSquare, key: "messaging" },
-  { href: "/dealer/orders?view=documents", label: "PFIs & Documents", icon: FileText, key: "documents" },
-  { href: "/dealer/orders?view=payment", label: "Payments", icon: CreditCard, key: "payments" },
-  { href: "/dealer/orders?view=deliveries", label: "Deliveries", icon: Truck, key: "deliveries" },
+  { href: "/dealer/orders?view=documents", label: "PFIs & Documents", icon: FileText, key: "pfis" },
+  { href: "/dealer/orders?view=payment", label: "Payments", icon: CreditCard, key: null },
+  { href: "/dealer/orders?view=deliveries", label: "Deliveries", icon: Truck, key: null },
   { href: "/dealer/dashboard#stations", label: "Stations", icon: MapPin, key: null },
 ];
 
