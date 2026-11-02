@@ -25,8 +25,8 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
   const priceList = priceListStatus(new Date());
 
   const params = await searchParams;
-  const stage = parseStage(first(params.stage));
   const q = String(first(params.q) ?? "").trim().slice(0, 100);
+  const stage = parseStage(first(params.stage), q !== "");
 
   const term = likeLiteral(q);
   const searchWhere: Prisma.DealerOrderWhereInput = q
@@ -96,7 +96,6 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
       </nav>
 
       <form className="ro-search" action="/intelligence/retail/orders" method="get" role="search">
-        <input type="hidden" name="stage" value={stage} />
         <input name="q" defaultValue={q} maxLength={100} placeholder="Search order, dealer or station" aria-label="Search orders" />
         <button type="submit">Search</button>
       </form>
