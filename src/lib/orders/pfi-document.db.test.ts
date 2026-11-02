@@ -78,13 +78,13 @@ describe(
 
     it("opens a PFI issued before this change without writing anything", async () => {
       const order = await quotedOrder(null);
-      await prisma.proFormaInvoice.create({ data: { orderId: order.id, number: `OLD-${run}`, amount: "223510.00" } });
+      await prisma.proFormaInvoice.create({ data: { orderId: order.id, number: `OLD-${run}`, amount: "226510.00" } });
       const before = await prisma.dealerOrderLine.findFirstOrThrow({ where: { orderId: order.id } });
 
       const loaded = await loader.loadPfiDocument(order.id);
 
       assert.ok(loaded);
-      assert.equal(loaded.document.totals.total, "241390.80");
+      assert.equal(loaded.document.totals.total, "244630.80");
       assert.equal(loaded.document.approvedBy, "EVAN OTIATO");
       const afterLine = await prisma.dealerOrderLine.findFirstOrThrow({ where: { orderId: order.id } });
       assert.equal(afterLine.unitPriceExVat, before.unitPriceExVat);

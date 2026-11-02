@@ -12,8 +12,8 @@
  * - KPC_ELDORET   → Eldoret
  * - KPC_KISUMU    → Kisumu
  *
- * The table holds EPRA's published maximum *pump* prices unchanged; dealer unit prices are
- * those less STATION_DISCOUNT_KES. Replace once Odoo station pricelists are the source of truth.
+ * The table holds EPRA's published maximum *pump* prices unchanged, and dealers pay them as they are
+ * (the KSh 3 station discount ended in October 2026). Replace once Odoo pricelists are the source of truth.
  */
 
 import type { LoadingWarehouseKey } from "./quotation-contract";
@@ -104,17 +104,13 @@ export const SALE_ORDER_LINE_FIELDS = {
   },
 } as const;
 
-/** Trinity's dealer discount off the EPRA price, KES per litre, for every station (PMS and AGO). */
-export const STATION_DISCOUNT_KES = 3;
-
-/** Dealer unit price: the EPRA price less the station discount, in whole cents. */
+/** Dealer unit price: the EPRA price for the station's loading region. */
 export function epraUnitPriceForWarehouse(
   warehouseKey: LoadingWarehouseKey,
   product: EpraFuelProduct
 ): number {
   const row = EPRA_TEMP_PRICES_BY_WAREHOUSE[warehouseKey];
-  const epra = product === "PMS" ? row.pms : row.ago;
-  return Math.round((epra - STATION_DISCOUNT_KES) * 100) / 100;
+  return product === "PMS" ? row.pms : row.ago;
 }
 
 /** Resolve temporary unit price for a portal station code. */
