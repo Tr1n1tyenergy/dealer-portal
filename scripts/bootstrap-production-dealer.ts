@@ -187,6 +187,7 @@ async function main() {
         where: { id: existing.id },
         data: {
           passwordHash,
+          passwordChangedAt: new Date(),
           status: "ACTIVE",
           firstName,
           lastName,

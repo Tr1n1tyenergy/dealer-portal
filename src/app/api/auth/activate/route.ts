@@ -60,6 +60,7 @@ export async function POST(req: Request) {
       data: {
         passwordHash,
         status: "ACTIVE",
+        passwordChangedAt: new Date(),
       },
     }),
     prisma.invitationToken.update({
