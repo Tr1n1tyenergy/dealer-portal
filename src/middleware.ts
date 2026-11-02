@@ -1,6 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import { homeForAccount, isPublicPath, loginPathFor } from "@/lib/access";
+import { homeForAccount, isHiddenModulePath, isPublicPath, loginPathFor } from "@/lib/access";
 import { canUser } from "@/lib/permissions";
 
 export default withAuth(
@@ -22,6 +22,9 @@ export default withAuth(
     if (path.startsWith("/intelligence")) {
       if (accountType !== "INTERNAL") {
         return NextResponse.redirect(new URL(home, req.url));
+      }
+      if (isHiddenModulePath(path)) {
+        return NextResponse.redirect(new URL("/intelligence/dashboard", req.url));
       }
       const adminArea = path.startsWith("/intelligence/admin/activity")
         ? "activity"

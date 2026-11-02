@@ -23,6 +23,8 @@ export type TriModule = {
   allowed?: (user: StaffUser) => boolean;
 };
 
+/** Hidden until real recording and transcription exist: today the notes are sample text. */
+const hidden = () => false;
 
 /** All TRI modules available in the launcher */
 export const TRI_MODULES: TriModule[] = [
@@ -46,6 +48,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "note-taker",
+    allowed: hidden,
     title: "AI Note Taker",
     shortLabel: "Notes",
     tagline: "Capture · Structure · Action",
@@ -63,6 +66,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "presentations",
+    allowed: hidden,
     title: "Presentations",
     shortLabel: "Decks",
     tagline: "Brief · Present · Decide",
