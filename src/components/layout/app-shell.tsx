@@ -3,12 +3,9 @@
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import {
-  Bell,
-  ChevronDown,
   HelpCircle,
   Lock,
   LogOut,
-  Search,
   Shield,
   Sparkles,
 } from "lucide-react";
@@ -58,27 +55,12 @@ export function AppShell({
 
           {/* Brand left; search + actions flush right (mockup) */}
           <div className="tri-header__actions">
-            <label className="tri-search">
-              <Search className="h-3.5 w-3.5" aria-hidden />
-              <input placeholder="Search anything..." aria-label="Search" />
-            </label>
-
-            <div className="tri-divider" aria-hidden />
-
-            <button type="button" className="tri-bell" aria-label="Notifications">
-              <Bell className="h-4 w-4" />
-              <span className="tri-bell__badge">12</span>
-            </button>
-
-            <div className="tri-divider" aria-hidden />
-
             <div className="tri-user">
               <div className="tri-user__avatar">{initials}</div>
               <div className="tri-user__meta">
                 <div className="tri-user__name">{displayName}</div>
                 <div className="tri-user__role">{roleText}</div>
               </div>
-              <ChevronDown className="h-3.5 w-3.5 text-slate-400" aria-hidden />
             </div>
 
             <div className="tri-divider" aria-hidden />
