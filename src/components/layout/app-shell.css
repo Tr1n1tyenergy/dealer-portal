@@ -107,79 +107,11 @@
   margin-left: 1.5rem !important;
 }
 
-.tri-search {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 0.55rem;
-  flex: 1 1 auto;
-  width: min(42vw, 34rem);
-  min-width: 16rem;
-  max-width: 34rem;
-  height: 2.45rem;
-  margin: 0;
-  padding: 0 1rem;
-  border: 1px solid rgba(23, 61, 143, 0.12);
-  border-radius: 999px;
-  background: #f7f9fc;
-  color: #94a3b8;
-  font-size: 0.8rem;
-}
-
-@media (max-width: 900px) {
-  .tri-search {
-    width: min(36vw, 22rem);
-    min-width: 12rem;
-  }
-}
-
 @media (max-width: 639px) {
-  .tri-search {
-    display: none !important;
-  }
-
   .tri-header__actions {
     flex: 0 0 auto;
     margin-left: auto !important;
   }
-}
-
-.tri-search input {
-  width: 100%;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: #0a235b;
-  font-size: 0.78rem;
-  font-family: inherit;
-}
-
-.tri-bell {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 2.3rem;
-  height: 2.3rem;
-  border: 1px solid rgba(23, 61, 143, 0.1);
-  border-radius: 999px;
-  background: #fff;
-  color: #173d8f;
-  cursor: pointer;
-}
-
-.tri-bell__badge {
-  position: absolute;
-  top: -0.15rem;
-  right: -0.15rem;
-  min-width: 1.05rem;
-  height: 1.05rem;
-  padding: 0 0.2rem;
-  border-radius: 999px;
-  background: #f5b800;
-  color: #0a235b;
-  font-size: 0.58rem;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
 }
 
 .tri-user {

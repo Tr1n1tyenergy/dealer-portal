@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   BarChart3,
   CalendarDays,
-  ChevronDown,
   Clock3,
   FileText,
   Fuel,
@@ -20,7 +19,8 @@ export type RetailKpi = {
   label: string;
   value: number;
   deltaPct: number;
-  spark: number[];
+  /** Only real monthly series; KPIs without one show no trend line. */
+  spark?: number[];
   tone: "blue" | "gold" | "purple" | "green";
   icon: "orders" | "invites" | "orgs" | "stations";
 };
@@ -88,11 +88,10 @@ export function RetailAnalyticsDashboard({
             Here&apos;s an overview of dealer orders and retail operations across Trinity.
           </p>
         </div>
-        <button type="button" className="rad-date" aria-label="Date range">
+        <span className="rad-date">
           <CalendarDays size={15} strokeWidth={1.75} />
           <span>{dateRangeLabel}</span>
-          <ChevronDown size={14} strokeWidth={2} />
-        </button>
+        </span>
 
         <section className="rad-kpis">
           {kpis.map((k) => (
@@ -104,9 +103,11 @@ export function RetailAnalyticsDashboard({
                 <span className="rad-kpi__label">{k.label}</span>
                 <div className="rad-kpi__mid">
                   <span className="rad-kpi__value">{k.value.toLocaleString()}</span>
-                  <svg className="rad-kpi__spark" viewBox="0 0 120 36" preserveAspectRatio="none">
-                    <path d={sparklinePath(k.spark)} fill="none" strokeWidth="2.4" />
-                  </svg>
+                  {k.spark ? (
+                    <svg className="rad-kpi__spark" viewBox="0 0 120 36" preserveAspectRatio="none">
+                      <path d={sparklinePath(k.spark)} fill="none" strokeWidth="2.4" />
+                    </svg>
+                  ) : null}
                 </div>
                 <span className={`rad-kpi__delta ${k.deltaPct >= 0 ? "is-up" : "is-down"}`}>
                   {k.deltaPct >= 0 ? "↑ +" : "↓ "}
@@ -126,9 +127,7 @@ export function RetailAnalyticsDashboard({
                 <BarChart3 size={16} strokeWidth={1.75} />
                 <span>Order Trend</span>
               </div>
-              <button type="button" className="rad-select">
-                Last 6 Months <ChevronDown size={13} />
-              </button>
+              <span className="rad-select">Last 6 months</span>
             </header>
             <OrderTrendChart points={trend} />
             <div className="rad-legend">
@@ -199,9 +198,7 @@ export function RetailAnalyticsDashboard({
                 <Clock3 size={16} strokeWidth={1.75} />
                 <span>Orders by Status</span>
               </div>
-              <button type="button" className="rad-select">
-                This Month <ChevronDown size={13} />
-              </button>
+              <span className="rad-select">This month</span>
             </header>
             <div className="rad-status__body">
               <StatusDonut slices={statusSlices} total={totalOrders} />
@@ -234,9 +231,7 @@ export function RetailAnalyticsDashboard({
                 <MapPin size={16} strokeWidth={1.75} />
                 <span>Top Stations by Order Volume</span>
               </div>
-              <button type="button" className="rad-select">
-                This Month <ChevronDown size={13} />
-              </button>
+              <span className="rad-select">This month</span>
             </header>
             <ol className="rad-rank">
               {topStations.length === 0 ? (
