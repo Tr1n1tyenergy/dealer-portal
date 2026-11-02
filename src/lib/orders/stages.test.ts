@@ -18,6 +18,13 @@ describe("order stages", () => {
     assert.equal(parseStage("verification"), "verification");
   });
 
+  it("searches every stage when no tab was chosen, but keeps a chosen tab", () => {
+    assert.equal(parseStage(undefined, true), "all");
+    assert.equal(parseStage("", true), "all");
+    assert.equal(parseStage("verification", true), "verification");
+    assert.equal(parseStage(undefined, false), "pending");
+  });
+
   it("labels statuses for people", () => {
     assert.equal(statusLabel("PAYMENT_VERIFICATION"), "Payment verification");
     assert.equal(statusLabel("ODOO_SYNC_FAILED"), "Odoo sync failed");

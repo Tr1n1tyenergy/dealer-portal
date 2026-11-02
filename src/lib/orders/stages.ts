@@ -33,10 +33,10 @@ export function stageOf(status: DealerOrderStatus): StageKey {
   return ORDER_STAGES.find((stage) => stage.statuses.includes(status))?.key ?? "exceptions";
 }
 
-/** The ?stage= value, or Pending (the default tab) for anything unknown. */
-export function parseStage(value: unknown): StageKey | "all" {
+/** The ?stage= value; with no valid tab, All while searching (so a search finds every order), else Pending. */
+export function parseStage(value: unknown, searching = false): StageKey | "all" {
   if (value === "all") return "all";
-  return ORDER_STAGES.find((stage) => stage.key === value)?.key ?? "pending";
+  return ORDER_STAGES.find((stage) => stage.key === value)?.key ?? (searching ? "all" : "pending");
 }
 
 /** PAYMENT_VERIFICATION → "Payment verification"; keeps Odoo and PFI readable. */
