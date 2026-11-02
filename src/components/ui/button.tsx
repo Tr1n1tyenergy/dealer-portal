@@ -2,30 +2,26 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+const primary = "bg-[var(--tri-yellow)] text-[var(--tri-ink)] hover:bg-[#ffd23a]";
+const secondary = "bg-transparent text-[var(--tri-blue)] shadow-[inset_0_0_0_1.5px_rgba(56,83,164,0.45)] hover:bg-[rgba(56,83,164,0.06)]";
+const quiet = "bg-transparent text-[var(--tri-blue)] hover:underline hover:decoration-[var(--tri-yellow)] underline-offset-4";
+const destructive = "bg-transparent text-[#a1281f] shadow-[inset_0_0_0_1.5px_rgba(161,40,31,0.5)] hover:bg-[rgba(161,40,31,0.06)]";
+
+/** Pill buttons (redesign spec §3). Old variant names stay as aliases so existing call sites keep working. */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-trinity-gold/40 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-bold transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-px active:translate-y-px active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--tri-blue)] disabled:pointer-events-none disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none",
   {
     variants: {
-      variant: {
-        default:
-          "bg-trinity-gold text-trinity-navy shadow-[0_10px_22px_rgba(245,184,0,0.28)] hover:shadow-[0_14px_28px_rgba(245,184,0,0.36)] hover:-translate-y-0.5",
-        navy: "bg-trinity-blue text-white shadow-[0_10px_22px_rgba(23,61,143,0.28)] hover:bg-[#1d47a3] hover:-translate-y-0.5",
-        outline:
-          "border border-trinity-blue/20 bg-transparent text-trinity-blue hover:bg-trinity-blue/5",
-        ghost: "text-trinity-blue hover:bg-trinity-blue/5",
-        danger: "bg-red-600 text-white hover:bg-red-700",
-      },
+      variant: { primary, secondary, quiet, destructive, default: primary, navy: secondary, outline: secondary, ghost: quiet, danger: destructive },
       size: {
-        default: "h-11 px-5 py-2",
-        sm: "h-9 rounded-lg px-3 text-xs",
-        lg: "h-12 rounded-xl px-8 text-base",
-        icon: "h-10 w-10",
+        default: "h-11 px-5 text-[15px]",
+        md: "h-11 px-5 text-[15px]",
+        sm: "h-9 px-4 text-[13px]",
+        lg: "h-12 px-7 text-base",
+        icon: "h-11 w-11",
       },
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
+    defaultVariants: { variant: "primary", size: "default" },
   }
 );
 
