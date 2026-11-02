@@ -57,8 +57,8 @@ export default async function DepotDashboardPage() {
                 </div>
                 {order.status === "RELEASED_TO_DEPOT" ? (
                   <>
-                    <label>Truck<input name="truckRegistration" placeholder="Registration" /></label>
-                    <label>Driver<input name="driverName" /></label>
+                    <label>Truck<input name="truckRegistration" maxLength={500} placeholder="Registration" /></label>
+                    <label>Driver<input name="driverName" maxLength={500} /></label>
                     <button name="action" value="accept" type="submit">Begin loading</button>
                   </>
                 ) : null}
@@ -66,14 +66,14 @@ export default async function DepotDashboardPage() {
                   <>
                     <label>Loaded PMS<input name="loadedPmsLitres" type="number" min={0} max={MAX_LITRES} step={1} /></label>
                     <label>Loaded AGO<input name="loadedAgoLitres" type="number" min={0} max={MAX_LITRES} step={1} /></label>
-                    <label>Loading reference<input name="loadingReference" /></label>
+                    <label>Loading reference<input name="loadingReference" maxLength={500} /></label>
                     <button name="action" value="complete" type="submit">Loading complete</button>
                   </>
                 ) : null}
                 {order.status === "LOADED" ? <button name="action" value="dispatch" type="submit">Dispatch</button> : null}
                 {order.status === "IN_TRANSIT" || order.status === "DISPATCHED" ? (
                   <>
-                    <label>Delivery note<input name="deliveryNoteRef" /></label>
+                    <label>Delivery note<input name="deliveryNoteRef" maxLength={500} /></label>
                     <button name="action" value="deliver" type="submit">Confirm delivery</button>
                   </>
                 ) : null}
