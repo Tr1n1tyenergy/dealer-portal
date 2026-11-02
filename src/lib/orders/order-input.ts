@@ -4,6 +4,7 @@
  */
 
 import { priceListEndDate } from "@/lib/integrations/odoo/price-list-status";
+import { nairobiParts } from "@/lib/time/nairobi";
 
 export type Parsed<T> = { ok: true; value: T } | { ok: false; message: string };
 
@@ -54,12 +55,8 @@ export function parseOrderLines(input: {
 
 /** Today's calendar date in Nairobi as YYYY-MM-DD. */
 export function nairobiToday(now: Date = new Date()): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Africa/Nairobi",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
+  const { year, month, day } = nairobiParts(now);
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
 function addDays(isoDate: string, days: number): string {

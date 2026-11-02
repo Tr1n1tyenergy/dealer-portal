@@ -1,5 +1,6 @@
 import type { DealerOrderStatus } from "@prisma/client";
 import { dealerStatusLabel } from "@/lib/orders/state-machine";
+import { nairobiMonthStart, nairobiParts } from "@/lib/time/nairobi";
 
 export type AnalyticsStatusBucket =
   | "Quotation Processing"
@@ -80,17 +81,19 @@ export function pctChange(current: number, previous: number): number {
   return Math.round(((current - previous) / previous) * 100);
 }
 
+/** "2026-11" — the month in Nairobi, so orders near midnight on the 1st land in the right month. */
 export function monthKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const { year, month } = nairobiParts(d);
+  return `${year}-${String(month).padStart(2, "0")}`;
 }
 
 export function lastNMonthLabels(n: number, end = new Date()): { key: string; label: string }[] {
   const out: { key: string; label: string }[] = [];
   for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(end.getFullYear(), end.getMonth() - i, 1);
+    const d = nairobiMonthStart(end, -i);
     out.push({
       key: monthKey(d),
-      label: d.toLocaleString("en-GB", { month: "short", year: "numeric" }).replace(" ", " "),
+      label: d.toLocaleString("en-GB", { month: "short", year: "numeric", timeZone: "Africa/Nairobi" }),
     });
   }
   return out;

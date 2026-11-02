@@ -17,9 +17,10 @@ import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { toDealerOrderRow } from "@/lib/orders/dealer-views";
 import { RecentOrders } from "@/components/dealer/recent-orders";
+import { nairobiParts } from "@/lib/time/nairobi";
 
 function greeting() {
-  const hour = new Date().getHours();
+  const { hour } = nairobiParts();
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
