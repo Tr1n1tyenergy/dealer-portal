@@ -1,8 +1,7 @@
-import type { CreateQuotationInput, OdooClient, OdooProForma, OdooQuotation } from "./types";
+import type { CreateQuotationInput, OdooClient, OdooQuotation } from "./types";
 import { odooEnv, odooProductIdForKind, ODOO_TRINITY } from "./config";
 import type { FuelProductKind } from "./fuel-products";
 import { resolveFuelProductExternalId } from "./fuel-products";
-import { SALE_ORDER_QUOTATION_FIELDS } from "./quotation-fields";
 import { fulfillmentForStation } from "./quotation-contract";
 import { epraUnitPriceForStation, type EpraFuelProduct } from "./epra-temp-prices";
 import { parseOdooExternalId } from "./external-ids";
@@ -12,20 +11,9 @@ type JsonRpcResult<T> = { jsonrpc: string; id: number | null; result?: T; error?
 const M = ODOO_TRINITY.models;
 
 /**
- * Live Odoo 17 JSON-RPC client for Trinity Energy Kenya (odoo.sh).
- *
- * Models verified against company Models.txt export:
- * - Quotation: sale.order + sale.order.line
- * - Customer: res.partner
- * - Products: product.product (+ product.pricelist for pricing)
- * - PFI: account.move (no dedicated proforma.* model in export)
- * - PDF: ir.attachment (linked to account.move / sale.order)
- *
- * Flow:
- * 1. Portal creates a draft sale.order for the dealer partner.
- * 2. Odoo applies that customer's pricelist.
- * 3. A person in Sales clicks "New" to create the sales pro-forma (PFI).
- * 4. Portal later pulls PFI from account.move (+ attachment for PDF).
+ * Live Odoo 17 JSON-RPC client for Trinity Energy Kenya (odoo.sh). The portal creates a draft
+ * sale.order (quotation) for the dealer's res.partner with the portal's EPRA-based unit prices;
+ * the PFI is issued by the portal itself (src/lib/orders/pfi-*.ts), not by Odoo.
  */
 export class LiveOdooClient implements OdooClient {
   readonly mode = "live" as const;
@@ -341,7 +329,7 @@ export class LiveOdooClient implements OdooClient {
       {
         partner_id: partnerId,
         /** Fuel dealer portal orders — matches Sale Type selection on the quotation form */
-        sale_type: SALE_ORDER_QUOTATION_FIELDS.writable.sale_type.portalDefault,
+        sale_type: "fuels",
         /** Invoice + delivery default to the same dealer partner (station noted below) */
         partner_invoice_id: partnerId,
         partner_shipping_id: partnerId,
@@ -392,51 +380,6 @@ export class LiveOdooClient implements OdooClient {
       status: row.state === "sent" || row.state === "sale" ? "sent" : "draft",
       lines: [],
       model: M.saleOrder,
-    };
-  }
-
-  /**
-   * PFI is created manually in Odoo (Sales → New pro-forma).
-   * Models.txt has no dedicated proforma.* model — we look up account.move
-   * linked to the quotation. PDF bytes (later) come from ir.attachment.
-   */
-  async generateProForma(quotationId: string): Promise<OdooProForma> {
-    const id = Number(quotationId);
-    if (!Number.isFinite(id)) throw new Error("Invalid Odoo quotation id.");
-
-    const quotation = await this.getQuotation(quotationId);
-    const origin = quotation?.number ?? String(id);
-
-    const moveIds = await this.execute<number[]>(
-      M.accountMove,
-      "search",
-      [
-        [
-          ["move_type", "in", ["out_invoice", "out_refund"]],
-          ["invoice_origin", "ilike", origin],
-        ],
-      ],
-      { limit: 1, order: "id desc" }
-    );
-
-    if (!moveIds[0]) {
-      throw new Error(
-        `No ${M.accountMove} pro-forma/invoice found yet for quotation ${origin}. A commercial user must click New to create the PFI first.`
-      );
-    }
-
-    const moves = await this.execute<
-      Array<{ id: number; name: string; amount_total: number; currency_id: [number, string] }>
-    >(M.accountMove, "read", [[moveIds[0]], ["name", "amount_total", "currency_id"]]);
-    const move = moves[0];
-    if (!move) throw new Error("Odoo PFI read-back failed.");
-
-    return {
-      id: String(move.id),
-      number: move.name,
-      quotationId: String(id),
-      amount: Number(move.amount_total || 0).toFixed(2),
-      currency: move.currency_id?.[1] || "KES",
     };
   }
 }
