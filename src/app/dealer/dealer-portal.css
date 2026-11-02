@@ -16,7 +16,7 @@
   --dp-radius: 12px;
   --dp-sidebar-w: 232px;
   --dp-topbar-h: 68px;
-  --dp-font: Inter, system-ui, -apple-system, sans-serif;
+  --dp-font: var(--font-sans);
 }
 
 /* ---------- Shell ---------- */

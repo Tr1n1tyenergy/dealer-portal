@@ -15,7 +15,7 @@
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
   padding: 1.05rem 1.15rem 1.05rem !important;
   color: #0a235b;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   overflow: hidden;
 }
 

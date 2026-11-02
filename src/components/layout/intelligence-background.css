@@ -99,7 +99,7 @@
   letter-spacing: -0.04em;
   color: rgba(64, 130, 240, 0.055);
   user-select: none;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* ── Responsive simplification ── */
