@@ -85,8 +85,8 @@ export function ActivatePasswordForm({
       <BrandPanel
         image={
           portal === "dealer"
-            ? "/assets2/img/dealer/login-hero.jpg"
-            : "/assets2/img/login-hero.jpg"
+            ? "/assets2/img/hero/hero-5-1.jpg"
+            : "/assets2/img/hero/storage.jpg"
         }
         headline={portal === "dealer" ? "Welcome," : "Secure access to"}
         highlight={portal === "dealer" ? "partner." : "TRI."}
