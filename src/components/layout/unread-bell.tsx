@@ -12,7 +12,7 @@ const REFRESH_MS = 60_000;
  * value — the shared layout doesn't re-render between pages — so the bell refreshes itself on
  * every page change, when the window regains focus, and once a minute.
  */
-export function UnreadBell({ initial }: { initial: number }) {
+export function UnreadBell({ initial, href }: { initial: number; href: string }) {
   const pathname = usePathname();
   const [unread, setUnread] = useState(initial);
 
@@ -40,8 +40,8 @@ export function UnreadBell({ initial }: { initial: number }) {
 
   return (
     <Link
-      href="/dealer/messaging"
-      className="dp-bell"
+      href={href}
+      className="ph-bell"
       aria-label={unread > 0 ? `Messages, ${unread} unread` : "Messages"}
     >
       <Bell size={18} strokeWidth={1.75} />

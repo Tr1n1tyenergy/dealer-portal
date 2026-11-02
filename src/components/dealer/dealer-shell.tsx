@@ -20,8 +20,8 @@ import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { cn } from "@/lib/utils";
 import { activeDealerNav, type DealerNavKey } from "@/lib/dealer/nav";
 import { openSupport, SupportCard } from "./support-card";
-import { AccountMenu } from "./account-menu";
-import { UnreadBell } from "./unread-bell";
+import { AccountMenu } from "@/components/layout/account-menu";
+import { UnreadBell } from "@/components/layout/unread-bell";
 import { useQuickSearchShortcut } from "./quick-search";
 
 const nav: { href: string; label: string; icon: typeof Home; key: DealerNavKey | null }[] = [
@@ -89,9 +89,9 @@ export function DealerShell({
         </form>
 
         <div className="dp-topbar__actions">
-          <UnreadBell initial={unread} />
+          <UnreadBell initial={unread} href="/dealer/messaging" />
 
-          <AccountMenu orgName={orgName} initials={initials} name={name} email={email} />
+          <AccountMenu title={orgName} subtitle="Dealer account" initials={initials} name={name} email={email} changePasswordHref="/intelligence/forgot-password?portal=dealer" signOutUrl="/dealer/login" />
 
           <button
             type="button"

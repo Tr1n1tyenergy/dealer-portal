@@ -5,17 +5,24 @@ import { useEffect, useRef, useState } from "react";
 import { signOut } from "next-auth/react";
 import { ChevronDown, KeyRound, LogOut } from "lucide-react";
 
-/** The avatar button in the dealer top bar: who is signed in, Change password, Sign out. */
+/** The account button at the right of the header: who is signed in, Change password, Sign out (all portals). */
 export function AccountMenu({
-  orgName,
+  title,
+  subtitle,
   initials,
   name,
   email,
+  changePasswordHref,
+  signOutUrl,
 }: {
-  orgName: string;
+  /** First line on the button: the dealer company, or the person's name for staff and depot. */
+  title: string;
+  subtitle: string;
   initials: string;
   name: string;
   email: string;
+  changePasswordHref: string;
+  signOutUrl: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -63,35 +70,35 @@ export function AccountMenu({
   }, [open]);
 
   return (
-    <div className="dp-account" ref={rootRef}>
+    <div className="ph-account" ref={rootRef}>
       <button
         ref={triggerRef}
         type="button"
-        className="dp-user"
+        className="ph-user"
         aria-label="Account menu"
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="dp-user__avatar">{initials}</span>
-        <span className="dp-user__meta">
-          <strong>{orgName}</strong>
-          <em>Dealer Account</em>
+        <span className="ph-user__avatar">{initials}</span>
+        <span className="ph-user__meta">
+          <strong>{title}</strong>
+          <em>{subtitle}</em>
         </span>
         <ChevronDown size={16} strokeWidth={2} />
       </button>
 
       {open ? (
-        <div className="dp-account__menu" role="menu" aria-label="Account" ref={menuRef} onKeyDown={onMenuKeyDown}>
-          <div className="dp-account__who">
+        <div className="ph-account__menu" role="menu" aria-label="Account" ref={menuRef} onKeyDown={onMenuKeyDown}>
+          <div className="ph-account__who">
             <strong>{name}</strong>
             <span>{email}</span>
           </div>
-          <Link href="/intelligence/forgot-password?portal=dealer" role="menuitem" onClick={() => setOpen(false)}>
+          <Link href={changePasswordHref} role="menuitem" onClick={() => setOpen(false)}>
             <KeyRound size={15} />
             Change password
           </Link>
-          <button type="button" role="menuitem" onClick={() => signOut({ callbackUrl: "/access" })}>
+          <button type="button" role="menuitem" onClick={() => signOut({ callbackUrl: signOutUrl })}>
             <LogOut size={15} />
             Sign out
           </button>
