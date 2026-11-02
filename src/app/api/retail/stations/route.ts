@@ -4,7 +4,7 @@ import { listStationInviteCatalog } from "@/lib/dealers/station-invite-catalog";
 import { findCompanyLogins } from "@/lib/dealers/dealer-invite";
 
 export async function GET() {
-  const auth = await requirePermissionApi("retail.users");
+  const auth = await requirePermissionApi("retailUsers", "view");
   if ("error" in auth) return auth.error;
 
   const catalog = listStationInviteCatalog();

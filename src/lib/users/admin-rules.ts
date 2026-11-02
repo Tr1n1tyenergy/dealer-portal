@@ -3,12 +3,29 @@
  * so the two routes can't drift apart. Each returns a refusal to send back, or null to proceed.
  */
 import { prisma } from "@/lib/prisma";
+import { canUser } from "@/lib/permissions";
 
-export type Refusal = { status: 400 | 409; message: string };
+export type Refusal = { status: 400 | 403 | 409; message: string };
 
 type Target = { id: string; role: string; status: string; accountType: string };
 
-/** The last active Super Admin can't be demoted, disabled or deleted (or nobody can administer users). */
+/** Ticks never make anyone an Admin's equal: only an Admin may change an Admin account. */
+export function adminTargetRefusal(actor: { role?: string | null }, target: { role: string }): Refusal | null {
+  return target.role === "SUPER_ADMIN" && actor.role !== "SUPER_ADMIN"
+    ? { status: 403, message: "Only Admins can change an Admin account." }
+    : null;
+}
+
+/** True when an active Admin other than `excludeId` still has Act on Admin Users. */
+export async function anotherAbleAdmin(excludeId: string): Promise<boolean> {
+  const admins = await prisma.user.findMany({
+    where: { id: { not: excludeId }, role: "SUPER_ADMIN", status: "ACTIVE", accountType: "INTERNAL" },
+    select: { accountType: true, role: true, permissions: true },
+  });
+  return admins.some((u) => canUser(u, "adminUsers", "act"));
+}
+
+/** The last active Admin with Act on Admin Users can't be demoted, disabled or deleted (or nobody can administer users). */
 export async function lastSuperAdminRefusal(
   target: Target,
   change: { role?: string; status?: string; deleting?: boolean }
@@ -18,10 +35,7 @@ export async function lastSuperAdminRefusal(
     change.deleting || (change.role && change.role !== "SUPER_ADMIN") || (change.status && change.status !== "ACTIVE");
   if (!losesAdmin) return null;
 
-  const others = await prisma.user.count({
-    where: { id: { not: target.id }, role: "SUPER_ADMIN", status: "ACTIVE", accountType: "INTERNAL" },
-  });
-  if (others > 0) return null;
+  if (await anotherAbleAdmin(target.id)) return null;
   return {
     status: 400,
     message: change.deleting

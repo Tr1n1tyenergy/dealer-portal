@@ -1,13 +1,13 @@
 import { MessagingApp } from "@/components/messaging/messaging-app";
 import { listConversationsForUser } from "@/lib/messaging/service";
 import { redirect } from "next/navigation";
-import { can } from "@/lib/access";
+import { canUser } from "@/lib/permissions";
 import { requireInternal } from "@/lib/session";
 import "@/app/intelligence/retail/retail-messaging.css";
 
 export default async function RetailMessagingPage() {
   const session = await requireInternal();
-  if (!can(session.user.role, "retail.messaging")) redirect("/intelligence/retail");
+  if (!canUser(session.user, "messaging", "view")) redirect("/intelligence/retail");
   const conversations = await listConversationsForUser(session.user.id).catch(() => []);
 
   const initialConversations = conversations.map((c) => ({
@@ -48,7 +48,7 @@ export default async function RetailMessagingPage() {
         <MessagingApp
           variant="staff"
           initialConversations={initialConversations}
-          canOpenUsers={can(session.user.role, "retail.users")}
+          canOpenUsers={canUser(session.user, "retailUsers", "view")}
         />
       </div>
     </div>

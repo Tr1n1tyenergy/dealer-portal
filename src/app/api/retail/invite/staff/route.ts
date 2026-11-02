@@ -23,7 +23,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requirePermissionApi("retail.users");
+  const auth = await requirePermissionApi("retailUsers", "act");
   if ("error" in auth) return auth.error;
 
   if (!emailDeliveryConfigured()) {

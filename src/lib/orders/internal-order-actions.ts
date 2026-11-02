@@ -1,4 +1,4 @@
-import { can } from "@/lib/access";
+import { canUser, type StaffUser } from "@/lib/permissions";
 import { logActivity } from "@/lib/activity";
 import { prisma } from "@/lib/prisma";
 import { confirmPayment, generatePfi, releaseToDepot, syncQuotation } from "@/lib/orders/service";
@@ -10,13 +10,13 @@ import { ignoreStaleTransition } from "@/lib/orders/state-machine";
  * Only roles with "orders.act" (Admin, Sales Person Executive) may act; others change nothing.
  */
 export async function applyInternalOrderAction(
-  actor: { id: string; role: string },
+  actor: StaffUser & { id: string; role: string },
   formData: FormData
 ): Promise<"done" | "refused"> {
   const orderId = String(formData.get("orderId") || "");
   const action = String(formData.get("action") || "");
 
-  if (!can(actor.role, "orders.act")) {
+  if (!canUser(actor, "orders", "act")) {
     await logActivity({
       actorId: actor.id,
       action: "ORDER_ACTION_REFUSED",

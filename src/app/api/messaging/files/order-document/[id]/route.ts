@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { assertParticipant } from "@/lib/messaging/service";
+import { canOpenPfi } from "@/lib/orders/pfi-access";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -36,15 +37,9 @@ export async function GET(req: Request, ctx: Ctx) {
 
   const viewer = await prisma.user.findUnique({
     where: { id: auth.session.user.id },
-    select: { accountType: true, dealerOrganizationId: true },
+    select: { accountType: true, role: true, permissions: true, dealerOrganizationId: true },
   });
-  if (!viewer) return jsonError("Forbidden", 403);
-
-  const allowed =
-    viewer.accountType === "INTERNAL" ||
-    (viewer.accountType === "DEALER" &&
-      viewer.dealerOrganizationId === doc.order.dealerOrganizationId);
-  if (!allowed) return jsonError("Forbidden", 403);
+  if (!viewer || !canOpenPfi(viewer, doc.order.dealerOrganizationId)) return jsonError("Forbidden", 403);
 
   const conversationId = new URL(req.url).searchParams.get("conversationId");
   if (conversationId) {

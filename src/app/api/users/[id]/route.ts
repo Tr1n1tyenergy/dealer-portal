@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdminApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { generateSecureToken, daysFromNow } from "@/lib/tokens";
 import {
   EmailDeliveryError,
@@ -12,7 +12,7 @@ import {
 import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { mayDeleteProtectedAdmin } from "@/lib/security/protected-admins";
-import { dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
+import { adminTargetRefusal, dealerLoginRefusal, historyRefusal, lastSuperAdminRefusal } from "@/lib/users/admin-rules";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { STAFF_ROLES } from "@/lib/access";
 
@@ -22,7 +22,6 @@ const updateSchema = z.object({
   department: z.string().min(1).max(100).optional(),
   role: z.enum(STAFF_ROLES).optional(),
   status: z.enum(["PENDING", "ACTIVE", "DISABLED"]).optional(),
-  permissions: z.array(z.string().max(254)).max(50).optional(),
   resetInvite: z.boolean().optional(),
 });
 
@@ -30,7 +29,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "act");
   if ("error" in auth) return auth.error;
 
   const { id } = await params;
@@ -39,8 +38,13 @@ export async function PATCH(
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
+  if (parsed.data.role === "SUPER_ADMIN" && auth.session.user.role !== "SUPER_ADMIN") {
+    return jsonError("Only Admins can make someone an Admin.", 403);
+  }
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
   if (parsed.data.role && user.accountType !== "INTERNAL") {
     return jsonError("Only staff accounts can be given a staff role.", 400);
   }
@@ -60,9 +64,6 @@ export async function PATCH(
       department: parsed.data.department,
       role: parsed.data.role,
       status: parsed.data.status,
-      permissions: parsed.data.permissions
-        ? JSON.stringify(parsed.data.permissions)
-        : undefined,
     },
   });
 
@@ -131,7 +132,7 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireSuperAdminApi();
+  const auth = await requirePermissionApi("adminUsers", "act");
   if ("error" in auth) return auth.error;
 
   const { id } = await params;
@@ -141,6 +142,8 @@ export async function DELETE(
 
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return jsonError("User not found", 404);
+  const notAdmin = adminTargetRefusal(auth.session.user, user);
+  if (notAdmin) return jsonError(notAdmin.message, notAdmin.status);
 
   if (!mayDeleteProtectedAdmin(auth.session.user.email ?? "", user.email)) {
     return jsonError(

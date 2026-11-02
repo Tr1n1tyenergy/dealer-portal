@@ -11,6 +11,8 @@ declare module "next-auth" {
       accountType: string;
       dealerOrganizationId: string | null;
       depotId: string | null;
+      /** The person's Allow/Deny overrides (raw User.permissions); see src/lib/permissions.ts. */
+      permissions: string;
     } & DefaultSession["user"];
   }
 
@@ -22,6 +24,7 @@ declare module "next-auth" {
     accountType?: string;
     dealerOrganizationId?: string | null;
     depotId?: string | null;
+    permissions?: string;
   }
 }
 
@@ -35,5 +38,6 @@ declare module "next-auth/jwt" {
     accountType?: string;
     dealerOrganizationId?: string | null;
     depotId?: string | null;
+    permissions?: string;
   }
 }

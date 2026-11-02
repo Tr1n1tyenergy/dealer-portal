@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  can,
-  canAccessRetail,
   canActOnDepotOrder,
   depotOrderScope,
   isInternalRole,
@@ -113,27 +111,9 @@ describe("staff roles", () => {
   });
 });
 
-describe("permissions", () => {
-  const all = ["retail.analytics", "retail.orders", "retail.messaging", "retail.users", "orders.act"] as const;
-
-  it("gives Admin everything", () => all.forEach((p) => assert.equal(can("SUPER_ADMIN", p), true, p)));
-
-  it("gives Sales Person Executive everything except retail users", () => {
-    all.forEach((p) => assert.equal(can("SALES_PERSON_EXECUTIVE", p), p !== "retail.users", p));
-  });
-
-  it("gives everyone else nothing", () => {
-    for (const role of ["STANDARD_USER", "DEPOT_MANAGER", "DEALER_ADMIN", "DEALER_USER", "", undefined]) {
-      all.forEach((p) => assert.equal(can(role, p), false, `${role} ${p}`));
-      assert.equal(canAccessRetail(role), false);
-    }
-    assert.equal(canAccessRetail("SALES_PERSON_EXECUTIVE"), true);
-    assert.equal(canAccessRetail("SUPER_ADMIN"), true);
-  });
-});
-
 describe("dashboard modules", () => {
-  const ids = (role: string) => visibleModules(role).map((m) => m.id);
+  const staff = (role: string, permissions = "[]") => ({ accountType: "INTERNAL", role, permissions });
+  const ids = (role: string, permissions?: string) => visibleModules(staff(role, permissions)).map((m) => m.id);
   const adminIds = ["users", "activity", "settings"];
 
   it("hides the Retail Interface and admin tiles from Staff Members", () => {
@@ -148,5 +128,10 @@ describe("dashboard modules", () => {
 
   it("shows every tile to an Admin", () => {
     assert.deepEqual(ids("SUPER_ADMIN"), TRI_MODULES.map((m) => m.id));
+  });
+
+  it("follows a person's ticks: a Staff Member allowed Retail Analytics sees the Retail Interface", () => {
+    assert.equal(ids("STANDARD_USER", '{"analytics.view":"allow"}').includes("reports"), true);
+    assert.equal(ids("SUPER_ADMIN", '{"settings.view":"deny"}').includes("settings"), false);
   });
 });

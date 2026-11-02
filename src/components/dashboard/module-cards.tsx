@@ -5,13 +5,14 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, Grid2x2 } from "lucide-react";
 import { FEATURED_MODULES, visibleModules } from "@/lib/modules";
+import type { StaffUser } from "@/lib/permissions";
 import { ModulesLauncher } from "@/components/dashboard/modules-launcher";
 import "./modules.css";
 import "./modules-launcher.css";
 
-export function ModuleCards({ role }: { role: string }) {
+export function ModuleCards({ user }: { user: StaffUser }) {
   const [launcherOpen, setLauncherOpen] = useState(false);
-  const visible = new Set(visibleModules(role).map((m) => m.id));
+  const visible = new Set(visibleModules(user).map((m) => m.id));
   const featured = FEATURED_MODULES.filter((m) => visible.has(m.id));
 
   return (
@@ -77,7 +78,7 @@ export function ModuleCards({ role }: { role: string }) {
         </button>
       </div>
 
-      <ModulesLauncher open={launcherOpen} onClose={() => setLauncherOpen(false)} role={role} />
+      <ModulesLauncher open={launcherOpen} onClose={() => setLauncherOpen(false)} user={user} />
     </>
   );
 }

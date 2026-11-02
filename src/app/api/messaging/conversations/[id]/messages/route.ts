@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { canUser } from "@/lib/permissions";
 import { z } from "zod";
 import { requireMessagingApi, jsonError } from "@/lib/api-auth";
 import { listMessages, markConversationRead, sendMessage } from "@/lib/messaging/service";
@@ -33,6 +34,10 @@ export async function POST(req: Request, ctx: Ctx) {
   if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = sendSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
+  // Staff who may only view Messaging can read chats but not send.
+  if (auth.session.user.accountType === "INTERNAL" && !canUser(auth.session.user, "messaging", "act")) {
+    return jsonError("You can read messages but not send them.", 403);
+  }
 
   try {
     const message = await sendMessage(id, auth.session.user.id, parsed.data.body);

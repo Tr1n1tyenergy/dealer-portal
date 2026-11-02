@@ -1,6 +1,7 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import { homeForAccount, isPublicPath, loginPathFor } from "@/lib/access";
+import { canUser } from "@/lib/permissions";
 
 export default withAuth(
   function middleware(req) {
@@ -22,7 +23,14 @@ export default withAuth(
       if (accountType !== "INTERNAL") {
         return NextResponse.redirect(new URL(home, req.url));
       }
-      if (path.startsWith("/intelligence/admin") && role !== "SUPER_ADMIN") {
+      const adminArea = path.startsWith("/intelligence/admin/activity")
+        ? "activity"
+        : path.startsWith("/intelligence/admin/settings")
+          ? "settings"
+          : path.startsWith("/intelligence/admin")
+            ? "adminUsers"
+            : null;
+      if (adminArea && !canUser(token, adminArea, "view")) {
         return NextResponse.redirect(new URL("/intelligence/dashboard", req.url));
       }
     }

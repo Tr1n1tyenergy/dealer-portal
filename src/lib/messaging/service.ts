@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { canMessageUser, messagingPairAllowed, MESSAGING_STAFF_ROLES } from "./authz";
+import { canMessageUser, canUseMessaging, messagingPairAllowed } from "./authz";
 import { directConversationKey } from "./direct-key";
 import { triggerConversationEvent } from "@/lib/pusher/server";
 
@@ -10,7 +10,7 @@ import { triggerConversationEvent } from "@/lib/pusher/server";
 export async function assertParticipant(conversationId: string, userId: string) {
   const participants = await prisma.conversationParticipant.findMany({
     where: { conversationId },
-    select: { userId: true, user: { select: { accountType: true, role: true } } },
+    select: { userId: true, user: { select: { accountType: true, role: true, permissions: true } } },
   });
   const me = participants.find((p) => p.userId === userId);
   if (!me) return false;
@@ -34,6 +34,7 @@ export async function listConversationsForUser(userId: string) {
                   department: true,
                   accountType: true,
                   role: true,
+                  permissions: true,
                   lastLoginAt: true,
                   dealerOrganizationId: true,
                   dealerOrganization: {
@@ -287,15 +288,7 @@ export async function getOrCreateDirectConversation(actorId: string, peerId: str
   const peer = await prisma.user.findUnique({ where: { id: peerId } });
   if (!actor || !peer) throw new Error("User not found");
 
-  const gate = canMessageUser({
-    actorAccountType: actor.accountType,
-    actorRole: actor.role,
-    targetAccountType: peer.accountType,
-    targetRole: peer.role,
-    targetStatus: peer.status,
-    actorId,
-    targetId: peerId,
-  });
+  const gate = canMessageUser({ actor, target: peer });
   if (!gate.ok) throw new Error(gate.reason);
 
   const key = directConversationKey(actorId, peerId);
@@ -422,58 +415,43 @@ export async function markConversationRead(conversationId: string, userId: strin
 
 export async function listDirectory(actorId: string) {
   const actor = await prisma.user.findUnique({ where: { id: actorId } });
-  if (!actor) return [];
+  if (!actor || !canUseMessaging(actor)) return [];
 
-  if (actor.accountType === "INTERNAL") {
-    return prisma.user.findMany({
-      where: {
-        id: { not: actorId },
-        status: "ACTIVE",
-        OR: [{ accountType: "DEALER" }, { accountType: "INTERNAL", role: { in: [...MESSAGING_STAFF_ROLES] } }],
-      },
-      orderBy: [{ accountType: "asc" }, { firstName: "asc" }],
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        accountType: true,
-        email: true,
-        dealerOrganization: {
-          select: {
-            name: true,
-            stations: { select: { tradingName: true, name: true }, take: 1 },
-          },
+  // Load the candidates, then keep whoever the messaging rule allows (it reads each person's ticks).
+  const people = await prisma.user.findMany({
+    where: {
+      id: { not: actorId },
+      status: "ACTIVE",
+      accountType: { in: actor.accountType === "INTERNAL" ? ["DEALER", "INTERNAL"] : ["INTERNAL"] },
+    },
+    orderBy: [{ accountType: "asc" }, { firstName: "asc" }],
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      accountType: true,
+      email: true,
+      role: true,
+      permissions: true,
+      dealerOrganization: {
+        select: {
+          name: true,
+          stations: { select: { tradingName: true, name: true }, take: 1 },
         },
       },
-    });
-  }
-
-  if (actor.accountType === "DEALER") {
-    return prisma.user.findMany({
-      where: {
-        id: { not: actorId },
-        status: "ACTIVE",
-        accountType: "INTERNAL",
-        role: { in: [...MESSAGING_STAFF_ROLES] },
-      },
-      orderBy: [{ accountType: "asc" }, { firstName: "asc" }],
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        accountType: true,
-        email: true,
-        dealerOrganization: {
-          select: {
-            name: true,
-            stations: { select: { tradingName: true, name: true }, take: 1 },
-          },
-        },
-      },
-    });
-  }
-
-  return [];
+    },
+  });
+  return people
+    .filter((person) => messagingPairAllowed(actor, person))
+    // Role and permission ticks stay on the server.
+    .map((p) => ({
+      id: p.id,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      accountType: p.accountType,
+      email: p.email,
+      dealerOrganization: p.dealerOrganization,
+    }));
 }
 
 /** Unread messages across the user's visible chats (hidden chats, e.g. dealer-to-dealer, don't count). */
@@ -485,7 +463,7 @@ export async function unreadMessageCount(userId: string): Promise<number> {
       conversation: {
         select: {
           id: true,
-          participants: { select: { userId: true, user: { select: { accountType: true, role: true } } } },
+          participants: { select: { userId: true, user: { select: { accountType: true, role: true, permissions: true } } } },
         },
       },
     },

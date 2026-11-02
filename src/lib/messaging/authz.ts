@@ -1,67 +1,49 @@
 import type { AccountType } from "@prisma/client";
-import { can, STAFF_ROLES } from "@/lib/access";
+import { canUser } from "@/lib/permissions";
 
-/** Staff roles that use messaging (Admin and Sales Person Executive). */
-export const MESSAGING_STAFF_ROLES = STAFF_ROLES.filter((role) => can(role, "retail.messaging"));
+type MessagingParty = { accountType?: AccountType | string | null; role?: string | null; permissions?: string | null };
 
-/** Dealers, Admins and Sales Person Executives use messaging; Staff Members and depots don't. */
-export function canUseMessaging(
-  accountType: AccountType | string | null | undefined,
-  role: string | null | undefined
-): boolean {
-  if (accountType === "DEALER") return true;
-  if (accountType === "INTERNAL") return can(role, "retail.messaging");
-  return false;
+/** Dealers use messaging; staff need View on Messaging (role default + their ticks); depots don't. */
+export function canUseMessaging(user: MessagingParty): boolean {
+  if (user.accountType === "DEALER") return true;
+  return canUser(user, "messaging", "view");
 }
 
-type MessagingParty = { accountType: AccountType | string; role: string | null | undefined };
-
 /**
- * Who may talk to whom: a dealer with an Admin or Sales Person Executive, or two of those staff.
- * Never two dealers; Staff Members and depots don't use messaging. Applies to existing chats too.
+ * Who may talk to whom: a dealer with staff who use messaging, or two such staff. Never two
+ * dealers. Applies to existing chats too.
  */
 export function messagingPairAllowed(a: MessagingParty, b: MessagingParty): boolean {
-  if (!canUseMessaging(a.accountType, a.role) || !canUseMessaging(b.accountType, b.role)) return false;
+  if (!canUseMessaging(a) || !canUseMessaging(b)) return false;
   return a.accountType === "INTERNAL" || b.accountType === "INTERNAL";
 }
 
 /**
  * Who may start a direct conversation with whom.
- * - Admins and Sales Person Executives may message ACTIVE dealers and each other (not Staff Members).
- * - Dealers may message ACTIVE Admins and Sales Person Executives only.
+ * - Staff with Act on Messaging may message ACTIVE dealers and other messaging staff.
+ * - Dealers may message ACTIVE staff who use messaging.
  */
 export function canMessageUser(params: {
-  actorAccountType: AccountType;
-  actorRole: string;
-  targetAccountType: AccountType;
-  targetRole: string;
-  targetStatus: string;
-  actorId: string;
-  targetId: string;
+  actor: MessagingParty & { id: string };
+  target: MessagingParty & { id: string; status: string };
 }): { ok: true } | { ok: false; reason: string } {
-  if (params.actorId === params.targetId) {
-    return { ok: false, reason: "Cannot message yourself." };
+  const { actor, target } = params;
+  if (actor.id === target.id) return { ok: false, reason: "Cannot message yourself." };
+  if (target.status !== "ACTIVE") return { ok: false, reason: "Target user is not active." };
+  if (!canUseMessaging(actor)) return { ok: false, reason: "Messaging is not available for this account type." };
+  if (actor.accountType === "INTERNAL" && !canUser(actor, "messaging", "act")) {
+    return { ok: false, reason: "You can read messages but not start chats." };
   }
-  if (params.targetStatus !== "ACTIVE") {
-    return { ok: false, reason: "Target user is not active." };
-  }
-  if (!canUseMessaging(params.actorAccountType, params.actorRole)) {
-    return { ok: false, reason: "Messaging is not available for this account type." };
-  }
-  if (params.targetAccountType === "INTERNAL" && !canUseMessaging("INTERNAL", params.targetRole)) {
+  if (target.accountType === "INTERNAL" && !canUseMessaging(target)) {
     return { ok: false, reason: "This staff member doesn't use messaging." };
   }
-  if (params.actorAccountType === "INTERNAL") {
-    if (params.targetAccountType === "INTERNAL" || params.targetAccountType === "DEALER") {
-      return { ok: true };
-    }
-    return { ok: false, reason: "Staff can only message staff or dealers." };
+  if (actor.accountType === "INTERNAL") {
+    return target.accountType === "INTERNAL" || target.accountType === "DEALER"
+      ? { ok: true }
+      : { ok: false, reason: "Staff can only message staff or dealers." };
   }
-  if (params.actorAccountType === "DEALER") {
-    if (params.targetAccountType === "INTERNAL") {
-      return { ok: true };
-    }
-    return { ok: false, reason: "Dealers can only message Trinity staff." };
+  if (actor.accountType === "DEALER") {
+    return target.accountType === "INTERNAL" ? { ok: true } : { ok: false, reason: "Dealers can only message Trinity staff." };
   }
   return { ok: false, reason: "Messaging is not available for this account type." };
 }

@@ -1,11 +1,11 @@
-import { can } from "@/lib/access";
+import { canUser } from "@/lib/permissions";
 
 /** Who may open an order's PFI: Admins and Sales Person Executives, and the order's own dealer. */
 export function canOpenPfi(
-  viewer: { accountType?: string; role?: string; dealerOrganizationId?: string | null },
+  viewer: { accountType?: string; role?: string; permissions?: string | null; dealerOrganizationId?: string | null },
   orderOrganizationId: string,
 ): boolean {
-  if (viewer.accountType === "INTERNAL") return can(viewer.role, "retail.orders");
+  if (viewer.accountType === "INTERNAL") return canUser(viewer, "orders", "view");
   if (viewer.accountType === "DEALER") return Boolean(viewer.dealerOrganizationId) && viewer.dealerOrganizationId === orderOrganizationId;
   return false;
 }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PermissionsDialog } from "./permissions-dialog";
 
 type UserRow = {
   id: string;
@@ -16,9 +17,11 @@ type UserRow = {
   department: string;
   role: string;
   status: string;
+  accountType: string;
+  permissions: string;
 };
 
-export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) {
+export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: UserRow[]; canManage: boolean }) {
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers);
   const [form, setForm] = useState({
@@ -27,9 +30,9 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
     email: "",
     department: "Retail Operations",
     role: "STANDARD_USER",
-    permissions: "reports,note-taker,presentations",
   });
   const [inviteNotice, setInviteNotice] = useState("");
+  const [permissionsFor, setPermissionsFor] = useState<UserRow | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -48,13 +51,7 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
     const res = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        permissions: form.permissions
-          .split(",")
-          .map((p) => p.trim())
-          .filter(Boolean),
-      }),
+      body: JSON.stringify(form),
     });
     const data = await res.json();
     setLoading(false);
@@ -75,7 +72,6 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
       email: "",
       department: "Retail Operations",
       role: "STANDARD_USER",
-      permissions: "reports,note-taker,presentations",
     });
     await refresh();
     router.refresh();
@@ -163,14 +159,6 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
                 ))}
               </select>
             </div>
-            <div>
-              <Label>Permissions</Label>
-              <Input
-                value={form.permissions}
-                onChange={(e) => setForm({ ...form, permissions: e.target.value })}
-                placeholder="reports,note-taker,presentations"
-              />
-            </div>
             {error ? (
               <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 md:col-span-2">
                 {error}
@@ -236,6 +224,11 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
                       >
                         Reset Invite
                       </Button>
+                      {canManage && u.accountType === "INTERNAL" ? (
+                        <Button size="sm" variant="outline" onClick={() => setPermissionsFor(u)}>
+                          Permissions
+                        </Button>
+                      ) : null}
                       <Button size="sm" variant="danger" onClick={() => void deleteUser(u.id)}>
                         Delete
                       </Button>
@@ -247,6 +240,16 @@ export function UsersAdminClient({ initialUsers }: { initialUsers: UserRow[] }) 
           </table>
         </div>
       </div>
+      {permissionsFor ? (
+        <PermissionsDialog
+          person={permissionsFor}
+          onClose={() => setPermissionsFor(null)}
+          onSaved={() => {
+            setPermissionsFor(null);
+            void refresh();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

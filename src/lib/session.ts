@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { canUser, type PermissionLevel, type PermissionModule } from "@/lib/permissions";
 
 export async function getSession() {
   return getServerSession(authOptions);
@@ -10,14 +11,6 @@ export async function requireSession() {
   const session = await getSession();
   if (!session?.user) {
     redirect("/access");
-  }
-  return session;
-}
-
-export async function requireSuperAdmin() {
-  const session = await requireSession();
-  if (session.user.role !== "SUPER_ADMIN") {
-    redirect("/intelligence/dashboard");
   }
   return session;
 }
@@ -45,5 +38,12 @@ export async function requireDepot() {
   if (session.user.accountType !== "DEPOT" && session.user.role !== "SUPER_ADMIN") {
     redirect("/access");
   }
+  return session;
+}
+
+/** Staff page that needs a module permission; anyone else goes back to the dashboard. */
+export async function requirePermission(module: PermissionModule, level: PermissionLevel) {
+  const session = await requireInternal();
+  if (!canUser(session.user, module, level)) redirect("/intelligence/dashboard");
   return session;
 }

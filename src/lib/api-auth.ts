@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { can, isStaffAccount, type Permission } from "@/lib/access";
+import { isStaffAccount } from "@/lib/access";
+import { canUser, type PermissionLevel, type PermissionModule } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { canUseMessaging } from "@/lib/messaging/authz";
 
@@ -14,15 +15,6 @@ export async function requireSessionApi() {
     return { error: jsonError("Unauthorized", 401) as NextResponse };
   }
   return { session };
-}
-
-export async function requireSuperAdminApi() {
-  const result = await requireSessionApi();
-  if ("error" in result) return result;
-  if (result.session.user.role !== "SUPER_ADMIN") {
-    return { error: jsonError("Forbidden", 403) as NextResponse };
-  }
-  return result;
 }
 
 /**
@@ -42,17 +34,17 @@ export async function requireInternalApi() {
 export async function requireMessagingApi() {
   const result = await requireSessionApi();
   if ("error" in result) return result;
-  if (!canUseMessaging(result.session.user.accountType, result.session.user.role)) {
+  if (!canUseMessaging(result.session.user)) {
     return { error: jsonError("Messaging is not available for this account.", 403) as NextResponse };
   }
   return result;
 }
 
-/** Staff with a given permission (e.g. "retail.users" for dealer and staff account management). */
-export async function requirePermissionApi(permission: Permission) {
+/** Staff who may view or act on a module (role default + the person's Allow/Deny ticks). */
+export async function requirePermissionApi(module: PermissionModule, level: PermissionLevel) {
   const result = await requireInternalApi();
   if ("error" in result) return result;
-  if (!can(result.session.user.role, permission)) {
+  if (!canUser(result.session.user, module, level)) {
     return { error: jsonError("Forbidden", 403) as NextResponse };
   }
   return result;

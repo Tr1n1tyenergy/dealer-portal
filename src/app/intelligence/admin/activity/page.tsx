@@ -1,10 +1,10 @@
 import { format } from "date-fns";
-import { requireSuperAdmin } from "@/lib/session";
+import { requirePermission } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/layout/app-shell";
 
 export default async function ActivityLogsPage() {
-  await requireSuperAdmin();
+  await requirePermission("activity", "view");
 
   const logs = await prisma.activityLog.findMany({
     include: { actor: true },

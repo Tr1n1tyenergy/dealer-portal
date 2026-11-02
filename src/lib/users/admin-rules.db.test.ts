@@ -24,6 +24,7 @@ describe(
       accountType?: "INTERNAL" | "DEALER";
       status?: "ACTIVE" | "PENDING" | "DISABLED";
       dealerOrganizationId?: string | null;
+      permissions?: string;
     }) {
       sequence += 1;
       const u = await prisma.user.create({
@@ -36,6 +37,7 @@ describe(
           accountType: data.accountType ?? "INTERNAL",
           status: data.status ?? "ACTIVE",
           dealerOrganizationId: data.dealerOrganizationId ?? null,
+          permissions: data.permissions,
         },
       });
       created.push(u.id);
@@ -88,6 +90,26 @@ describe(
       const admin = await user({ role: "SUPER_ADMIN" });
 
       assert.equal(await rules.lastSuperAdminRefusal(admin, { status: "ACTIVE" }), null);
+    });
+
+    it("counts only Admins who still have Act on Admin Users", async () => {
+      // Park the Admins earlier tests left active, so these two are the only ones.
+      await prisma.user.updateMany({ where: { id: { in: created }, role: "SUPER_ADMIN" }, data: { status: "PENDING" } });
+      await user({ role: "SUPER_ADMIN", permissions: '{"adminUsers.act":"deny"}' });
+      const lastAbleAdmin = await user({ role: "SUPER_ADMIN" });
+
+      for (const change of [{ role: "STANDARD_USER" }, { status: "DISABLED" }, { deleting: true }]) {
+        const refusal = await rules.lastSuperAdminRefusal(lastAbleAdmin, change);
+        assert.equal(refusal?.status, 400, JSON.stringify(change));
+      }
+    });
+
+    it("lets only an Admin change an Admin account", async () => {
+      const admin = await user({ role: "SUPER_ADMIN" });
+      const staff = await user({});
+      assert.equal(rules.adminTargetRefusal({ role: "SALES_PERSON_EXECUTIVE" }, admin)?.status, 403);
+      assert.equal(rules.adminTargetRefusal({ role: "SUPER_ADMIN" }, admin), null);
+      assert.equal(rules.adminTargetRefusal({ role: "SALES_PERSON_EXECUTIVE" }, staff), null);
     });
 
     it("refuses to delete a user who placed orders", async () => {

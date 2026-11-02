@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Grid2x2, X } from "lucide-react";
 import { visibleModules } from "@/lib/modules";
+import type { StaffUser } from "@/lib/permissions";
 import "./modules-launcher.css";
 
 const TILE_STYLE: CSSProperties = {
@@ -58,14 +59,14 @@ const PANEL_STYLE: CSSProperties = {
 export function ModulesLauncher({
   open,
   onClose,
-  role,
+  user,
 }: {
   open: boolean;
   onClose: () => void;
-  role: string;
+  user: StaffUser;
 }) {
   const router = useRouter();
-  const modules = visibleModules(role);
+  const modules = visibleModules(user);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

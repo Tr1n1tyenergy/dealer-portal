@@ -85,7 +85,7 @@ describe(
       const order = await orderAwaitingVerification();
 
       const result = await core.applyInternalOrderAction(
-        { id: users.staff, role: "STANDARD_USER" },
+        { id: users.staff, accountType: "INTERNAL", role: "STANDARD_USER", permissions: "[]" },
         form({ orderId: order.id, action: "confirm-payment" })
       );
 
@@ -103,11 +103,23 @@ describe(
       assert.equal(ids.includes(users.staff), false);
     });
 
+    it("refuses a Sales Person Executive whose Act on Orders is denied, even for a crafted post", async () => {
+      const order = await orderAwaitingVerification();
+
+      const result = await core.applyInternalOrderAction(
+        { id: users.spe, accountType: "INTERNAL", role: "SALES_PERSON_EXECUTIVE", permissions: '{"orders.act":"deny"}' },
+        form({ orderId: order.id, action: "confirm-payment" })
+      );
+
+      assert.equal(result, "refused");
+      assert.equal((await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } })).status, "PAYMENT_VERIFICATION");
+    });
+
     it("lets a Sales Person Executive confirm the payment", async () => {
       const order = await orderAwaitingVerification();
 
       const result = await core.applyInternalOrderAction(
-        { id: users.spe, role: "SALES_PERSON_EXECUTIVE" },
+        { id: users.spe, accountType: "INTERNAL", role: "SALES_PERSON_EXECUTIVE", permissions: "[]" },
         form({ orderId: order.id, action: "confirm-payment" })
       );
 

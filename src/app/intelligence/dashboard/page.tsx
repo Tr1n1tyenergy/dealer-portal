@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   return (
     <AppShell activeNav="modules">
       <ModulesHero />
-      <ModuleCards role={session.user.role} />
+      <ModuleCards user={session.user} />
       <ModulesFooterStrip />
     </AppShell>
   );
