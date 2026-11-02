@@ -4,7 +4,6 @@ import {
   EPRA_TEMP_PRICES_BY_WAREHOUSE,
   epraUnitPriceForStation,
   epraUnitPriceForWarehouse,
-  STATION_DISCOUNT_KES,
 } from "./epra-temp-prices";
 
 describe("EPRA prices 15 Oct – 14 Nov 2026", () => {
@@ -21,12 +20,11 @@ describe("EPRA prices 15 Oct – 14 Nov 2026", () => {
     }
   });
 
-  it("takes the KSh 3 station discount off every unit price", () => {
-    assert.equal(STATION_DISCOUNT_KES, 3);
-    assert.equal(epraUnitPriceForWarehouse("KPC_NAKURU", "PMS"), 222.73);
-    assert.equal(epraUnitPriceForWarehouse("KPC_NAKURU", "AGO"), 223.93);
-    assert.equal(epraUnitPriceForWarehouse("LAKE_OIL_NRB", "AGO"), 224.76);
-    assert.equal(epraUnitPriceForWarehouse("KPC_KISUMU", "PMS"), 223.51);
-    assert.equal(epraUnitPriceForStation("nakuru", "PMS"), 222.73);
+  it("charges dealers the EPRA price itself (the KSh 3 discount ended in October 2026)", () => {
+    assert.equal(epraUnitPriceForWarehouse("KPC_NAKURU", "PMS"), 225.73);
+    assert.equal(epraUnitPriceForWarehouse("KPC_NAKURU", "AGO"), 226.93);
+    assert.equal(epraUnitPriceForWarehouse("LAKE_OIL_NRB", "AGO"), 227.76);
+    assert.equal(epraUnitPriceForWarehouse("KPC_KISUMU", "PMS"), 226.51);
+    assert.equal(epraUnitPriceForStation("nakuru", "PMS"), 225.73);
   });
 });

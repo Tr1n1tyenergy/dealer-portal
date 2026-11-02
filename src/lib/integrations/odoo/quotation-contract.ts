@@ -403,7 +403,7 @@ export const INTEGRATION_GAPS = [
   "PMS/AGO products confirmed: PMSL001 + AGOL001 (see fuel-products.json externalIds)",
   "All portal stations have account.analytic.account External IDs (export 2026-10-15). Confirm with the Odoo admin which account is current for Malaa (6 or 146), Mariakani (3 or 147) and Outspan (5 or 151)",
   "Malaa and Mariakani are mapped in STATION_FULFILLMENT but not yet in official-dealers.json / dealer portal stations; confirm Mariakani loading warehouse (currently LAKE_OIL_NRB)",
-  "Replace temporary EPRA retail prices with station-discounted dealer wholesale once Odoo pricelists are authoritative",
+  "Replace temporary EPRA prices with each dealer's price from Odoo pricelists once those are authoritative",
   "Lubricants + LPG product.product External IDs if orderable from portal",
   "Real dealer names + partner IDs for Kambiti, Dagoretti, Outspan placeholders",
 ] as const;

@@ -1,4 +1,4 @@
-/** VAT added on top of the portal's unit price (EPRA pump price less the station discount). */
+/** VAT added on top of the portal's unit price (the EPRA pump price). */
 export const PFI_VAT_RATE = "0.08";
 
 export type PfiLineInput = { product: "PMS" | "AGO"; quantityLitres: number; unitPriceExVat: string };

@@ -45,7 +45,7 @@ describe(
       ({ prisma } = await import("@/lib/prisma"));
       service = await import("./service");
       organizationId = (await prisma.dealerOrganization.create({ data: { name: `PFI Dealer ${run}`, code: `PFI-${run}` } })).id;
-      // "kitale" loads at KPC Eldoret: PMS 226.51 − 3 = 223.51 before VAT.
+      // "kitale" loads at KPC Eldoret: PMS 226.51 before VAT.
       const existingKitale = await prisma.station.findUnique({ where: { code: "kitale" } });
       pricedStationId = existingKitale
         ? existingKitale.id
@@ -87,22 +87,22 @@ describe(
       assert.equal(order.status, "AWAITING_PAYMENT");
       assert.ok(order.proforma, "PFI should exist");
       assert.equal(order.proforma.number, order.odooQuotationNumber);
-      assert.equal(order.proforma.subtotal, "1117550.00");
-      assert.equal(order.proforma.vatAmount, "89404.00");
-      assert.equal(order.proforma.amount, "1206954.00");
+      assert.equal(order.proforma.subtotal, "1132550.00");
+      assert.equal(order.proforma.vatAmount, "90604.00");
+      assert.equal(order.proforma.amount, "1223154.00");
       assert.equal(order.proforma.vatRate, "0.08");
       assert.equal(order.proforma.preparedByName, "EVAN OTIATO");
       assert.equal(order.proforma.approvedByName, "EVAN OTIATO");
-      assert.equal(order.amountDue, "1206954.00");
+      assert.equal(order.amountDue, "1223154.00");
       assert.ok(order.quotedAt, "quotedAt should be set");
-      assert.equal(order.lines[0].unitPriceExVat, "223.51");
+      assert.equal(order.lines[0].unitPriceExVat, "226.51");
     });
 
     it("a line without a stored price is frozen at today's price", async () => {
       const order = await quotedOrder(pricedStationId, [{ product: "PMS", quantityLitres: 1000, unitPriceExVat: null }]);
       await service.generatePfi(order.id, staffId);
       const line = await prisma.dealerOrderLine.findFirstOrThrow({ where: { orderId: order.id } });
-      assert.equal(line.unitPriceExVat, "223.51");
+      assert.equal(line.unitPriceExVat, "226.51");
     });
 
     it("a station with no price stays at QUOTATION_READY with the note", async () => {
