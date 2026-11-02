@@ -36,3 +36,11 @@ export function headerLinks(portal: "dealer" | "staff" | "depot", user?: StaffUs
   const links: (HeaderLink | HeaderGroup)[] = STAFF.filter((l) => may(l.module)).map(strip);
   return admin.length ? [...links, { key: "admin", label: "Admin", links: admin }] : links;
 }
+
+/** Which staff menu word (or Admin entry) to underline for a page. */
+export function activeStaffNav(pathname: string): string | null {
+  const path = pathname.replace(/\/$/, "");
+  if (path === "/intelligence/retail") return "analytics";
+  const match = [...STAFF, ...ADMIN].find((l) => l.href !== "/intelligence/retail" && path.startsWith(l.href));
+  return match?.key ?? null;
+}

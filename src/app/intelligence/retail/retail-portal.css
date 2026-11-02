@@ -2,8 +2,6 @@
 
 :root {
   --ri-navy: #001b3a;
-  /* Height of the sticky .tri-header (72px row + 2px border). */
-  --ri-header-h: 74px;
   --ri-navy-deep: #0a192f;
   --ri-navy-mid: #0a235b;
   --ri-canvas: #0a192f;
@@ -14,7 +12,6 @@
   --ri-line: rgba(255, 255, 255, 0.1);
   --ri-panel: rgba(0, 27, 58, 0.72);
   --ri-panel-solid: #0a235b;
-  --ri-sidebar-w: 232px;
   --ri-radius: 12px;
 }
 
@@ -46,87 +43,6 @@
   background: #0a192f;
   position: relative;
   z-index: 1;
-}
-
-.ri-workspace {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  gap: 0;
-  align-items: stretch;
-  background: #0a192f;
-}
-
-.ri-sidebar {
-  width: var(--ri-sidebar-w);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem 0.75rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  background: var(--ri-navy);
-  /* Stay in view while the page scrolls: pinned under the sticky app header, one screen tall. */
-  position: sticky;
-  top: var(--ri-header-h);
-  align-self: flex-start;
-  height: calc(100vh - var(--ri-header-h));
-  overflow-y: auto;
-  box-sizing: border-box;
-  z-index: 5;
-}
-
-.ri-sidebar__brand {
-  padding: 0.2rem 0.55rem 1rem;
-}
-
-.ri-sidebar__kicker {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ri-gold);
-}
-
-.ri-sidebar__title {
-  margin-top: 0.25rem;
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #fff;
-}
-
-.ri-sidebar__nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.ri-sidebar__link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 0.9rem;
-  border-radius: 10px;
-  color: var(--ri-muted);
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.ri-sidebar__link:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-}
-
-.ri-sidebar__link.is-active {
-  background: rgba(245, 184, 0, 0.1);
-  color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(245, 184, 0, 0.7);
-}
-
-.ri-sidebar__link.is-active svg {
-  color: #f5b800;
 }
 
 .ri-content {
@@ -321,25 +237,4 @@
   background: rgba(34, 197, 94, 0.12);
   border: 1px solid rgba(74, 222, 128, 0.3);
   color: #bbf7d0;
-}
-
-@media (max-width: 860px) {
-  .ri-workspace {
-    flex-direction: column;
-  }
-  .ri-sidebar {
-    /* On phones the nav is a row at the top that scrolls away with the page. */
-    position: relative;
-    top: auto;
-    height: auto;
-    overflow-y: visible;
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--ri-line);
-    padding-bottom: 0.75rem;
-  }
-  .ri-sidebar__nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
 }

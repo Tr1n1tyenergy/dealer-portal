@@ -1,15 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   HelpCircle,
   Lock,
-  LogOut,
   Shield,
   Sparkles,
 } from "lucide-react";
-import { TrinityLogo } from "@/components/brand/trinity-logo";
+import { AccountMenu } from "@/components/layout/account-menu";
+import { PortalHeader } from "@/components/layout/portal-header";
+import { UnreadBell } from "@/components/layout/unread-bell";
+import { canUser } from "@/lib/permissions";
+import { activeStaffNav } from "@/lib/ui/header-links";
 import { IntelligenceBackground } from "@/components/layout/intelligence-background";
 import { cn } from "@/lib/utils";
 import { roleLabel } from "@/lib/access";
@@ -30,6 +33,7 @@ export function AppShell({
   suppressIntelligenceBackground?: boolean;
 }) {
   const { data } = useSession();
+  const pathname = usePathname();
   const initials = `${data?.user?.firstName?.[0] ?? ""}${data?.user?.lastName?.[0] ?? ""}`.toUpperCase() || "TE";
   const displayName =
     [data?.user?.firstName, data?.user?.lastName].filter(Boolean).join(" ") || "User";
@@ -42,40 +46,25 @@ export function AppShell({
     >
       {suppressIntelligenceBackground ? null : <IntelligenceBackground />}
 
-      <header className="tri-header">
-        <div className="tri-header__inner">
-          <Link href="/intelligence/dashboard" className="tri-brand">
-            <TrinityLogo variant="dark" height={52} className="tri-brand__logo" />
-            <div className="tri-divider" aria-hidden />
-            <div className="tri-brand__copy">
-              <div className="tri-brand__title">Trinity Retail Intelligence</div>
-              <div className="tri-brand__sub">Executive Platform</div>
-            </div>
-          </Link>
-
-          {/* Brand left; search + actions flush right (mockup) */}
-          <div className="tri-header__actions">
-            <div className="tri-user">
-              <div className="tri-user__avatar">{initials}</div>
-              <div className="tri-user__meta">
-                <div className="tri-user__name">{displayName}</div>
-                <div className="tri-user__role">{roleText}</div>
-              </div>
-            </div>
-
-            <div className="tri-divider" aria-hidden />
-
-            <button
-              type="button"
-              className="tri-logout"
-              aria-label="Logout"
-              onClick={() => signOut({ callbackUrl: "/access" })}
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <PortalHeader
+        portal="staff"
+        user={data?.user}
+        active={activeStaffNav(pathname)}
+        actions={
+          <>
+            {canUser(data?.user, "messaging", "view") ? <UnreadBell initial={0} href="/intelligence/retail/messaging" /> : null}
+            <AccountMenu
+              title={displayName}
+              subtitle={roleText}
+              initials={initials}
+              name={displayName}
+              email={data?.user?.email ?? ""}
+              changePasswordHref="/intelligence/forgot-password"
+              signOutUrl="/intelligence/login"
+            />
+          </>
+        }
+      />
 
       <main className={cn("tri-main", fullBleed && "tri-main--bleed")}>{children}</main>
     </div>

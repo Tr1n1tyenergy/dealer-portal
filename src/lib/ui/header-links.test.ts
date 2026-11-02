@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { headerLinks, type HeaderGroup, type HeaderLink } from "./header-links";
+import { activeStaffNav, headerLinks, type HeaderGroup, type HeaderLink } from "./header-links";
 
 const flat = (items: (HeaderLink | HeaderGroup)[]) =>
   items.map((i) => ("links" in i ? `${i.label}[${i.links.map((l) => `${l.label} ${l.href}`).join(", ")}]` : `${i.label} ${i.href}`));
@@ -50,5 +50,20 @@ describe("header menus", () => {
 
   it("depot: Loading board", () => {
     assert.deepEqual(flat(headerLinks("depot")), ["Loading board /depot/dashboard"]);
+  });
+
+  it("underlines the right staff word for each page", () => {
+    const cases: [string, string | null][] = [
+      ["/intelligence/dashboard", "home"],
+      ["/intelligence/retail", "analytics"],
+      ["/intelligence/retail/orders", "orders"],
+      ["/intelligence/retail/messaging", "messaging"],
+      ["/intelligence/retail/users", "users"],
+      ["/intelligence/admin/users", "admin-users"],
+      ["/intelligence/admin/activity", "activity"],
+      ["/intelligence/admin/settings", "settings"],
+      ["/intelligence/elsewhere", null],
+    ];
+    for (const [path, key] of cases) assert.equal(activeStaffNav(path), key, path);
   });
 });
