@@ -1,0 +1,48 @@
+/* Dealer dashboard, E2 (redesign spec §5; mockup e-variants.html option E2). */
+.dd { min-height: 100%; background: var(--tri-ground); color: var(--tri-ink); font-family: var(--font-sans); padding-bottom: 32px; }
+
+/* Station photo edge to edge, darkened from the bottom up so the white text and buttons stay readable. */
+.dd-hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; min-height: 310px; padding: 26px; background: url("/assets2/img/brand/station-sunset.jpg") 70% 30% / cover no-repeat; color: #fff; }
+.dd-hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(14, 22, 48, 0.86) 0%, rgba(14, 22, 48, 0.45) 48%, rgba(14, 22, 48, 0.05) 78%); }
+.dd-hero > * { position: relative; }
+.dd-hero__text { max-width: 560px; }
+.dd-hero__place { display: block; color: var(--tri-yellow); font-weight: 700; font-size: 16px; }
+.dd-hero h1 { margin: 6px 0 8px; font-size: 32px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 700; }
+.dd-hero p { margin: 0; font-size: 16px; line-height: 1.6; opacity: 0.95; }
+.dd-hero__actions { display: flex; gap: 10px; flex: none; }
+.dd-btn-light { background: rgba(255, 255, 255, 0.16); color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.6); }
+.dd-btn-light:hover { background: rgba(255, 255, 255, 0.26); }
+
+/* Below the photo: orders as a clean list, and This month. */
+.dd-below { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 28px; max-width: 1280px; margin: 0 auto; padding: 22px 26px 0; }
+.dd-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.dd h2 { margin: 0; font-size: 17px; font-weight: 700; }
+.dd-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--tri-line); }
+.dd-list li { border-bottom: 1px solid var(--tri-line); }
+.dd-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) 10.5rem 10rem; gap: 10px; align-items: center; padding: 13px 4px; color: inherit; text-decoration: none; font-size: 15px; transition: background-color 0.2s; }
+.dd-row:hover { background: #fff; }
+.dd-row:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: -2px; border-radius: 8px; }
+.dd-row b { font-weight: 700; }
+.dd-row__amount { text-align: right; }
+.dd-row > .ui-chip { justify-self: end; }
+.dd-row__fuel, .dd-row__amount { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-month__litres { margin-top: 12px; font-size: 28px; letter-spacing: -0.02em; }
+.dd-soft { color: var(--tri-soft); font-size: 15px; }
+.dd-small { font-size: 13px; }
+.dd-bar { height: 6px; margin: 14px 0 6px; border-radius: 99px; background: #e8edf7; overflow: hidden; }
+.dd-bar i { display: block; height: 100%; background: var(--tri-gradient); }
+
+/* Phone: photo on top with the greeting on its lower part, full-width buttons, then the list. */
+@media (max-width: 767px) {
+  .dd-hero { flex-direction: column; align-items: stretch; min-height: 300px; padding: 16px; }
+  .dd-hero h1 { font-size: 24px; }
+  .dd-hero p { font-size: 14px; }
+  .dd-hero__actions { flex-direction: column; }
+  .dd-hero__actions .ui-btn { width: 100%; }
+  .dd-below { grid-template-columns: 1fr; gap: 24px; padding: 16px 16px 0; }
+  .dd-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "ref chip" "fuel amount"; row-gap: 4px; }
+  .dd-row b { grid-area: ref; }
+  .dd-row .ui-chip { grid-area: chip; justify-self: end; }
+  .dd-row__fuel { grid-area: fuel; color: var(--tri-soft); font-size: 14px; }
+  .dd-row__amount { grid-area: amount; justify-self: end; font-size: 14px; }
+}

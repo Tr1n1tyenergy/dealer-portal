@@ -5,6 +5,7 @@
 .ph__nav { display: flex; align-items: center; gap: 26px; min-width: 0; }
 .ph__word { font: inherit; font-size: 15px; background: none; border: 0; cursor: pointer; }
 .ph__actions { display: flex; align-items: center; gap: 12px; margin-left: auto; min-width: 0; }
+.ph__actions .ui-btn { white-space: nowrap; }
 .ph__menu-button { display: none; margin-left: auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: #eef2fb; color: var(--tri-blue); font: inherit; font-weight: 700; cursor: pointer; }
 .ph__menu-button:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
 
@@ -48,11 +49,16 @@
 .ph-sheet .ph__word { display: block; padding: 14px 0; font-size: 18px; text-align: left; border-bottom: 1px solid var(--tri-line); }
 .ph-sheet .ui-navlink::after { bottom: 8px; right: auto; width: 48px; }
 
-@media (max-width: 1023px) {
+/* The dealer's full bar needs about 1200px (five words, search, Place an order, account). */
+@media (max-width: 1199px) {
   .ph__nav { display: none; }
   .ph__menu-button { display: inline-flex; align-items: center; margin-left: 0; }
-  .ph__bar { gap: 12px; padding: 0 16px; }
-  .ph-search { display: none; }
+  .ph__bar { flex-wrap: wrap; gap: 12px; height: auto; min-height: 64px; padding: 10px 16px; }
+  .ph__logo { margin-right: auto; }
+  /* Lets the search drop to its own full-width row under the bar. */
+  .ph__actions { display: contents; }
+  .ph-search { order: 1; flex: 1 0 100%; }
+  .ph-search input { flex: 1; width: auto; min-width: 0; }
   .ph-user__meta { display: none; }
   .ph-user { padding-right: 4px; }
   .ph__actions .ph-hide-small { display: none; }

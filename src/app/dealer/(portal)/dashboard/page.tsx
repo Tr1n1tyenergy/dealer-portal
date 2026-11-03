@@ -1,23 +1,14 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  CreditCard,
-  FileText,
-  LayoutList,
-  MapPin,
-  Package,
-  Plus,
-  ShoppingCart,
-  Truck,
-  Wallet,
-  Zap,
-} from "lucide-react";
-import { parseProductsJson } from "@/lib/dealers/registry";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { toDealerOrderRow } from "@/lib/orders/dealer-views";
-import { RecentOrders } from "@/components/dealer/recent-orders";
 import { nairobiParts } from "@/lib/time/nairobi";
+import { formatKes } from "@/lib/orders/money";
+import { dealerStatusLabel } from "@/lib/orders/state-machine";
+import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
+import { dashboardSummary } from "@/lib/dealer/dashboard-summary";
+import { StatusChip } from "@/components/ui/status-chip";
+import { EmptyState } from "@/components/ui/states";
+import "./dashboard.css";
 
 function greeting() {
   const { hour } = nairobiParts();
@@ -26,6 +17,9 @@ function greeting() {
   return "Good evening";
 }
 
+const litres = (n: number) => `${n.toLocaleString("en-KE")} L`;
+
+/** The dealer dashboard in the chosen E2 design (redesign spec §5). */
 export default async function DealerDashboardPage() {
   const session = await requireDealer();
   const orgId = session.user.dealerOrganizationId!;
@@ -33,190 +27,96 @@ export default async function DealerDashboardPage() {
     prisma.dealerOrganization.findUnique({ where: { id: orgId } }),
     prisma.dealerOrder.findMany({
       where: { dealerOrganizationId: orgId },
-      include: { station: true, lines: true, proforma: true },
+      include: { lines: true },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.station.findMany({
-      where: { dealerOrganizationId: orgId },
-      orderBy: { name: "asc" },
-    }),
+    prisma.station.findMany({ where: { dealerOrganizationId: orgId }, orderBy: { name: "asc" } }),
   ]);
 
-  const orgName = org?.name ?? session.user.firstName ?? "Dealer";
-  const count = (statuses: string[]) => orders.filter((o) => statuses.includes(o.status)).length;
-
-  const cards = [
-    {
-      label: "Open Orders",
-      value: orders.filter((o) => !["CLOSED", "CANCELLED", "REJECTED", "DELIVERED"].includes(o.status)).length,
-      href: "/dealer/orders",
-      link: "View all orders",
-      icon: Package,
-    },
-    {
-      label: "Awaiting PFI",
-      value: count(["QUOTATION_READY", "PFI_PENDING", "ODOO_SYNC_PENDING", "SUBMITTED", "QUOTATION_CREATING"]),
-      href: "/dealer/orders",
-      link: "View quotations",
-      icon: FileText,
-    },
-    {
-      label: "Awaiting Payment",
-      value: count(["PFI_ISSUED", "AWAITING_PAYMENT", "PAYMENT_EXCEPTION"]),
-      href: "/dealer/orders?view=payment",
-      link: "View payments",
-      icon: Wallet,
-    },
-    {
-      label: "In Transit",
-      value: count(["DISPATCHED", "IN_TRANSIT"]),
-      href: "/dealer/orders?view=deliveries",
-      link: "Track deliveries",
-      icon: Truck,
-    },
-    {
-      label: "Delivered",
-      value: count(["DELIVERED", "CLOSED"]),
-      href: "/dealer/orders?view=deliveries",
-      link: "View delivered",
-      icon: LayoutList,
-    },
-  ];
-
-  const recentRows = orders.slice(0, 8).map(toDealerOrderRow);
+  // Odoo names are often in capitals; E2 greets in normal case.
+  const company = (org?.name ?? "Dealer").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  const place = stations.length === 1 ? stations[0].name : stations.length > 1 ? `${stations.length} stations` : company;
+  const priced = stations.find((s) => s.code && epraUnitPriceForStation(s.code, "PMS") != null);
+  const pms = priced?.code ? epraUnitPriceForStation(priced.code, "PMS") : null;
+  const ago = priced?.code ? epraUnitPriceForStation(priced.code, "AGO") : null;
+  const prices = pms != null && ago != null ? ` Today: PMS KSh ${pms.toFixed(2)} · AGO KSh ${ago.toFixed(2)}.` : "";
+  const summary = dashboardSummary(orders);
+  const pmsShare = summary.month.litres ? Math.round((summary.month.pmsLitres / summary.month.litres) * 100) : 0;
 
   return (
-    <div className="dp-dash">
-      <section
-        className="dp-hero"
-        style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
-      >
-        <div className="dp-hero__veil" />
-        <div className="dp-hero__inner">
-          <div className="dp-hero__copy">
-            <div className="dp-hero__kicker">Dealer Portal</div>
-            <h1>
-              {greeting()}, <span>{orgName}</span>
-            </h1>
-            <p>
-              Place fuel orders, follow PFIs, make payments and track deliveries for your
-              stations, all in one place.
-            </p>
-          </div>
-
-          <div className="dp-hero__metrics">
-            {cards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <article key={card.label} className="dp-metric">
-                  <div className="dp-metric__icon">
-                    <Icon size={16} strokeWidth={1.8} />
-                  </div>
-                  <strong>{card.value}</strong>
-                  <div className="dp-metric__label">{card.label}</div>
-                  <Link href={card.href}>{card.link} →</Link>
-                </article>
-              );
-            })}
-
-            <Link href="/dealer/orders/new" className="dp-order-cta">
-              <span className="dp-order-cta__plus">
-                <Plus size={22} strokeWidth={2.5} />
-              </span>
-              <span className="dp-order-cta__text">Place Fuel Order</span>
-              <span className="dp-order-cta__go">
-                <ArrowRight size={18} strokeWidth={2.4} />
-              </span>
+    <div className="dd">
+      <section className="dd-hero">
+        <div className="dd-hero__text">
+          <span className="dd-hero__place">{place}</span>
+          <h1>
+            {greeting()}, {company}
+          </h1>
+          <p>
+            {summary.needsYou}
+            {prices}
+          </p>
+        </div>
+        <div className="dd-hero__actions">
+          <Link href="/dealer/orders/new" className="ui-btn ui-btn--primary">
+            Place an order
+          </Link>
+          {summary.secondAction ? (
+            <Link href={summary.secondAction.href} className="ui-btn dd-btn-light">
+              {summary.secondAction.label}
             </Link>
-          </div>
+          ) : null}
         </div>
       </section>
 
-      <section className="dp-body">
-        <RecentOrders
-          orders={recentRows}
-          stations={stations.map((s) => s.name)}
-        />
+      <div className="dd-below">
+        <section aria-labelledby="dd-orders">
+          <div className="dd-head">
+            <h2 id="dd-orders">Orders</h2>
+            <Link href="/dealer/orders" className="ui-navlink">
+              See all
+            </Link>
+          </div>
+          {orders.length === 0 ? (
+            <EmptyState
+              title="No orders yet. Place your first order and we'll prepare the quotation and PFI for you."
+              action={
+                <Link href="/dealer/orders/new" className="ui-btn ui-btn--primary">
+                  Place an order
+                </Link>
+              }
+            />
+          ) : (
+            <ul className="dd-list">
+              {orders.slice(0, 5).map((o) => (
+                <li key={o.id}>
+                  <Link href={`/dealer/orders/${o.id}`} className="dd-row">
+                    <b>{o.reference}</b>
+                    <span className="dd-row__fuel">
+                      {o.lines.map((l) => `${l.product} ${litres(l.quantityLitres)}`).join(" · ")}
+                    </span>
+                    <span className="dd-row__amount">{o.amountDue ? formatKes(o.amountDue.toString()) : "—"}</span>
+                    <StatusChip status={o.status} label={dealerStatusLabel(o.status)} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
-        <article className="dp-card dp-quick">
-          <div className="dp-card__head">
-            <div className="dp-card__title is-gold">
-              <Zap size={18} strokeWidth={1.8} />
-              Quick Actions
-            </div>
+        <section aria-labelledby="dd-month" className="dd-month">
+          <h2 id="dd-month">This month</h2>
+          <div className="dd-month__litres">{litres(summary.month.litres)}</div>
+          <span className="dd-soft">
+            across {summary.month.orders} {summary.month.orders === 1 ? "order" : "orders"}
+          </span>
+          <div className="dd-bar" aria-hidden>
+            <i style={{ width: `${pmsShare}%` }} />
           </div>
-          <div className="dp-actions">
-            <Link href="/dealer/orders/new" className="dp-action">
-              <span className="dp-action__icon is-blue">
-                <ShoppingCart size={16} />
-              </span>
-              <span>
-                <strong>Place New Order</strong>
-                <em>Request PMS or AGO for a station</em>
-              </span>
-              <ArrowRight size={16} />
-            </Link>
-            <Link href="/dealer/orders?view=documents" className="dp-action">
-              <span className="dp-action__icon is-cyan">
-                <FileText size={16} />
-              </span>
-              <span>
-                <strong>View PFIs</strong>
-                <em>Open proforma invoices & docs</em>
-              </span>
-              <ArrowRight size={16} />
-            </Link>
-            <Link href="/dealer/orders?view=payment" className="dp-action">
-              <span className="dp-action__icon is-gold">
-                <CreditCard size={16} />
-              </span>
-              <span>
-                <strong>Make a Payment</strong>
-                <em>Submit payment against a PFI</em>
-              </span>
-              <ArrowRight size={16} />
-            </Link>
-            <Link href="/dealer/orders?view=deliveries" className="dp-action">
-              <span className="dp-action__icon is-green">
-                <Truck size={16} />
-              </span>
-              <span>
-                <strong>Track Deliveries</strong>
-                <em>Follow orders in transit</em>
-              </span>
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-        </article>
-
-        <article className="dp-card dp-stations-card" id="stations">
-          <div className="dp-card__head">
-            <div className="dp-card__title">
-              <MapPin size={18} strokeWidth={1.8} />
-              Stations
-            </div>
-          </div>
-          <ul className="dp-stations">
-            {stations.map((station) => {
-              // The portal orders PMS and AGO only; other products in the catalog aren't shown.
-              const products = parseProductsJson(station.products).filter((p) => p === "PMS" || p === "AGO");
-              return (
-              <li key={station.id}>
-                <div>
-                  <strong>{station.name}</strong>
-                  <span className="dp-stations__status">
-                    <i /> {products.join(" · ")}
-                  </span>
-                </div>
-              </li>
-              );
-            })}
-            {stations.length === 0 ? (
-              <li className="dp-empty">No stations linked to this account.</li>
-            ) : null}
-          </ul>
-        </article>
-      </section>
+          <span className="dd-soft dd-small">
+            PMS {pmsShare}% · AGO {summary.month.litres ? 100 - pmsShare : 0}%
+          </span>
+        </section>
+      </div>
     </div>
   );
 }

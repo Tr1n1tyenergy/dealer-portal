@@ -1,6 +1,6 @@
 /* Sign-in, activation, password and error pages (redesign spec §6). Uses the --tri-* tokens. */
 .auth { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); min-height: 100dvh; background: var(--tri-surface); color: var(--tri-ink); font-family: var(--font-sans); }
-.auth__photo { position: relative; background: url("/assets2/img/brand/station-sunset.jpg") center 45% / cover no-repeat; }
+.auth__photo { position: relative; background: url("/assets2/img/brand/station-sunset.jpg") 78% 45% / cover no-repeat; }
 .auth__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(14, 22, 48, 0.88) 0%, rgba(14, 22, 48, 0.45) 45%, rgba(14, 22, 48, 0.05) 75%); }
 .auth__photo-text { position: absolute; left: 48px; right: 48px; bottom: 48px; z-index: 1; color: #fff; max-width: 34rem; }
 .auth__kicker { display: block; margin-bottom: 8px; color: var(--tri-yellow); font-weight: 700; font-size: 16px; }

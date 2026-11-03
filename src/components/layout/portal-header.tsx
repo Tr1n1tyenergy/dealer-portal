@@ -13,7 +13,7 @@ const HOME: Record<Portal, string> = { dealer: "/dealer/dashboard", staff: "/int
 
 /**
  * The one header for all portals (redesign spec §4): logo, menu words in brand blue with the yellow
- * underline, and the portal's own controls on the right. Below 1024px the words move into a Menu sheet.
+ * underline, and the portal's own controls on the right. Below 1200px the words move into a Menu sheet.
  */
 export function PortalHeader({
   portal,
@@ -41,6 +41,15 @@ export function PortalHeader({
     sheetRef.current?.querySelector<HTMLElement>("a, button")?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
+      // The sheet covers the page, so Tab wraps inside it instead of reaching what is hidden behind.
+      if (e.key !== "Tab") return;
+      const all = sheetRef.current?.querySelectorAll<HTMLElement>("a[href], button, input");
+      if (!all?.length) return;
+      const [first, last] = [all[0], all[all.length - 1]];
+      if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
