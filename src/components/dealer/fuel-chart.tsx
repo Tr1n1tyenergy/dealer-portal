@@ -1,7 +1,11 @@
+"use client";
+
+import { useWidth } from "@/components/ui/use-width";
+
 /** "Fuel ordered": litres per month as stacked columns, PMS (blue) under AGO (teal); chart option A, 3 Nov. */
 export function FuelChart({ months }: { months: { label: string; pms: number; ago: number }[] }) {
-  // Drawn at about the panel's width, so the 13px labels stay close to 13px on screen.
-  const w = 720;
+  // Drawn at the measured width (1:1), so the 13px labels are 13px on every screen.
+  const [box, w] = useWidth<HTMLDivElement>(720);
   const h = 240;
   const pad = { t: 22, r: 8, b: 28, l: 40 };
   const innerW = w - pad.l - pad.r;
@@ -20,6 +24,7 @@ export function FuelChart({ months }: { months: { label: string; pms: number; ag
     return `M${x},${y0} V${y1 + r} Q${x},${y1} ${x + r},${y1} H${x + bar - r} Q${x + bar},${y1} ${x + bar},${y1 + r} V${y0} Z`;
   };
   return (
+    <div ref={box} className="fc-box">
     <svg className="fc" viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Litres ordered per month, last 6 months, PMS and AGO">
       {ticks.map((t) => (
         <g key={t}>
@@ -59,5 +64,6 @@ export function FuelChart({ months }: { months: { label: string; pms: number; ag
         );
       })}
     </svg>
+    </div>
   );
 }

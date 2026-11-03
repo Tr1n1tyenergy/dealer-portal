@@ -16,7 +16,7 @@
 .so-ref { font-weight: 700; white-space: nowrap; }
 .so-nowrap { white-space: nowrap; overflow-wrap: normal; }
 .so-amount { white-space: nowrap; }
-.so-paid { margin-top: 4px; font-size: 13px; color: var(--tri-soft); }
+.so-paid { margin-top: 4px; font-size: 13px; color: var(--tri-soft); white-space: normal; }
 .so-paid--mismatch { color: var(--tri-problem); font-weight: 700; }
 .so-note { margin-top: 6px; font-size: 13px; color: var(--tri-problem); }
 .so-empty { margin: 0; padding: 24px 14px; font-size: 16px; }
@@ -25,8 +25,8 @@
 .so-actions .ui-btn { min-height: 40px; padding: 0 16px; font-size: 14px; white-space: nowrap; }
 .so-actions__depot { width: auto; min-width: 10rem; height: 40px; font-size: 14px; }
 
-/* Phones and small tablets: every order becomes a stacked item (no sideways-scrolling table). */
-@media (max-width: 1023px) {
+/* Below 1280px eight columns and the action buttons don't fit: every order becomes a stacked item. */
+@media (max-width: 1279px) {
   .so-table thead { display: none; }
   .so-table, .so-table tbody, .so-table tr, .so-table td { display: block; width: 100%; }
   .so-table tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 14px 16px; border-bottom: 1px solid var(--tri-line); }

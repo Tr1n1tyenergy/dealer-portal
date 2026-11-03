@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { roleLabel, STAFF_ROLES } from "@/lib/access";
-import type { StaffUser } from "@/lib/permissions";
+import { canUser, type StaffUser } from "@/lib/permissions";
 import { adminRowActions } from "@/lib/users/user-controls";
 import { PermissionsDialog } from "./permissions-dialog";
 import "./users-admin.css";
@@ -26,9 +26,9 @@ export function UsersAdminClient({
   actor,
 }: {
   initialUsers: UserRow[];
-  actor: StaffUser & { email: string };
+  actor: StaffUser & { email: string; id: string };
 }) {
-  const canManage = adminRowActions(actor, { role: "", accountType: "", email: "" }).toggle;
+  const canManage = canUser(actor, "adminUsers", "act");
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers);
   const [form, setForm] = useState({

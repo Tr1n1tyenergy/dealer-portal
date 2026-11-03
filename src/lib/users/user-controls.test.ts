@@ -31,10 +31,7 @@ test("view-only on Admin users: no row buttons", () => {
 
 test("a non-Admin with Act never gets Permissions on an Admin's row", () => {
   const actor = { ...staff("STANDARD_USER", { "adminUsers.view": "allow", "adminUsers.act": "allow" }), email: "a@x.test" };
-  const r = adminRowActions(actor, row("SUPER_ADMIN"));
-  assert.equal(r.permissions, false);
-  assert.equal(r.toggle, true);
-  assert.equal(r.resetInvite, true);
+  assert.equal(adminRowActions(actor, row("SUPER_ADMIN")).permissions, false);
   assert.equal(adminRowActions(actor, row("STANDARD_USER")).permissions, true);
 });
 
@@ -46,4 +43,14 @@ test("an Admin gets Permissions on an Admin's row", () => {
 test("no Permissions on a dealer row", () => {
   const actor = { ...staff("SUPER_ADMIN"), email: "admin@stress.test" };
   assert.equal(adminRowActions(actor, row("DEALER", "DEALER")).permissions, false);
+});
+
+test("a non-Admin with Act sees no buttons at all on an Admin's row (the server refuses them)", () => {
+  const actor = { ...staff("STANDARD_USER", { "adminUsers.view": "allow", "adminUsers.act": "allow" }), email: "a@x.test", id: "u-a" };
+  assert.deepEqual(adminRowActions(actor, { ...row("SUPER_ADMIN"), id: "u-admin" }), NONE);
+});
+
+test("nobody gets Delete on their own row", () => {
+  const actor = { ...staff("SUPER_ADMIN"), email: "admin@stress.test", id: "u-me" };
+  assert.equal(adminRowActions(actor, { ...row("SUPER_ADMIN", "INTERNAL", "admin@stress.test"), id: "u-me" }).delete, false);
 });

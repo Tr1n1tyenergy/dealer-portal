@@ -99,3 +99,13 @@
   .ru-form__row--2, .ru-form__row--3, .ru-form__row--4 { grid-template-columns: minmax(0, 1fr); }
   .ru-panel__tools, .ru-search, .ru-filter { width: 100%; }
 }
+
+/* Station picker options: one row each; stations that can't be invited say why. */
+.ru-multi__option { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 10px; border-radius: 10px; font-size: 15px; cursor: pointer; }
+.ru-multi__option:hover { background: var(--tri-ground); }
+.ru-multi__option input { width: 18px; height: 18px; accent-color: var(--tri-blue); }
+.ru-multi__option em { margin-left: auto; font-style: normal; font-size: 13px; color: var(--tri-soft); white-space: nowrap; }
+.ru-multi__option.is-disabled { color: var(--tri-soft); cursor: not-allowed; }
+.ru-multi__option.is-disabled:hover { background: none; }
+.ru-type--dealer { background: #fff4cc; color: #7a5b00; }
+.ru-type--internal { background: #eceffa; color: var(--tri-blue); }

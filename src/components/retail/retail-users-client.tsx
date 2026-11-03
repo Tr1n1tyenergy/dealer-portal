@@ -1,6 +1,5 @@
 "use client";
 
-import { retailUsersControls } from "@/lib/users/user-controls";
 import { PageHead } from "@/components/layout/page-head";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -95,9 +94,8 @@ type EditForm = {
   status: "PENDING" | "ACTIVE" | "DISABLED";
 };
 
-export function RetailUsersClient() {
+export function RetailUsersClient({ controls }: { controls: { invite: boolean; manage: boolean } }) {
   const { data: session } = useSession();
-  const controls = retailUsersControls(session?.user);
   const canManageUsers = controls.manage;
 
   const [stations, setStations] = useState<StationOpt[]>([]);
