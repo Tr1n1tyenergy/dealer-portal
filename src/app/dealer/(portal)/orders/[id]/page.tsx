@@ -1,17 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  Calendar,
-  Check,
-  ChevronRight,
-  Droplets,
-  FileText,
-  Fuel,
-  Home,
-  MapPin,
-  Package,
-} from "lucide-react";
+import { Check } from "lucide-react";
 import type { DealerOrderStatus } from "@prisma/client";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -22,6 +10,8 @@ import {
 } from "@/lib/orders/state-machine";
 import { PaymentForm } from "@/components/dealer/payment-form";
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
+import { PageHead } from "@/components/layout/page-head";
+import { StatusChip } from "@/components/ui/status-chip";
 import "@/components/dealer/order-tracking.css";
 
 function formatLitres(n: number) {
@@ -48,12 +38,6 @@ function formatDateTime(date: Date) {
   }).format(date);
 }
 
-function stationArea(name: string) {
-  if (name.toLowerCase().includes("nakuru")) return "Nakuru";
-  if (name.toLowerCase().includes("westlands")) return "Nairobi";
-  return "Kenya";
-}
-
 function statusCopy(status: DealerOrderStatus) {
   const label = dealerStatusLabel(status);
   switch (status) {
@@ -68,7 +52,7 @@ function statusCopy(status: DealerOrderStatus) {
     case "QUOTATION_READY":
     case "PFI_PENDING":
       return {
-        label: "Quotation Processing",
+        label: "Quotation processing",
         detail: "Your order has been received and commercial processing is underway.",
       };
     case "PFI_ISSUED":
@@ -125,7 +109,7 @@ function docState(
   if (kind === "payment") {
     if (stateOf("payment") === "done") return { label: "Ready", tone: "ready" as const };
     if (status === "AWAITING_PAYMENT" || status === "PFI_ISSUED") {
-      return { label: "Action needed", tone: "processing" as const };
+      return { label: "Action needed", tone: "action" as const };
     }
     return { label: "Pending", tone: "pending" as const };
   }
@@ -133,9 +117,11 @@ function docState(
   return { label: "Pending", tone: "pending" as const };
 }
 
+const DOC_CHIP = { ready: "done", processing: "trinity", action: "dealer", pending: "muted" } as const;
+
 const STEP_STATUS_TEXT: Record<DealerTrackerStep["state"], string> = {
   done: "Done",
-  active: "In Progress",
+  active: "In progress",
   attention: "Needs attention",
   pending: "Pending",
   stopped: "—",
@@ -170,13 +156,11 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
   const ago = order.lines.find((l) => l.product === "AGO")?.quantityLitres ?? 0;
   const total = pms + ago;
   const current = statusCopy(order.status);
-  const badgeLabel =
-    order.status === "SUBMITTED" ? "Order Submitted" : dealerStatusLabel(order.status);
 
   const docs = [
     {
       key: "quotation",
-      title: "Sales Quotation",
+      title: "Sales quotation",
       ...docState("quotation", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
@@ -186,267 +170,121 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
     },
     {
       key: "payment",
-      title: "Payment Confirmation",
+      title: "Payment confirmation",
       ...docState("payment", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
       key: "delivery",
-      title: "Delivery Note",
+      title: "Delivery note",
       ...docState("delivery", tracker.steps, order.status, Boolean(order.proforma)),
     },
   ];
 
+  const litres = [
+    pms > 0 ? { product: "PMS", name: "Premium motor spirit", litres: pms } : null,
+    ago > 0 ? { product: "AGO", name: "Automotive gas oil", litres: ago } : null,
+  ].filter((l) => l !== null);
+
   return (
-    <div className="dp-dash">
-      <section
-        className="dp-hero dp-ot-hero"
-        style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
-      >
-        <div className="dp-hero__veil" />
-        <div className="dp-ot-hero__inner">
-          <nav className="dp-po-crumb" aria-label="Breadcrumb">
-            <Link href="/dealer/dashboard" aria-label="Home">
-              <Home size={14} />
-            </Link>
-            <span className="sep">/</span>
-            <Link href="/dealer/orders">My Orders</Link>
-            <span className="sep">/</span>
-            <span className="is-current">{order.reference}</span>
-          </nav>
+    <div className="ui-page ot">
+      <PageHead
+        back={{ href: "/dealer/orders", label: "Orders" }}
+        title={order.reference}
+        aside={<StatusChip status={order.status} label={dealerStatusLabel(order.status)} />}
+        description={`${order.station.name} · ${formatLitres(total)} · submitted ${formatDateTime(order.createdAt)}`}
+        action={<OrderTrackingNav orders={navOrders} currentId={order.id} />}
+      />
 
-          <div className="dp-ot-toolbar">
-            <Link href="/dealer/dashboard" className="dp-ot-back">
-              <ArrowLeft size={14} />
-              Back to Dashboard
-            </Link>
-            <OrderTrackingNav orders={navOrders} currentId={order.id} />
-          </div>
-
-          <div className="dp-ot-hero__grid">
-            <div className="dp-ot-hero__copy">
-              <div className="dp-ot-ref-row">
-                <span className="dp-ot-ref">{order.reference}</span>
-                <span className="dp-ot-badge">{badgeLabel}</span>
-              </div>
-              <h1>{order.station.name}</h1>
-              <p className="dp-ot-volume">{formatLitres(total)} Fuel Order</p>
-              <div className="dp-ot-meta">
-                <span>
-                  <Calendar size={14} />
-                  Submitted: {formatDateTime(order.createdAt)}
-                </span>
-                <span>
-                  <Calendar size={14} />
-                  Requested Delivery: {formatLongDate(order.requestedDeliveryDate)}
-                </span>
-                <span>
-                  <FileText size={14} />
-                  Dealer Reference: {order.dealerReference || "—"}
-                </span>
-              </div>
-            </div>
-
-            <aside className="dp-ot-status">
-              <div className="dp-ot-status__icon">
-                <FileText size={18} />
-              </div>
-              <div>
-                <div className="dp-ot-status__kicker">Current status</div>
-                <strong>{current.label}</strong>
-                <p>{current.detail}</p>
-              </div>
-            </aside>
-          </div>
-
-          <div className="dp-ot-progress-wrap">
-            {tracker.stopped ? <p className="dp-ot-progress__stopped">{tracker.stopped}</p> : null}
-            <ol
-              className={`dp-ot-progress ${tracker.stopped ? "is-stopped" : ""}`}
-              aria-label="Order progress"
+      <section className="ui-panel ot-track" aria-labelledby="ot-track-title">
+        <h2 id="ot-track-title" className="ui-section-title">
+          {current.label}
+        </h2>
+        <p className="ot-track__detail">{current.detail}</p>
+        {tracker.stopped ? <p className="ot-track__stopped">{tracker.stopped}</p> : null}
+        <ol className={`ot-steps${tracker.stopped ? " is-stopped" : ""}`} aria-label="Order progress">
+          {tracker.steps.map((item, index) => (
+            <li
+              key={item.key}
+              className={`ot-step is-${item.state}`}
+              aria-current={item.state === "active" || item.state === "attention" ? "step" : undefined}
             >
-              {tracker.steps.map((item, index) => {
-                const next = tracker.steps[index + 1];
-                const connectorClass =
-                  item.state === "done"
-                    ? next && next.state !== "done"
-                      ? "is-active"
-                      : "is-done"
-                    : "";
-                const isCurrent = item.state === "active" || item.state === "attention";
-                return (
-                  <li
-                    key={item.key}
-                    className={`dp-ot-progress__step is-${item.state}`}
-                    aria-current={isCurrent ? "step" : undefined}
-                  >
-                    <div className="dp-ot-progress__rail">
-                      <div className="dp-ot-progress__node">
-                        <span className="dp-ot-progress__dot">
-                          {item.state === "done" ? (
-                            <Check size={14} strokeWidth={3} />
-                          ) : item.state === "attention" ? (
-                            "!"
-                          ) : (
-                            index + 1
-                          )}
-                        </span>
-                        <em>{item.label}</em>
-                        <small>{item.note ?? STEP_STATUS_TEXT[item.state]}</small>
-                      </div>
-                      {index < tracker.steps.length - 1 ? (
-                        <span className={`dp-ot-progress__line ${connectorClass}`} aria-hidden />
-                      ) : null}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        </div>
+              <span className="ot-step__dot" aria-hidden>
+                {item.state === "done" ? <Check size={14} strokeWidth={3} /> : item.state === "attention" ? "!" : index + 1}
+              </span>
+              <span className="ot-step__text">
+                <b>{item.label}</b>
+                <span>{item.note ?? STEP_STATUS_TEXT[item.state]}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
       </section>
 
-      <section className="dp-body dp-ot-body">
-        <div className="dp-ot-layout">
-          <article className="dp-ot-card">
-            <header className="dp-ot-card__head">
-              <div className="dp-ot-card__title">
-                <span className="dp-ot-card__icon is-blue">
-                  <Fuel size={18} />
-                </span>
-                <div>
-                  <h2>Order Details</h2>
-                  <p>Fuel products, station and delivery information.</p>
-                </div>
+      <div className="ot-body">
+        <section className="ui-panel" aria-labelledby="ot-details-title">
+          <h2 id="ot-details-title" className="ui-section-title">
+            Order details
+          </h2>
+          <dl className="ot-facts">
+            {litres.map((l) => (
+              <div key={l.product}>
+                <dt>
+                  {l.product} <span>{l.name}</span>
+                </dt>
+                <dd>{formatLitres(l.litres)}</dd>
               </div>
-            </header>
-
-            <div className="dp-ot-products">
-              {pms > 0 ? (
-                <div className="dp-ot-product is-pms">
-                  <span className="dp-ot-product__icon">
-                    <Droplets size={18} />
-                  </span>
-                  <div>
-                    <strong>PMS</strong>
-                    <em>Premium Motor Spirit</em>
-                  </div>
-                  <b>{formatLitres(pms)}</b>
-                </div>
-              ) : null}
-              {ago > 0 ? (
-                <div className="dp-ot-product is-ago">
-                  <span className="dp-ot-product__icon">
-                    <Fuel size={18} />
-                  </span>
-                  <div>
-                    <strong>AGO</strong>
-                    <em>Automotive Gas Oil</em>
-                  </div>
-                  <b>{formatLitres(ago)}</b>
-                </div>
-              ) : null}
+            ))}
+            <div className="ot-facts__total">
+              <dt>Total</dt>
+              <dd>{formatLitres(total)}</dd>
             </div>
-
-            <div className="dp-ot-total">
-              <span>Total Order Volume</span>
-              <strong>{formatLitres(total)}</strong>
+            <div>
+              <dt>Station</dt>
+              <dd>{order.station.name}</dd>
             </div>
-
-            <div className="dp-ot-facts">
-              <div>
-                <span>
-                  <MapPin size={14} /> Station
-                </span>
-                <strong>{order.station.name}</strong>
-                <em>
-                  {stationArea(order.station.name)} · Active Station
-                </em>
-              </div>
-              <div>
-                <span>
-                  <Calendar size={14} /> Requested Delivery Date
-                </span>
-                <strong>{formatLongDate(order.requestedDeliveryDate)}</strong>
-              </div>
-              <div>
-                <span>
-                  <Calendar size={14} /> Order Date
-                </span>
-                <strong>{formatDateTime(order.createdAt)}</strong>
-              </div>
+            <div>
+              <dt>Requested delivery</dt>
+              <dd>{formatLongDate(order.requestedDeliveryDate)}</dd>
             </div>
-
-            <div className="dp-ot-extras">
-              <div>
-                <span>
-                  <FileText size={14} /> Dealer Reference / PO Number
-                </span>
-                <strong>{order.dealerReference || "Not provided"}</strong>
-              </div>
-              <div>
-                <span>
-                  <Package size={14} /> Order Notes
-                </span>
-                <strong>{order.notes || "No additional notes"}</strong>
-              </div>
+            <div>
+              <dt>Order date</dt>
+              <dd>{formatDateTime(order.createdAt)}</dd>
             </div>
-          </article>
+            <div>
+              <dt>Your reference</dt>
+              <dd>{order.dealerReference || "Not provided"}</dd>
+            </div>
+            <div>
+              <dt>Notes</dt>
+              <dd>{order.notes || "None"}</dd>
+            </div>
+          </dl>
+        </section>
 
-          <aside className="dp-ot-side">
-            <article className="dp-ot-card">
-              <header className="dp-ot-card__head">
-                <div className="dp-ot-card__title">
-                  <span className="dp-ot-card__icon is-blue">
-                    <FileText size={18} />
-                  </span>
-                  <div>
-                    <h2>Order Documents</h2>
-                    <p>Access all documents related to this order.</p>
-                  </div>
-                </div>
-              </header>
-
-              <ul className="dp-ot-docs">
-                {docs.map((doc) =>
-                  doc.key === "pfi" && order.proforma ? (
-                    <li key={doc.key}>
-                      <a
-                        className="dp-ot-docs__link"
-                        href={`/api/orders/${order.id}/pfi`}
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        <span className="dp-ot-docs__icon">
-                          <FileText size={16} />
-                        </span>
-                        <div>
-                          <strong>{doc.title}</strong>
-                          <em className="dp-ot-pill is-ready">View PFI</em>
-                        </div>
-                        <ChevronRight size={16} className="dp-ot-docs__chev" />
-                      </a>
-                    </li>
+        <aside className="ot-side">
+          <section className="ui-panel" aria-labelledby="ot-docs-title">
+            <h2 id="ot-docs-title" className="ui-section-title">
+              Documents
+            </h2>
+            <ul className="ot-docs">
+              {docs.map((doc) => (
+                <li key={doc.key}>
+                  <span>{doc.title}</span>
+                  {doc.key === "pfi" && order.proforma ? (
+                    <a className="ui-navlink" href={`/api/orders/${order.id}/pfi`} target="_blank" rel="noopener">
+                      View PFI
+                    </a>
                   ) : (
-                    <li key={doc.key}>
-                      <span className="dp-ot-docs__icon">
-                        <FileText size={16} />
-                      </span>
-                      <div>
-                        <strong>{doc.title}</strong>
-                        <em className={`dp-ot-pill is-${doc.tone}`}>{doc.label}</em>
-                      </div>
-                    </li>
-                  )
-                )}
-              </ul>
-            </article>
+                    <span className={`ui-chip ui-chip--${DOC_CHIP[doc.tone]}`}>{doc.label}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
 
-            {canPay ? (
-              <PaymentForm orderId={order.id} amountDue={order.amountDue ?? null} />
-            ) : null}
-          </aside>
-        </div>
-      </section>
+          {canPay ? <PaymentForm orderId={order.id} amountDue={order.amountDue ?? null} /> : null}
+        </aside>
+      </div>
     </div>
   );
 }
