@@ -18,6 +18,7 @@ import {
   pctChange,
   staffStatusPill,
 } from "@/lib/retail/analytics";
+import { PageHead } from "@/components/layout/page-head";
 import "@/app/intelligence/retail/retail-analytics.css";
 
 function formatLitres(n: number) {
@@ -117,33 +118,25 @@ export default async function RetailDashboardPage() {
 
   const kpis: RetailKpi[] = [
     {
-      label: "Total Orders",
+      label: "Orders this month",
       value: thisMonthOrders.length,
       deltaPct: pctChange(thisMonthOrders.length, prevMonthOrders.length),
       spark: sparkFromTrend("total"),
-      tone: "blue",
-      icon: "orders",
     },
     {
-      label: "Pending Invites",
+      label: "Pending invites",
       value: pendingInvites,
       deltaPct: pctChange(pendingInvites, prevPending),
-      tone: "gold",
-      icon: "invites",
     },
     {
-      label: "Dealer Organisations",
+      label: "Dealer organisations",
       value: orgsNow,
       deltaPct: pctChange(orgsNow, orgsPrev),
-      tone: "purple",
-      icon: "orgs",
     },
     {
-      label: "Retail Stations",
+      label: "Retail stations",
       value: stationsCount,
       deltaPct: pctChange(stationsCount, stationsPrev),
-      tone: "green",
-      icon: "stations",
     },
   ];
 
@@ -159,7 +152,7 @@ export default async function RetailDashboardPage() {
       products,
       volume: volume ? formatLitres(volume) : "—",
       status: pill.label,
-      tone: pill.tone,
+      orderStatus: o.status,
       created: formatDay(o.createdAt),
     };
   });
@@ -178,21 +171,17 @@ export default async function RetailDashboardPage() {
     pct: maxVol ? Math.round((litres / maxVol) * 100) : 0,
   }));
 
-  const welcomeName =
-    session.user.role === "SUPER_ADMIN"
-      ? "Admin"
-      : session.user.firstName || "there";
-
   return (
-    <RetailAnalyticsDashboard
-      welcomeName={welcomeName}
-      dateRangeLabel={prettyRange}
+    <div className="ui-page">
+      <PageHead title="Analytics" description={`Dealer orders and retail operations, ${prettyRange}.`} />
+      <RetailAnalyticsDashboard
       kpis={kpis}
       trend={trend}
       statusSlices={statusSlices}
       totalOrders={monthTotal}
       recentOrders={recentOrders}
       topStations={topStations}
-    />
+      />
+    </div>
   );
 }
