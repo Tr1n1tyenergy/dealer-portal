@@ -3,88 +3,41 @@
 import "./place-order.css";
 import { openSupport } from "./support-card";
 
-import Link from "next/link";
 import { useActionState, useEffect, useMemo, useState } from "react";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Calendar,
-  CheckCircle2,
-  ChevronDown,
-  CircleCheck,
-  CreditCard,
-  FileText,
-  Fuel,
-  Headphones,
-  Info,
-  Layers,
-  MapPin,
-  Minus,
-  Package,
-  Plus,
-  ShoppingCart,
-  Truck,
-} from "lucide-react";
+import { Check, Minus, Plus } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { placeOrderAction } from "@/lib/orders/actions";
 import { deliveryWindow, MAX_LITRES, typedLitres } from "@/lib/orders/order-input";
+import { orderEstimate } from "@/lib/orders/order-estimate";
+import { formatMoney } from "@/lib/orders/pfi-totals";
+import { PageHead } from "@/components/layout/page-head";
 
-type Station = { id: string; name: string };
+/** prices: the station's EPRA prices per litre, or null when the portal has none for it. */
+type Station = { id: string; name: string; prices: { pms: number; ago: number } | null };
 type WizardStep = "details" | "review";
 
 const QUICK = [10000, 20000, 30000] as const;
 
 const NEXT_STEPS = [
-  {
-    num: "01",
-    icon: Package,
-    title: "Order submitted",
-    text: "Your request is sent to Trinity for processing.",
-  },
-  {
-    num: "02",
-    icon: FileText,
-    title: "Quotation processing",
-    text: "Commercial team prepares your quotation.",
-  },
-  {
-    num: "03",
-    icon: FileText,
-    title: "Pro Forma Invoice (PFI)",
-    text: "PFI issued for your review and payment.",
-  },
-  {
-    num: "04",
-    icon: CreditCard,
-    title: "Payment confirmation",
-    text: "Payment verified against your PFI.",
-  },
-  {
-    num: "05",
-    icon: Truck,
-    title: "Depot & delivery",
-    text: "Order released and delivery tracked to station.",
-  },
+  { title: "Order submitted", text: "Your request is sent to Trinity." },
+  { title: "Quotation and PFI", text: "Trinity prepares your quotation and Pro Forma Invoice." },
+  { title: "Payment", text: "You pay against the PFI and Trinity confirms it." },
+  { title: "Released to depot", text: "The depot loads and dispatches your fuel." },
+  { title: "Delivered", text: "You can follow the delivery to your station." },
 ] as const;
 
-const HERO = {
+const HEAD = {
   details: {
-    kicker: "Place Order",
-    title: "Create Fuel Order",
-    copy: "Select your station, specify the required products and tell us when you need the delivery.",
+    title: "Place an order",
+    copy: "Choose your station, the fuel you need and when you need it.",
   },
   review: {
-    kicker: "Review Order",
-    title: "Review Fuel Order",
-    copy: "Confirm station, products and delivery date before submitting your order to Trinity.",
+    title: "Review your order",
+    copy: "Check the station, fuel and delivery date, then submit the order to Trinity.",
   },
 } as const;
 
-function stationArea(name: string) {
-  if (name.toLowerCase().includes("nakuru")) return "Nakuru, Kenya";
-  if (name.toLowerCase().includes("westlands")) return "Nairobi, Kenya";
-  return "Kenya";
-}
+const STEPS = ["Order details", "Review order", "Submit order"] as const;
 
 function bumpQty(value: number, delta: number) {
   return Math.min(MAX_LITRES, Math.max(0, value + delta));
@@ -103,14 +56,10 @@ function formatDisplayDate(iso: string) {
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function stepClass(current: WizardStep, index: 1 | 2 | 3) {
-  if (current === "details") return index === 1 ? "is-active" : "";
-  if (current === "review") {
-    if (index === 1) return "is-done";
-    if (index === 2) return "is-active";
-    return "";
-  }
-  return "";
+/** Step 1 is current while filling in; on review step 1 is done and step 2 current. */
+function stepState(current: WizardStep, index: number) {
+  const at = current === "details" ? 0 : 1;
+  return index < at ? "is-done" : index === at ? "is-active" : "";
 }
 
 function newSubmissionKey() {
@@ -122,11 +71,8 @@ function newSubmissionKey() {
 function SubmitOrderButton({ disabled, unavailable }: { disabled: boolean; unavailable: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className="dp-po-submit" disabled={disabled || unavailable || pending}>
-      {unavailable ? "Ordering unavailable" : pending ? "Submitting…" : "Submit Order"}
-      <span>
-        <ArrowRight size={18} strokeWidth={2.5} />
-      </span>
+    <button type="submit" className="ui-btn ui-btn--primary po-cta" disabled={disabled || unavailable || pending}>
+      {unavailable ? "Ordering unavailable" : pending ? "Submitting…" : "Submit order"}
     </button>
   );
 }
@@ -140,7 +86,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
   useEffect(() => setSubmissionKey(newSubmissionKey()), []);
   const [stationId, setStationId] = useState(stations[0]?.id ?? "");
   const [pms, setPms] = useState(20000);
-  const [ago, setAgo] = useState(10000);
+  const [ago, setAgo] = useState(0);
   // Nairobi's calendar day, so the default is never "yesterday" between midnight and 3am.
   const dateWindow = useMemo(() => deliveryWindow(), []);
   const [deliveryDate, setDeliveryDate] = useState(() => dateWindow.min);
@@ -149,7 +95,8 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
   const station = stations.find((s) => s.id === stationId) ?? stations[0];
   const total = pms + ago;
   const summaryDate = useMemo(() => formatDisplayDate(deliveryDate), [deliveryDate]);
-  const hero = HERO[step];
+  const head = HEAD[step];
+  const estimate = orderEstimate({ pms, ago }, station?.prices ?? null);
   const canReview = total > 0 && Boolean(stationId) && Boolean(deliveryDate);
 
   function goToReview() {
@@ -168,459 +115,143 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
     formAction(formData);
   }
 
+  const qty = (label: "PMS" | "AGO", name: string, value: number, set: (fn: (v: number) => number) => void) => (
+    <fieldset className="po-fuel">
+      <legend>
+        {label} <span>{name}</span>
+      </legend>
+      <div className="po-qty">
+        <button type="button" className="po-qty__btn" aria-label={`Decrease ${label}`} onClick={() => set((v) => bumpQty(v, -1000))}>
+          <Minus size={16} strokeWidth={2.5} />
+        </button>
+        <input
+          className="po-qty__input"
+          aria-label={`${label} litres`}
+          inputMode="numeric"
+          autoComplete="off"
+          value={value.toLocaleString("en-US")}
+          onChange={(e) => set(() => typedLitres(e.target.value))}
+          onFocus={(e) => e.target.select()}
+        />
+        <span className="po-qty__unit">L</span>
+        <button type="button" className="po-qty__btn" aria-label={`Increase ${label}`} onClick={() => set((v) => bumpQty(v, 1000))}>
+          <Plus size={16} strokeWidth={2.5} />
+        </button>
+      </div>
+      <div className="po-quick" role="group" aria-label={`Quick ${label} amounts`}>
+        {QUICK.map((q) => (
+          <button key={q} type="button" className="po-quick__btn" aria-pressed={value === q} onClick={() => set(() => q)}>
+            {q.toLocaleString()} L
+          </button>
+        ))}
+      </div>
+    </fieldset>
+  );
+
   return (
-    <div className="dp-dash">
-      <section
-        className="dp-hero"
-        style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
-      >
-        <div className="dp-hero__veil" />
-        <div className="dp-hero__inner">
-          <nav className="dp-po-crumb" aria-label="Breadcrumb">
-            <Link href="/dealer/dashboard">Home</Link>
-            <span className="sep">/</span>
-            <Link href="/dealer/orders">Orders</Link>
-            <span className="sep">/</span>
-            <span className="is-current">Place Order</span>
-          </nav>
+    <div className="ui-page po">
+      <PageHead
+        back={{ href: "/dealer/orders", label: "Orders" }}
+        title={head.title}
+        description={head.copy}
+        action={
+          <button type="button" className="ui-btn ui-btn--quiet" onClick={openSupport}>
+            Need help?
+          </button>
+        }
+      />
 
-          <div className="dp-po-hero__row">
-            <div className="dp-po-hero__title">
-              <span className="dp-po-hero__badge">
-                <ShoppingCart size={22} strokeWidth={2} />
+      <ol className="po-steps" aria-label="Order progress">
+        {STEPS.map((label, index) => {
+          const state = stepState(step, index);
+          return (
+            <li key={label} className={`po-step ${state}`} aria-current={state === "is-active" ? "step" : undefined}>
+              <span className="po-step__num" aria-hidden>
+                {state === "is-done" ? <Check size={14} strokeWidth={3} /> : index + 1}
               </span>
-              <div className="dp-hero__copy">
-                <div className="dp-hero__kicker">{hero.kicker}</div>
-                <h1>{hero.title}</h1>
-                <p>{hero.copy}</p>
-              </div>
-            </div>
-            <button type="button" className="dp-po-help" onClick={openSupport}>
-              <Headphones size={16} />
-              Need help?
-            </button>
-          </div>
+              {label}
+            </li>
+          );
+        })}
+      </ol>
 
-          <div className={`dp-po-prog is-${step}`} aria-label="Order progress">
-            <div className="dp-po-prog__track" aria-hidden="true">
-              <span className="dp-po-prog__rail" />
-              <span className="dp-po-prog__fill" />
-            </div>
-
-            <ol className="dp-po-prog__list">
-              <li className={`dp-po-prog__item ${stepClass(step, 1)}`}>
-                <span className="dp-po-prog__icon">
-                  <FileText size={18} strokeWidth={2.2} />
-                </span>
-                <div className="dp-po-prog__card">
-                  <span className="dp-po-prog__num">1</span>
-                  <span className="dp-po-prog__meta">
-                    <span className="dp-po-prog__title">Order Details</span>
-                    <span className="dp-po-prog__desc">Select station and products</span>
-                  </span>
-                </div>
-              </li>
-
-              <li className={`dp-po-prog__item ${stepClass(step, 2)}`}>
-                <span className="dp-po-prog__icon">
-                  <FileText size={18} strokeWidth={2.2} />
-                </span>
-                <div className="dp-po-prog__card">
-                  <span className="dp-po-prog__num">2</span>
-                  <span className="dp-po-prog__meta">
-                    <span className="dp-po-prog__title">Review Order</span>
-                    <span className="dp-po-prog__desc">Check quantities and delivery</span>
-                  </span>
-                </div>
-              </li>
-
-              <li className={`dp-po-prog__item ${stepClass(step, 3)}`}>
-                <span className="dp-po-prog__icon">
-                  <CircleCheck size={18} strokeWidth={2.2} />
-                </span>
-                <div className="dp-po-prog__card">
-                  <span className="dp-po-prog__num">3</span>
-                  <span className="dp-po-prog__meta">
-                    <span className="dp-po-prog__title">Submit Order</span>
-                    <span className="dp-po-prog__desc">Confirm and place your order</span>
-                  </span>
-                </div>
-              </li>
-            </ol>
-          </div>
+      {orderingNotice ? (
+        <div className="po-notice" role="status">
+          <strong>{orderingNotice.split(". ")[0]}.</strong> {orderingNotice.split(". ").slice(1).join(". ")}
         </div>
-      </section>
+      ) : null}
 
-      <section className="dp-body dp-po-body">
-        {orderingNotice ? (
-          <div className="dp-po-notice" role="status">
-            <strong>{orderingNotice.split(". ")[0]}.</strong> {orderingNotice.split(". ").slice(1).join(". ")}
-          </div>
-        ) : null}
-        <form action={guardSubmit} className="dp-po-layout">
-          <input type="hidden" name="stationId" value={stationId} />
-          <input type="hidden" name="pms" value={pms} />
-          <input type="hidden" name="ago" value={ago} />
-          <input type="hidden" name="requestedDeliveryDate" value={deliveryDate} />
-          <input type="hidden" name="submissionKey" value={submissionKey} />
+      <form action={guardSubmit} className="po-layout">
+        <input type="hidden" name="stationId" value={stationId} />
+        <input type="hidden" name="pms" value={pms} />
+        <input type="hidden" name="ago" value={ago} />
+        <input type="hidden" name="requestedDeliveryDate" value={deliveryDate} />
+        <input type="hidden" name="submissionKey" value={submissionKey} />
 
-          <div className="dp-po-main">
-            {step === "details" ? (
-              <>
-                <section className="dp-po-card">
-                  <header className="dp-po-card__head">
-                    <span className="dp-po-num">01</span>
-                    <div>
-                      <h2>Station &amp; Delivery</h2>
-                      <p>Select the station that will receive this order.</p>
-                    </div>
-                  </header>
-
-                  <div className="dp-po-fields-row">
-                    <div className="dp-po-field">
-                      <label htmlFor="station-picker">Station</label>
-                      <div className="dp-po-station">
-                        <div
-                          className="dp-po-station__thumb"
-                          style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
-                        />
-                        <div className="dp-po-station__body">
-                          <strong>{station?.name ?? "Select station"}</strong>
-                          <span className="dp-po-station__status">
-                            <i /> Active Station
-                          </span>
-                          <span className="dp-po-station__loc">
-                            <MapPin size={12} />
-                            {station ? stationArea(station.name) : "—"}
-                          </span>
-                        </div>
-                        <ChevronDown size={18} className="dp-po-station__chev" />
-                        <select
-                          id="station-picker"
-                          className="dp-po-station__select"
-                          value={stationId}
-                          onChange={(e) => setStationId(e.target.value)}
-                          required
-                        >
-                          {stations.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="dp-po-field">
-                      <label htmlFor="delivery-date">Requested Delivery Date</label>
-                      <div className="dp-po-date">
-                        <Calendar size={20} strokeWidth={1.8} />
-                        <div className="dp-po-date__body">
-                          <strong>{summaryDate}</strong>
-                          <em>Up to {formatDisplayDate(dateWindow.max)} (current EPRA prices)</em>
-                        </div>
-                        <ChevronDown size={18} className="dp-po-date__chev" />
-                        <input
-                          id="delivery-date"
-                          type="date"
-                          value={deliveryDate}
-                          min={dateWindow.min}
-                          max={dateWindow.max}
-                          onChange={(e) => setDeliveryDate(e.target.value)}
-                          // The field covers the whole card; open the calendar wherever it is clicked,
-                          // not only on the browser's small calendar icon.
-                          onClick={(e) => {
-                            try {
-                              e.currentTarget.showPicker();
-                            } catch {
-                              // Older browsers: the native click behaviour still applies.
-                            }
-                          }}
-                          required
-                          aria-label="Requested delivery date"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="dp-po-card">
-                  <header className="dp-po-card__head">
-                    <span className="dp-po-num">02</span>
-                    <div>
-                      <h2>Fuel Requirements</h2>
-                      <p>Specify the required product quantities in litres.</p>
-                    </div>
-                  </header>
-
-                  <div className="dp-po-products">
-                    <article className="dp-po-product is-pms">
-                      <div
-                        className="dp-po-product__mark"
-                        style={{ backgroundImage: "url(/assets2/img/dealer/fuel-nozzle-pms.jpg)" }}
-                        aria-hidden
-                      />
-                      <div className="dp-po-product__head">
-                        <span className="dp-po-product__icon">
-                          <Fuel size={18} />
-                        </span>
-                        <div>
-                          <strong>PMS</strong>
-                          <em>Premium Motor Spirit</em>
-                        </div>
-                      </div>
-                      <div className="dp-po-qty">
-                        <button
-                          type="button"
-                          className="dp-po-qty__btn"
-                          aria-label="Decrease PMS"
-                          onClick={() => setPms((v) => bumpQty(v, -1000))}
-                        >
-                          <Minus size={16} strokeWidth={2.5} />
-                        </button>
-                        <input
-                          className="dp-po-qty__input"
-                          aria-label="PMS litres"
-                          inputMode="numeric"
-                          autoComplete="off"
-                          value={pms.toLocaleString("en-US")}
-                          onChange={(e) => setPms(typedLitres(e.target.value))}
-                          onFocus={(e) => e.target.select()}
-                        />
-                        <button
-                          type="button"
-                          className="dp-po-qty__btn"
-                          aria-label="Increase PMS"
-                          onClick={() => setPms((v) => bumpQty(v, 1000))}
-                        >
-                          <Plus size={16} strokeWidth={2.5} />
-                        </button>
-                        <span className="dp-po-qty__unit">Litres</span>
-                      </div>
-                      <div className="dp-po-quick">
-                        <span>Quick quantities</span>
-                        <div>
-                          {QUICK.map((q) => (
-                            <button
-                              key={q}
-                              type="button"
-                              className={pms === q ? "is-on" : undefined}
-                              onClick={() => setPms(q)}
-                            >
-                              {q.toLocaleString()}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </article>
-
-                    <article className="dp-po-product is-ago">
-                      <div
-                        className="dp-po-product__mark"
-                        style={{ backgroundImage: "url(/assets2/img/dealer/fuel-nozzle-ago.jpg)" }}
-                        aria-hidden
-                      />
-                      <div className="dp-po-product__head">
-                        <span className="dp-po-product__icon">
-                          <Fuel size={18} />
-                        </span>
-                        <div>
-                          <strong>AGO</strong>
-                          <em>Automotive Gas Oil</em>
-                        </div>
-                      </div>
-                      <div className="dp-po-qty">
-                        <button
-                          type="button"
-                          className="dp-po-qty__btn"
-                          aria-label="Decrease AGO"
-                          onClick={() => setAgo((v) => bumpQty(v, -1000))}
-                        >
-                          <Minus size={16} strokeWidth={2.5} />
-                        </button>
-                        <input
-                          className="dp-po-qty__input"
-                          aria-label="AGO litres"
-                          inputMode="numeric"
-                          autoComplete="off"
-                          value={ago.toLocaleString("en-US")}
-                          onChange={(e) => setAgo(typedLitres(e.target.value))}
-                          onFocus={(e) => e.target.select()}
-                        />
-                        <button
-                          type="button"
-                          className="dp-po-qty__btn"
-                          aria-label="Increase AGO"
-                          onClick={() => setAgo((v) => bumpQty(v, 1000))}
-                        >
-                          <Plus size={16} strokeWidth={2.5} />
-                        </button>
-                        <span className="dp-po-qty__unit">Litres</span>
-                      </div>
-                      <div className="dp-po-quick">
-                        <span>Quick quantities</span>
-                        <div>
-                          {QUICK.map((q) => (
-                            <button
-                              key={q}
-                              type="button"
-                              className={ago === q ? "is-on" : undefined}
-                              onClick={() => setAgo(q)}
-                            >
-                              {q.toLocaleString()}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </article>
-                  </div>
-
-                  <div className="dp-po-total-bar">
-                    <span>Total Order Volume</span>
-                    <strong>{formatLitres(total)}</strong>
-                  </div>
-
-                  <div className="dp-po-info">
-                    <CircleCheck size={18} />
-                    <p>
-                      Pricing is confirmed after your order is submitted and processed. You will
-                      receive a quotation and PFI before payment is required.
-                    </p>
-                  </div>
-                </section>
-              </>
-            ) : (
-              <section className="dp-po-card dp-po-review">
-                <header className="dp-po-review__head">
-                  <div className="dp-po-review__title">
-                    <span className="dp-po-num">
-                      <CheckCircle2 size={16} />
-                    </span>
-                    <div>
-                      <h2>Confirm order details</h2>
-                      <p>Review your fuel order before submitting it to Trinity.</p>
-                    </div>
-                  </div>
-                  <span className="dp-po-review__badge">
-                    <i /> Ready to submit
-                  </span>
-                </header>
-
-                <div className="dp-po-review__row">
-                  <div className="dp-po-review__station">
-                    <div
-                      className="dp-po-review__thumb"
-                      style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
+        <div className="po-main">
+          {step === "details" ? (
+            <>
+              <section className="ui-panel" aria-labelledby="po-where">
+                <h2 id="po-where" className="ui-section-title">
+                  Station and delivery
+                </h2>
+                <div className="po-fields">
+                  <label className="ui-field">
+                    Station
+                    <select className="ui-input" value={stationId} onChange={(e) => setStationId(e.target.value)} required>
+                      {stations.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="ui-field">
+                    Requested delivery date
+                    <input
+                      className="ui-input"
+                      type="date"
+                      value={deliveryDate}
+                      min={dateWindow.min}
+                      max={dateWindow.max}
+                      onChange={(e) => setDeliveryDate(e.target.value)}
+                      // Open the calendar wherever the field is clicked, not only on the small icon.
+                      onClick={(e) => {
+                        try {
+                          e.currentTarget.showPicker();
+                        } catch {
+                          // Older browsers: the native click behaviour still applies.
+                        }
+                      }}
+                      required
                     />
-                    <div className="dp-po-review__station-body">
-                      <span className="dp-po-review__ico is-blue">
-                        <MapPin size={15} />
-                      </span>
-                      <div>
-                        <span className="dp-po-review__label">Station</span>
-                        <strong>{station?.name ?? "—"}</strong>
-                        <em className="dp-po-review__active">
-                          <i /> Active Station
-                        </em>
-                        <em className="dp-po-review__loc">
-                          <MapPin size={12} />
-                          {station ? stationArea(station.name) : "—"}
-                        </em>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="dp-po-review__delivery">
-                    <span className="dp-po-review__ico is-blue">
-                      <Calendar size={15} />
-                    </span>
-                    <div>
-                      <span className="dp-po-review__label">Requested delivery</span>
-                      <strong>{summaryDate}</strong>
-                      <em>Requested delivery date</em>
-                    </div>
-                  </div>
+                    <span className="ui-field__help">Up to {formatDisplayDate(dateWindow.max)} (current EPRA prices)</span>
+                  </label>
                 </div>
-
-                <div className="dp-po-review__row">
-                  <div className="dp-po-review__fuel is-pms">
-                    <div
-                      className="dp-po-review__mark"
-                      style={{ backgroundImage: "url(/assets2/img/dealer/fuel-drop-pms.jpg)" }}
-                      aria-hidden
-                    />
-                    <span className="dp-po-review__fuel-ico">
-                      <Fuel size={18} />
-                    </span>
-                    <div className="dp-po-review__fuel-copy">
-                      <strong>PMS</strong>
-                      <em>Premium Motor Spirit</em>
-                      <b>{pms > 0 ? formatLitres(pms) : "—"}</b>
-                    </div>
-                  </div>
-
-                  <div className="dp-po-review__fuel is-ago">
-                    <div
-                      className="dp-po-review__mark"
-                      style={{ backgroundImage: "url(/assets2/img/dealer/fuel-pump-ago.jpg)" }}
-                      aria-hidden
-                    />
-                    <span className="dp-po-review__fuel-ico">
-                      <Fuel size={18} />
-                    </span>
-                    <div className="dp-po-review__fuel-copy">
-                      <strong>AGO</strong>
-                      <em>Automotive Gas Oil</em>
-                      <b>{ago > 0 ? formatLitres(ago) : "—"}</b>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="dp-po-total-bar is-review">
-                  <div className="dp-po-total-bar__left">
-                    <Layers size={26} strokeWidth={2} />
-                    <div>
-                      <span>Total order volume</span>
-                      <em>
-                        {pms > 0 ? `PMS ${formatLitres(pms)}` : null}
-                        {pms > 0 && ago > 0 ? " • " : null}
-                        {ago > 0 ? `AGO ${formatLitres(ago)}` : null}
-                        {pms <= 0 && ago <= 0 ? "No products selected" : null}
-                      </em>
-                    </div>
-                  </div>
-                  <strong>{formatLitres(total)}</strong>
-                </div>
-
-                <div className="dp-po-info is-review">
-                  <Info size={26} strokeWidth={2} />
-                  <p>
-                    <b>Ready to submit.</b> Once submitted, this order will be sent to Trinity for
-                    quotation processing. You can monitor its progress from My Orders.
-                  </p>
-                </div>
-
-                <button type="button" className="dp-po-back" onClick={goToDetails}>
-                  <ArrowLeft size={16} />
-                  Edit order details
-                </button>
               </section>
-            )}
-          </div>
 
-          <aside className="dp-po-aside">
-            <div className="dp-po-summary">
-              <div className="dp-po-summary__head">
-                <FileText size={18} />
-                <h3>Order Summary</h3>
-              </div>
-              <dl>
+              <section className="ui-panel" aria-labelledby="po-fuel">
+                <h2 id="po-fuel" className="ui-section-title">
+                  Fuel
+                </h2>
+                <div className="po-fuels">
+                  {qty("PMS", "Premium motor spirit", pms, setPms)}
+                  {qty("AGO", "Automotive gas oil", ago, setAgo)}
+                </div>
+              </section>
+            </>
+          ) : (
+            <section className="ui-panel" aria-labelledby="po-confirm">
+              <h2 id="po-confirm" className="ui-section-title">
+                Confirm order details
+              </h2>
+              <dl className="po-review">
                 <div>
                   <dt>Station</dt>
                   <dd>{station?.name ?? "—"}</dd>
                 </div>
                 <div>
-                  <dt>Requested Delivery</dt>
+                  <dt>Requested delivery</dt>
                   <dd>{summaryDate}</dd>
                 </div>
                 {pms > 0 ? (
@@ -636,56 +267,90 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                   </div>
                 ) : null}
               </dl>
-              <div className="dp-po-summary__total">
-                <span>Total Volume</span>
-                <strong>{formatLitres(total)}</strong>
+              <p className="po-review__note">
+                Once submitted, Trinity prepares your quotation and PFI. You can follow the order under Orders.
+              </p>
+              <button type="button" className="ui-btn ui-btn--secondary" onClick={goToDetails}>
+                Edit order details
+              </button>
+            </section>
+          )}
+        </div>
+
+        <aside className="po-aside">
+          <section className="ui-panel po-summary" aria-labelledby="po-summary-title">
+            <h2 id="po-summary-title" className="ui-section-title">
+              Order summary
+            </h2>
+            <dl>
+              <div>
+                <dt>Station</dt>
+                <dd>{station?.name ?? "—"}</dd>
               </div>
+              <div>
+                <dt>Delivery</dt>
+                <dd>{summaryDate}</dd>
+              </div>
+              {pms > 0 ? (
+                <div>
+                  <dt>PMS</dt>
+                  <dd>{formatLitres(pms)}</dd>
+                </div>
+              ) : null}
+              {ago > 0 ? (
+                <div>
+                  <dt>AGO</dt>
+                  <dd>{formatLitres(ago)}</dd>
+                </div>
+              ) : null}
+              <div className="po-summary__strong">
+                <dt>Total volume</dt>
+                <dd>{formatLitres(total)}</dd>
+              </div>
+            </dl>
+            {estimate ? (
+              <div className="po-amount" aria-live="polite">
+                <span>Estimated amount (incl. 8% VAT)</span>
+                <strong>KES {formatMoney(estimate.total)}</strong>
+                <small>
+                  KES {formatMoney(estimate.subtotal)} + VAT KES {formatMoney(estimate.vat)}. The final amount is on your PFI.
+                </small>
+              </div>
+            ) : total > 0 ? (
+              <p className="po-amount po-amount--none">The amount will be on your PFI.</p>
+            ) : null}
 
-              {step === "details" ? (
-                <button
-                  type="button"
-                  className="dp-po-submit"
-                  disabled={!canReview}
-                  onClick={goToReview}
-                >
-                  Review Order
-                  <span>
-                    <ArrowRight size={18} strokeWidth={2.5} />
-                  </span>
-                </button>
-              ) : (
-                <>
-                  {state?.error ? (
-                    <p className="dp-po-error" role="alert">
-                      {state.error}
-                    </p>
-                  ) : null}
-                  <SubmitOrderButton disabled={total <= 0} unavailable={Boolean(orderingNotice)} />
-                </>
-              )}
-            </div>
+            {step === "details" ? (
+              <button type="button" className="ui-btn ui-btn--primary po-cta" disabled={!canReview} onClick={goToReview}>
+                Review order
+              </button>
+            ) : (
+              <>
+                {state?.error ? (
+                  <p className="ui-field__error" role="alert">
+                    {state.error}
+                  </p>
+                ) : null}
+                <SubmitOrderButton disabled={total <= 0} unavailable={Boolean(orderingNotice)} />
+              </>
+            )}
+          </section>
 
-            <div className="dp-po-next">
-              <h3>What happens next?</h3>
-              <ol>
-                {NEXT_STEPS.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.num}>
-                      <span className="dp-po-next__num">{item.num}</span>
-                      <Icon size={16} />
-                      <div>
-                        <strong>{item.title}</strong>
-                        <p>{item.text}</p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          </aside>
-        </form>
-      </section>
+          <section className="po-next" aria-labelledby="po-next-title">
+            <h2 id="po-next-title" className="ui-section-title">
+              What happens next
+            </h2>
+            <ol>
+              {NEXT_STEPS.map((item) => (
+                <li key={item.title}>
+                  <b>{item.title}</b>
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </aside>
+      </form>
     </div>
   );
 }
