@@ -1,21 +1,15 @@
 import Link from "next/link";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { nairobiParts } from "@/lib/time/nairobi";
+import { nairobiGreeting } from "@/lib/time/nairobi";
 import { formatKes } from "@/lib/orders/money";
 import { dealerStatusLabel } from "@/lib/orders/state-machine";
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
 import { dashboardSummary } from "@/lib/dealer/dashboard-summary";
 import { StatusChip } from "@/components/ui/status-chip";
 import { EmptyState } from "@/components/ui/states";
+import { PhotoHero } from "@/components/layout/photo-hero";
 import "./dashboard.css";
-
-function greeting() {
-  const { hour } = nairobiParts();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-}
 
 const litres = (n: number) => `${n.toLocaleString("en-KE")} L`;
 
@@ -45,28 +39,23 @@ export default async function DealerDashboardPage() {
 
   return (
     <div className="dd">
-      <section className="dd-hero">
-        <div className="dd-hero__text">
-          <span className="dd-hero__place">{place}</span>
-          <h1>
-            {greeting()}, {company}
-          </h1>
-          <p>
-            {summary.needsYou}
-            {prices}
-          </p>
-        </div>
-        <div className="dd-hero__actions">
-          <Link href="/dealer/orders/new" className="ui-btn ui-btn--primary">
-            Place an order
-          </Link>
-          {summary.secondAction ? (
-            <Link href={summary.secondAction.href} className="ui-btn dd-btn-light">
-              {summary.secondAction.label}
+      <PhotoHero
+        place={place}
+        title={`${nairobiGreeting()}, ${company}`}
+        sentence={`${summary.needsYou}${prices}`}
+        actions={
+          <>
+            <Link href="/dealer/orders/new" className="ui-btn ui-btn--primary">
+              Place an order
             </Link>
-          ) : null}
-        </div>
-      </section>
+            {summary.secondAction ? (
+              <Link href={summary.secondAction.href} className="ui-btn photo-hero__light">
+                {summary.secondAction.label}
+              </Link>
+            ) : null}
+          </>
+        }
+      />
 
       <div className="dd-below">
         <section aria-labelledby="dd-orders">

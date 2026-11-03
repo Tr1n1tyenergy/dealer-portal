@@ -1,0 +1,24 @@
+/* Staff home below the photo: "Needs action" list and This month. */
+.sh { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 28px; align-items: start; font-variant-numeric: tabular-nums; }
+.sh-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.sh-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--tri-line); }
+.sh-row { display: grid; grid-template-columns: minmax(0, 1fr) 10rem auto; grid-template-areas: "ref amount chip" "act act act"; gap: 8px 14px; align-items: center; padding: 14px 4px; border-bottom: 1px solid var(--tri-line); font-size: 15px; }
+.sh-row:not(:has(.so-actions)) { grid-template-areas: "ref amount chip"; }
+.sh-row__ref { grid-area: ref; display: grid; gap: 2px; min-width: 0; }
+.sh-row__ref span { color: var(--tri-soft); font-size: 14px; overflow-wrap: break-word; }
+.sh-row__amount { grid-area: amount; text-align: right; white-space: nowrap; }
+.sh-row > .ui-chip { grid-area: chip; justify-self: end; }
+.sh-row__act { grid-area: act; }
+.sh-row__act:empty { display: none; }
+.sh-month dl { margin: 0; display: grid; }
+.sh-month dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--tri-line); font-size: 16px; }
+.sh-month dl > div:last-child { border-bottom: 0; }
+.sh-month dt { color: var(--tri-soft); }
+.sh-month dd { margin: 0; font-weight: 700; }
+@media (max-width: 900px) {
+  .sh { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767px) {
+  .sh-row, .sh-row:not(:has(.so-actions)) { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "ref chip" "amount amount" "act act"; }
+  .sh-row__amount { text-align: left; }
+}

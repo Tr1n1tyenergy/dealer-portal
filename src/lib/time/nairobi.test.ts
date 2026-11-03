@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { nairobiMonthStart, nairobiParts } from "./nairobi";
+import { nairobiGreeting, nairobiMonthStart, nairobiParts } from "./nairobi";
 import { lastNMonthLabels, monthKey } from "@/lib/retail/analytics";
 
 describe("Nairobi time (UTC+3)", () => {
@@ -24,5 +24,13 @@ describe("Nairobi time (UTC+3)", () => {
       lastNMonthLabels(2, new Date("2026-10-31T21:30:00Z")).map((m) => m.key),
       ["2026-10", "2026-11"],
     );
+  });
+});
+
+describe("nairobiGreeting", () => {
+  it("follows the Nairobi clock (UTC+3), not the server's", () => {
+    assert.equal(nairobiGreeting(new Date("2026-11-03T06:00:00Z")), "Good morning"); // 09:00
+    assert.equal(nairobiGreeting(new Date("2026-11-03T11:00:00Z")), "Good afternoon"); // 14:00
+    assert.equal(nairobiGreeting(new Date("2026-11-03T15:00:00Z")), "Good evening"); // 18:00
   });
 });

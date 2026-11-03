@@ -19,3 +19,9 @@ export function sameAmount(a: string | null | undefined, b: string | null | unde
   const x = toCents(a);
   return x !== null && x === toCents(b);
 }
+
+/** The sum of stored amounts, worked in whole cents; blanks and text are skipped. "0.00" for none. */
+export function sumKes(amounts: (string | null | undefined)[]): string {
+  const cents = amounts.reduce((sum: number, a) => sum + (toCents(a) ?? 0), 0);
+  return (cents / 100).toFixed(2);
+}
