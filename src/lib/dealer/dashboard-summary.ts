@@ -1,4 +1,5 @@
 import type { DealerOrderStatus } from "@prisma/client";
+import { lastNMonthLabels, monthKey } from "@/lib/retail/analytics";
 import { nairobiMonthStart } from "@/lib/time/nairobi";
 
 export type SummaryOrder = {
@@ -43,4 +44,19 @@ export function dashboardSummary(orders: SummaryOrder[], now: Date = new Date())
         : null,
     month: { litres: pmsLitres + agoLitres, pmsLitres, agoLitres, orders: month.length },
   };
+}
+
+/** Litres ordered per Nairobi month for the dashboard chart, oldest first ("Jun" … "Nov"); cancelled orders left out. */
+export function monthlyLitres(orders: SummaryOrder[], now: Date = new Date(), months = 6) {
+  const rows = lastNMonthLabels(months, now).map((m) => ({ key: m.key, label: m.label.split(" ")[0], pms: 0, ago: 0 }));
+  const byKey = new Map(rows.map((r) => [r.key, r]));
+  for (const o of orders) {
+    const row = byKey.get(monthKey(o.createdAt));
+    if (!row || NOT_COUNTED.includes(o.status)) continue;
+    for (const l of o.lines) {
+      if (l.product === "PMS") row.pms += l.quantityLitres;
+      if (l.product === "AGO") row.ago += l.quantityLitres;
+    }
+  }
+  return rows.map(({ label, pms, ago }) => ({ label, pms, ago }));
 }

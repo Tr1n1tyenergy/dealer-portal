@@ -1,9 +1,37 @@
 /* Dealer dashboard, E2 (redesign spec §5; mockup e-variants.html option E2). */
 .dd { min-height: 100%; background: var(--tri-ground); color: var(--tri-ink); font-family: var(--font-sans); padding-bottom: 32px; }
 
-/* Below the photo: orders as a clean list, and This month. */
-.dd-below { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 28px; max-width: 1280px; margin: 0 auto; padding: 22px 26px 0; }
-.dd-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+/* Below the photo: the fuel chart and This month, then the orders as a clean list. */
+.dd-below { display: grid; gap: 24px; max-width: 1280px; margin: 0 auto; padding: 22px 26px 0; }
+.dd-top { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+.dd-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.dd-head p { margin: 2px 0 0; }
+.dd-legend { display: flex; gap: 16px; color: var(--tri-soft); font-size: 14px; }
+.dd-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.dd .is-pms { background: var(--tri-blue); }
+.dd .is-ago { background: var(--tri-teal); }
+
+/* Fuel chart (dataviz rules: thin columns, 2px gap between parts, totals on the caps, recessive grid). */
+.fc { display: block; width: 100%; height: auto; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.fc__grid { stroke: #e8ebf1; stroke-width: 1; }
+.fc__axis { fill: var(--tri-soft); font-size: 13px; }
+.fc__axis.is-current { fill: var(--tri-ink); font-weight: 700; }
+.fc__value { fill: var(--tri-ink); font-size: 13px; font-weight: 700; }
+.fc__pms { fill: var(--tri-blue); }
+.fc__ago { fill: var(--tri-teal); }
+.fc__hit { fill: transparent; }
+.fc__month:hover .fc__hit { fill: rgba(56, 83, 164, 0.05); }
+.dd-table { margin-top: 6px; color: var(--tri-soft); font-size: 14px; }
+.dd-table summary { cursor: pointer; width: max-content; }
+.dd-table summary:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; border-radius: 4px; }
+.dd-table table { margin-top: 8px; border-collapse: collapse; color: var(--tri-ink); font-variant-numeric: tabular-nums; }
+.dd-table th, .dd-table td { padding: 4px 18px 4px 0; text-align: left; font-size: 14px; }
+
+/* This month's PMS / AGO split as one two-part bar; a part too narrow for its label prints none. */
+.dd-split { display: flex; gap: 2px; height: 28px; margin: 16px 0 6px; }
+.dd-split span { display: flex; align-items: center; padding: 0 8px; border-radius: 4px; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.dd-split .is-pms { color: #fff; }
+.dd-split .is-ago { color: var(--tri-ink); }
 .dd h2 { margin: 0; font-size: 17px; font-weight: 700; }
 .dd-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--tri-line); }
 .dd-list li { border-bottom: 1px solid var(--tri-line); }
@@ -17,12 +45,14 @@
 .dd-month__litres { margin-top: 12px; font-size: 28px; letter-spacing: -0.02em; }
 .dd-soft { color: var(--tri-soft); font-size: 15px; }
 .dd-small { font-size: 13px; }
-.dd-bar { height: 6px; margin: 14px 0 6px; border-radius: 99px; background: #e8edf7; overflow: hidden; }
-.dd-bar i { display: block; height: 100%; background: var(--tri-gradient); }
 
-/* Phone: the list under the photo, one column. */
+@media (max-width: 900px) {
+  .dd-top { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Phone: one column under the photo. */
 @media (max-width: 767px) {
-  .dd-below { grid-template-columns: 1fr; gap: 24px; padding: 16px 16px 0; }
+  .dd-below { gap: 20px; padding: 16px 16px 0; }
   .dd-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "ref chip" "fuel amount"; row-gap: 4px; }
   .dd-row b { grid-area: ref; }
   .dd-row .ui-chip { grid-area: chip; justify-self: end; }

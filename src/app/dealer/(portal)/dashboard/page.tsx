@@ -5,10 +5,11 @@ import { nairobiGreeting } from "@/lib/time/nairobi";
 import { formatKes } from "@/lib/orders/money";
 import { dealerStatusLabel } from "@/lib/orders/state-machine";
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
-import { dashboardSummary } from "@/lib/dealer/dashboard-summary";
+import { dashboardSummary, monthlyLitres } from "@/lib/dealer/dashboard-summary";
 import { StatusChip } from "@/components/ui/status-chip";
 import { EmptyState } from "@/components/ui/states";
 import { PhotoHero } from "@/components/layout/photo-hero";
+import { FuelChart } from "@/components/dealer/fuel-chart";
 import "./dashboard.css";
 
 const litres = (n: number) => `${n.toLocaleString("en-KE")} L`;
@@ -36,6 +37,7 @@ export default async function DealerDashboardPage() {
   const prices = pms != null && ago != null ? ` Today: PMS KSh ${pms.toFixed(2)} · AGO KSh ${ago.toFixed(2)}.` : "";
   const summary = dashboardSummary(orders);
   const pmsShare = summary.month.litres ? Math.round((summary.month.pmsLitres / summary.month.litres) * 100) : 0;
+  const chart = monthlyLitres(orders);
 
   return (
     <div className="dd">
@@ -58,6 +60,68 @@ export default async function DealerDashboardPage() {
       />
 
       <div className="dd-below">
+        <div className="dd-top">
+          <section className="ui-panel" aria-labelledby="dd-fuel">
+            <div className="dd-head">
+              <div>
+                <h2 id="dd-fuel">Fuel ordered</h2>
+                <p className="dd-soft dd-small">Litres per month, last 6 months</p>
+              </div>
+              <div className="dd-legend" aria-hidden>
+                <span>
+                  <i className="is-pms" /> PMS
+                </span>
+                <span>
+                  <i className="is-ago" /> AGO
+                </span>
+              </div>
+            </div>
+            <FuelChart months={chart} />
+            <details className="dd-table">
+              <summary>Show as a table</summary>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>PMS</th>
+                    <th>AGO</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {chart.map((m) => (
+                    <tr key={m.label}>
+                      <td>{m.label}</td>
+                      <td>{litres(m.pms)}</td>
+                      <td>{litres(m.ago)}</td>
+                      <td>{litres(m.pms + m.ago)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          </section>
+
+          <section aria-labelledby="dd-month" className="ui-panel dd-month">
+            <h2 id="dd-month">This month</h2>
+            <div className="dd-month__litres">{litres(summary.month.litres)}</div>
+            <span className="dd-soft">
+              across {summary.month.orders} {summary.month.orders === 1 ? "order" : "orders"}
+            </span>
+            {summary.month.litres ? (
+              <>
+                <div className="dd-split" role="img" aria-label={`PMS ${pmsShare}%, AGO ${100 - pmsShare}%`}>
+                  {pmsShare > 0 ? <span className="is-pms" style={{ width: `${pmsShare}%` }}>{pmsShare >= 15 ? `PMS ${pmsShare}%` : ""}</span> : null}
+                  {pmsShare < 100 ? <span className="is-ago" style={{ width: `${100 - pmsShare}%` }}>{100 - pmsShare >= 15 ? `${100 - pmsShare}%` : ""}</span> : null}
+                </div>
+                <span className="dd-soft dd-small">
+                  PMS {litres(summary.month.pmsLitres)} · AGO {litres(summary.month.agoLitres)}
+                </span>
+              </>
+            ) : null}
+          </section>
+        </div>
+
         <section aria-labelledby="dd-orders">
           <div className="dd-head">
             <h2 id="dd-orders">Orders</h2>
@@ -90,20 +154,6 @@ export default async function DealerDashboardPage() {
               ))}
             </ul>
           )}
-        </section>
-
-        <section aria-labelledby="dd-month" className="dd-month">
-          <h2 id="dd-month">This month</h2>
-          <div className="dd-month__litres">{litres(summary.month.litres)}</div>
-          <span className="dd-soft">
-            across {summary.month.orders} {summary.month.orders === 1 ? "order" : "orders"}
-          </span>
-          <div className="dd-bar" aria-hidden>
-            <i style={{ width: `${pmsShare}%` }} />
-          </div>
-          <span className="dd-soft dd-small">
-            PMS {pmsShare}% · AGO {summary.month.litres ? 100 - pmsShare : 0}%
-          </span>
         </section>
       </div>
     </div>

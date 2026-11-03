@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { dashboardSummary, type SummaryOrder } from "./dashboard-summary";
+import { dashboardSummary, monthlyLitres, type SummaryOrder } from "./dashboard-summary";
 
 const now = new Date("2026-11-03T09:00:00Z"); // 12:00 in Nairobi
 const order = (id: string, status: SummaryOrder["status"], litres: { pms?: number; ago?: number } = {}, createdAt = "2026-11-02T08:00:00Z"): SummaryOrder => ({
@@ -49,5 +49,35 @@ describe("dealer dashboard summary", () => {
       now,
     );
     assert.deepEqual(s.month, { litres: 11000, pmsLitres: 8000, agoLitres: 3000, orders: 3 });
+  });
+});
+
+describe("monthlyLitres", () => {
+  const now = new Date("2026-11-20T09:00:00Z");
+  const o = (id: string, status: SummaryOrder["status"], at: string, pms: number, ago: number): SummaryOrder => ({
+    id,
+    status,
+    createdAt: new Date(at),
+    lines: [
+      ...(pms ? [{ product: "PMS", quantityLitres: pms }] : []),
+      ...(ago ? [{ product: "AGO", quantityLitres: ago }] : []),
+    ],
+  });
+
+  it("six Nairobi months, oldest first, cancelled orders left out", () => {
+    const rows = monthlyLitres(
+      [
+        o("1", "DELIVERED", "2026-11-02T08:00:00Z", 5000, 0),
+        o("2", "AWAITING_PAYMENT", "2026-11-05T08:00:00Z", 3000, 2000),
+        o("3", "CANCELLED", "2026-11-06T08:00:00Z", 9000, 9000),
+        o("4", "DELIVERED", "2026-09-30T22:30:00Z", 1000, 0), // 1 Oct in Nairobi
+        o("5", "DELIVERED", "2026-04-10T08:00:00Z", 7000, 0), // older than six months
+      ],
+      now,
+    );
+    assert.deepEqual(rows.map((r) => r.label), ["Jun", "Jul", "Aug", "Sept", "Oct", "Nov"]);
+    assert.deepEqual(rows[5], { label: "Nov", pms: 8000, ago: 2000 });
+    assert.deepEqual(rows[4], { label: "Oct", pms: 1000, ago: 0 });
+    assert.deepEqual(rows[3], { label: "Sept", pms: 0, ago: 0 });
   });
 });
