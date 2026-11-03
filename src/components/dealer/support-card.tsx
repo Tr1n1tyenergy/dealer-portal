@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Mail, Phone, X } from "lucide-react";
 import { PFI_COMPANY } from "@/lib/company/pfi-settings";
 import { SUPPORT_EMAIL } from "@/lib/company/contact";
+import "./support-card.css";
 
 const OPEN_EVENT = "dp:open-support";
 
@@ -63,16 +64,16 @@ export function SupportCard() {
   if (!open) return null;
 
   return (
-    <div className="dp-support__backdrop" onMouseDown={(e) => e.target === e.currentTarget && setOpen(false)}>
-      <div className="dp-support" role="dialog" ref={dialogRef} aria-modal="true" aria-labelledby="dp-support-title">
-        <div className="dp-support__head">
-          <h2 id="dp-support-title">Contact Trinity</h2>
-          <button ref={closeRef} type="button" onClick={() => setOpen(false)} aria-label="Close">
+    <div className="sc-backdrop" onMouseDown={(e) => e.target === e.currentTarget && setOpen(false)}>
+      <div className="ui-panel sc" role="dialog" ref={dialogRef} aria-modal="true" aria-labelledby="dp-support-title">
+        <div className="sc__head">
+          <h2 id="dp-support-title" className="ui-section-title">Contact Trinity</h2>
+          <button ref={closeRef} type="button" className="ui-btn ui-btn--quiet sc__close" onClick={() => setOpen(false)} aria-label="Close">
             <X size={18} />
           </button>
         </div>
         <p>Questions about an order, a PFI or a payment? Reach the Trinity team:</p>
-        <ul>
+        <ul className="sc__list">
           <li>
             <Mail size={16} />
             <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>

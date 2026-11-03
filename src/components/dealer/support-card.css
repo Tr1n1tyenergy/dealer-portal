@@ -1,0 +1,13 @@
+/* Support card: Trinity's contacts in a small white panel over a soft backdrop. */
+.sc-backdrop { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: rgba(24, 33, 58, 0.4); }
+.sc { width: min(100%, 26rem); padding: 22px; color: var(--tri-ink); font-family: var(--font-sans); box-shadow: 0 24px 60px -16px rgba(24, 33, 58, 0.35); }
+.sc__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sc__head .ui-section-title { margin: 0; }
+.sc__close { min-width: 44px; min-height: 44px; padding: 0; justify-content: center; }
+.sc p { margin: 8px 0 14px; font-size: 16px; line-height: 1.5; }
+.sc__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.sc__list li { display: flex; align-items: center; gap: 10px; min-height: 44px; border-bottom: 1px solid var(--tri-line); color: var(--tri-soft); }
+.sc__list li:last-child { border-bottom: 0; }
+.sc__list a { color: var(--tri-blue); font-size: 16px; text-decoration: none; overflow-wrap: anywhere; }
+.sc__list a:hover { text-decoration: underline; }
+.sc__list a:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; border-radius: 4px; }
