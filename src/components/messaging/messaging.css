@@ -92,7 +92,7 @@
   border: none;
   border-radius: 9px;
   padding: 0.42rem 0.7rem;
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   cursor: pointer;
   background: var(--tri-yellow);
@@ -152,7 +152,7 @@
   color: var(--msg-muted);
   border-radius: 7px;
   padding: 0.28rem 0.35rem;
-  font-size: 0.64rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -201,7 +201,7 @@
 }
 
 .msg-list__item:hover {
-  background: rgba(56, 83, 164, 0.16);
+  background: rgba(56, 83, 164, 0.04);
 }
 
 .msg-list__item.is-active {
@@ -221,7 +221,7 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
   font-weight: 800;
   background: #eef2fb;
   color: var(--tri-blue);
@@ -232,7 +232,7 @@
 .msg-avatar--sm {
   width: 28px;
   height: 28px;
-  font-size: 0.6rem;
+  font-size: 0.8125rem;
 }
 
 .msg-avatar--lg {
@@ -281,14 +281,14 @@
 
 .msg-list__time {
   flex-shrink: 0;
-  font-size: 0.68rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
 }
 
 .msg-list__kind {
   display: block;
   margin-top: 0.1rem;
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   color: var(--tri-blue);
   white-space: nowrap;
   overflow: hidden;
@@ -298,7 +298,7 @@
 .msg-list__preview {
   display: block;
   margin-top: 0.18rem;
-  font-size: 0.76rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -315,7 +315,7 @@
   border-radius: 999px;
   background: var(--tri-yellow);
   color: var(--tri-ink);
-  font-size: 0.65rem;
+  font-size: 0.8125rem;
   font-weight: 800;
   display: grid;
   place-items: center;
@@ -347,7 +347,7 @@
 }
 
 .msg-thread__empty-card span {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   line-height: 1.45;
 }
 
@@ -384,7 +384,7 @@
   align-items: center;
   gap: 0.35rem;
   margin-top: 0.15rem;
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
 }
 
@@ -481,7 +481,7 @@
 .msg-day span {
   padding: 0.28rem 0.7rem;
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.8125rem;
   font-weight: 650;
   color: var(--msg-muted);
   background: var(--tri-surface);
@@ -540,13 +540,13 @@
   align-items: center;
   gap: 0.25rem;
   margin-top: 0.28rem;
-  font-size: 0.64rem;
+  font-size: 0.8125rem;
   opacity: 0.78;
 }
 
 .msg-ticks {
   letter-spacing: -0.08em;
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   color: var(--msg-tick);
 }
 
@@ -557,7 +557,7 @@
 .msg-typing {
   min-height: 1.15rem;
   padding: 0 1.1rem;
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
 }
 
@@ -704,7 +704,7 @@
 }
 
 .msg-context__empty span {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   line-height: 1.45;
 }
 
@@ -735,7 +735,7 @@
 
 .msg-profile__body em {
   font-style: normal;
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
   color: var(--tri-blue);
   font-weight: 650;
 }
@@ -745,7 +745,7 @@
   align-items: center;
   gap: 0.3rem;
   margin-top: 0.25rem;
-  font-size: 0.74rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
 }
 
@@ -768,7 +768,7 @@
   border: 1px solid var(--tri-line);
   background: var(--tri-ground);
   color: var(--tri-blue);
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
@@ -814,7 +814,7 @@
 }
 
 .msg-card__head a {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
   font-weight: 650;
   color: var(--tri-blue);
   text-decoration: none;
@@ -831,7 +831,7 @@
 .msg-card__empty {
   margin: 0;
   padding: 0.75rem 0.5rem;
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
   text-align: center;
 }
@@ -864,7 +864,7 @@
 .msg-order__ref {
   flex: 1;
   min-width: 0;
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--tri-ink);
   white-space: nowrap;
@@ -876,7 +876,7 @@
   flex-shrink: 0;
   padding: 0.22rem 0.5rem;
   border-radius: 999px;
-  font-size: 0.62rem;
+  font-size: 0.8125rem;
   font-weight: 750;
   white-space: nowrap;
 }
@@ -935,7 +935,7 @@
   border-radius: 6px;
   display: grid;
   place-items: center;
-  font-size: 0.58rem;
+  font-size: 0.8125rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #fff;
@@ -951,7 +951,7 @@
 
 .msg-file__meta strong {
   display: block;
-  font-size: 0.76rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--tri-ink);
   white-space: nowrap;
@@ -962,7 +962,7 @@
 .msg-file__meta span {
   display: block;
   margin-top: 0.12rem;
-  font-size: 0.66rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
 }
 
@@ -998,7 +998,7 @@
   display: none;
   width: fit-content;
   margin: 0.65rem 0.85rem 0;
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   font-weight: 650;
   color: var(--tri-blue);
 }
@@ -1042,7 +1042,7 @@
 
 .msg-directory__hint {
   margin: 0.35rem 0 0.75rem;
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
 }
 
@@ -1054,7 +1054,7 @@
   color: var(--msg-muted);
   border-radius: 8px;
   padding: 0.35rem 0.65rem;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1101,7 +1101,7 @@
   display: block;
   margin-top: 0.1rem;
   font-style: normal;
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
   color: var(--msg-muted);
 }
 
@@ -1153,3 +1153,11 @@
 .msg-search:focus-within,
 .msg-thread__search:focus-within { border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
 .msg-composer textarea:focus { border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
+
+/* The Messages page (dealer and staff): the workspace fills the screen under the page head. */
+.msg-page { padding-bottom: 24px; }
+.msg-page .ui-page-head { margin-bottom: 16px; }
+.msg-page__workspace { height: calc(100dvh - 64px - 150px); min-height: 520px; }
+@media (max-width: 1199px) {
+  .msg-page__workspace { height: calc(100dvh - 120px - 140px); }
+}

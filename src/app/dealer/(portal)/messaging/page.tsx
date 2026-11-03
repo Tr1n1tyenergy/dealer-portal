@@ -2,7 +2,6 @@ import { MessagingApp } from "@/components/messaging/messaging-app";
 import { listConversationsForUser } from "@/lib/messaging/service";
 import { requireDealer } from "@/lib/session";
 import { PageHead } from "@/components/layout/page-head";
-import "./messaging-page.css";
 
 export default async function DealerMessagingPage() {
   const session = await requireDealer();
@@ -26,9 +25,9 @@ export default async function DealerMessagingPage() {
   }));
 
   return (
-    <div className="ui-page dm">
+    <div className="ui-page msg-page">
       <PageHead title="Messages" description="Conversations with the Trinity team." />
-      <div className="dm__workspace">
+      <div className="msg-page__workspace">
         <MessagingApp variant="dealer" initialConversations={initialConversations} />
       </div>
     </div>

@@ -3,7 +3,7 @@ import { listConversationsForUser } from "@/lib/messaging/service";
 import { redirect } from "next/navigation";
 import { canUser } from "@/lib/permissions";
 import { requireInternal } from "@/lib/session";
-import "@/app/intelligence/retail/retail-messaging.css";
+import { PageHead } from "@/components/layout/page-head";
 
 export default async function RetailMessagingPage() {
   const session = await requireInternal();
@@ -28,23 +28,9 @@ export default async function RetailMessagingPage() {
   }));
 
   return (
-    <div className="rm" style={{ background: "#0a192f" }}>
-      <div className="rm-hero" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets2/img/retail/dashboard-hero-station.jpg"
-          alt=""
-          className="rm-hero__img"
-        />
-        <div className="rm-hero__fade" />
-      </div>
-
-      <header className="rm-head">
-        <h1>Messaging</h1>
-        <p>Real-time conversations with dealers and internal teams.</p>
-      </header>
-
-      <div className="rm-workspace">
+    <div className="ui-page msg-page">
+      <PageHead title="Messages" description="Conversations with dealers and Trinity teams." />
+      <div className="msg-page__workspace">
         <MessagingApp
           variant="staff"
           initialConversations={initialConversations}
