@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { Check } from "lucide-react";
-import type { DealerOrderStatus } from "@prisma/client";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
@@ -10,6 +9,7 @@ import {
 } from "@/lib/orders/state-machine";
 import { PaymentForm } from "@/components/dealer/payment-form";
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
+import { docState, statusCopy } from "@/lib/orders/dealer-order-copy";
 import { PageHead } from "@/components/layout/page-head";
 import { StatusChip } from "@/components/ui/status-chip";
 import "@/components/dealer/order-tracking.css";
@@ -36,85 +36,6 @@ function formatDateTime(date: Date) {
     minute: "2-digit",
     hour12: false,
   }).format(date);
-}
-
-function statusCopy(status: DealerOrderStatus) {
-  const label = dealerStatusLabel(status);
-  switch (status) {
-    case "SUBMITTED":
-      return {
-        label,
-        detail: "Your order has been received and is queued for commercial processing.",
-      };
-    case "ODOO_SYNC_PENDING":
-    case "ODOO_SYNC_FAILED":
-    case "QUOTATION_CREATING":
-    case "QUOTATION_READY":
-    case "PFI_PENDING":
-      return {
-        label: "Quotation processing",
-        detail: "Your order has been received and commercial processing is underway.",
-      };
-    case "PFI_ISSUED":
-    case "AWAITING_PAYMENT":
-      return {
-        label,
-        detail: "Your Pro Forma Invoice is ready. Complete payment to release the order to depot.",
-      };
-    case "PAYMENT_SUBMITTED":
-    case "PAYMENT_VERIFICATION":
-      return {
-        label,
-        detail: "Payment details have been received and are being verified by Trinity finance.",
-      };
-    case "PAYMENT_EXCEPTION":
-      return {
-        label,
-        detail: "Trinity finance couldn't verify your payment. Check the details below and submit them again.",
-      };
-    case "DELIVERED":
-    case "CLOSED":
-      return {
-        label,
-        detail: "Fuel has been delivered to your station.",
-      };
-    default:
-      return {
-        label,
-        detail: "Track each stage of this order as Trinity processes it.",
-      };
-  }
-}
-
-/** Document badges follow the same tracker as the progress bar, so the two always agree. */
-function docState(
-  kind: "quotation" | "pfi" | "payment" | "delivery",
-  steps: DealerTrackerStep[],
-  status: DealerOrderStatus,
-  hasPfi: boolean,
-) {
-  const stateOf = (key: DealerTrackerStep["key"]) => steps.find((s) => s.key === key)?.state;
-  if (kind === "quotation") {
-    if (hasPfi || stateOf("quotation") === "done") return { label: "Ready", tone: "ready" as const };
-    const quotation = stateOf("quotation");
-    if (quotation === "active" || quotation === "attention") {
-      return { label: "Processing", tone: "processing" as const };
-    }
-    return { label: "Pending", tone: "pending" as const };
-  }
-  if (kind === "pfi") {
-    if (hasPfi) return { label: "Ready", tone: "ready" as const };
-    return { label: "Pending", tone: "pending" as const };
-  }
-  if (kind === "payment") {
-    if (stateOf("payment") === "done") return { label: "Ready", tone: "ready" as const };
-    if (status === "AWAITING_PAYMENT" || status === "PFI_ISSUED") {
-      return { label: "Action needed", tone: "action" as const };
-    }
-    return { label: "Pending", tone: "pending" as const };
-  }
-  if (stateOf("delivered") === "done") return { label: "Ready", tone: "ready" as const };
-  return { label: "Pending", tone: "pending" as const };
 }
 
 const DOC_CHIP = { ready: "done", processing: "trinity", action: "dealer", pending: "muted" } as const;

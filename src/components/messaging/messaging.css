@@ -1148,3 +1148,8 @@
 
 /* Pills read by their fill on the light panels; no outline. */
 .msg-pill[class*="msg-pill--"] { border-color: transparent; }
+
+/* Keyboard focus that reads on the light ground (search boxes draw it on their wrapper). */
+.msg-search:focus-within,
+.msg-thread__search:focus-within { border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
+.msg-composer textarea:focus { border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
