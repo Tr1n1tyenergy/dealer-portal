@@ -1,0 +1,7 @@
+/* Dealer Messages: the conversation workspace fills the screen under the page head. */
+.dm { padding-bottom: 24px; }
+.dm .ui-page-head { margin-bottom: 16px; }
+.dm__workspace { height: calc(100dvh - 64px - 150px); min-height: 520px; }
+@media (max-width: 1199px) {
+  .dm__workspace { height: calc(100dvh - 120px - 140px); }
+}
