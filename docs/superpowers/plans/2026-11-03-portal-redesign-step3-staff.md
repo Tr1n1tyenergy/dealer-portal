@@ -16,7 +16,7 @@
 
 ## Global Constraints
 
-- Branch `feat/portal-redesign-staff`, cut from `feat/portal-redesign-dealer` (00dd211). Nothing is pushed until step 4 is built. No attribution lines.
+- One branch for the whole redesign: `feat/portal-redesign` (steps 1–4, one PR). Nothing is pushed until step 4 is built. No attribution lines.
 - Behaviour unchanged: same queries, server actions (`internalOrderAction`), API calls, query strings (`?stage=`, `?q=`), permission checks on every page and API. The only behaviour change is that buttons the person can't use are hidden (spec §7).
 - Tokens and `ui.css` only. Raw colours used repeatedly in steps 1–2 become tokens in Task 8 (`--tri-problem #a1281f`, `--tri-tint #eef2fb`).
 - Yellow for the one main action; sentence case; body 16px, small 13px minimum (Messages included); tabular figures; no small all-caps.
@@ -183,4 +183,4 @@ Lines 1–3 are pinned by the Task 3, 5 and 6 unit tests plus the Task 1 browser
 - [ ] Step 4: Unit, DB, tsc, eslint, build. Screenshots to `D:\Downloads\portal-redesign-step3-screens\`; PR text `D:\Downloads\pr-portal-redesign-step3.md`.
 - [ ] Step 5: Commit `chore(staff): tokens for repeated colours; delete the old staff CSS`.
 
-Then the final whole-branch review (`feat/portal-redesign-dealer..HEAD`), fixes, and step 4's plan.
+Then the final review of this step's commits (`00dd211..HEAD`), fixes, and step 4's plan.

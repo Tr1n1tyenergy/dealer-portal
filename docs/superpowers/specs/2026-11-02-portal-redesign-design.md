@@ -109,7 +109,7 @@ From the 2 Nov audit: (1) broken activation image; (2) Orders search only in the
 
 ## 8. Rollout
 
-Four steps, each its own branch and pull request, merged one at a time:
+Four steps, all on one branch (`feat/portal-redesign`) and one pull request, pushed only when all four are built (Adrian, 3 Nov):
 
 1. **Foundation** — tokens, fonts, shared controls, the header for all portals, login/activation/reset pages, "Page not found" (≈1 day).
 2. **Dealer portal** — dashboard, Orders, order page, Place order, PFIs, Messages, Support (2–3 days).
@@ -120,7 +120,7 @@ Rules for every step:
 - Behaviour unchanged; every existing unit and DB test stays green.
 - New logic is test-first: the "what needs you" sentence, the second-button choice, the staff "Needs action" list and counts, which menu links each person sees.
 - Old CSS is deleted as each page moves over (no two designs side by side).
-- Before/after screenshots of every changed page at 1440, 768 and 390 px using the Playwright scripts from the 2 Nov stress test; Adrian checks in a browser before each merge.
+- Before/after screenshots of every changed page at 1440, 768 and 390 px using the Playwright scripts from the 2 Nov stress test; Adrian checks in a browser after each step and before the push.
 - Accessibility: text contrast on the photo (WCAG AA), visible keyboard focus, reduced motion.
 - UI work follows the taste-family skill for apps (redesign-skill), with the brand gradient kept.
 

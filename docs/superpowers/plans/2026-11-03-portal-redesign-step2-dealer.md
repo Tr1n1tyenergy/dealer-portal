@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Branch `feat/portal-redesign-dealer`, cut from `feat/portal-redesign` (step 1, e3bc423). Nothing is pushed until steps 2–4 are all built (Adrian, 3 Nov). No attribution lines in commits.
+- One branch for the whole redesign: `feat/portal-redesign` (steps 1–4, one PR; Adrian, 3 Nov). Nothing is pushed until all steps are built. No attribution lines in commits.
 - Behaviour unchanged: same queries, same server actions, same links and query strings (`?view=`, `?q=`, `?submitted=`). Every existing unit and DB test stays green.
 - Colours, radii, font only from `--tri-*` tokens and `ui.css` classes (`ui-btn--primary|secondary|quiet|destructive`, `ui-chip--*` via `StatusChip`, `ui-tabs`, `ui-navlink`, `EmptyState`/`Skeleton`/`ErrorState`). No new colour values except inside `globals.css`.
 - Yellow is the one main action per screen. Sentence case; no small all-caps labels; body text 16px, small 13px minimum; tabular figures for numbers and amounts.
@@ -161,4 +161,4 @@ test("nothing ordered → no estimate", () => {
 - [ ] **Step 6:** Copy before (`shots-rd`) and after (`shots-step2`) screenshots to `D:\Downloads\portal-redesign-step2-screens\`; write the PR text.
 - [ ] **Step 7:** Commit `chore(dealer): delete the old dealer CSS`.
 
-Then the final whole-branch review (`feat/portal-redesign..HEAD`), fixes, and step 3's plan.
+Then the final whole-branch review (`e3bc423..HEAD`), fixes, and step 3's plan.
