@@ -1,11 +1,11 @@
 "use client";
 
-import { canUser } from "@/lib/permissions";
+import { retailUsersControls } from "@/lib/users/user-controls";
+import { PageHead } from "@/components/layout/page-head";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
   Building2,
-  ChevronRight,
   Clock3,
   Filter,
   Info,
@@ -97,7 +97,8 @@ type EditForm = {
 
 export function RetailUsersClient() {
   const { data: session } = useSession();
-  const canManageUsers = canUser(session?.user, "adminUsers", "act");
+  const controls = retailUsersControls(session?.user);
+  const canManageUsers = controls.manage;
 
   const [stations, setStations] = useState<StationOpt[]>([]);
   const [users, setUsers] = useState<RetailUser[]>([]);
@@ -350,271 +351,228 @@ export function RetailUsersClient() {
   }, [activeAll, activeQuery, typeFilter]);
 
   return (
-    <div className="ru" style={{ background: "#0a192f" }}>
-      <header className="ru-head">
-        <div className="ru-head__copy">
-          <h1>Users</h1>
-          <p>
-            Manage access to the Trinity Retail Intelligence platform. Invite dealers and internal
-            staff, and monitor user status.
-          </p>
-        </div>
-        <a className="ru-secure" href="#invite-dealer" aria-label="Secure Access" style={{ background: "#122a4a" }}>
-          <span className="ru-secure__icon">
-            <Shield size={18} strokeWidth={1.75} />
-          </span>
-          <span className="ru-secure__meta">
-            <strong>Secure Access</strong>
-            <span>Control who can access your intelligence platform.</span>
-          </span>
-          <ChevronRight className="ru-secure__chev" size={16} />
-        </a>
-      </header>
+    <div className="ui-page ru">
+      <PageHead title="Users" description="Invite dealers and Trinity staff, and see who has access." />
 
       {error ? <div className="ru-flash ru-flash--error">{error}</div> : null}
       {ok ? <div className="ru-flash ru-flash--ok">{ok}</div> : null}
 
-      <div className="ru-invites">
-        {/* Invite dealer */}
-        <article className="ru-card ru-card--dealer" id="invite-dealer" style={{ background: "#122a4a" }}>
-          <div className="ru-card__glow" aria-hidden />
-          <div className="ru-card__media" aria-hidden>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets2/img/retail/dashboard-hero-station.jpg" alt="" />
-          </div>
-          <div className="ru-card__inner">
-            <div className="ru-card__head">
-              <span className="ru-card__icon ru-card__icon--gold">
-                <Store size={18} strokeWidth={1.75} />
-              </span>
-              <div>
-                <h2>Invite dealer</h2>
-                <p>Send an invitation to a dealer for one or more of their stations.</p>
-              </div>
-            </div>
-
-            <form onSubmit={inviteDealer} className="ru-form">
-              <div className="ru-form__row ru-form__row--4">
-                <div className="ru-field">
-                  <label htmlFor="station">Station</label>
-                  <StationMultiSelect
-                    id="station"
-                    stations={stations}
-                    value={stationCodes}
-                    onChange={setStationCodes}
-                  />
-                </div>
-                <div className="ru-field">
-                  <label htmlFor="d-email">Email address</label>
-                  <div className="ru-field__control">
-                    <Mail size={15} strokeWidth={1.75} />
-                    <input
-                      id="d-email"
-                      type="email"
-                      required
-                      placeholder="dealer@company.com"
-                      value={dealerEmail}
-                      onChange={(e) => setDealerEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="ru-field">
-                  <label htmlFor="d-first">First name</label>
-                  <div className="ru-field__control">
-                    <UserRound size={15} strokeWidth={1.75} />
-                    <input
-                      id="d-first"
-                      required
-                      placeholder="First name"
-                      value={dealerFirst}
-                      onChange={(e) => setDealerFirst(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="ru-field">
-                  <label htmlFor="d-last">Last name</label>
-                  <div className="ru-field__control">
-                    <UserRound size={15} strokeWidth={1.75} />
-                    <input
-                      id="d-last"
-                      required
-                      placeholder="Last name"
-                      value={dealerLast}
-                      onChange={(e) => setDealerLast(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {selection ? (
-                <div className={selection.ok ? "ru-selection" : "ru-selection ru-selection--error"} role="status">
-                  {selection.ok
-                    ? `${selection.orgName} · ${selection.rows.length} station${selection.rows.length === 1 ? "" : "s"}: ${selection.rows.map((r) => r.stationName).join(", ")}`
-                    : selection.message}
-                </div>
-              ) : null}
-
-              <div className="ru-form__foot">
-                <button type="submit" className="ru-btn ru-btn--gold" disabled={busy || !selection?.ok}>
-                  <Send size={15} strokeWidth={1.75} />
-                  Send dealer invite
-                </button>
-              </div>
-
-              <div className="ru-info">
-                <Info size={15} strokeWidth={1.75} />
-                <span>
-                  The dealer will receive an invitation email with instructions to create their
-                  account. Station External IDs bind automatically.
+      {controls.invite ? (
+        <div className="ru-invites">
+          {/* Invite dealer */}
+          <article className="ru-card ru-card--dealer" id="invite-dealer">
+            <div className="ru-card__inner">
+              <div className="ru-card__head">
+                <span className="ru-card__icon ru-card__icon--gold">
+                  <Store size={18} strokeWidth={1.75} />
                 </span>
+                <div>
+                  <h2>Invite dealer</h2>
+                  <p>Send an invitation to a dealer for one or more of their stations.</p>
+                </div>
               </div>
-            </form>
-          </div>
-        </article>
 
-        {/* Invite staff */}
-        <article className="ru-card ru-card--staff" id="invite-staff" style={{ background: "#122a4a" }}>
-          <div className="ru-card__glow" aria-hidden />
-          <div className="ru-card__inner">
-            <div className="ru-card__head">
-              <span className="ru-card__icon ru-card__icon--blue">
-                <Users size={18} strokeWidth={1.75} />
-              </span>
-              <div>
-                <h2>Invite staff</h2>
-                <p>Send an invitation to internal team members.</p>
-              </div>
-              <svg
-                className="ru-card__sil"
-                viewBox="0 0 240 120"
-                width={72}
-                height={36}
-                aria-hidden
-                style={{
-                  marginLeft: "auto",
-                  flexShrink: 0,
-                  width: 72,
-                  height: 36,
-                  opacity: 0.28,
-                  color: "#9ec5ff",
-                  pointerEvents: "none",
-                }}
-              >
-                <circle cx="70" cy="38" r="16" fill="currentColor" />
-                <path d="M40 96c4-24 14-36 30-36s26 12 30 36" fill="currentColor" />
-                <circle cx="120" cy="30" r="18" fill="currentColor" />
-                <path d="M86 100c5-28 16-42 34-42s29 14 34 42" fill="currentColor" />
-                <circle cx="172" cy="40" r="15" fill="currentColor" />
-                <path d="M146 98c4-22 13-34 26-34s22 12 26 34" fill="currentColor" />
-              </svg>
+              <form onSubmit={inviteDealer} className="ru-form">
+                <div className="ru-form__row ru-form__row--4">
+                  <div className="ru-field">
+                    <label htmlFor="station">Station</label>
+                    <StationMultiSelect
+                      id="station"
+                      stations={stations}
+                      value={stationCodes}
+                      onChange={setStationCodes}
+                    />
+                  </div>
+                  <div className="ru-field">
+                    <label htmlFor="d-email">Email address</label>
+                    <div className="ru-field__control">
+                      <Mail size={15} strokeWidth={1.75} />
+                      <input
+                        id="d-email"
+                        type="email"
+                        required
+                        placeholder="dealer@company.com"
+                        value={dealerEmail}
+                        onChange={(e) => setDealerEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="ru-field">
+                    <label htmlFor="d-first">First name</label>
+                    <div className="ru-field__control">
+                      <UserRound size={15} strokeWidth={1.75} />
+                      <input
+                        id="d-first"
+                        required
+                        placeholder="First name"
+                        value={dealerFirst}
+                        onChange={(e) => setDealerFirst(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="ru-field">
+                    <label htmlFor="d-last">Last name</label>
+                    <div className="ru-field__control">
+                      <UserRound size={15} strokeWidth={1.75} />
+                      <input
+                        id="d-last"
+                        required
+                        placeholder="Last name"
+                        value={dealerLast}
+                        onChange={(e) => setDealerLast(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {selection ? (
+                  <div className={selection.ok ? "ru-selection" : "ru-selection ru-selection--error"} role="status">
+                    {selection.ok
+                      ? `${selection.orgName} · ${selection.rows.length} station${selection.rows.length === 1 ? "" : "s"}: ${selection.rows.map((r) => r.stationName).join(", ")}`
+                      : selection.message}
+                  </div>
+                ) : null}
+
+                <div className="ru-form__foot">
+                  <button type="submit" className="ru-btn ru-btn--gold" disabled={busy || !selection?.ok}>
+                    <Send size={15} strokeWidth={1.75} />
+                    Send dealer invite
+                  </button>
+                </div>
+
+                <div className="ru-info">
+                  <Info size={15} strokeWidth={1.75} />
+                  <span>
+                    The dealer will receive an invitation email with instructions to create their
+                    account. Station External IDs bind automatically.
+                  </span>
+                </div>
+              </form>
             </div>
+          </article>
 
-            <form onSubmit={inviteStaff} className="ru-form">
-              <div className="ru-form__row ru-form__row--3">
-                <div className="ru-field">
-                  <label htmlFor="s-email">Email address</label>
-                  <div className="ru-field__control">
-                    <Mail size={15} strokeWidth={1.75} />
-                    <input
-                      id="s-email"
-                      type="email"
-                      required
-                      placeholder="name@trinityenergyltd.com"
-                      value={staffEmail}
-                      onChange={(e) => setStaffEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="ru-field">
-                  <label htmlFor="s-first">First name</label>
-                  <div className="ru-field__control">
-                    <UserRound size={15} strokeWidth={1.75} />
-                    <input
-                      id="s-first"
-                      required
-                      placeholder="First name"
-                      value={staffFirst}
-                      onChange={(e) => setStaffFirst(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="ru-field">
-                  <label htmlFor="s-last">Last name</label>
-                  <div className="ru-field__control">
-                    <UserRound size={15} strokeWidth={1.75} />
-                    <input
-                      id="s-last"
-                      required
-                      placeholder="Last name"
-                      value={staffLast}
-                      onChange={(e) => setStaffLast(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="ru-form__row ru-form__row--2">
-                <div className="ru-field">
-                  <label htmlFor="s-dept">Department</label>
-                  <div className="ru-field__control">
-                    <Building2 size={15} strokeWidth={1.75} />
-                    <input
-                      id="s-dept"
-                      required
-                      value={staffDept}
-                      onChange={(e) => setStaffDept(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="ru-field">
-                  <label htmlFor="s-role">Role</label>
-                  <div className="ru-field__control">
-                    <Shield size={15} strokeWidth={1.75} />
-                    <select
-                      id="s-role"
-                      value={staffRole}
-                      onChange={(e) =>
-                        setStaffRole(e.target.value as StaffRole)
-                      }
-                    >
-                      {STAFF_ROLES.map((role) => (
-                        <option key={role} value={role}>
-                          {roleLabel(role)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="ru-form__foot">
-                <button type="submit" className="ru-btn ru-btn--blue" disabled={busy}>
-                  <Send size={15} strokeWidth={1.75} />
-                  Send staff invite
-                </button>
-              </div>
-
-              <div className="ru-info">
-                <Info size={15} strokeWidth={1.75} />
-                <span>
-                  The user will receive an invitation email with instructions to create their
-                  account.
+          {/* Invite staff */}
+          <article className="ru-card ru-card--staff" id="invite-staff">
+            <div className="ru-card__inner">
+              <div className="ru-card__head">
+                <span className="ru-card__icon ru-card__icon--blue">
+                  <Users size={18} strokeWidth={1.75} />
                 </span>
+                <div>
+                  <h2>Invite staff</h2>
+                  <p>Send an invitation to internal team members.</p>
+                </div>
               </div>
-            </form>
-          </div>
-        </article>
-      </div>
+
+              <form onSubmit={inviteStaff} className="ru-form">
+                <div className="ru-form__row ru-form__row--3">
+                  <div className="ru-field">
+                    <label htmlFor="s-email">Email address</label>
+                    <div className="ru-field__control">
+                      <Mail size={15} strokeWidth={1.75} />
+                      <input
+                        id="s-email"
+                        type="email"
+                        required
+                        placeholder="name@trinityenergyltd.com"
+                        value={staffEmail}
+                        onChange={(e) => setStaffEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="ru-field">
+                    <label htmlFor="s-first">First name</label>
+                    <div className="ru-field__control">
+                      <UserRound size={15} strokeWidth={1.75} />
+                      <input
+                        id="s-first"
+                        required
+                        placeholder="First name"
+                        value={staffFirst}
+                        onChange={(e) => setStaffFirst(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="ru-field">
+                    <label htmlFor="s-last">Last name</label>
+                    <div className="ru-field__control">
+                      <UserRound size={15} strokeWidth={1.75} />
+                      <input
+                        id="s-last"
+                        required
+                        placeholder="Last name"
+                        value={staffLast}
+                        onChange={(e) => setStaffLast(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="ru-form__row ru-form__row--2">
+                  <div className="ru-field">
+                    <label htmlFor="s-dept">Department</label>
+                    <div className="ru-field__control">
+                      <Building2 size={15} strokeWidth={1.75} />
+                      <input
+                        id="s-dept"
+                        required
+                        value={staffDept}
+                        onChange={(e) => setStaffDept(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="ru-field">
+                    <label htmlFor="s-role">Role</label>
+                    <div className="ru-field__control">
+                      <Shield size={15} strokeWidth={1.75} />
+                      <select
+                        id="s-role"
+                        value={staffRole}
+                        onChange={(e) =>
+                          setStaffRole(e.target.value as StaffRole)
+                        }
+                      >
+                        {STAFF_ROLES.map((role) => (
+                          <option key={role} value={role}>
+                            {roleLabel(role)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="ru-form__foot">
+                  <button type="submit" className="ru-btn ru-btn--blue" disabled={busy}>
+                    <Send size={15} strokeWidth={1.75} />
+                    Send staff invite
+                  </button>
+                </div>
+
+                <div className="ru-info">
+                  <Info size={15} strokeWidth={1.75} />
+                  <span>
+                    The user will receive an invitation email with instructions to create their
+                    account.
+                  </span>
+                </div>
+              </form>
+            </div>
+          </article>
+        </div>
+      ) : (
+        <p className="ru-note">You can view users here. Ask an Admin to invite people.</p>
+      )}
 
       {/* Pending */}
-      <section className="ru-panel" style={{ background: "#122a4a" }}>
+      <section className="ru-panel">
         <div className="ru-panel__head">
           <div className="ru-panel__title">
             <span className="ru-panel__icon ru-panel__icon--gold">
               <Clock3 size={18} strokeWidth={1.75} />
             </span>
             <div>
-              <h2>Pending Invitations ({pendingAll.length})</h2>
+              <h2>Pending invitations ({pendingAll.length})</h2>
               <p>Invitations that have been sent but not yet accepted.</p>
             </div>
           </div>
@@ -694,14 +652,14 @@ export function RetailUsersClient() {
       </section>
 
       {/* Active */}
-      <section className="ru-panel" style={{ background: "#122a4a" }}>
+      <section className="ru-panel">
         <div className="ru-panel__head">
           <div className="ru-panel__title">
             <span className="ru-panel__icon ru-panel__icon--green">
               <Users size={18} strokeWidth={1.75} />
             </span>
             <div>
-              <h2>Active Users ({activeAll.length})</h2>
+              <h2>Active users ({activeAll.length})</h2>
               <p>Users who have accepted their invitation and have access to the platform.</p>
             </div>
           </div>
@@ -795,7 +753,7 @@ export function RetailUsersClient() {
 
       {editing && editForm ? (
         <div className="ru-modal" role="dialog" aria-modal aria-labelledby="ru-edit-title">
-          <div className="ru-modal__panel" style={{ background: "#122a4a" }}>
+          <div className="ru-modal__panel">
             <header className="ru-modal__head">
               <div>
                 <h2 id="ru-edit-title">Edit user</h2>
