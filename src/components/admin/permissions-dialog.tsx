@@ -80,16 +80,16 @@ export function PermissionsDialog({ person, onClose, onSaved }: { person: Person
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div role="dialog" aria-modal="true" aria-labelledby="perm-title" className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
-        <h2 id="perm-title" className="text-lg font-bold text-trinity-navy">
+        <h2 id="perm-title" className="text-lg font-bold text-[var(--tri-ink)]">
           Permissions for {person.firstName} {person.lastName} ({roleLabel(person.role)})
         </h2>
-        <p className="mt-1 text-sm text-slate-500">Greyed ticks come from the role. Deny always wins; Act needs View.</p>
+        <p className="mt-1 text-sm text-[var(--tri-soft)]">Greyed ticks come from the role. Deny always wins; Act needs View.</p>
         <table className="mt-4 w-full text-left text-sm">
-          <thead className="text-xs uppercase tracking-wider text-slate-500">
+          <thead className="text-sm font-bold text-[var(--tri-soft)]">
             <tr>
               <th className="py-2">Module</th>
-              <th className="py-2 text-center" colSpan={2}>View<br /><span className="normal-case">Allow · Deny</span></th>
-              <th className="py-2 text-center" colSpan={2}>Act<br /><span className="normal-case">Allow · Deny</span></th>
+              <th className="py-2 text-center" colSpan={2}>View<br /><span className="font-normal">Allow · Deny</span></th>
+              <th className="py-2 text-center" colSpan={2}>Act<br /><span className="font-normal">Allow · Deny</span></th>
               <th className="py-2">Result</th>
             </tr>
           </thead>
@@ -101,12 +101,12 @@ export function PermissionsDialog({ person, onClose, onSaved }: { person: Person
               const result = canUser(pending, m.key, "act") ? "Can view and act" : canUser(pending, m.key, "view") ? "Can view" : "No access";
               return (
                 <tr key={m.key} className="border-t border-black/5">
-                  <td className="py-2 font-semibold text-trinity-navy">{m.label}</td>
+                  <td className="py-2 font-semibold text-[var(--tri-ink)]">{m.label}</td>
                   <td className="py-2 text-center">{box(view, "allow", ticks[view], index === 0)}</td>
                   <td className="py-2 text-center">{box(view, "deny", ticks[view])}</td>
                   <td className="py-2 text-center">{hasAct ? box(act, "allow", ticks[act]) : "—"}</td>
                   <td className="py-2 text-center">{hasAct ? box(act, "deny", ticks[act]) : null}</td>
-                  <td className="py-2 text-slate-600">{result}</td>
+                  <td className="py-2 text-[var(--tri-soft)]">{result}</td>
                 </tr>
               );
             })}

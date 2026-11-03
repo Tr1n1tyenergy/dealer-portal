@@ -24,7 +24,7 @@
 .ru-form__row--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .ru-field { display: grid; gap: 6px; min-width: 0; }
 .ru-field label { font-size: 15px; font-weight: 700; color: var(--tri-ink); }
-.ru-field__control, .ru-search, .ru-filter { position: relative; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; border: 1px solid var(--tri-line); border-radius: 12px; background: #fff; color: var(--tri-soft); transition: border-color 0.2s, box-shadow 0.2s; }
+.ru-field__control, .ru-search, .ru-filter { position: relative; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; border: 1px solid var(--tri-line); border-radius: 12px; background: #fff; color: var(--tri-soft); transition: border-color 0.2s, box-shadow 0.2s; }
 .ru-field__control:focus-within, .ru-search:focus-within, .ru-filter:focus-within { border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
 .ru-field__control input, .ru-field__control select, .ru-search input, .ru-filter select { flex: 1; min-width: 0; height: 46px; border: 0; outline: none; background: transparent; font: inherit; font-size: 16px; color: var(--tri-ink); }
 .ru-search, .ru-filter { min-height: 44px; }
