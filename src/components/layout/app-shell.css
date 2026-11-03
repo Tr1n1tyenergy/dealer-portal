@@ -1,35 +1,29 @@
-/* Header shell — full-bleed left aligned */
-
+/* Staff shell (redesign spec §6): the light ground; pages sit in the same centred column as the dealer pages. */
 .tri-shell {
   position: relative;
-  min-height: 100vh;
-  background: #041638;
-  /* clip, not hidden: hidden would make this a scroll container and stop sticky headers/sidebars working. */
+  min-height: 100dvh;
+  background: var(--tri-ground);
+  color: var(--tri-ink);
+  /* clip, not hidden: hidden would make this a scroll container and stop sticky headers working. */
   overflow-x: clip;
   font-family: var(--font-sans);
 }
 
-/* Retail Interface — solid Analytics navy (no intel-bg) */
-.tri-shell--retail-navy {
-  background: #0a192f !important;
-}
-
 .tri-main {
-  position: relative;
-  z-index: 1;
   width: 100%;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 1.75rem 1.25rem 2.75rem !important;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
   box-sizing: border-box;
 }
 
-/* Full-bleed workspace (Retail Interface): sidebar + content fill the viewport */
 .tri-main.tri-main--bleed {
-  max-width: none !important;
-  width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  max-width: none;
+  padding: 0;
+}
+
+@media (max-width: 767px) {
+  .tri-main { padding: 20px 16px 40px; }
 }
 
 .mod-hero {

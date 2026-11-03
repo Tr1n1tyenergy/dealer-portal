@@ -13,7 +13,6 @@ import { PortalHeader } from "@/components/layout/portal-header";
 import { UnreadBell } from "@/components/layout/unread-bell";
 import { canUser } from "@/lib/permissions";
 import { activeStaffNav } from "@/lib/ui/header-links";
-import { IntelligenceBackground } from "@/components/layout/intelligence-background";
 import { cn } from "@/lib/utils";
 import { roleLabel } from "@/lib/access";
 import "./app-shell.css";
@@ -22,15 +21,12 @@ import "../dashboard/modules.css";
 export function AppShell({
   children,
   fullBleed = false,
-  suppressIntelligenceBackground = false,
 }: {
   children: React.ReactNode;
   /** @deprecated Nav links removed from header; prop kept for call-site compatibility */
   activeNav?: string;
-  /** Drop tri-main max-width/padding (Retail Interface workspace). */
+  /** No column or padding: the Retail Interface pages lay out their own `.ui-page`. */
   fullBleed?: boolean;
-  /** Retail Interface uses solid Analytics navy — do not paint the brighter intel glow. */
-  suppressIntelligenceBackground?: boolean;
 }) {
   const { data } = useSession();
   const pathname = usePathname();
@@ -40,11 +36,7 @@ export function AppShell({
   const roleText = data?.user?.role ? roleLabel(data.user.role) : (data?.user?.department ?? "Staff");
 
   return (
-    <div
-      className={cn("tri-shell", suppressIntelligenceBackground && "tri-shell--retail-navy")}
-      style={suppressIntelligenceBackground ? { background: "#0a192f" } : undefined}
-    >
-      {suppressIntelligenceBackground ? null : <IntelligenceBackground />}
+    <div className="tri-shell">
 
       <PortalHeader
         portal="staff"

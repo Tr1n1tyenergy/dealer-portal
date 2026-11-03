@@ -8,7 +8,7 @@ export default async function RetailLayout({ children }: { children: React.React
   const session = await requireInternal();
   if (!canAccessRetail(session.user)) redirect("/intelligence/dashboard");
   return (
-    <AppShell fullBleed suppressIntelligenceBackground>
+    <AppShell fullBleed>
       <div className="ri-shell">
         <div className="ri-content">{children}</div>
       </div>
