@@ -60,3 +60,14 @@
   .ui-page-head__action { width: 100%; }
 }
 .ui-page-head__title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* Inputs for pages styled in CSS (same look as components/ui/input.tsx): label above, help or error below. */
+.ui-field { display: grid; gap: 6px; font-size: 15px; font-weight: 700; color: var(--tri-ink); }
+.ui-field__help { font-size: 13px; font-weight: 400; color: var(--tri-soft); }
+.ui-field__error { font-size: 14px; font-weight: 400; color: #a1281f; }
+.ui-input { width: 100%; min-height: 44px; padding: 0 14px; border: 1px solid var(--tri-line); border-radius: 12px; background: #fff; font: inherit; font-size: 16px; font-weight: 400; color: var(--tri-ink); transition: border-color 0.2s, box-shadow 0.2s; }
+textarea.ui-input { padding: 10px 14px; min-height: 72px; resize: vertical; }
+select.ui-input { appearance: none; padding-right: 36px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%2364708a' stroke-width='2'%3E%3Cpath d='m1 1 5 5 5-5'/%3E%3C/svg%3E") right 14px center no-repeat; }
+.ui-input::placeholder { color: var(--tri-soft); }
+.ui-input:focus-visible { outline: none; border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
+.ui-input[aria-invalid="true"] { border-color: #a1281f; }

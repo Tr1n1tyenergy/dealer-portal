@@ -50,20 +50,11 @@ export type RecentOrderRow = {
   createdAt: string;
   updatedAt: string;
   statusLabel: string;
-  tone: string;
+  status: DealerOrderStatus;
   pms: number | null;
   ago: number | null;
   hasPfi: boolean;
 };
-
-function statusTone(status: DealerOrderStatus) {
-  const label = dealerStatusLabel(status);
-  if (label === "Delivered" || label === "Closed") return "delivered";
-  if (label === "In Transit" || label === "Dispatched" || label === "Loaded") return "transit";
-  if (label === "PFI Ready") return "pfi";
-  if (label === "Awaiting Payment" || label.includes("Payment")) return "payment";
-  return "processing";
-}
 
 export function toDealerOrderRow(
   order: DealerOrder & { station: Station; lines: DealerOrderLine[]; proforma: ProFormaInvoice | null },
@@ -75,7 +66,7 @@ export function toDealerOrderRow(
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),
     statusLabel: dealerStatusLabel(order.status),
-    tone: statusTone(order.status),
+    status: order.status,
     pms: order.lines.find((l) => l.product === "PMS")?.quantityLitres ?? null,
     ago: order.lines.find((l) => l.product === "AGO")?.quantityLitres ?? null,
     hasPfi: Boolean(order.proforma),

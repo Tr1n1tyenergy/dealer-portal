@@ -63,3 +63,7 @@
   .ph-user { padding-right: 4px; }
   .ph__actions .ph-hide-small { display: none; }
 }
+@media (max-width: 1199px) {
+  /* A page with its own order search (Orders, an order page) doesn't need a second box above it. */
+  body:has([data-quick-search="page"]) .ph-search { display: none; }
+}
