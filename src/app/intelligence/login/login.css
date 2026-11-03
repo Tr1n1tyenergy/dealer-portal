@@ -25,7 +25,7 @@
 .login-row { display: flex; justify-content: flex-end; margin: -4px 0 18px; font-size: 14px; }
 .login-forgot, .login-back { color: var(--tri-blue); text-decoration: none; font-size: 14px; }
 .login-forgot:hover, .login-back:hover { text-decoration: underline; text-decoration-color: var(--tri-yellow); text-underline-offset: 4px; }
-.login-error { margin-bottom: 14px; padding: 10px 12px; border-radius: 10px; background: #fde8e8; color: #a1281f; font-size: 14px; }
+.login-error { margin-bottom: 14px; padding: 10px 12px; border-radius: 10px; background: #fde8e8; color: var(--tri-problem); font-size: 14px; }
 .login-ok { margin-bottom: 14px; padding: 10px 12px; border-radius: 10px; background: #e6f4ec; color: #1d6b41; font-size: 14px; }
 .login-submit { width: 100%; }
 .login-foot { margin-top: 18px; text-align: center; }

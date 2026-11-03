@@ -8,7 +8,7 @@
 .rad-kpi__spark { width: 96px; height: 30px; stroke: var(--tri-blue); }
 .rad-kpi__delta { color: var(--tri-soft); font-size: 13px; }
 .rad-kpi__delta .is-up { color: #1d6b41; }
-.rad-kpi__delta .is-down { color: #a1281f; }
+.rad-kpi__delta .is-down { color: var(--tri-problem); }
 
 .rad-body { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .rad-col { display: grid; gap: 20px; min-width: 0; }

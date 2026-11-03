@@ -21,7 +21,7 @@
 .ui-btn--secondary:hover { background: rgba(56, 83, 164, 0.06); }
 .ui-btn--quiet { background: transparent; color: var(--tri-blue); padding: 0 6px; }
 .ui-btn--quiet:hover { text-decoration: underline; text-decoration-color: var(--tri-yellow); text-underline-offset: 4px; }
-.ui-btn--destructive { background: transparent; color: #a1281f; box-shadow: inset 0 0 0 1.5px rgba(161, 40, 31, 0.5); }
+.ui-btn--destructive { background: transparent; color: var(--tri-problem); box-shadow: inset 0 0 0 1.5px rgba(161, 40, 31, 0.5); }
 .ui-btn--destructive:hover { background: rgba(161, 40, 31, 0.06); }
 
 /* Status chips: one colour per meaning; never wrap. */
@@ -30,12 +30,12 @@
 .ui-chip--trinity { background: #eceffa; color: #3853a4; }
 .ui-chip--moving { background: #e3f6f9; color: #0f6f7c; }
 .ui-chip--done { background: #e6f4ec; color: #1d6b41; }
-.ui-chip--problem { background: #fde8e8; color: #a1281f; }
+.ui-chip--problem { background: #fde8e8; color: var(--tri-problem); }
 .ui-chip--muted { background: #eef0f4; color: #64708a; }
 
 /* Empty, loading and error states. */
 .ui-empty, .ui-error { display: grid; gap: 12px; justify-items: start; padding: 24px 0; color: var(--tri-ink); font-size: 16px; }
-.ui-error p { color: #a1281f; }
+.ui-error p { color: var(--tri-problem); }
 .ui-skeleton { display: block; height: 1em; border-radius: 8px; background: linear-gradient(90deg, #eef0f4 25%, #f6f7fa 50%, #eef0f4 75%); background-size: 200% 100%; animation: ui-shimmer 1.4s linear infinite; }
 @keyframes ui-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
@@ -64,10 +64,10 @@
 /* Inputs for pages styled in CSS (same look as components/ui/input.tsx): label above, help or error below. */
 .ui-field { display: grid; gap: 6px; font-size: 15px; font-weight: 700; color: var(--tri-ink); }
 .ui-field__help { font-size: 13px; font-weight: 400; color: var(--tri-soft); }
-.ui-field__error { font-size: 14px; font-weight: 400; color: #a1281f; }
+.ui-field__error { font-size: 14px; font-weight: 400; color: var(--tri-problem); }
 .ui-input { width: 100%; height: 48px; padding: 0 14px; border: 1px solid var(--tri-line); border-radius: 12px; background: #fff; font: inherit; font-size: 16px; font-weight: 400; color: var(--tri-ink); transition: border-color 0.2s, box-shadow 0.2s; }
 textarea.ui-input { height: auto; padding: 10px 14px; min-height: 72px; resize: vertical; }
 select.ui-input { appearance: none; padding-right: 36px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%2364708a' stroke-width='2'%3E%3Cpath d='m1 1 5 5 5-5'/%3E%3C/svg%3E") right 14px center no-repeat; }
 .ui-input::placeholder { color: var(--tri-soft); }
 .ui-input:focus-visible { outline: none; border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
-.ui-input[aria-invalid="true"] { border-color: #a1281f; }
+.ui-input[aria-invalid="true"] { border-color: var(--tri-problem); }

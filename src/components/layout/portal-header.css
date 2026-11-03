@@ -6,7 +6,7 @@
 .ph__word { font: inherit; font-size: 15px; background: none; border: 0; cursor: pointer; }
 .ph__actions { display: flex; align-items: center; gap: 12px; margin-left: auto; min-width: 0; }
 .ph__actions .ui-btn { white-space: nowrap; }
-.ph__menu-button { display: none; margin-left: auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: #eef2fb; color: var(--tri-blue); font: inherit; font-weight: 700; cursor: pointer; }
+.ph__menu-button { display: none; margin-left: auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--tri-tint); color: var(--tri-blue); font: inherit; font-weight: 700; cursor: pointer; }
 .ph__menu-button:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
 
 /* Order-number search (dealer). */
@@ -16,7 +16,7 @@
 
 /* Messages bell with the real unread count. */
 .ph-bell { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; color: var(--tri-blue); }
-.ph-bell:hover { background: #eef2fb; }
+.ph-bell:hover { background: var(--tri-tint); }
 .ph-bell:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
 .ph-bell span { position: absolute; top: 4px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--tri-yellow); color: var(--tri-ink); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
 
@@ -25,7 +25,7 @@
 .ph-user { display: flex; align-items: center; gap: 10px; min-height: 44px; max-width: 240px; padding: 4px 10px 4px 4px; border: 0; border-radius: 999px; background: transparent; font: inherit; color: var(--tri-ink); cursor: pointer; }
 .ph-user:hover { background: var(--tri-ground); }
 .ph-user:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
-.ph-user__avatar { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: #eef2fb; color: var(--tri-blue); font-weight: 700; font-size: 14px; }
+.ph-user__avatar { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--tri-tint); color: var(--tri-blue); font-weight: 700; font-size: 14px; }
 .ph-user__meta { display: grid; min-width: 0; text-align: left; line-height: 1.2; }
 .ph-user__meta strong, .ph-user__meta em { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ph-user__meta strong { font-size: 14px; }

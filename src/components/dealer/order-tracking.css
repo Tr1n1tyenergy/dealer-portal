@@ -4,7 +4,7 @@
 
 .ot-track { margin-bottom: 20px; }
 .ot-track__detail { margin: -4px 0 18px; font-size: 16px; line-height: 1.5; max-width: 46rem; }
-.ot-track__stopped { margin: 0 0 16px; padding: 10px 14px; border-radius: 12px; background: #fde8e8; color: #a1281f; font-size: 15px; }
+.ot-track__stopped { margin: 0 0 16px; padding: 10px 14px; border-radius: 12px; background: #fde8e8; color: var(--tri-problem); font-size: 15px; }
 
 /* Seven steps in a row from 768px; a vertical list on phones. */
 .ot-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
@@ -14,13 +14,13 @@
 .ot-step__dot { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; background: #eef0f4; color: var(--tri-soft); font-size: 14px; font-weight: 700; }
 .ot-step.is-done .ot-step__dot { background: var(--tri-blue); color: #fff; }
 .ot-step.is-active .ot-step__dot { background: var(--tri-yellow); color: var(--tri-ink); box-shadow: 0 0 0 4px rgba(255, 202, 6, 0.3); }
-.ot-step.is-attention .ot-step__dot { background: #a1281f; color: #fff; box-shadow: 0 0 0 4px rgba(161, 40, 31, 0.18); }
+.ot-step.is-attention .ot-step__dot { background: var(--tri-problem); color: #fff; box-shadow: 0 0 0 4px rgba(161, 40, 31, 0.18); }
 .ot-step.is-stopped .ot-step__dot { background: #eef0f4; color: #9aa3b5; }
 .ot-step__text { display: grid; gap: 2px; }
 .ot-step__text b { font-size: 14px; font-weight: 700; line-height: 1.3; }
 .ot-step__text span { color: var(--tri-soft); font-size: 13px; }
 .ot-step.is-pending .ot-step__text b, .ot-step.is-stopped .ot-step__text b { color: var(--tri-soft); font-weight: 400; }
-.ot-step.is-attention .ot-step__text span { color: #a1281f; }
+.ot-step.is-attention .ot-step__text span { color: var(--tri-problem); }
 
 .ot-body { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .ot-side { display: grid; gap: 20px; }

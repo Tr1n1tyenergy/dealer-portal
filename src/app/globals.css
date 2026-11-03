@@ -25,6 +25,9 @@
   --tri-soft: #64708a;
   --tri-ground: #f9fafb;
   --tri-surface: #ffffff;
+  /* Problem text and borders (errors, Flag exception), and the pale brand-blue fill (avatars, hovers, their bubbles). */
+  --tri-problem: #a1281f;
+  --tri-tint: #eef2fb;
   --tri-line: rgba(148, 163, 184, 0.3);
   --tri-radius-panel: 16px;
   --tri-radius-control: 999px;

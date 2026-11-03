@@ -11,7 +11,7 @@
 .dp-ot-find__results span { font-size: 13px; color: var(--tri-soft); }
 .dp-ot-find__pager { display: flex; gap: 8px; }
 .dp-ot-page-btn { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 14px; border-radius: 999px; background: #fff; box-shadow: inset 0 0 0 1.5px var(--tri-line); color: var(--tri-blue); font-size: 15px; text-decoration: none; transition: background-color 0.2s; }
-.dp-ot-page-btn:hover { background: #eef2fb; }
+.dp-ot-page-btn:hover { background: var(--tri-tint); }
 .dp-ot-page-btn:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
 .dp-ot-page-btn.is-disabled { color: #9aa3b5; box-shadow: inset 0 0 0 1.5px #eef0f4; pointer-events: none; }
 @media (max-width: 767px) {

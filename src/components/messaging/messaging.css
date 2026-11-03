@@ -10,7 +10,7 @@
   --msg-glass: var(--tri-surface);
   --msg-glass-2: var(--tri-ground);
   --msg-mine: var(--tri-blue);
-  --msg-theirs: #eef2fb;
+  --msg-theirs: var(--tri-tint);
   --msg-tick: rgba(255, 255, 255, 0.7);
   --msg-tick-read: #fff;
   --msg-green: #1d8a55;
@@ -32,8 +32,6 @@
 .msg-app--staff {
   background: transparent !important;
 }
-
-
 
 /* ——— Panels ——— */
 
@@ -57,14 +55,6 @@
   padding-top: 1.5rem !important;
 }
 
-
-
-
-
-
-
-
-
 /* ——— Sidebar head ——— */
 
 .msg-sidebar__head {
@@ -82,8 +72,6 @@
   letter-spacing: -0.02em;
   color: var(--tri-ink);
 }
-
-
 
 .msg-sidebar__new {
   display: inline-flex;
@@ -104,8 +92,6 @@
 .msg-sidebar__new:hover {
   filter: brightness(1.08);
 }
-
-
 
 /* ——— Search + filters ——— */
 
@@ -205,14 +191,10 @@
 }
 
 .msg-list__item.is-active {
-  background: #eef2fb;
+  background: var(--tri-tint);
   border-color: transparent;
   box-shadow: inset 3px 0 0 var(--tri-yellow);
 }
-
-
-
-
 
 .msg-avatar {
   width: 42px;
@@ -223,7 +205,7 @@
   flex-shrink: 0;
   font-size: 0.8125rem;
   font-weight: 800;
-  background: #eef2fb;
+  background: var(--tri-tint);
   color: var(--tri-blue);
   overflow: hidden;
   border: 0;
@@ -276,8 +258,6 @@
   text-overflow: ellipsis;
   color: var(--tri-ink);
 }
-
-
 
 .msg-list__time {
   flex-shrink: 0;
@@ -360,8 +340,6 @@
   background: var(--tri-surface);
 }
 
-
-
 .msg-thread__identity {
   min-width: 0;
   flex: 1;
@@ -376,8 +354,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-
 
 .msg-thread__identity span {
   display: inline-flex;
@@ -464,8 +440,6 @@
   background: var(--tri-ground);
 }
 
-
-
 .msg-thread__none {
   margin: auto;
   color: var(--msg-muted);
@@ -525,10 +499,6 @@
   border-bottom-left-radius: 5px;
 }
 
-
-
-
-
 .msg-bubble__text {
   white-space: pre-wrap;
   word-break: break-word;
@@ -572,8 +542,6 @@
   background: var(--tri-surface);
 }
 
-
-
 .msg-composer textarea {
   flex: 1;
   min-height: 42px;
@@ -588,8 +556,6 @@
   font-family: inherit;
   line-height: 1.35;
 }
-
-
 
 .msg-composer textarea:focus {
   outline: none;
@@ -678,8 +644,6 @@
   cursor: not-allowed;
 }
 
-
-
 /* ——— Context panel ——— */
 
 .msg-context {
@@ -711,10 +675,6 @@
 .msg-profile {
   border-bottom: 1px solid rgba(56, 83, 164, 0.16);
   padding: 0.35rem 0 0.85rem;
-}
-
-.msg-profile__banner {
-  display: none;
 }
 
 .msg-profile__body {
@@ -939,7 +899,7 @@
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #fff;
-  background: #a1281f;
+  background: var(--tri-problem);
   box-shadow: none;
   flex-shrink: 0;
 }
@@ -1029,16 +989,12 @@
   padding: 1rem;
 }
 
-
-
 .msg-directory__panel h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 800;
   color: var(--tri-ink);
 }
-
-
 
 .msg-directory__hint {
   margin: 0.35rem 0 0.75rem;
@@ -1095,8 +1051,6 @@
   color: var(--tri-ink);
 }
 
-
-
 .msg-directory__row em {
   display: block;
   margin-top: 0.1rem;
@@ -1138,12 +1092,6 @@
   .msg-app--staff .msg-back--context {
     display: inline-flex;
   }
-}
-
-@media (max-width: 760px) {
-
-
-
 }
 
 /* Pills read by their fill on the light panels; no outline. */

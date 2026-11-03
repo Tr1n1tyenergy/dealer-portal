@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 const primary = "bg-[var(--tri-yellow)] text-[var(--tri-ink)] hover:bg-[#ffd23a]";
 const secondary = "bg-transparent text-[var(--tri-blue)] shadow-[inset_0_0_0_1.5px_rgba(56,83,164,0.45)] hover:bg-[rgba(56,83,164,0.06)]";
 const quiet = "bg-transparent text-[var(--tri-blue)] hover:underline hover:decoration-[var(--tri-yellow)] underline-offset-4";
-const destructive = "bg-transparent text-[#a1281f] shadow-[inset_0_0_0_1.5px_rgba(161,40,31,0.5)] hover:bg-[rgba(161,40,31,0.06)]";
+const destructive = "bg-transparent text-[var(--tri-problem)] shadow-[inset_0_0_0_1.5px_rgba(161,40,31,0.5)] hover:bg-[rgba(161,40,31,0.06)]";
 
 /** Pill buttons (redesign spec §3). Old variant names stay as aliases so existing call sites keep working. */
 const buttonVariants = cva(

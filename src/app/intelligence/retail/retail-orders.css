@@ -1,7 +1,7 @@
 /* Staff Orders (redesign spec §6): stage tabs, search, then one row per order with its actions. */
 .so { font-variant-numeric: tabular-nums; }
 .so-price { margin: 0 0 18px; padding: 12px 16px; border-radius: 12px; background: #fff4cc; color: #7a5b00; font-size: 15px; }
-.so-price--expired { background: #fde8e8; color: #a1281f; }
+.so-price--expired { background: #fde8e8; color: var(--tri-problem); }
 .so-tabs { margin-bottom: 16px; }
 .so-tabs__count { display: inline-grid; place-items: center; min-width: 22px; height: 20px; margin-left: 8px; padding: 0 6px; border-radius: 999px; background: #eef0f4; color: var(--tri-soft); font-size: 13px; }
 .so-tabs [aria-current="page"] .so-tabs__count { background: #eceffa; color: var(--tri-blue); }
@@ -17,8 +17,8 @@
 .so-nowrap { white-space: nowrap; overflow-wrap: normal; }
 .so-amount { white-space: nowrap; }
 .so-paid { margin-top: 4px; font-size: 13px; color: var(--tri-soft); }
-.so-paid--mismatch { color: #a1281f; font-weight: 700; }
-.so-note { margin-top: 6px; font-size: 13px; color: #a1281f; }
+.so-paid--mismatch { color: var(--tri-problem); font-weight: 700; }
+.so-note { margin-top: 6px; font-size: 13px; color: var(--tri-problem); }
 .so-empty { margin: 0; padding: 24px 14px; font-size: 16px; }
 
 .so-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }

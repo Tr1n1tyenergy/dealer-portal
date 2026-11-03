@@ -2,7 +2,7 @@
 .ru { color: var(--tri-ink); font-variant-numeric: tabular-nums; }
 .ru-note { margin: 0 0 20px; padding: 12px 16px; border-radius: 12px; background: #eceffa; color: var(--tri-blue); font-size: 15px; }
 .ru-flash { margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; font-size: 15px; }
-.ru-flash--error { background: #fde8e8; color: #a1281f; }
+.ru-flash--error { background: #fde8e8; color: var(--tri-problem); }
 .ru-flash--ok { background: #e6f4ec; color: #1d6b41; }
 
 .ru-invites { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px; align-items: start; }
@@ -11,7 +11,7 @@
 .ru-card__head, .ru-panel__title { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
 .ru-card__head h2, .ru-panel__title h2 { margin: 0; font-size: 18px; font-weight: 700; }
 .ru-card__head p, .ru-panel__title p { margin: 4px 0 0; color: var(--tri-soft); font-size: 14px; }
-.ru-card__icon, .ru-panel__icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 12px; background: #eef2fb; color: var(--tri-blue); }
+.ru-card__icon, .ru-panel__icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 12px; background: var(--tri-tint); color: var(--tri-blue); }
 .ru-card__icon--gold, .ru-panel__icon--gold { background: #fff4cc; color: #7a5b00; }
 .ru-panel__icon--green { background: #e6f4ec; color: #1d6b41; }
 .ru-panel__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -45,11 +45,11 @@
 .ru-multi__trigger { width: 100%; text-align: left; background: transparent; border: 0; font: inherit; font-size: 16px; color: var(--tri-ink); cursor: pointer; }
 .ru-multi__list { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 6px); max-height: 18rem; overflow-y: auto; margin: 0; padding: 6px; list-style: none; border-radius: 14px; background: #fff; box-shadow: 0 18px 40px -12px rgba(24, 33, 58, 0.28); color: var(--tri-ink); }
 .ru-selection { margin-top: 4px; font-size: 13px; color: var(--tri-soft); }
-.ru-selection--error { color: #a1281f; }
+.ru-selection--error { color: var(--tri-problem); }
 
 .ru-empty { display: grid; justify-items: center; gap: 8px; padding: 28px 12px; text-align: center; color: var(--tri-soft); font-size: 15px; }
 .ru-empty strong, .ru-empty h3 { color: var(--tri-ink); font-size: 16px; }
-.ru-empty__icon { position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: #eef2fb; color: var(--tri-blue); }
+.ru-empty__icon { position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--tri-tint); color: var(--tri-blue); }
 .ru-empty__badge { position: absolute; right: -6px; bottom: -6px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 999px; background: var(--tri-yellow); color: var(--tri-ink); }
 
 .ru-table-wrap { margin-top: 8px; }
@@ -58,7 +58,7 @@
 .ru-table td { padding: 12px; border-bottom: 1px solid var(--tri-line); vertical-align: middle; overflow-wrap: break-word; }
 .ru-table tbody tr:last-child td { border-bottom: 0; }
 .ru-user { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.ru-avatar { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 12px; background: #eef2fb; color: var(--tri-blue); font-size: 14px; font-weight: 700; }
+.ru-avatar { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 12px; background: var(--tri-tint); color: var(--tri-blue); font-size: 14px; font-weight: 700; }
 .ru-type { display: inline-block; padding: 3px 10px; border-radius: 999px; background: #eef0f4; color: #4a5470; font-size: 13px; font-weight: 700; white-space: nowrap; }
 .ru-status { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: #e6f4ec; color: #1d6b41; font-size: 13px; font-weight: 700; white-space: nowrap; }
 .ru-status--pending { background: #fff4cc; color: #7a5b00; }
@@ -66,13 +66,13 @@
 
 .ru-menu { position: relative; display: inline-block; }
 .ru-actions { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--tri-blue); cursor: pointer; }
-.ru-actions:hover, .ru-actions.is-open { background: #eef2fb; }
+.ru-actions:hover, .ru-actions.is-open { background: var(--tri-tint); }
 .ru-actions:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
 .ru-actions:disabled { color: #9aa3b5; cursor: not-allowed; background: transparent; }
 .ru-menu__panel { position: absolute; z-index: 30; right: 0; top: calc(100% + 6px); min-width: 12rem; padding: 6px; border-radius: 14px; background: #fff; box-shadow: 0 18px 40px -12px rgba(24, 33, 58, 0.28); display: grid; gap: 2px; }
 .ru-menu__panel button { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px; background: none; font: inherit; font-size: 15px; color: var(--tri-ink); cursor: pointer; text-align: left; }
 .ru-menu__panel button:hover, .ru-menu__panel button:focus-visible { background: var(--tri-ground); outline: none; }
-.ru-menu__panel button.is-danger { color: #a1281f; }
+.ru-menu__panel button.is-danger { color: var(--tri-problem); }
 .ru-menu__panel button:disabled { color: #9aa3b5; cursor: not-allowed; }
 
 .ru-modal { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: rgba(24, 33, 58, 0.4); }
@@ -81,7 +81,7 @@
 .ru-modal__head h2 { margin: 0; font-size: 20px; }
 .ru-modal__head p { margin: 4px 0 0; color: var(--tri-soft); font-size: 14px; overflow-wrap: anywhere; }
 .ru-modal__close { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--tri-blue); cursor: pointer; }
-.ru-modal__close:hover { background: #eef2fb; }
+.ru-modal__close:hover { background: var(--tri-tint); }
 .ru-modal__form { display: grid; gap: 14px; }
 .ru-modal__actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
 

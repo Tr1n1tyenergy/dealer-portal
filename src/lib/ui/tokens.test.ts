@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { execFileSync } from "node:child_process";
 import { describe, it } from "node:test";
 
 const css = readFileSync("src/app/globals.css", "utf8");
@@ -15,6 +16,8 @@ describe("design tokens", () => {
       "--tri-soft: #64708a",
       "--tri-ground: #f9fafb",
       "--tri-surface: #ffffff",
+      "--tri-problem: #a1281f",
+      "--tri-tint: #eef2fb",
     ]) {
       assert.ok(css.includes(token), token);
     }
@@ -26,5 +29,16 @@ describe("design tokens", () => {
     const faces = [...css.matchAll(/@font-face\s*{[^}]*url\("([^"]+)"\)/g)].map((m) => m[1]);
     assert.equal(faces.length, 2);
     for (const file of faces) assert.ok(existsSync(join("public", file)), file);
+  });
+
+  it("no stylesheet repeats the problem red or the blue tint as a raw value", () => {
+    let out = "";
+    try {
+      out = execFileSync("grep", ["-rlEi", "#a1281f|#eef2fb", "src", "--include=*.css"], { encoding: "utf8" });
+    } catch {
+      // grep exits 1 when nothing matches
+    }
+    const hits = out.split("\n").filter((f) => f && f !== "src/app/globals.css");
+    assert.deepEqual(hits, []);
   });
 });
