@@ -8,7 +8,6 @@ import {
   ArrowRight,
   AudioLines,
   CalendarDays,
-  CheckCircle2,
   ChevronRight,
   Clock,
   CloudUpload,
@@ -18,10 +17,9 @@ import {
   MoreVertical,
   Play,
   Shield,
-  Sparkles,
-  TrendingUp,
   Users,
 } from "lucide-react";
+import { noteTakerStats } from "@/lib/note-taker/stats";
 import { formatDuration, parseJsonArray, parseJsonObject } from "@/lib/utils";
 import "./note-taker.css";
 
@@ -135,18 +133,8 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
     [sessions]
   );
 
-  const stats = useMemo(() => {
-    const recorded = sessions.filter((s) => s.status === "COMPLETED" || s.durationSeconds).length;
-    const hours = Math.round(
-      sessions.reduce((sum, s) => sum + (s.durationSeconds ?? 0), 0) / 3600
-    );
-    const notesReady = sessions.filter((s) => s.notesStatus === "READY").length;
-    return {
-      meetings: recorded || 12,
-      hours: hours || 47,
-      notes: notesReady || 96,
-    };
-  }, [sessions]);
+  // Real figures only (no sample fallbacks): this month vs last, from the sessions on the page.
+  const stats = useMemo(() => noteTakerStats(sessions), [sessions]);
 
   async function createSession(mode: "schedule" | "instant") {
     setLoading(true);
@@ -584,19 +572,19 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
                   icon: CalendarDays,
                   value: String(stats.meetings),
                   label: "Meetings Recorded",
-                  trend: "↑ 20%",
+                  trend: stats.trend.meetings == null ? "" : `${stats.trend.meetings >= 0 ? "↑" : "↓"} ${Math.abs(stats.trend.meetings)}%`,
                 },
                 {
                   icon: Clock,
                   value: `${stats.hours}h`,
                   label: "Hours Captured",
-                  trend: "↑ 18%",
+                  trend: stats.trend.hours == null ? "" : `${stats.trend.hours >= 0 ? "↑" : "↓"} ${Math.abs(stats.trend.hours)}%`,
                 },
                 {
                   icon: FileText,
                   value: String(stats.notes),
                   label: "Notes Generated",
-                  trend: "↑ 25%",
+                  trend: stats.trend.notes == null ? "" : `${stats.trend.notes >= 0 ? "↑" : "↓"} ${Math.abs(stats.trend.notes)}%`,
                 },
               ] as const
             ).map((stat) => {
@@ -611,7 +599,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
                     <div className="nti-kpi__label">{stat.label}</div>
                     <div className="nti-kpi__meta">
                       <span>This Month</span>
-                      <span className="nti-kpi__trend">{stat.trend}</span>
+                      {stat.trend ? <span className="nti-kpi__trend">{stat.trend}</span> : null}
                     </div>
                   </div>
                 </div>
@@ -619,71 +607,6 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
             })}
           </div>
 
-          <div className="nti-intel-body">
-            <div className="nti-intel-head">
-              <div className="nti-intel-title">
-                <Sparkles size={14} color="#F5B800" strokeWidth={2} />
-                AI Meeting Intelligence
-              </div>
-              <a className="nti-intel-link" href="#generated-notes">
-                View insights →
-              </a>
-            </div>
-            <div className="nti-chips">
-              {(
-                [
-                  {
-                    icon: TrendingUp,
-                    label: "Most Discussed Topic",
-                    value: "Retail Expansion",
-                    detail: "32% of total discussions",
-                    up: false,
-                  },
-                  {
-                    icon: Users,
-                    label: "Meetings This Week",
-                    value: "8",
-                    detail: "↑ 14% vs last week",
-                    up: true,
-                  },
-                  {
-                    icon: CheckCircle2,
-                    label: "Pending Action Items",
-                    value: "17",
-                    detail: "5 high priority",
-                    up: false,
-                  },
-                  {
-                    icon: FileText,
-                    label: "Unreviewed Notes",
-                    value: "3",
-                    detail: "Requires your review",
-                    up: false,
-                  },
-                ] as const
-              ).map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.label} className="nti-chip">
-                    <span className="nti-chip__icon" aria-hidden>
-                      <Icon size={14} strokeWidth={2.25} color="#173D8F" />
-                    </span>
-                    <div className="nti-chip__body">
-                      <div className="nti-chip__label">{item.label}</div>
-                      <div className="nti-chip__value">{item.value}</div>
-                      <div
-                        className={
-                          item.up ? "nti-chip__detail nti-chip__detail--up" : "nti-chip__detail"
-                        }
-                      >
-                        {item.detail}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </section>
       </div>
 
