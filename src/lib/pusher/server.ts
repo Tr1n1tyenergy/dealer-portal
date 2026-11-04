@@ -23,6 +23,7 @@ export function getPusherServer(): Pusher | null {
       secret: process.env.PUSHER_SECRET!,
       cluster: process.env.PUSHER_CLUSTER!,
       useTLS: true,
+      timeout: 3000, // order changes and messages wait for the notice; never longer than this
     });
   }
   return client;
@@ -48,9 +49,10 @@ export async function triggerConversationEvent(
 export async function notifyOrderChanged(order: { id: string; status: string; dealerOrganizationId: string }) {
   const pusher = getPusherServer();
   if (!pusher) return;
-  await pusher
-    .trigger([ORDERS_STAFF_CHANNEL, ordersDealerChannel(order.dealerOrganizationId)], "order-changed", { orderId: order.id, status: order.status })
-    .catch((error: unknown) => {
-      console.warn("[pusher] order-changed not delivered:", error instanceof Error ? error.message : error);
-    });
+  try {
+    // trigger() can also throw before sending (bad channel name), hence try/await rather than .catch alone
+    await pusher.trigger([ORDERS_STAFF_CHANNEL, ordersDealerChannel(order.dealerOrganizationId)], "order-changed", { orderId: order.id, status: order.status });
+  } catch (error: unknown) {
+    console.warn("[pusher] order-changed not delivered:", error instanceof Error ? error.message : error);
+  }
 }

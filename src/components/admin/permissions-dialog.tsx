@@ -59,7 +59,8 @@ export function PermissionsDialog({
     const changes = [...keys]
       .filter((key) => original[key] !== ticks[key])
       .map((key) => ({ key, value: ticks[key] ?? "inherit" }));
-    if (changes.length === 0) return onClose();
+    // Granting a request the person already has: nothing to save, but the grant still stands.
+    if (changes.length === 0) return preTick.length ? onSaved() : onClose();
     setSaving(true);
     setError("");
     const res = await fetch(`/api/users/${person.id}/permissions`, {

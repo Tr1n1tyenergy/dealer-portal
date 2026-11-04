@@ -54,4 +54,19 @@ describe("notifyOrderChanged", () => {
     }) as typeof pusher.trigger;
     await assert.doesNotReject(() => notifyOrderChanged({ id: "o1", status: "LOADING", dealerOrganizationId: "org9" }));
   });
+
+  it("doesn't throw when Pusher throws before sending (e.g. a bad channel name)", async () => {
+    const { getPusherServer, notifyOrderChanged } = await import("./server");
+    const pusher = getPusherServer()!;
+    pusher.trigger = (() => {
+      throw new Error("Invalid channel name");
+    }) as typeof pusher.trigger;
+    await assert.doesNotReject(() => notifyOrderChanged({ id: "o1", status: "LOADING", dealerOrganizationId: "org9" }));
+  });
+
+  it("gives up on a slow Pusher so order changes never hang on it", async () => {
+    const { getPusherServer } = await import("./server");
+    const timeout = (getPusherServer() as unknown as { config: { timeout?: number } }).config.timeout;
+    assert.ok(timeout && timeout <= 5000, `timeout ${timeout}`);
+  });
 });
