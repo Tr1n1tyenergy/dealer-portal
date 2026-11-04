@@ -24,26 +24,29 @@ describe("header menus", () => {
       "Analytics /intelligence/retail",
       "Messages /intelligence/retail/messaging",
       "Users /intelligence/retail/users",
+      "Tools[Note Taker /intelligence/note-taker, Presentations /intelligence/presentations]",
       "Admin[Admin users /intelligence/admin/users, Activity log /intelligence/admin/activity, Settings /intelligence/admin/settings]",
     ]);
   });
 
-  it("Sales Person Executive: Home, Orders, Analytics, Messages only", () => {
+  it("Sales Person Executive: Home, Orders, Analytics, Messages and Tools", () => {
     assert.deepEqual(flat(headerLinks("staff", staff("SALES_PERSON_EXECUTIVE"))), [
       "Home /intelligence/dashboard",
       "Orders /intelligence/retail/orders",
       "Analytics /intelligence/retail",
       "Messages /intelligence/retail/messaging",
+      "Tools[Note Taker /intelligence/note-taker, Presentations /intelligence/presentations]",
     ]);
   });
 
-  it("staff member with no permissions: only Home, no empty Admin group", () => {
-    assert.deepEqual(flat(headerLinks("staff", staff("STANDARD_USER"))), ["Home /intelligence/dashboard"]);
+  it("staff member with no permissions: Home and Tools (open to all staff, as before the hide), no empty Admin group", () => {
+    assert.deepEqual(flat(headerLinks("staff", staff("STANDARD_USER"))), ["Home /intelligence/dashboard", "Tools[Note Taker /intelligence/note-taker, Presentations /intelligence/presentations]"]);
   });
 
   it("staff member allowed only Admin users: Home and an Admin group with just that", () => {
     assert.deepEqual(flat(headerLinks("staff", staff("STANDARD_USER", '{"adminUsers.view":"allow"}'))), [
       "Home /intelligence/dashboard",
+      "Tools[Note Taker /intelligence/note-taker, Presentations /intelligence/presentations]",
       "Admin[Admin users /intelligence/admin/users]",
     ]);
   });
@@ -62,6 +65,9 @@ describe("header menus", () => {
       ["/intelligence/admin/users", "admin-users"],
       ["/intelligence/admin/activity", "activity"],
       ["/intelligence/admin/settings", "settings"],
+      ["/intelligence/note-taker", "note-taker"],
+      ["/intelligence/note-taker/abc123", "note-taker"],
+      ["/intelligence/presentations", "presentations"],
       ["/intelligence/elsewhere", null],
     ];
     for (const [path, key] of cases) assert.equal(activeStaffNav(path), key, path);

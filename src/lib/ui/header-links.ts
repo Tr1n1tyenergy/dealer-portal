@@ -1,3 +1,4 @@
+import { visibleModules } from "@/lib/modules";
 import { canUser, type PermissionModule, type StaffUser } from "@/lib/permissions";
 
 export type HeaderLink = { key: string; label: string; href: string };
@@ -25,6 +26,12 @@ const ADMIN: (HeaderLink & { module: PermissionModule })[] = [
   { key: "settings", label: "Settings", href: "/intelligence/admin/settings", module: "settings" },
 ];
 
+/** Note Taker and Presentations: shown to whoever lib/modules lets open them (all staff since #59). */
+const TOOLS: HeaderLink[] = [
+  { key: "note-taker", label: "Note Taker", href: "/intelligence/note-taker" },
+  { key: "presentations", label: "Presentations", href: "/intelligence/presentations" },
+];
+
 const strip = ({ key, label, href }: HeaderLink): HeaderLink => ({ key, label, href });
 
 /** The header's menu for a portal; staff links only where the person may view (redesign spec §4). */
@@ -34,6 +41,9 @@ export function headerLinks(portal: "dealer" | "staff" | "depot", user?: StaffUs
   const may = (module?: PermissionModule) => !module || canUser(user, module, "view");
   const admin = ADMIN.filter((l) => may(l.module)).map(strip);
   const links: (HeaderLink | HeaderGroup)[] = STAFF.filter((l) => may(l.module)).map(strip);
+  const open = new Set(user ? visibleModules(user).map((m) => m.id) : []);
+  const tools = TOOLS.filter((l) => open.has(l.key));
+  if (tools.length) links.push({ key: "tools", label: "Tools", links: tools });
   return admin.length ? [...links, { key: "admin", label: "Admin", links: admin }] : links;
 }
 
@@ -41,6 +51,6 @@ export function headerLinks(portal: "dealer" | "staff" | "depot", user?: StaffUs
 export function activeStaffNav(pathname: string): string | null {
   const path = pathname.replace(/\/$/, "");
   if (path === "/intelligence/retail") return "analytics";
-  const match = [...STAFF, ...ADMIN].find((l) => l.href !== "/intelligence/retail" && path.startsWith(l.href));
+  const match = [...STAFF, ...TOOLS, ...ADMIN].find((l) => l.href !== "/intelligence/retail" && path.startsWith(l.href));
   return match?.key ?? null;
 }
