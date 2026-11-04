@@ -20,7 +20,7 @@ const options = [
     href: "/intelligence/login",
     title: "Trinity Staff",
     description: "Internal platform for Trinity employees.",
-    caps: "Retail Interface • Dealer Orders • Messaging",
+    caps: "Retail Interface • AI Note Taker • Presentations",
     icon: Building2,
     tone: "access-card--staff",
     iconTone: "",
