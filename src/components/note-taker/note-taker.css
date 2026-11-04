@@ -1122,3 +1122,8 @@
   background: #f5b800 !important;
   color: #0a235b !important;
 }
+
+/* Light ground (portal redesign): the header text used to sit on the dark staff shell. A full E2 restyle comes later. */
+.nt-hero__eyebrow { color: var(--tri-blue) !important; }
+.nt-hero__title { color: var(--tri-ink) !important; white-space: normal !important; }
+.nt-hero__desc { color: var(--tri-soft) !important; }
