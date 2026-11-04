@@ -7,6 +7,7 @@ import { likeLiteral } from "@/lib/search";
 import { requireInternal } from "@/lib/session";
 import { formatKes, sameAmount } from "@/lib/orders/money";
 import { ORDER_STAGES, parseStage, stageOf, statusLabel, type StageKey } from "@/lib/orders/stages";
+import { formatWaited, STAGE_TILES, stuckOrders } from "@/lib/insights/order-flow";
 import { priceListStatus } from "@/lib/integrations/odoo/price-list-status";
 import { PageHead } from "@/components/layout/page-head";
 import { OrderActions } from "@/components/retail/order-actions";
@@ -40,11 +41,22 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
         ],
       }
     : {};
-  const stageStatuses = stage === "all" ? null : ORDER_STAGES.find((s) => s.key === stage)!.statuses;
+  // Stuck = open orders over their stage's time limit (live dashboards spec §3.1); worked out before the list.
+  const open = await prisma.dealerOrder.findMany({
+    where: { ...searchWhere, status: { in: STAGE_TILES.flatMap((t) => t.statuses) } },
+    select: { id: true, reference: true, status: true, updatedAt: true, dealerOrganization: { select: { name: true } }, history: { orderBy: { createdAt: "desc" }, take: 1, select: { toStatus: true, createdAt: true } } },
+  });
+  const stuck = stuckOrders(
+    open.map((o) => ({ id: o.id, reference: o.reference, status: o.status, dealer: o.dealerOrganization.name, enteredAt: o.history[0]?.toStatus === o.status ? o.history[0].createdAt : null, updatedAt: o.updatedAt })),
+    new Date(),
+  );
+  const waited = new Map(stuck.map((s) => [s.id, s.waitedMs]));
+  const stageWhere: Prisma.DealerOrderWhereInput =
+    stage === "all" ? {} : stage === "stuck" ? { id: { in: stuck.map((s) => s.id) } } : { status: { in: ORDER_STAGES.find((s) => s.key === stage)!.statuses } };
 
-  const [orders, grouped, depots] = await Promise.all([
+  const [found, grouped, depots] = await Promise.all([
     prisma.dealerOrder.findMany({
-      where: stageStatuses ? { ...searchWhere, status: { in: stageStatuses } } : searchWhere,
+      where: { ...searchWhere, ...stageWhere },
       include: {
         dealerOrganization: true,
         station: true,
@@ -57,18 +69,20 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
     prisma.depot.findMany({ orderBy: { name: "asc" } }),
   ]);
 
-  const counts = new Map<StageKey | "all", number>();
+  // The Stuck tab lists the most overdue first; every other tab keeps newest first.
+  const orders = stage === "stuck" ? [...found].sort((a, b) => (waited.get(b.id) ?? 0) - (waited.get(a.id) ?? 0)) : found;
+  const counts = new Map<StageKey | "all" | "stuck", number>([["stuck", stuck.length]]);
   for (const row of grouped) {
     const key = stageOf(row.status);
     counts.set(key, (counts.get(key) ?? 0) + row._count._all);
     counts.set("all", (counts.get("all") ?? 0) + row._count._all);
   }
-  const tabHref = (key: StageKey | "all") => {
+  const tabHref = (key: StageKey | "all" | "stuck") => {
     const query = new URLSearchParams({ stage: key });
     if (q) query.set("q", q);
     return `/intelligence/retail/orders?${query}`;
   };
-  const tabs: { key: StageKey | "all"; label: string }[] = [...ORDER_STAGES, { key: "all", label: "All" }];
+  const tabs: { key: StageKey | "all" | "stuck"; label: string }[] = [...ORDER_STAGES, { key: "stuck", label: "Stuck" }, { key: "all", label: "All" }];
 
   return (
     <div className="ui-page so">
@@ -143,6 +157,7 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
                   </td>
                   <td className="so-status" data-label="Status">
                     <StatusChip status={order.status} label={statusLabel(order.status)} />
+                    {waited.has(order.id) ? <div className="so-waited">Waiting {formatWaited(waited.get(order.id)!)}</div> : null}
                     {order.odooSyncError && order.status === "QUOTATION_READY" ? (
                       <div className="so-note">Last PFI attempt failed: {order.odooSyncError}</div>
                     ) : null}
@@ -157,7 +172,7 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
             })}
           </tbody>
         </table>
-        {orders.length === 0 ? <p className="so-empty">{q ? `No orders match "${q}".` : "No orders in this stage."}</p> : null}
+        {orders.length === 0 ? <p className="so-empty">{q ? `No orders match "${q}".` : stage === "stuck" ? "Nothing stuck right now." : "No orders in this stage."}</p> : null}
       </div>
     </div>
   );

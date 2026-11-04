@@ -16,6 +16,8 @@ describe("order stages", () => {
     for (const value of ["<script>", "ALL", "", undefined, 42]) assert.equal(parseStage(value), "pending", String(value));
     assert.equal(parseStage("all"), "all");
     assert.equal(parseStage("verification"), "verification");
+    assert.equal(parseStage("stuck"), "stuck");
+    assert.equal(parseStage("stuck", true), "stuck");
   });
 
   it("searches every stage when no tab was chosen, but keeps a chosen tab", () => {

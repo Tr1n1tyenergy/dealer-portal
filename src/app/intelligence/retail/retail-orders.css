@@ -19,6 +19,7 @@
 .so-paid { margin-top: 4px; font-size: 13px; color: var(--tri-soft); white-space: normal; }
 .so-paid--mismatch { color: var(--tri-problem); font-weight: 700; }
 .so-note { margin-top: 6px; font-size: 13px; color: var(--tri-problem); }
+.so-waited { display: inline-block; margin-top: 6px; padding: 2px 9px; border-radius: 999px; background: #fde8e8; color: var(--tri-problem); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .so-empty { margin: 0; padding: 24px 14px; font-size: 16px; }
 
 .so-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
