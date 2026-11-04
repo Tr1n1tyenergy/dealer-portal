@@ -42,17 +42,52 @@
 .dd-row__amount { text-align: right; }
 .dd-row > .ui-chip { justify-self: end; }
 .dd-row__fuel, .dd-row__amount { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dd-month__litres { margin-top: 12px; font-size: 28px; letter-spacing: -0.02em; }
 .dd-soft { color: var(--tri-soft); font-size: 15px; }
 .dd-small { font-size: 13px; }
 
+.dd-hero .photo-hero { padding-bottom: 108px; }
+.dd-lift { position: relative; margin-top: -108px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.dd-card { display: grid; grid-template-rows: auto auto 1fr auto; gap: 4px; padding: 18px; border-radius: 16px; background: #fff; box-shadow: 0 14px 34px -18px rgba(14, 22, 48, 0.45), 0 0 0 1px var(--tri-line); font-variant-numeric: tabular-nums; }
+.dd-card__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dd-card__label { color: var(--tri-soft); font-size: 14px; }
+.dd-card__value { font-size: 26px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; overflow-wrap: anywhere; }
+.dd-card__btn { justify-self: start; margin-top: 10px; }
+.dd-card .dd-split { margin: 10px 0 0; height: 24px; }
+.dd-where h2 { font-size: 17px; }
+.dd-prices dl { margin: 10px 0 0; display: grid; }
+.dd-prices dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--tri-line); font-size: 16px; }
+.dd-prices dt { color: var(--tri-soft); }
+.dd-prices dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dd-prices__tenk { margin: 14px 0 0; padding: 12px; border-radius: 12px; background: var(--tri-tint); font-size: 15px; line-height: 1.5; }
+.dd-bottom { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.dd-msgs ul { list-style: none; margin: 0; padding: 0; }
+.dd-msgs li + li { border-top: 1px solid var(--tri-line); }
+.dd-msgs a { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 2px; color: inherit; text-decoration: none; border-radius: 8px; transition: background-color 0.2s; }
+.dd-msgs a:hover { background: var(--tri-surface); }
+.dd-msgs a:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
+.dd-msgs__av { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--tri-tint); color: var(--tri-blue); font-weight: 700; font-size: 13px; }
+.dd-msgs__text { display: grid; gap: 2px; min-width: 0; font-size: 14px; }
+.dd-msgs__text span { color: var(--tri-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.dd-msgs em { font-style: normal; color: var(--tri-soft); font-size: 13px; white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .dd-bottom { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 900px) {
   .dd-top { grid-template-columns: minmax(0, 1fr); }
+  .dd-lift { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .dd-lift > :last-child { grid-column: 1 / -1; }
 }
 
 /* Phone: one column under the photo. */
 @media (max-width: 767px) {
   .dd-below { gap: 20px; padding: 16px 16px 0; }
+  .dd-hero .photo-hero { padding-bottom: 80px; }
+  .dd-lift { margin-top: -76px; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .dd-lift > :last-child { grid-column: auto; }
+  .dd-card__value { font-size: 22px; }
+  .dd-msgs a { grid-template-columns: 36px minmax(0, 1fr); }
+  .dd-msgs em { grid-column: 2; }
   .dd-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "ref chip" "fuel amount"; row-gap: 4px; }
   .dd-row b { grid-area: ref; }
   .dd-row .ui-chip { grid-area: chip; justify-self: end; }
