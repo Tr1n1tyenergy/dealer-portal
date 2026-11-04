@@ -5,7 +5,7 @@ export default function StaffLoginPage() {
     <PortalLogin
       portal="staff"
       title="Sign in for Trinity staff"
-      description="Dealer orders, payments, messages, analytics and user management."
+      description="Dealer orders, payments, messages, analytics, meeting notes and presentations."
       button="Sign in"
       destination="/intelligence/dashboard"
       headline="Trinity Retail Intelligence."

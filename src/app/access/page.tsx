@@ -11,7 +11,7 @@ const options = [
   {
     href: "/intelligence/login",
     title: "Trinity staff",
-    description: "Dealer orders, messages, analytics and users.",
+    description: "Dealer orders, analytics, messages, meeting notes and presentations.",
     image: "/assets2/img/access/staff-office.jpg",
   },
   {
