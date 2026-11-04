@@ -110,3 +110,19 @@ export function onTheWay(orders: { id: string; status: DealerOrderStatus; update
     .sort((a, b) => PROGRESS[b.status]! - PROGRESS[a.status]! || b.updatedAt.getTime() - a.updatedAt.getTime());
   return { current: moving[0]?.id ?? null, more: Math.max(0, moving.length - 1) };
 }
+
+/** Message threads whose latest message came from a dealer (`dealer` = their organisation, null when staff spoke last). */
+export function dealersWaiting(threads: { lastAt: Date; dealer: string | null }[], now: Date) {
+  const waiting = threads.filter((t) => t.dealer !== null).sort((a, b) => a.lastAt.getTime() - b.lastAt.getTime());
+  return { count: waiting.length, longestMs: waiting.length ? now.getTime() - waiting[0].lastAt.getTime() : 0, dealer: waiting[0]?.dealer ?? null };
+}
+
+/** Per depot: orders loading now, and dispatches today (Nairobi day). */
+export function depotsToday(depots: string[], loading: { depot: string }[], dispatches: { depot: string; at: Date }[], now: Date) {
+  const today = nairobiToday(now);
+  return depots.map((depot) => ({
+    depot,
+    loading: loading.filter((l) => l.depot === depot).length,
+    dispatched: dispatches.filter((d) => d.depot === depot && nairobiToday(d.at) === today).length,
+  }));
+}

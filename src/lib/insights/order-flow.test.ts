@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cycleMedians, eventLine, formatWaited, stageCounts, STAGE_TILES, stuckOrders } from "./order-flow";
+import { waitedOn, cycleMedians, eventLine, formatWaited, stageCounts, STAGE_TILES, stuckOrders } from "./order-flow";
 
 const H = 3600e3;
 
@@ -76,4 +76,12 @@ test("median time per step; a step with no data is null", () => {
   assert.equal(m["Order → PFI"], 4 * H);
   assert.equal(m["PFI → paid"], null);
   assert.equal(cycleMedians([]).every((s) => s.medianMs === null), true);
+});
+
+test("waitedOn: time in the stage, over only past that stage's limit", () => {
+  const now = new Date("2026-11-04T12:00:00Z");
+  const at = (h: number) => new Date(now.getTime() - h * 3600e3);
+  assert.deepEqual(waitedOn({ status: "PAYMENT_CONFIRMED", enteredAt: at(8), updatedAt: at(1) }, now), { waitedMs: 8 * 3600e3, over: false });
+  assert.deepEqual(waitedOn({ status: "PAYMENT_CONFIRMED", enteredAt: null, updatedAt: at(9) }, now), { waitedMs: 9 * 3600e3, over: true });
+  assert.equal(waitedOn({ status: "DELIVERED", enteredAt: at(900), updatedAt: at(900) }, now).over, false);
 });

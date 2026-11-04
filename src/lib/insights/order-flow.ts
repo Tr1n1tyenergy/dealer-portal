@@ -30,6 +30,13 @@ export const STUCK_LIMIT_HOURS: Partial<Record<DealerOrderStatus, number>> = {
   DISPATCHED: 48, IN_TRANSIT: 48,
 };
 
+/** How long an order has sat in its status, and whether that is past the stage's stuck limit. */
+export function waitedOn(r: { status: DealerOrderStatus; enteredAt: Date | null; updatedAt: Date }, now: Date) {
+  const waitedMs = now.getTime() - (r.enteredAt ?? r.updatedAt).getTime();
+  const limit = STUCK_LIMIT_HOURS[r.status];
+  return { waitedMs, over: limit !== undefined && waitedMs > limit * HOUR };
+}
+
 /** Open orders over their stage's limit, most over first. `enteredAt` = latest history row into the status. */
 export function stuckOrders(
   rows: { id: string; reference: string; status: DealerOrderStatus; dealer: string; enteredAt: Date | null; updatedAt: Date }[],

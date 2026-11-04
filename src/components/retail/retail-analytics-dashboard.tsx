@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { sparklinePath } from "@/lib/retail/analytics";
 import { formatWaited } from "@/lib/insights/order-flow";
-import { formatKes } from "@/lib/orders/money";
 import { statusLabel } from "@/lib/orders/stages";
+import type { FeedEvent } from "@/lib/live/recent-events";
+import { HappeningNow } from "@/components/live/happening-now";
 import { OrderTrendChart } from "./order-trend-chart";
 
 export type TrendPoint = { label: string; pms: number; ago: number };
@@ -11,7 +12,7 @@ type Props = {
   tiles: { key: string; label: string; tab: string; count: number }[];
   stuck: { id: string; reference: string; dealer: string; status: string; waitedMs: number }[];
   stuckCount: number;
-  events: { id: string; at: string; text: string; amount: string | null }[];
+  events: FeedEvent[];
   kpis: { label: string; value: string; title?: string; delta: number; spark: number[] }[];
   litres: TrendPoint[];
   cycle: { step: string; medianMs: number | null }[];
@@ -22,10 +23,6 @@ type Props = {
 };
 
 const ORDERS = "/intelligence/retail/orders";
-const ago = (iso: string, now: number) => {
-  const mins = Math.max(0, Math.round((now - new Date(iso).getTime()) / 60e3));
-  return mins < 1 ? "just now" : mins < 60 ? `${mins} min` : mins < 1440 ? `${Math.round(mins / 60)} h` : `${Math.round(mins / 1440)} d`;
-};
 const kl = (n: number) => (n >= 1000 ? `${Math.round(n / 100) / 10}K L` : `${n.toLocaleString("en-KE")} L`);
 const duration = (ms: number | null) => {
   if (ms === null) return "—";
@@ -36,7 +33,6 @@ const duration = (ms: number | null) => {
 
 /** Staff Analytics, direction C: live strip (stages, stuck, happening now), the month's figures, then the business picture. */
 export function RetailAnalyticsDashboard(p: Props) {
-  const now = new Date(p.nowIso).getTime();
   const busiest = Math.max(0, ...p.tiles.map((t) => t.count));
   const slowest = Math.max(0, ...p.cycle.map((c) => c.medianMs ?? 0));
   const regionMax = Math.max(1, ...p.regions.flatMap((r) => [r.thisMonth, r.lastMonth]));
@@ -87,19 +83,7 @@ export function RetailAnalyticsDashboard(p: Props) {
         </div>
         <div className="rad-strip__feed">
           <h2 className="ui-section-title">Happening now</h2>
-          {p.events.length === 0 ? (
-            <p className="rad-empty">No order activity yet.</p>
-          ) : (
-            <ul className="rad-feed">
-              {p.events.map((e, i) => (
-                <li key={e.id} className={i === 0 ? "is-new" : undefined}>
-                  <span className="rad-feed__ago">{ago(e.at, now)}</span>
-                  <span>{e.text}</span>
-                  {e.amount ? <b>{formatKes(e.amount)}</b> : <b />}
-                </li>
-              ))}
-            </ul>
-          )}
+          <HappeningNow events={p.events} nowIso={p.nowIso} />
         </div>
       </section>
 

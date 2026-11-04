@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { goneQuiet, monthFigures, onTheWay, regionOf, regionTotals, todayFigures, topDealers, toPay } from "./business";
+import { dealersWaiting, depotsToday, goneQuiet, monthFigures, onTheWay, regionOf, regionTotals, todayFigures, topDealers, toPay } from "./business";
 
 const now = new Date("2026-11-20T09:00:00Z");
 const D = 86400e3;
@@ -107,4 +107,33 @@ test("on the way: furthest along wins, newest breaks ties, the rest counted", ()
     { current: "road", more: 1 },
   );
   assert.deepEqual(onTheWay([]), { current: null, more: 0 });
+});
+
+test("dealersWaiting: threads whose latest message is from a dealer, longest first", () => {
+  const w = dealersWaiting(
+    [
+      { lastAt: new Date(now.getTime() - 2 * 3600e3), dealer: "Maili Tatu" },
+      { lastAt: new Date(now.getTime() - 20 * 60e3), dealer: "Sobea" },
+      { lastAt: new Date(now.getTime() - 5 * 3600e3), dealer: null }, // staff spoke last
+    ],
+    now,
+  );
+  assert.deepEqual(w, { count: 2, longestMs: 2 * 3600e3, dealer: "Maili Tatu" });
+  assert.deepEqual(dealersWaiting([], now), { count: 0, longestMs: 0, dealer: null });
+});
+
+test("depotsToday: loading now and dispatched today (Nairobi day) per depot", () => {
+  const rows = depotsToday(
+    ["Eldoret", "Nakuru"],
+    [{ depot: "Nakuru" }, { depot: "Nakuru" }],
+    [
+      { depot: "Nakuru", at: new Date("2026-11-20T06:00:00Z") },
+      { depot: "Eldoret", at: new Date("2026-11-19T20:30:00Z") }, // 23:30 Nairobi yesterday
+    ],
+    now,
+  );
+  assert.deepEqual(rows, [
+    { depot: "Eldoret", loading: 0, dispatched: 0 },
+    { depot: "Nakuru", loading: 2, dispatched: 1 },
+  ]);
 });

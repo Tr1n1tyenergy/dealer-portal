@@ -4,10 +4,12 @@ import { nairobiMonthStart } from "@/lib/time/nairobi";
 import { canUser } from "@/lib/permissions";
 import { requireInternal } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { formatKesShort } from "@/lib/orders/money";
 import { pctChange } from "@/lib/retail/analytics";
 import { monthlyLitres } from "@/lib/dealer/dashboard-summary";
-import { cycleMedians, eventLine, stageCounts, STAGE_TILES, stuckOrders } from "@/lib/insights/order-flow";
+import { cycleMedians, stageCounts, STAGE_TILES, stuckOrders } from "@/lib/insights/order-flow";
 import { goneQuiet, monthFigures, regionTotals, topDealers } from "@/lib/insights/business";
+import { recentEvents } from "@/lib/live/recent-events";
 import { ORDERS_STAFF_CHANNEL } from "@/lib/pusher/server-channels";
 import { PageHead } from "@/components/layout/page-head";
 import { LiveRefresh } from "@/components/live/live-refresh";
@@ -15,8 +17,6 @@ import { RetailAnalyticsDashboard } from "@/components/retail/retail-analytics-d
 import "@/app/intelligence/retail/retail-analytics.css";
 
 const OPEN: DealerOrderStatus[] = STAGE_TILES.flatMap((t) => t.statuses);
-/** "KES 18.4M" / "KES 950K" so the figure fits its card; the exact amount is the card's title. */
-const kesShort = (n: number) => (n >= 1e6 ? `KES ${Math.round(n / 1e5) / 10}M` : n >= 1e3 ? `KES ${Math.round(n / 100) / 10}K` : `KES ${Math.round(n)}`);
 const litresOf = (lines: { quantityLitres: number }[]) => lines.reduce((s, l) => s + l.quantityLitres, 0);
 
 /** Staff Analytics, direction C (live dashboards spec §3.1): what needs Trinity now, then the month. */
@@ -38,16 +38,7 @@ export default async function RetailDashboardPage() {
         history: { orderBy: { createdAt: "desc" }, take: 1, select: { toStatus: true, createdAt: true } },
       },
     }),
-    prisma.orderStatusHistory.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 6,
-      select: {
-        id: true,
-        toStatus: true,
-        createdAt: true,
-        order: { select: { reference: true, amountDue: true, dealerOrganization: { select: { name: true } }, depot: { select: { name: true } } } },
-      },
-    }),
+    recentEvents(),
     prisma.dealerOrder.findMany({
       where: { createdAt: { gte: nairobiMonthStart(now, -11) } },
       select: {
@@ -93,7 +84,7 @@ export default async function RetailDashboardPage() {
   const month = series[11];
   const kpis = [
     { label: "Litres this month", value: `${month.litres.toLocaleString("en-KE")} L`, delta: pctChange(month.litres, month.prev.litres), spark: series.map((s) => s.litres) },
-    { label: "Value incl. VAT", value: kesShort(Number(month.value)), title: `KES ${Number(month.value).toLocaleString("en-KE", { minimumFractionDigits: 2 })}`, delta: pctChange(Number(month.value), Number(month.prev.value)), spark: series.map((s) => Number(s.value)) },
+    { label: "Value incl. VAT", value: formatKesShort(Number(month.value)), title: `KES ${Number(month.value).toLocaleString("en-KE", { minimumFractionDigits: 2 })}`, delta: pctChange(Number(month.value), Number(month.prev.value)), spark: series.map((s) => Number(s.value)) },
     { label: "Orders", value: month.orders.toLocaleString("en-KE"), delta: pctChange(month.orders, month.prev.orders), spark: series.map((s) => s.orders) },
     { label: "Active dealers", value: `${month.activeDealers} of ${dealers.length}`, delta: pctChange(month.activeDealers, month.prev.activeDealers), spark: series.map((s) => s.activeDealers) },
   ];
@@ -115,12 +106,7 @@ export default async function RetailDashboardPage() {
         tiles={stageCounts(open)}
         stuck={stuck.slice(0, 3).map((s) => ({ ...s, waitedMs: s.waitedMs }))}
         stuckCount={stuck.length}
-        events={events.map((e) => ({
-          id: e.id,
-          at: e.createdAt.toISOString(),
-          text: eventLine({ toStatus: e.toStatus, reference: e.order.reference, dealer: e.order.dealerOrganization.name, depot: e.order.depot?.name }),
-          amount: ["PAYMENT_SUBMITTED", "AWAITING_PAYMENT", "PFI_ISSUED"].includes(e.toStatus) ? e.order.amountDue : null,
-        }))}
+        events={events}
         kpis={kpis}
         litres={monthlyLitres(year.map((o) => ({ ...o, lines: o.lines })), now, 12)}
         cycle={cycleMedians(

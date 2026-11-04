@@ -56,3 +56,11 @@ export function priceListStatus(
   }
   return { state: "current", message: null };
 }
+
+/** Days of the list left (today and the last day both count) out of its whole period, Kenya time. */
+export function priceListDays(now: Date, periodFrom: string, periodTo: string): { left: number; total: number } {
+  const total = Math.round((kenyaMidnight(periodTo) - kenyaMidnight(periodFrom)) / DAY_MS) + 1;
+  const todayStart = Math.floor((now.getTime() + NAIROBI_OFFSET_MS) / DAY_MS) * DAY_MS - NAIROBI_OFFSET_MS;
+  const left = Math.max(0, Math.round((kenyaMidnight(periodTo) - todayStart) / DAY_MS) + 1);
+  return { left, total };
+}
