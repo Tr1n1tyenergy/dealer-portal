@@ -71,3 +71,11 @@ select.ui-input { appearance: none; padding-right: 36px; background: #fff url("d
 .ui-input::placeholder { color: var(--tri-soft); }
 .ui-input:focus-visible { outline: none; border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
 .ui-input[aria-invalid="true"] { border-color: var(--tri-problem); }
+
+/* Live badge for dashboards: green and pulsing when real-time is connected, grey with the last update time otherwise. */
+.ui-live { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; background: #eef0f4; color: var(--tri-soft); font-size: 13px; font-weight: 700; white-space: nowrap; }
+.ui-live::before { content: ""; width: 8px; height: 8px; border-radius: 99px; background: #9aa3b5; }
+.ui-live.is-on { background: #e6f4ec; color: #1d6b41; }
+.ui-live.is-on::before { background: #1d8a55; animation: ui-live-pulse 1.8s infinite; }
+@keyframes ui-live-pulse { 0% { box-shadow: 0 0 0 0 rgba(29, 138, 85, 0.45); } 70% { box-shadow: 0 0 0 8px rgba(29, 138, 85, 0); } 100% { box-shadow: 0 0 0 0 rgba(29, 138, 85, 0); } }
+@media (prefers-reduced-motion: reduce) { .ui-live.is-on::before { animation: none; } }
