@@ -15,9 +15,23 @@ type Person = { id: string; firstName: string; lastName: string; role: string; p
 type Tick = "allow" | "deny" | undefined;
 
 /** Windows-style permissions for one staff member: Allow / Deny per module and level. */
-export function PermissionsDialog({ person, onClose, onSaved }: { person: Person; onClose: () => void; onSaved: () => void }) {
+export function PermissionsDialog({
+  person,
+  onClose,
+  onSaved,
+  preTick = [],
+}: {
+  person: Person;
+  onClose: () => void;
+  onSaved: () => void;
+  /** Keys to start ticked Allow (an access request being granted); Save still sends them. */
+  preTick?: PermissionKey[];
+}) {
   const original = parseOverrides(person.permissions);
-  const [ticks, setTicks] = useState<Partial<Record<PermissionKey, "allow" | "deny">>>(original);
+  const [ticks, setTicks] = useState<Partial<Record<PermissionKey, "allow" | "deny">>>(() => ({
+    ...original,
+    ...Object.fromEntries(preTick.map((k) => [k, "allow"])),
+  }));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const firstBox = useRef<HTMLInputElement>(null);

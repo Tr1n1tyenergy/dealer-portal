@@ -132,6 +132,9 @@ model User {
   ordersCreated  DealerOrder[]       @relation("OrderCreator")
   statusChanges  OrderStatusHistory[]
   conversationParticipants ConversationParticipant[]
+  accessRequests           AccessRequest[]  @relation("AccessRequester")
+  accessDecisions          AccessRequest[]  @relation("AccessDecider")
+  actionItemsDone          ActionItemDone[]
   messagesSent             Message[]                 @relation("MessageSender")
   messageReceipts          MessageReceipt[]
 
@@ -189,6 +192,7 @@ model NoteSession {
   updatedAt        DateTime         @updatedAt
 
   presentation Presentation?
+  actionItemsDone ActionItemDone[]
 
   @@index([userId])
   @@index([status])
@@ -528,4 +532,41 @@ model AuthAttempt {
 
   @@index([kind, email, createdAt])
   @@index([kind, ip, createdAt])
+}
+
+enum AccessRequestStatus {
+  PENDING
+  GRANTED
+  DECLINED
+}
+
+/** A staff member asking an Admin for more of the portal (Staff Member Home, "Ask an Admin"). */
+model AccessRequest {
+  id          String              @id @default(cuid())
+  requesterId String
+  requester   User                @relation("AccessRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  /** JSON array of PermissionModule keys, e.g. ["orders","analytics"]. */
+  modules     String
+  note        String?
+  status      AccessRequestStatus @default(PENDING)
+  decidedById String?
+  decidedBy   User?               @relation("AccessDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt   DateTime?
+  createdAt   DateTime            @default(now())
+
+  @@index([status])
+  @@index([requesterId])
+}
+
+/** An action item from a meeting's notes that its owner ticked as done; keyed by the item's text hash. */
+model ActionItemDone {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  noteSessionId String
+  noteSession   NoteSession @relation(fields: [noteSessionId], references: [id], onDelete: Cascade)
+  itemHash      String
+  doneAt        DateTime    @default(now())
+
+  @@unique([userId, noteSessionId, itemHash])
 }

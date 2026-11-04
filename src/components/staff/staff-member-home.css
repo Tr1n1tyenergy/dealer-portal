@@ -1,0 +1,67 @@
+/* Staff Member Home (spec §3.4): raised cards over the photo, meetings + decks, the week, then action items, decisions, account. */
+.smh { display: grid; gap: 24px; font-variant-numeric: tabular-nums; }
+.smh-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.smh-sub { margin: 4px 0 12px; color: var(--tri-soft); font-size: 14px; }
+.smh-empty { margin: 0; padding: 8px 0; color: var(--tri-soft); font-size: 15px; line-height: 1.5; }
+.smh-hint { margin: 10px 0 0; color: var(--tri-soft); font-size: 13px; }
+.smh-error { margin: 10px 0 0; color: var(--tri-problem); font-size: 14px; }
+
+.smh-lift { position: relative; margin-top: -86px; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.smh-card { display: grid; grid-template-rows: auto auto 1fr auto; gap: 4px; padding: 18px 18px 18px; border-radius: 16px; background: #fff; box-shadow: 0 14px 34px -18px rgba(14, 22, 48, 0.45), 0 0 0 1px var(--tri-line); }
+.smh-card__label { color: var(--tri-soft); font-size: 14px; }
+.smh-card__value { font-size: 30px; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
+.smh-card__name { font-size: 20px; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+.smh-card__sub { color: var(--tri-soft); font-size: 14px; }
+.smh-card__btn { justify-self: start; margin-top: 10px; }
+
+.smh-two { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.smh-three { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+
+.smh-meet, .smh-decks, .smh-dec, .smh-todo, .smh-acct, .smh-week { list-style: none; margin: 0; padding: 0; }
+.smh-meet li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--tri-line); }
+.smh-meet li:first-child, .smh-decks li:first-child, .smh-dec li:first-child, .smh-acct li:first-child { border-top: 0; }
+.smh-meet b, .smh-decks b { display: block; font-size: 15px; }
+.smh-meet em, .smh-decks em, .smh-dec em, .smh-todo em { display: block; font-style: normal; color: var(--tri-soft); font-size: 13px; margin-top: 2px; }
+.smh-decks li { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--tri-line); }
+.smh-decks__thumb { width: 52px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--tri-blue), var(--tri-teal)); }
+
+.smh-week { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.smh-week li { display: grid; align-content: start; gap: 6px; min-height: 92px; padding: 12px; border-radius: 12px; background: var(--tri-surface); }
+.smh-week li.is-today { background: var(--tri-tint); box-shadow: inset 0 0 0 1.5px var(--tri-blue); }
+.smh-week b { font-size: 14px; }
+.smh-week a { display: block; padding: 6px 8px; border-radius: 8px; background: #fff; color: var(--tri-ink); font-size: 13px; text-decoration: none; overflow-wrap: anywhere; transition: box-shadow 0.2s ease; }
+.smh-week a:hover { box-shadow: 0 0 0 1.5px var(--tri-blue); }
+.smh-week a span { color: var(--tri-soft); }
+
+.smh-todo li { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--tri-line); transition: opacity 0.3s ease; }
+.smh-todo li:first-child { border-top: 0; }
+.smh-todo label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 15px; line-height: 1.4; }
+.smh-todo input { width: 18px; height: 18px; margin-top: 1px; flex: none; accent-color: var(--tri-blue); cursor: pointer; }
+.smh-todo li.is-done { opacity: 0.45; }
+.smh-todo li.is-done .smh-todo__text { text-decoration: line-through; }
+.smh-dec li { padding: 10px 0; border-top: 1px solid var(--tri-line); font-size: 15px; line-height: 1.4; }
+
+.smh-acct li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 11px 0; border-top: 1px solid var(--tri-line); font-size: 15px; }
+.smh-acct li > span:first-child { color: var(--tri-soft); }
+.smh-acct__value { text-align: right; }
+.smh-acct a, .smh-acct button { overflow-wrap: anywhere; }
+.smh-ask { flex-basis: 100%; display: grid; gap: 10px; margin-top: 4px; }
+.smh-ask fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 6px; }
+.smh-ask legend { margin-bottom: 4px; font-size: 14px; font-weight: 600; }
+.smh-ask fieldset label { display: flex; gap: 8px; align-items: center; font-size: 15px; }
+.smh-ask__btns { display: flex; gap: 8px; }
+
+@media (prefers-reduced-motion: reduce) { .smh-todo li, .smh-week a { transition: none; } }
+@media (max-width: 1100px) {
+  .smh-two { grid-template-columns: minmax(0, 1fr); }
+  .smh-three { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 767px) {
+  .smh-lift { margin-top: -58px; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .smh-three { grid-template-columns: minmax(0, 1fr); }
+  .smh-week { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .smh-week li { min-height: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .smh-week b { width: 6.5rem; }
+  .smh-meet li { grid-template-columns: minmax(0, 1fr) auto; }
+  .smh-meet li .ui-navlink { grid-column: 2; }
+}

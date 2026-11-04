@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { DealerOrderStatus } from "@prisma/client";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { canUser } from "@/lib/permissions";
-import { headerLinks } from "@/lib/ui/header-links";
+import { canUser, PERMISSION_MODULES } from "@/lib/permissions";
+import { meetingHome } from "@/lib/note-taker/home-data";
+import { pendingAccessRequests } from "@/lib/users/access-requests";
 import { nairobiGreeting, nairobiMonthStart } from "@/lib/time/nairobi";
 import { formatKes, formatKesShort, sumKes } from "@/lib/orders/money";
 import { statusLabel } from "@/lib/orders/stages";
@@ -21,6 +22,8 @@ import { LiveRefresh } from "@/components/live/live-refresh";
 import { OrderActions } from "@/components/retail/order-actions";
 import { StatusChip } from "@/components/ui/status-chip";
 import { EmptyState } from "@/components/ui/states";
+import { AccessRequestsPanel } from "@/components/admin/access-requests-panel";
+import { MeetingCards, memberSentence, StaffMemberHome, whenLabel } from "@/components/staff/staff-member-home";
 import "./staff-home.css";
 
 const NOT_COUNTED: DealerOrderStatus[] = ["CANCELLED", "REJECTED", "DRAFT"];
@@ -34,23 +37,49 @@ export default async function StaffHomePage() {
   const user = session.user;
   const title = `${nairobiGreeting()}, ${user.firstName || "there"}`;
 
+  const now = new Date();
+  const meetingsFor = meetingHome(user.id, now);
+
   if (!canUser(user, "orders", "view")) {
-    const hasOther = headerLinks("staff", user).length > 1;
+    const [home, me, pending] = await Promise.all([
+      meetingsFor,
+      prisma.user.findUnique({ where: { id: user.id }, select: { lastLoginAt: true } }),
+      prisma.accessRequest.findFirst({ where: { requesterId: user.id, status: "PENDING" }, select: { createdAt: true } }),
+    ]);
     return (
       <AppShell fullBleed>
-        <PhotoHero
-          title={title}
-          sentence={hasOther ? "Your areas are in the menu above." : "Ask an Admin for access."}
+        <div className="sh-hero">
+          <PhotoHero
+            title={title}
+            sentence={memberSentence(home, now)}
+            actions={
+              <>
+                <Link href="/intelligence/note-taker" className="ui-btn ui-btn--primary">
+                  Start recording
+                </Link>
+                <Link href="/intelligence/note-taker" className="ui-btn photo-hero__light">
+                  Schedule a meeting
+                </Link>
+              </>
+            }
+          />
+        </div>
+        <StaffMemberHome
+          home={home}
+          now={now}
+          lastSignIn={me?.lastLoginAt ?? null}
+          areas={PERMISSION_MODULES.filter((m) => !canUser(user, m.key, "view")).map((m) => ({ key: m.key, label: m.label }))}
+          pendingSince={pending ? whenLabel(pending.createdAt, now, false).toLowerCase() : null}
         />
       </AppShell>
     );
   }
 
-  const now = new Date();
   const since = new Date(now.getTime() - 2 * DAY); // covers today and yesterday in Nairobi time
   const mayAct = canUser(user, "orders", "act");
   const seesMessages = canUser(user, "messaging", "view");
-  const [grouped, needsAction, month, depots, recent, confirmations, dispatches, loading, threads, events] = await Promise.all([
+  const seesRequests = canUser(user, "adminUsers", "act");
+  const [grouped, needsAction, month, depots, recent, confirmations, dispatches, loading, threads, events, home, requests] = await Promise.all([
     prisma.dealerOrder.groupBy({ by: ["status"], where: { status: { in: NEEDS_ACTION } }, _count: { _all: true } }),
     prisma.dealerOrder.findMany({
       where: { status: { in: NEEDS_ACTION } },
@@ -92,6 +121,8 @@ export default async function StaffHomePage() {
         })
       : Promise.resolve([]),
     recentEvents(),
+    meetingsFor,
+    seesRequests ? pendingAccessRequests() : Promise.resolve([]),
   ]);
 
   const summary = staffHomeSummary(Object.fromEntries(grouped.map((g) => [g.status, g._count._all])));
@@ -226,6 +257,8 @@ export default async function StaffHomePage() {
           </section>
         </div>
 
+        <AccessRequestsPanel requests={requests} />
+
         <div className="sh-row3">
           <section aria-labelledby="sh-epra" className={`ui-panel sh-epra${listStatus.state === "current" ? "" : " is-ending"}`}>
             <h2 id="sh-epra" className="ui-section-title">
@@ -279,6 +312,11 @@ export default async function StaffHomePage() {
             </dl>
           </section>
         </div>
+        {home.items.length || home.decisions.length ? (
+          <div className="sh-meet">
+            <MeetingCards home={home} now={now} />
+          </div>
+        ) : null}
       </div>
     </AppShell>
   );
