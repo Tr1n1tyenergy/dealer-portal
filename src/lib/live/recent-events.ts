@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { eventLine } from "@/lib/insights/order-flow";
 
 export type FeedEvent = { id: string; at: string; text: string; amount: string | null };
-const WITH_AMOUNT = ["PAYMENT_SUBMITTED", "AWAITING_PAYMENT", "PFI_ISSUED"];
+const WITH_AMOUNT = ["PAYMENT_SUBMITTED", "PAYMENT_VERIFICATION", "AWAITING_PAYMENT", "PFI_ISSUED"];
 
 /** The latest order status changes, worded for the "Happening now" feed. */
 export async function recentEvents(take = 6): Promise<FeedEvent[]> {

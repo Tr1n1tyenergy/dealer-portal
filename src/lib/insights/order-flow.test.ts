@@ -85,3 +85,10 @@ test("waitedOn: time in the stage, over only past that stage's limit", () => {
   assert.deepEqual(waitedOn({ status: "PAYMENT_CONFIRMED", enteredAt: null, updatedAt: at(9) }, now), { waitedMs: 9 * 3600e3, over: true });
   assert.equal(waitedOn({ status: "DELIVERED", enteredAt: at(900), updatedAt: at(900) }, now).over, false);
 });
+
+test("eventLine: a submitted payment that goes straight to verification reads as submitted", () => {
+  assert.equal(
+    eventLine({ toStatus: "PAYMENT_VERIFICATION", reference: "DO-2026-000014", dealer: "Pery Growers" }),
+    "Pery Growers submitted payment for DO-2026-000014",
+  );
+});

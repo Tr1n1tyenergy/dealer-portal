@@ -72,6 +72,7 @@ export function eventLine(e: { toStatus: string; reference: string; dealer: stri
     case "AWAITING_PAYMENT":
       return `PFI issued for ${e.reference} · ${e.dealer}`;
     case "PAYMENT_SUBMITTED":
+    case "PAYMENT_VERIFICATION":
       return `${e.dealer} submitted payment for ${e.reference}`;
     case "PAYMENT_CONFIRMED":
       return `Payment confirmed for ${e.reference}`;
