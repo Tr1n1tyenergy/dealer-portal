@@ -170,6 +170,33 @@ Lines 1–3 are pinned by Task 1/2 unit tests, line 5 by the Task 3 DB test, and
   - `LiveRefresh` (staff channel), only when `orders.view`.
 - [ ] Step 2: Suites, build, screenshots. Commit `feat(staff): Home with today, needs action, live feed`.
 
+### Task 6b: Staff Member Home and access requests (added 4 Nov)
+
+**Files:**
+- Prisma: `AccessRequest` model + migration `2026110412000_access_request`, with fields `id`, `requesterId`, `modules` (JSON string array of PermissionModule), `note?`, `status` (PENDING / GRANTED / DECLINED), `decidedById?`, `decidedAt?`, `createdAt`, and an index on `[status]`.
+- Create: `src/lib/users/access-requests.ts` (`requestAccess(user, modules, note)` refuses a second PENDING request and modules outside `PERMISSION_MODULES`; `decideAccess(admin, id, grant)` requires `adminUsers.act` and the request to be PENDING) and its `.db.test.ts`.
+- Create: API `POST /api/access-requests`, `PATCH /api/access-requests/[id]`.
+- Create: `src/components/staff/access-request-card.tsx`.
+- Modify: the staff Home page (the no-Orders branch) and the Admin users page (a pending list with Grant, which opens PermissionsDialog pre-ticked, and Decline).
+
+- [ ] Step 1: DB tests (RED):
+  - a Staff Member requests Orders view → PENDING;
+  - a second request is refused;
+  - an unknown module is refused;
+  - a non-admin decides → 403;
+  - an admin grants → GRANTED with `decidedById`;
+  - an admin declines → DECLINED.
+- [ ] Step 2: Migration + service + API; GREEN.
+- [ ] Step 3: The Staff Member Home as in `staff-member-home.html`:
+  - Note Taker cards from their `NoteSession` rows (next scheduled, notes READY, the latest 4 sessions);
+  - presentations (the latest 2);
+  - prices;
+  - Today at Trinity counts (`todayFigures` without money);
+  - the price list;
+  - the access card;
+  - `LiveRefresh` on a new `private-orders-count` channel, open to any staff and carrying counts only. Or reuse the staff channel only for `orders.view`, with the counts refreshed by the 60 s fallback for others; decide in the ledger.
+- [ ] Step 4: Suites, build, screenshots for staff.mvz7aoei@stress.test (no permissions). Commit `feat(staff): Staff Member Home with meetings, prices, today, access requests`. Tell Adrian the migration name.
+
 ### Task 7: Dealer Home additions
 
 **Files:** `src/app/dealer/(portal)/dashboard/page.tsx`, `dashboard.css`; create `src/components/dealer/order-tracker-mini.tsx` (reuses `dealerTrackerSteps`).

@@ -69,6 +69,27 @@ Following the dealer half of `homes.html`:
 - **Orders:** the latest 3. **Messages:** the latest 2 from Trinity, with an unread count.
 - The dealer only ever sees their own organisation's data.
 
+### 3.4 Staff Member Home (staff without Orders view), added 4 Nov
+
+Mockup: `staff-member-home.html` (same brainstorm folder). Today this person sees only the photo and "Your areas are in the menu above". Adrian: "so bland". It becomes:
+- **The photo greeting:** one line about their day (next meeting time, notes ready to read), with **Start recording** and **Schedule a meeting** buttons (Note Taker).
+- **Three raised cards:**
+  - **Next meeting:** name, time, length, people, and Open;
+  - **Notes ready to read:** count, latest names, and Read notes;
+  - **Today's prices:** Nairobi PMS/AGO, with the price-list end date.
+- **Your meetings:** their Note Taker sessions, newest first, with a status chip (Notes ready, Transcribing, Scheduled) and the button to open each.
+- **Presentations:** their decks, with Present.
+- **Today at Trinity (live):** orders placed, litres ordered and deliveries today, as **counts only**, with no money and no dealer names (Adrian: yes).
+- **EPRA price list** countdown.
+- **Need more of the portal? (access request, Adrian: yes):**
+  - The person ticks what they need (Orders, Messages, Analytics, Users) and adds an optional note.
+  - It is saved as an `AccessRequest` (requester, modules, note, status PENDING / GRANTED / DECLINED, decidedBy, decidedAt).
+  - Admins with `adminUsers.act` see pending requests on their Home and on Admin users. **Grant** opens the Permissions window pre-ticked for that person; **Decline** closes the request.
+  - One pending request per person at a time; the card shows "Request sent" until an Admin decides.
+  - **Needs a migration**, which Adrian runs on staging and production.
+
+Staff who do have Orders view keep the Home in 3.2. The Note Taker cards also appear for them when they have sessions.
+
 ## 4. How it works
 
 - **Data:** each screen's numbers come from small pure functions in `src/lib/insights/`: stage counts, stuck, events, cycle times, regions, today, to-pay, on-the-way. Each takes plain rows and `now`. The pages fetch the rows with Prisma, one query per block, bounded by date: 12 months at most, with events and stuck limited by `take`.
