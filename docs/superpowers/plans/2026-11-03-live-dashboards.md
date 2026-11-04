@@ -170,32 +170,29 @@ Lines 1–3 are pinned by Task 1/2 unit tests, line 5 by the Task 3 DB test, and
   - `LiveRefresh` (staff channel), only when `orders.view`.
 - [ ] Step 2: Suites, build, screenshots. Commit `feat(staff): Home with today, needs action, live feed`.
 
-### Task 6b: Staff Member Home and access requests (added 4 Nov)
+### Task 6b: Staff Member Home, action items and access requests (revised 4 Nov)
 
 **Files:**
-- Prisma: `AccessRequest` model + migration `2026110412000_access_request`, with fields `id`, `requesterId`, `modules` (JSON string array of PermissionModule), `note?`, `status` (PENDING / GRANTED / DECLINED), `decidedById?`, `decidedAt?`, `createdAt`, and an index on `[status]`.
-- Create: `src/lib/users/access-requests.ts` (`requestAccess(user, modules, note)` refuses a second PENDING request and modules outside `PERMISSION_MODULES`; `decideAccess(admin, id, grant)` requires `adminUsers.act` and the request to be PENDING) and its `.db.test.ts`.
-- Create: API `POST /api/access-requests`, `PATCH /api/access-requests/[id]`.
-- Create: `src/components/staff/access-request-card.tsx`.
-- Modify: the staff Home page (the no-Orders branch) and the Admin users page (a pending list with Grant, which opens PermissionsDialog pre-ticked, and Decline).
+- Prisma: `AccessRequest` and `ActionItemDone` models + one migration `20261104120000_staff_home`:
+  - `AccessRequest`: `id`, `requesterId`, `modules` (JSON string array), `note?`, `status` PENDING / GRANTED / DECLINED, `decidedById?`, `decidedAt?`, `createdAt`, an index on `[status]`;
+  - `ActionItemDone`: `id`, `userId`, `noteSessionId`, `itemHash`, `doneAt`, unique `[userId, noteSessionId, itemHash]`.
+- Create:
+  - `src/lib/note-taker/home-items.ts` (pure, tested): `actionItems(sessions, done, n)` and `recentDecisions(sessions, n)` read `notesJson` (`actionItems`/`actions`, `keyDecisions`/`decisions`); `weekStrip(sessions, now)` gives Mon–Fri in Nairobi time; `itemHash(text)` is sha1 of the trimmed lower-case text.
+  - `src/lib/users/access-requests.ts` with its `.db.test.ts`.
+  - `POST/DELETE /api/note-sessions/[id]/actions/done` (own sessions only), `POST /api/access-requests`, `PATCH /api/access-requests/[id]`.
+  - Components: `staff/action-items.tsx` (optimistic tick), `staff/access-request-card.tsx`.
+- Modify: staff Home (the no-Orders branch, and the cards for anyone with sessions); Admin users (the pending requests list).
 
-- [ ] Step 1: DB tests (RED):
-  - a Staff Member requests Orders view → PENDING;
-  - a second request is refused;
-  - an unknown module is refused;
-  - a non-admin decides → 403;
-  - an admin grants → GRANTED with `decidedById`;
-  - an admin declines → DECLINED.
-- [ ] Step 2: Migration + service + API; GREEN.
-- [ ] Step 3: The Staff Member Home as in `staff-member-home.html`:
-  - Note Taker cards from their `NoteSession` rows (next scheduled, notes READY, the latest 4 sessions);
-  - presentations (the latest 2);
-  - prices;
-  - Today at Trinity counts (`todayFigures` without money);
-  - the price list;
-  - the access card;
-  - `LiveRefresh` on a new `private-orders-count` channel, open to any staff and carrying counts only. Or reuse the staff channel only for `orders.view`, with the counts refreshed by the 60 s fallback for others; decide in the ledger.
-- [ ] Step 4: Suites, build, screenshots for staff.mvz7aoei@stress.test (no permissions). Commit `feat(staff): Staff Member Home with meetings, prices, today, access requests`. Tell Adrian the migration name.
+- [ ] Step 1: Unit tests (RED):
+  - `actionItems` hides done hashes, keeps newest first, and handles `notesJson` that is null or malformed (→ []);
+  - `recentDecisions` handles both key names;
+  - `weekStrip` puts a Sunday 23:30Z session (Monday in Nairobi) on Monday.
+- [ ] Step 2: DB tests (RED):
+  - Access requests: a request is created PENDING; a second pending request is refused; an unknown module is refused; a non-admin deciding gets 403; grant sets GRANTED with `decidedById`; decline sets DECLINED.
+  - Ticking: ticking an item on someone else's session gets 403; ticking twice is idempotent; untick removes the row.
+- [ ] Step 3: Migration, services, APIs; GREEN.
+- [ ] Step 4: The page as in `staff-member-home-final.html`, with no order counts, prices or EPRA list for this role.
+- [ ] Step 5: Suites, build, screenshots for staff.mvz7aoei@stress.test. Commit `feat(staff): Staff Member Home with week, action items, decisions, account and access requests`. Tell Adrian the migration name.
 
 ### Task 7: Dealer Home additions
 

@@ -69,26 +69,28 @@ Following the dealer half of `homes.html`:
 - **Orders:** the latest 3. **Messages:** the latest 2 from Trinity, with an unread count.
 - The dealer only ever sees their own organisation's data.
 
-### 3.4 Staff Member Home (staff without Orders view), added 4 Nov
+### 3.4 Staff Member Home (staff without Orders view), revised 4 Nov
 
-Mockup: `staff-member-home.html` (same brainstorm folder). Today this person sees only the photo and "Your areas are in the menu above". Adrian: "so bland". It becomes:
-- **The photo greeting:** one line about their day (next meeting time, notes ready to read), with **Start recording** and **Schedule a meeting** buttons (Note Taker).
+Mockup: `staff-member-home-final.html` (screens in `D:\Downloads\staff-member-home-screens\`, 6 and 7). Supervisor feedback: a regular Staff Member has no need for Trinity-wide order counts, the EPRA price list or today's prices, so **none of those appear for them**. The layout:
+- **Photo greeting:** their day in one line (next meeting, action items waiting), with **Start recording** and **Schedule a meeting**.
 - **Three raised cards:**
   - **Next meeting:** name, time, length, people, and Open;
-  - **Notes ready to read:** count, latest names, and Read notes;
-  - **Today's prices:** Nairobi PMS/AGO, with the price-list end date.
-- **Your meetings:** their Note Taker sessions, newest first, with a status chip (Notes ready, Transcribing, Scheduled) and the button to open each.
-- **Presentations:** their decks, with Present.
-- **Today at Trinity (live):** orders placed, litres ordered and deliveries today, as **counts only**, with no money and no dealer names (Adrian: yes).
-- **EPRA price list** countdown.
-- **Need more of the portal? (access request, Adrian: yes):**
-  - The person ticks what they need (Orders, Messages, Analytics, Users) and adds an optional note.
-  - It is saved as an `AccessRequest` (requester, modules, note, status PENDING / GRANTED / DECLINED, decidedBy, decidedAt).
-  - Admins with `adminUsers.act` see pending requests on their Home and on Admin users. **Grant** opens the Permissions window pre-ticked for that person; **Decline** closes the request.
-  - One pending request per person at a time; the card shows "Request sent" until an Admin decides.
-  - **Needs a migration**, which Adrian runs on staging and production.
+  - **Notes ready to read:** count, names, and Read notes;
+  - **Your action items:** the open count, how many meetings it came from, and See them.
+- **Your meetings** (newest first, with status chip and decision/action counts from the notes) and **Presentations** (with Present).
+- **This week:** Monday to Friday with their scheduled and recorded meetings, today highlighted. On phones it becomes one row per day.
+- **Your action items:** actions from their notes' `actionItems`, newest first, each with its meeting. **Ticking saves it as done** for that person and drops it off Home (Adrian: tick off and save).
+- **Recent decisions:** from the notes' `keyDecisions` / `decisions`.
+- **Your account and help:**
+  - last signed in;
+  - Change password;
+  - **Ask an Admin** (the access request: they tick modules plus an optional note; Admins see pending requests on their Home and on Admin users with Grant, which opens the Permissions window pre-ticked, or Decline; one pending request at a time);
+  - the support email.
+- **New data (one migration, which Adrian runs on staging and production):**
+  - `AccessRequest`: requester, modules, note, status PENDING / GRANTED / DECLINED, decidedBy, decidedAt.
+  - `ActionItemDone`: userId, noteSessionId, the item's text hash, doneAt; unique per user + session + hash. It is keyed by text hash so a re-generated note doesn't resurrect ticked items.
 
-Staff who do have Orders view keep the Home in 3.2. The Note Taker cards also appear for them when they have sessions.
+Staff who do have Orders view keep the Home in 3.2. The meetings, action items and decisions cards also appear for them when they have Note Taker sessions.
 
 ## 4. How it works
 
