@@ -7,15 +7,16 @@
   --ri-navy-deep: #0a192f;
   --ri-navy-mid: #0a235b;
   --ri-canvas: #0a192f;
-  --ri-gold: #f5b800;
-  --ri-gold-bright: #f5b800;
+  --ri-gold: #ffcc00;
+  --ri-gold-bright: #ffcc00;
   --ri-ink: #e8eef8;
   --ri-muted: #94a3b8;
   --ri-line: rgba(255, 255, 255, 0.1);
   --ri-panel: rgba(0, 27, 58, 0.72);
   --ri-panel-solid: #0a235b;
   --ri-sidebar-w: 232px;
-  --ri-radius: 12px;
+  --ri-radius: var(--tri-card-radius, 12px);
+  --ri-gutter: var(--tri-page-gutter, clamp(1rem, 2.2vw, 1.75rem));
 }
 
 /* Break out of AppShell .tri-main max-width / padding so retail matches full-bleed mockup */
@@ -120,13 +121,13 @@
 }
 
 .ri-sidebar__link.is-active {
-  background: rgba(245, 184, 0, 0.1);
+  background: rgba(255, 204, 0, 0.1);
   color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(245, 184, 0, 0.7);
+  box-shadow: inset 0 0 0 1px rgba(255, 204, 0, 0.7);
 }
 
 .ri-sidebar__link.is-active svg {
-  color: #f5b800;
+  color: #ffcc00;
 }
 
 .ri-content {
@@ -150,16 +151,16 @@
 }
 
 .ri-page-title {
-  font-size: 1.55rem;
+  font-size: var(--tri-font-h2, 1.55rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: #fff;
 }
 
 .ri-page-sub {
-  margin-top: 0.3rem;
+  margin-top: var(--tri-space-2xs, 0.3rem);
   color: var(--ri-muted);
-  font-size: 0.9rem;
+  font-size: var(--tri-font-body, 0.9rem);
 }
 
 .ri-metrics {
@@ -341,5 +342,15 @@
   .ri-sidebar__nav {
     flex-direction: row;
     flex-wrap: wrap;
+  }
+}
+
+/* Short laptop: tighten vertical chrome without clipping CTAs */
+@media (min-width: 1024px) and (max-height: 800px) {
+  .ri-content {
+    padding: var(--tri-space-sm, 12px) 0 var(--tri-space-md, 16px);
+  }
+  .ri-page-title {
+    font-size: var(--tri-font-h3, 1.35rem);
   }
 }

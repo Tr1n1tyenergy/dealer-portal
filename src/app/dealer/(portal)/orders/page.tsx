@@ -1,16 +1,15 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Package, ShoppingCart } from "lucide-react";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
-  DEALER_ORDER_VIEWS,
   dealerOrderViewWhere,
-  emptyOrdersMessage,
   parseDealerOrderView,
   toDealerOrderRow,
 } from "@/lib/orders/dealer-views";
-import { RecentOrders } from "@/components/dealer/recent-orders";
+import { OrdersManagement } from "@/components/dealer/orders-management";
+import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
+import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import "../../dealer-orders.css";
 
 /**
  * My Orders: every order of the dealer, newest first, with tabs for orders needing payment,
@@ -32,78 +31,37 @@ export default async function MyOrdersPage({
   const view = parseDealerOrderView(rawView);
   const query = (typeof rawQuery === "string" ? rawQuery : "").trim().slice(0, 100);
 
-  const [orders, totalOrders, stations] = await Promise.all([
+  const [orders, totalOrders] = await Promise.all([
     prisma.dealerOrder.findMany({
       where: { dealerOrganizationId: orgId, ...dealerOrderViewWhere(view) },
       include: { station: true, lines: true, proforma: true },
       orderBy: { createdAt: "desc" },
     }),
     prisma.dealerOrder.count({ where: { dealerOrganizationId: orgId } }),
-    prisma.station.findMany({
-      where: { dealerOrganizationId: orgId },
-      select: { name: true },
-      orderBy: { name: "asc" },
-    }),
   ]);
 
-  const tabs = DEALER_ORDER_VIEWS.map((tab) => ({
-    label: tab.label,
-    href: tab.href,
-    active: tab.view === view,
-  }));
-
   return (
-    <div className="dp-dash">
-      <section
-        className="dp-hero dp-hero--compact"
-        style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
-      >
-        <div className="dp-hero__veil" />
-        <div className="dp-hero__inner">
-          <nav className="dp-po-crumb" aria-label="Breadcrumb">
-            <Link href="/dealer/dashboard">Home</Link>
-            <span className="sep">/</span>
-            <span className="is-current">My Orders</span>
-          </nav>
-          <div className="dp-po-hero__row">
-            <div className="dp-po-hero__title">
-              <span className="dp-po-hero__badge">
-                <Package size={22} strokeWidth={2} />
-              </span>
-              <div className="dp-hero__copy">
-                <div className="dp-hero__kicker">My Orders</div>
-                <h1>Your Orders</h1>
-                <p>Every fuel order from submission through delivery.</p>
-              </div>
-            </div>
-            <Link href="/dealer/orders/new" className="dp-po-help">
-              <ShoppingCart size={16} />
-              Place new order
-            </Link>
+    <div className="do">
+      <section className="do__hero" style={dealerHeroPhotoStyle}>
+        <div className="do__hero-veil" aria-hidden />
+        <div className="do__hero-inner">
+          <div className="do__eyebrow">
+            <span className="do__eyebrow-line" aria-hidden />
+            <span className="do__eyebrow-text">Orders</span>
           </div>
+          <h1>Your Orders</h1>
+          <p>Every fuel order from submission to delivery.</p>
+          <DealerHeroActions />
         </div>
       </section>
 
-      <section className="dp-body dp-orders-page">
-        {totalOrders === 0 ? (
-          <div className="dp-orders-empty">
-            <p>You have not placed any orders yet.</p>
-            <Link href="/dealer/orders/new">Place your first order</Link>
-          </div>
-        ) : (
-          <RecentOrders
-            key={`${view}:${query}`}
-            title="My Orders"
-            subtitle="Search, filter and open any of your orders."
-            showViewAll={false}
-            initialQuery={query}
-            tabs={tabs}
-            emptyMessage={emptyOrdersMessage(view)}
-            orders={orders.map(toDealerOrderRow)}
-            stations={stations.map((s) => s.name)}
-          />
-        )}
-      </section>
+      <OrdersManagement
+        key={`${view}:${query}`}
+        view={view}
+        orders={orders.map(toDealerOrderRow)}
+        accountEmpty={totalOrders === 0}
+        initialQuery={query}
+      />
     </div>
   );
 }

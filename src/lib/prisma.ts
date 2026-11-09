@@ -30,11 +30,43 @@ function databaseUrlWithPoolDefaults(): string | undefined {
   }
 }
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+function createPrismaClient() {
+  return new PrismaClient({
     datasources: { db: { url: databaseUrlWithPoolDefaults() } },
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
+}
+
+/** Delegates that must exist after local SSR / support migrations. */
+const REQUIRED_DELEGATES = [
+  "stationPumpRttEvent",
+  "stockSaleReport",
+  "stockSalePumpReading",
+  "stockSaleTankReading",
+  "supportTicket",
+] as const;
+
+/**
+ * After `prisma generate` adds models, Turbopack can keep a stale global singleton
+ * that is missing delegates (e.g. stationPumpRttEvent → findMany on undefined).
+ * Recreate when any required delegate is missing.
+ */
+function isFreshPrismaClient(client: PrismaClient): boolean {
+  const record = client as unknown as Record<string, unknown>;
+  return REQUIRED_DELEGATES.every((key) => record[key] != null);
+}
+
+function resolvePrismaClient(): PrismaClient {
+  const existing = globalForPrisma.prisma;
+  if (existing && isFreshPrismaClient(existing)) {
+    return existing;
+  }
+  if (existing) {
+    void existing.$disconnect().catch(() => undefined);
+  }
+  return createPrismaClient();
+}
+
+export const prisma = resolvePrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

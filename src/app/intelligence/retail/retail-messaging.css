@@ -77,7 +77,7 @@
 
 .rm-head h1 {
   margin: 0;
-  font-size: clamp(1.85rem, 2.35vw, 2.2rem);
+  font-size: var(--tri-font-h2, clamp(1.85rem, 2.35vw, 2.2rem));
   font-weight: 800;
   letter-spacing: -0.03em;
   color: #fff;

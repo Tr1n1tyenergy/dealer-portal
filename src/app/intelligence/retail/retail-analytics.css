@@ -94,7 +94,7 @@
 
 .rad-hero__title {
   margin: 0;
-  font-size: clamp(1.85rem, 2.35vw, 2.2rem);
+  font-size: var(--tri-font-h2, clamp(1.85rem, 2.35vw, 2.2rem));
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.12;
@@ -182,7 +182,7 @@
 }
 
 .rad-kpi--blue .rad-kpi__icon { background: #3b82f6; }
-.rad-kpi--gold .rad-kpi__icon { background: #f5b800; color: #0a192f; }
+.rad-kpi--gold .rad-kpi__icon { background: #ffcc00; color: #0a192f; }
 .rad-kpi--purple .rad-kpi__icon { background: #8b5cf6; }
 .rad-kpi--green .rad-kpi__icon { background: #22c55e; }
 
@@ -224,7 +224,7 @@
 }
 
 .rad-kpi--blue .rad-kpi__spark path { stroke: #60a5fa; }
-.rad-kpi--gold .rad-kpi__spark path { stroke: #f5b800; }
+.rad-kpi--gold .rad-kpi__spark path { stroke: #ffcc00; }
 .rad-kpi--purple .rad-kpi__spark path { stroke: #c084fc; }
 .rad-kpi--green .rad-kpi__spark path { stroke: #4ade80; }
 
@@ -374,10 +374,10 @@
   stroke-linejoin: round;
 }
 .rad-trend__line--pms { stroke: #60a5fa; }
-.rad-trend__line--ago { stroke: #f5b800; }
+.rad-trend__line--ago { stroke: #ffcc00; }
 
 .rad-trend__dot--pms { fill: #60a5fa; }
-.rad-trend__dot--ago { fill: #f5b800; }
+.rad-trend__dot--ago { fill: #ffcc00; }
 
 .rad-trend__xlabel {
   fill: #94a3b8;
@@ -404,7 +404,7 @@
   vertical-align: middle;
 }
 .rad-dot--pms { background: #60a5fa; }
-.rad-dot--ago { background: #f5b800; }
+.rad-dot--ago { background: #ffcc00; }
 
 .rad-status__body {
   display: flex;
@@ -536,7 +536,7 @@
 }
 
 .rad-pill--blue { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
-.rad-pill--gold { background: rgba(245, 184, 0, 0.16); color: #f5b800; }
+.rad-pill--gold { background: rgba(255, 204, 0, 0.16); color: #ffcc00; }
 .rad-pill--orange { background: rgba(249, 115, 22, 0.16); color: #fb923c; }
 .rad-pill--purple { background: rgba(168, 85, 247, 0.16); color: #d8b4fe; }
 .rad-pill--green { background: rgba(34, 197, 94, 0.16); color: #86efac; }

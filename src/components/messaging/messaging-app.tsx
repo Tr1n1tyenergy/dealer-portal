@@ -10,8 +10,10 @@ import {
   CalendarDays,
   Download,
   FileText,
+  Info,
   Mail,
   MapPin,
+  MessageCircle,
   MessageSquarePlus,
   MoreVertical,
   Paperclip,
@@ -550,11 +552,24 @@ export function MessagingApp({
     ? "/dealer/orders"
     : "/intelligence/retail/orders";
   const documentsHref = isDealerPortal ? "/dealer/orders?view=documents" : ordersHref;
+  const unreadTotal = useMemo(
+    () => conversations.reduce((n, c) => n + (c.unreadCount && c.unreadCount > 0 ? c.unreadCount : 0), 0),
+    [conversations],
+  );
+  const activeSubtitle = activeConversation
+    ? peerSubtitle(activeConversation)
+    : activePeer
+      ? activePeer.accountType === "DEALER"
+        ? `Dealer · ${activePeer.stationLabel || activePeer.organizationName || "Station"}`
+        : `Internal · ${activePeer.department || "Team"}`
+      : "Conversation";
 
   return (
-    <div className={`msg-app msg-app--staff msg-app--pane-${mobilePane}`}>
+    <div
+      className={`msg-app msg-app--${isDealerPortal ? "dealer" : "staff"} msg-app--pane-${mobilePane}`}
+    >
       {/* LEFT — Conversations */}
-      <aside className="msg-sidebar" style={{ background: "#122a4a" }}>
+      <aside className="msg-sidebar">
         <div className="msg-sidebar__head">
           <h2>Conversations</h2>
           <button type="button" className="msg-sidebar__new" onClick={() => void openDirectory()}>
@@ -583,6 +598,9 @@ export function MessagingApp({
               onClick={() => setFilter(key)}
             >
               {label}
+              {key === "unread" && unreadTotal > 0 ? (
+                <span className="msg-filters__badge">{unreadTotal > 9 ? "9+" : unreadTotal}</span>
+              ) : null}
             </button>
           ))}
         </div>
@@ -597,6 +615,7 @@ export function MessagingApp({
           ) : (
             filteredConversations.map((c) => {
               const dealer = c.peer?.accountType === "DEALER";
+              const rowOnline = isRecentlyActive(c.peer?.lastLoginAt);
               return (
                 <button
                   key={c.id}
@@ -611,6 +630,7 @@ export function MessagingApp({
                     ) : (
                       initials(c.displayName)
                     )}
+                    {rowOnline ? <i className="msg-avatar__online" aria-label="Online" /> : null}
                   </span>
                   <span className="msg-list__meta">
                     <span className="msg-list__top">
@@ -633,17 +653,35 @@ export function MessagingApp({
       </aside>
 
       {/* CENTER — Thread */}
-      <section className="msg-thread" style={{ background: "#122a4a" }}>
+      <section className="msg-thread">
         {!activeId ? (
           <div className="msg-thread__empty">
             <div className="msg-thread__empty-card">
-              <MessageSquarePlus size={28} strokeWidth={1.5} />
-              <strong>Select a chat or start a new conversation</strong>
+              {isDealerPortal ? (
+                <div className="msg-thread__empty-ico" aria-hidden>
+                  <MessageCircle size={36} strokeWidth={1.75} />
+                </div>
+              ) : (
+                <MessageSquarePlus size={28} strokeWidth={1.5} />
+              )}
+              <strong>
+                {isDealerPortal ? "No conversation selected" : "Select a chat or start a new conversation"}
+              </strong>
               <span>
                 {isDealerPortal
-                  ? "Your conversations with the Trinity team appear here in real time."
+                  ? "Select a conversation from the left, or start a new chat with the Trinity team."
                   : "Dealer and internal conversations appear here in real time."}
               </span>
+              {isDealerPortal ? (
+                <button
+                  type="button"
+                  className="msg-thread__empty-cta"
+                  onClick={() => void openDirectory()}
+                >
+                  <MessageSquarePlus size={16} strokeWidth={2.2} />
+                  Start a new conversation
+                </button>
+              ) : null}
             </div>
           </div>
         ) : (
@@ -667,17 +705,21 @@ export function MessagingApp({
               </span>
               <div className="msg-thread__identity">
                 <strong>{activeName}</strong>
-                <span className={online ? "is-online" : undefined}>
-                  {online ? (
-                    <>
-                      <i /> Online
-                    </>
-                  ) : activePeer?.lastLoginAt ? (
-                    `Last active ${formatListTime(String(activePeer.lastLoginAt))}`
-                  ) : (
-                    "Conversation"
-                  )}
-                </span>
+                {isDealerPortal ? (
+                  <span>{activeSubtitle}</span>
+                ) : (
+                  <span className={online ? "is-online" : undefined}>
+                    {online ? (
+                      <>
+                        <i /> Online
+                      </>
+                    ) : activePeer?.lastLoginAt ? (
+                      `Last active ${formatListTime(String(activePeer.lastLoginAt))}`
+                    ) : (
+                      "Conversation"
+                    )}
+                  </span>
+                )}
               </div>
               <div className="msg-thread__actions">
                 <button
@@ -842,115 +884,20 @@ export function MessagingApp({
       </section>
 
       {/* RIGHT — Contact intelligence */}
-      <aside
-        className="msg-context"
-        style={{ background: "#122a4a", paddingTop: 24, overflow: "auto" }}
-      >
-          {!activeId ? (
-            <div className="msg-context__empty">
-              <strong>Contact intelligence</strong>
-              <span>
-                {isDealerPortal
-                  ? "Select a conversation to see your orders and shared files."
-                  : "Select a conversation to view dealer details, orders, and shared files."}
-              </span>
-            </div>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="msg-back msg-back--context"
-                onClick={() => setMobilePane("chat")}
-                aria-label="Back to chat"
-              >
-                ← Back to chat
-              </button>
+      <aside className="msg-context">
+        {isDealerPortal ? (
+          <header className="msg-context__head">
+            <h2>Contact Intelligence</h2>
+            <Info size={16} strokeWidth={2} aria-hidden />
+          </header>
+        ) : null}
 
-              <div className="msg-profile" style={{ paddingTop: 8, borderBottom: "1px solid rgba(22,135,255,0.16)" }}>
-                <div
-                  className="msg-profile__body"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                    padding: "20px 16px 8px",
-                    gap: 4,
-                  }}
-                >
-                  <span
-                    className={`msg-avatar msg-avatar--lg ${
-                      activePeer?.accountType === "DEALER" ? "msg-avatar--station" : ""
-                    }`}
-                    style={{
-                      width: 64,
-                      height: 64,
-                      marginTop: 0,
-                      flexShrink: 0,
-                      borderRadius: 999,
-                      overflow: "hidden",
-                      border: "2px solid rgba(22,135,255,0.45)",
-                    }}
-                  >
-                    {activePeer?.accountType === "DEALER" ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src="/assets2/img/retail/dashboard-hero-station.jpg" alt="" />
-                    ) : (
-                      initials(activeName)
-                    )}
-                  </span>
-                  <strong>{activeName}</strong>
-                  <span className={online ? "is-online" : undefined}>
-                    {online ? (
-                      <>
-                        <i /> Online
-                      </>
-                    ) : (
-                      "Away"
-                    )}
-                  </span>
-                  <em>
-                    {activePeer?.accountType === "DEALER" ? "Dealer Account" : "Internal Account"}
-                  </em>
-                  <span className="msg-profile__loc">
-                    <MapPin size={13} strokeWidth={1.75} />
-                    {activePeer?.locationHint ||
-                      activePeer?.organizationName ||
-                      activePeer?.department ||
-                      "Trinity Energy"}
-                  </span>
-                </div>
-
-                <div className="msg-profile__actions">
-                  <button
-                    type="button"
-                    className="is-disabled"
-                    disabled
-                    title="No phone number on file for this contact"
-                  >
-                    <Phone size={15} />
-                    Call
-                  </button>
-                  {activePeer?.email ? (
-                    <a href={`mailto:${activePeer.email}`} title={`Email ${activePeer.email}`}>
-                      <Mail size={15} />
-                      Email
-                    </a>
-                  ) : (
-                    <button type="button" className="is-disabled" disabled title="No email on file">
-                      <Mail size={15} />
-                      Email
-                    </button>
-                  )}
-                  {!isDealerPortal && canOpenUsers ? (
-                    <Link href="/intelligence/retail/users" title="Open Users">
-                      <UserRound size={15} />
-                      View Profile
-                    </Link>
-                  ) : null}
-                </div>
-              </div>
-
+        {!activeId ? (
+          isDealerPortal ? (
+            <div className="msg-context__idle">
+              <p className="msg-context__hint">
+                Select a conversation to see your orders and shared files.
+              </p>
               <section className="msg-card">
                 <header className="msg-card__head">
                   <span>
@@ -960,30 +907,9 @@ export function MessagingApp({
                   <Link href={ordersHref}>View all →</Link>
                 </header>
                 <div className="msg-card__body">
-                  {contextLoading && (context?.recentOrders ?? []).length === 0 ? (
-                    <p className="msg-card__empty">Loading orders…</p>
-                  ) : (context?.recentOrders ?? []).length === 0 ? (
-                    <p className="msg-card__empty">No recent orders for this contact.</p>
-                  ) : (
-                    context!.recentOrders.map((o) => (
-                      <Link
-                        key={o.id}
-                        href={isDealerPortal ? `/dealer/orders/${o.id}` : ordersHref}
-                        className="msg-order"
-                      >
-                        <span className="msg-order__icon">
-                          <FileText size={14} />
-                        </span>
-                        <span className="msg-order__ref">{o.reference}</span>
-                        <span className={`msg-pill msg-pill--${statusTone(o.statusLabel)}`}>
-                          {o.statusLabel}
-                        </span>
-                      </Link>
-                    ))
-                  )}
+                  <p className="msg-card__empty">No orders to display.</p>
                 </div>
               </section>
-
               <section className="msg-card">
                 <header className="msg-card__head">
                   <span>
@@ -993,59 +919,191 @@ export function MessagingApp({
                   <Link href={documentsHref}>View all →</Link>
                 </header>
                 <div className="msg-card__body">
-                  {contextLoading && (context?.files ?? []).length === 0 ? (
-                    <p className="msg-card__empty">Loading files…</p>
-                  ) : (context?.files ?? []).length === 0 ? (
-                    <p className="msg-card__empty">No shared documents yet.</p>
-                  ) : (
-                    context!.files.map((f) => (
-                      <div key={`${f.source}-${f.id}`} className="msg-file">
-                        <span className="msg-file__icon" aria-hidden>
-                          PDF
-                        </span>
-                        <div className="msg-file__meta">
-                          <strong>{f.fileName}</strong>
-                          <span>
-                            {f.kind} · {formatListTime(f.createdAt)} · {f.orderReference}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          className="msg-file__dl"
-                          aria-label={`Download ${f.fileName}`}
-                          onClick={() => {
-                            void (async () => {
-                              setFileNotice("");
-                              try {
-                                const res = await fetch(f.downloadPath);
-                                if (!res.ok) {
-                                  setFileNotice("Could not open the PFI.");
-                                  setTimeout(() => setFileNotice(""), 4000);
-                                  return;
-                                }
-                                const blob = await res.blob();
-                                const objectUrl = URL.createObjectURL(blob);
-                                const a = document.createElement("a");
-                                a.href = objectUrl;
-                                a.download = f.fileName;
-                                a.click();
-                                URL.revokeObjectURL(objectUrl);
-                              } catch {
-                                setFileNotice("Could not download file.");
-                                setTimeout(() => setFileNotice(""), 4000);
-                              }
-                            })();
-                          }}
-                        >
-                          <Download size={15} />
-                        </button>
-                      </div>
-                    ))
-                  )}
+                  <p className="msg-card__empty">No shared documents yet.</p>
                 </div>
               </section>
-            </>
-          )}
+            </div>
+          ) : (
+            <div className="msg-context__empty">
+              <strong>Contact intelligence</strong>
+              <span>Select a conversation to view dealer details, orders, and shared files.</span>
+            </div>
+          )
+        ) : (
+          <>
+            <button
+              type="button"
+              className="msg-back msg-back--context"
+              onClick={() => setMobilePane("chat")}
+              aria-label="Back to chat"
+            >
+              ← Back to chat
+            </button>
+
+            <div className="msg-profile">
+              <div className="msg-profile__body">
+                <span
+                  className={`msg-avatar msg-avatar--lg ${
+                    activePeer?.accountType === "DEALER" ? "msg-avatar--station" : ""
+                  }`}
+                >
+                  {activePeer?.accountType === "DEALER" ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/assets2/img/retail/dashboard-hero-station.jpg" alt="" />
+                  ) : (
+                    initials(activeName)
+                  )}
+                </span>
+                <strong>{activeName}</strong>
+                <span className={online ? "is-online" : undefined}>
+                  {online ? (
+                    <>
+                      <i /> Online
+                    </>
+                  ) : (
+                    "Away"
+                  )}
+                </span>
+                <em>
+                  {activePeer?.accountType === "DEALER" ? "Dealer Account" : "Internal Account"}
+                  {isDealerPortal && activePeer?.department ? ` · ${activePeer.department}` : null}
+                </em>
+                <span className="msg-profile__loc">
+                  <MapPin size={13} strokeWidth={1.75} />
+                  {activePeer?.locationHint ||
+                    activePeer?.organizationName ||
+                    activePeer?.department ||
+                    "Trinity Energy"}
+                </span>
+              </div>
+
+              <div className={`msg-profile__actions ${isDealerPortal ? "msg-profile__actions--pair" : ""}`}>
+                <button
+                  type="button"
+                  className="is-disabled"
+                  disabled
+                  title="No phone number on file for this contact"
+                >
+                  <Phone size={15} />
+                  Call
+                </button>
+                {activePeer?.email ? (
+                  <a href={`mailto:${activePeer.email}`} title={`Email ${activePeer.email}`}>
+                    <Mail size={15} />
+                    Email
+                  </a>
+                ) : (
+                  <button type="button" className="is-disabled" disabled title="No email on file">
+                    <Mail size={15} />
+                    Email
+                  </button>
+                )}
+                {!isDealerPortal && canOpenUsers ? (
+                  <Link href="/intelligence/retail/users" title="Open Users">
+                    <UserRound size={15} />
+                    View Profile
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+
+            <section className="msg-card">
+              <header className="msg-card__head">
+                <span>
+                  <CalendarDays size={15} strokeWidth={1.75} />
+                  {isDealerPortal ? "Related Orders" : "Recent Orders"}
+                </span>
+                <Link href={ordersHref}>View all →</Link>
+              </header>
+              <div className="msg-card__body">
+                {contextLoading && (context?.recentOrders ?? []).length === 0 ? (
+                  <p className="msg-card__empty">Loading orders…</p>
+                ) : (context?.recentOrders ?? []).length === 0 ? (
+                  <p className="msg-card__empty">
+                    {isDealerPortal ? "No orders to display." : "No recent orders for this contact."}
+                  </p>
+                ) : (
+                  context!.recentOrders.map((o) => (
+                    <Link
+                      key={o.id}
+                      href={isDealerPortal ? `/dealer/orders/${o.id}` : ordersHref}
+                      className="msg-order"
+                    >
+                      <span className="msg-order__main">
+                        <span className="msg-order__ref">{o.reference}</span>
+                        <span className="msg-order__meta">{o.station}</span>
+                      </span>
+                      <span className={`msg-pill msg-pill--${statusTone(o.statusLabel)}`}>
+                        {o.statusLabel}
+                      </span>
+                    </Link>
+                  ))
+                )}
+              </div>
+            </section>
+
+            <section className="msg-card">
+              <header className="msg-card__head">
+                <span>
+                  <FileText size={15} strokeWidth={1.75} />
+                  Shared Files
+                </span>
+                <Link href={documentsHref}>View all →</Link>
+              </header>
+              <div className="msg-card__body">
+                {contextLoading && (context?.files ?? []).length === 0 ? (
+                  <p className="msg-card__empty">Loading files…</p>
+                ) : (context?.files ?? []).length === 0 ? (
+                  <p className="msg-card__empty">No shared documents yet.</p>
+                ) : (
+                  context!.files.map((f) => (
+                    <div key={`${f.source}-${f.id}`} className="msg-file">
+                      <span className="msg-file__icon" aria-hidden>
+                        PDF
+                      </span>
+                      <div className="msg-file__meta">
+                        <strong>{f.fileName}</strong>
+                        <span>
+                          {f.kind} · {formatListTime(f.createdAt)} · {f.orderReference}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="msg-file__dl"
+                        aria-label={`Download ${f.fileName}`}
+                        onClick={() => {
+                          void (async () => {
+                            setFileNotice("");
+                            try {
+                              const res = await fetch(f.downloadPath);
+                              if (!res.ok) {
+                                setFileNotice("Could not open the PFI.");
+                                setTimeout(() => setFileNotice(""), 4000);
+                                return;
+                              }
+                              const blob = await res.blob();
+                              const objectUrl = URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = objectUrl;
+                              a.download = f.fileName;
+                              a.click();
+                              URL.revokeObjectURL(objectUrl);
+                            } catch {
+                              setFileNotice("Could not download file.");
+                              setTimeout(() => setFileNotice(""), 4000);
+                            }
+                          })();
+                        }}
+                      >
+                        <Download size={15} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          </>
+        )}
       </aside>
 
       {directoryOpen ? (

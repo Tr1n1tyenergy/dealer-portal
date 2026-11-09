@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Lock, Mail, Shield } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { BrandPanel } from "@/components/access/portal-login";
 import { cn } from "@/lib/utils";
@@ -83,32 +83,14 @@ export function ActivatePasswordForm({
   return (
     <div className="login-shell">
       <BrandPanel
-        image={
-          portal === "dealer"
-            ? "/assets2/img/hero/hero-5-1.jpg"
-            : "/assets2/img/hero/storage.jpg"
-        }
+        kicker={portal === "dealer" ? "Dealer Portal" : "Trinity Staff"}
         headline={portal === "dealer" ? "Welcome," : "Secure access to"}
         highlight={portal === "dealer" ? "partner." : "TRI."}
-        copy={
+        lede={
           portal === "dealer"
             ? "Activate your dealer portal account with a strong password."
             : "Activate your staff account to use Trinity Retail Intelligence."
         }
-        features={[
-          {
-            title: "Password first",
-            description: "Set credentials before first login.",
-            icon: Lock,
-          },
-          {
-            title: "Portal secure",
-            description: "Invite tokens expire after 7 days.",
-            icon: Shield,
-          },
-        ]}
-        statusTitle="Invitation ready"
-        statusSub="Complete activation to sign in"
       />
       <section className="login-panel">
         <div className="login-card-wrap">

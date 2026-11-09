@@ -1,7 +1,9 @@
 import { MessagingApp } from "@/components/messaging/messaging-app";
+import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { listConversationsForUser } from "@/lib/messaging/service";
+import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
 import { requireDealer } from "@/lib/session";
-import "@/app/intelligence/retail/retail-messaging.css";
+import "../../dealer-messaging.css";
 
 export default async function DealerMessagingPage() {
   const session = await requireDealer();
@@ -25,23 +27,22 @@ export default async function DealerMessagingPage() {
   }));
 
   return (
-    <div className="rm rm--dealer" style={{ background: "#0a192f" }}>
-      <div className="rm-hero" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets2/img/retail/dashboard-hero-station.jpg"
-          alt=""
-          className="rm-hero__img"
-        />
-        <div className="rm-hero__fade" />
-      </div>
+    <div className="dm">
+      <section className="dm__hero" style={dealerHeroPhotoStyle}>
+        <div className="dm__hero-veil" aria-hidden />
+        <div className="dm__hero-inner">
+          <div className="dm__hero-copy">
+            <span className="dm__hero-accent" aria-hidden />
+            <div>
+              <h1>Messages</h1>
+              <p>Real-time conversations with the Trinity team.</p>
+            </div>
+          </div>
+          <DealerHeroActions />
+        </div>
+      </section>
 
-      <header className="rm-head">
-        <h1>Messaging</h1>
-        <p>Real-time conversations with the Trinity team.</p>
-      </header>
-
-      <div className="rm-workspace">
+      <div className="dm__workspace">
         <MessagingApp variant="dealer" initialConversations={initialConversations} />
       </div>
     </div>

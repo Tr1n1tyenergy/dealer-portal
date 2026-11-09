@@ -1,0 +1,112 @@
+/* Dealer Messaging — light premium shell (header locked in DealerShell). */
+
+.dm {
+  --dm-blue: #3551a5;
+  --dm-ink: #0a235b;
+  --dm-yellow: #ffcc00;
+  --dm-muted: #64748b;
+  --dm-line: #e2e8f0;
+  --dm-canvas: #eef2f7;
+  --dm-shadow: 0 16px 40px rgba(10, 35, 91, 0.1);
+  /* Lock to shared portal hero token (Dashboard / Orders / PFIs) */
+  --dm-hero-h: var(--dp-hero-height, var(--tri-hero-height-capped, 260px));
+  padding-bottom: 1.5rem;
+  background: var(--dm-canvas);
+  color: var(--dm-ink);
+  min-height: calc(100vh - 68px);
+}
+
+.dm__hero {
+  position: relative;
+  min-height: var(--dp-hero-height, 260px);
+  height: var(--dp-hero-height, 260px);
+  overflow: hidden;
+  color: #fff;
+  background-color: #071833;
+  background-position: var(--dp-hero-photo-position, center center) !important;
+  background-size: var(--dp-hero-photo-size, cover) !important;
+  background-repeat: no-repeat;
+}
+
+.dm__hero-veil {
+  position: absolute;
+  inset: 0;
+  background: none;
+  pointer-events: none;
+}
+
+.dm__hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: var(--dp-hero-height, 260px);
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 0;
+  padding: 1.55rem var(--dp-gutter, 1.5rem) 3.85rem;
+}
+
+.dm__hero-copy {
+  display: flex;
+  align-items: stretch;
+  gap: 0.85rem;
+}
+
+.dm__hero-accent {
+  width: 4px;
+  border-radius: 999px;
+  background: var(--dm-yellow);
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 2.75rem;
+}
+
+.dm__hero-copy h1 {
+  margin: 0;
+  font-size: var(--tri-font-h2, clamp(1.55rem, 2.4vw, 2rem));
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.dm__hero-copy p {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 42ch;
+}
+
+.dm__workspace {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: -1.85rem auto 0;
+  padding: 0 var(--dp-gutter, 1.5rem);
+  box-sizing: border-box;
+  height: calc(100vh - 68px - var(--dm-hero-h) + 1.85rem - 1.5rem);
+  min-height: 560px;
+}
+
+@media (max-width: 1100px) {
+  .dm__workspace {
+    height: auto;
+    min-height: 640px;
+  }
+}
+
+@media (max-width: 760px) {
+  .dm__hero-inner {
+    padding-bottom: 3.25rem;
+  }
+
+  .dm__workspace {
+    margin-top: -1.35rem;
+    min-height: 520px;
+  }
+}

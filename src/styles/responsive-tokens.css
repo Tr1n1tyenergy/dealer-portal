@@ -1,0 +1,68 @@
+/*
+  Trinity site-wide fluid responsive tokens.
+  Consume these for type, spacing, gutters — do not invent parallel scales.
+
+  Testing viewports (content-driven MQs still OK):
+  320 / 768 / 1024 / 1280 / 1440 / 1920
+  Short laptop height: max-height 800px at min-width 1024.
+*/
+
+@layer base {
+  :root {
+    /* Typography — calibrated to current dealer/access titles */
+    --tri-font-xs: clamp(0.68rem, 0.64rem + 0.15vw, 0.75rem);
+    --tri-font-sm: clamp(0.78rem, 0.72rem + 0.22vw, 0.875rem);
+    --tri-font-body: clamp(0.88rem, 0.82rem + 0.28vw, 1rem);
+    --tri-font-lede: clamp(0.88rem, 0.8rem + 0.35vw, 1.05rem);
+    --tri-font-title: clamp(1.35rem, 1.1rem + 0.9vw, 1.85rem);
+    --tri-font-h3: clamp(1.35rem, 1.05rem + 1.1vw, 1.85rem);
+    --tri-font-h2: clamp(1.55rem, 1.15rem + 1.5vw, 2.15rem);
+    --tri-font-h1: clamp(1.75rem, 1.2rem + 2.2vw, 2.9rem);
+    --tri-font-display: clamp(1.85rem, 1.25rem + 2.6vw, 2.9rem);
+
+    /* Spacing */
+    --tri-space-2xs: clamp(0.25rem, 0.2rem + 0.15vw, 0.35rem);
+    --tri-space-xs: clamp(0.4rem, 0.32rem + 0.25vw, 0.6rem);
+    --tri-space-sm: clamp(0.65rem, 0.5rem + 0.4vw, 0.95rem);
+    --tri-space-md: clamp(0.95rem, 0.7rem + 0.7vw, 1.35rem);
+    --tri-space-lg: clamp(1.25rem, 0.9rem + 1.1vw, 2rem);
+    --tri-space-xl: clamp(1.6rem, 1.1rem + 1.6vw, 2.75rem);
+    --tri-space-2xl: clamp(2rem, 1.35rem + 2.2vw, 3.5rem);
+
+    --tri-page-gutter: clamp(1rem, 2.2vw, 1.75rem);
+    --tri-content-max: 1440px;
+    --tri-card-radius: 14px;
+
+    /* Forecourt hero — native plate aspect; capped on short viewports */
+    --tri-hero-aspect-w: 1024;
+    --tri-hero-aspect-h: 211;
+    --tri-hero-height: calc(100vw * var(--tri-hero-aspect-h) / var(--tri-hero-aspect-w));
+    --tri-hero-height-max: 280px;
+    --tri-hero-height-capped: min(var(--tri-hero-height), var(--tri-hero-height-max));
+
+    /* Brand aliases kept for modules that already use --dp-* */
+    --dp-gutter: var(--tri-page-gutter);
+    --dp-hero-height: var(--tri-hero-height-capped);
+  }
+
+  /* Short laptop / short viewport: tighten vertical chrome without clipping CTAs */
+  @media (min-width: 1024px) and (max-height: 800px) {
+    :root {
+      --tri-hero-height-max: 180px;
+      --tri-space-lg: clamp(1rem, 0.75rem + 0.8vw, 1.5rem);
+      --tri-space-xl: clamp(1.25rem, 0.9rem + 1.1vw, 2rem);
+      --tri-space-2xl: clamp(1.5rem, 1rem + 1.4vw, 2.4rem);
+    }
+  }
+
+  @media (min-width: 1024px) and (max-height: 720px) {
+    :root {
+      --tri-hero-height-max: 150px;
+    }
+  }
+
+  .tri-container {
+    width: min(calc(100% - 2 * var(--tri-page-gutter)), var(--tri-content-max));
+    margin-inline: auto;
+  }
+}

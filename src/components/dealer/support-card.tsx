@@ -1,90 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Mail, Phone, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { PFI_COMPANY } from "@/lib/company/pfi-settings";
-import { SUPPORT_EMAIL } from "@/lib/company/contact";
+import {
+  SUPPORT_EMAIL,
+  SUPPORT_EMAIL_SUBJECT,
+  SUPPORT_HOURS,
+  SUPPORT_LOCATION,
+} from "@/lib/company/contact";
 
-const OPEN_EVENT = "dp:open-support";
+/** Contact details preserved from the old Support popup — used by Contact Trinity. */
+export const SUPPORT_CONTACT = {
+  email: SUPPORT_EMAIL,
+  emailSubject: SUPPORT_EMAIL_SUBJECT,
+  phones: PFI_COMPANY.phones,
+  location: SUPPORT_LOCATION,
+  hours: SUPPORT_HOURS,
+} as const;
 
-/** Opens the Support card from anywhere in the dealer portal (sidebar, Place Order). */
+/**
+ * Legacy helper: navigates to the Support Centre instead of opening the old modal.
+ * Kept so older "Need help?" hooks still work if wired.
+ */
 export function openSupport() {
-  window.dispatchEvent(new Event(OPEN_EVENT));
+  if (typeof window === "undefined") return;
+  window.location.assign("/dealer/support");
 }
 
-/** Trinity's contact details, shown as a small modal. Rendered once by the dealer shell. */
+/** @deprecated Modal removed — Support is a full page at /dealer/support. */
 export function SupportCard() {
-  const [open, setOpen] = useState(false);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  // Whatever opened the card (Support / Need help?) gets focus back when it closes.
-  const openerRef = useRef<HTMLElement | null>(null);
+  return null;
+}
 
-  useEffect(() => {
-    const show = () => {
-      openerRef.current = document.activeElement as HTMLElement | null;
-      setOpen(true);
-    };
-    window.addEventListener(OPEN_EVENT, show);
-    return () => window.removeEventListener(OPEN_EVENT, show);
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setOpen(false);
-        return;
-      }
-      if (e.key !== "Tab") return;
-      // Keep Tab inside the card while it is open.
-      const focusable = Array.from(
-        dialogRef.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? [],
-      );
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      openerRef.current?.focus();
-    };
-  }, [open]);
-
-  if (!open) return null;
-
-  return (
-    <div className="dp-support__backdrop" onMouseDown={(e) => e.target === e.currentTarget && setOpen(false)}>
-      <div className="dp-support" role="dialog" ref={dialogRef} aria-modal="true" aria-labelledby="dp-support-title">
-        <div className="dp-support__head">
-          <h2 id="dp-support-title">Contact Trinity</h2>
-          <button ref={closeRef} type="button" onClick={() => setOpen(false)} aria-label="Close">
-            <X size={18} />
-          </button>
-        </div>
-        <p>Questions about an order, a PFI or a payment? Reach the Trinity team:</p>
-        <ul>
-          <li>
-            <Mail size={16} />
-            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
-          </li>
-          {PFI_COMPANY.phones.map((phone) => (
-            <li key={phone}>
-              <Phone size={16} />
-              <a href={`tel:${phone.replace(/\s+/g, "")}`}>{phone}</a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
+/** Client-side navigation helper for in-app CTAs. */
+export function useOpenSupport() {
+  const router = useRouter();
+  return () => router.push("/dealer/support");
 }

@@ -1,0 +1,532 @@
+/* Access gateway — visual match to approved Trinity Retail Intelligence Access mockup.
+   Scoped to .tri-access so dealer/depot/staff login shells stay unchanged. */
+
+.tri-access {
+  --tri-blue: #3551a5;
+  --tri-blue-deep: #0a235b;
+  --tri-yellow: #ffcc00;
+  --tri-yellow-soft: #fff3cc;
+  --tri-yellow-text: #b8860b;
+  --tri-muted: #64748b;
+  --tri-muted-soft: #94a3b8;
+  --tri-panel: #eef2f7;
+  --tri-green: #10b981;
+  --tri-green-deep: #064e3b;
+  --tri-card-blue: #3b82f6;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--tri-panel);
+  color: var(--tri-blue-deep);
+}
+
+/* ── Left cinematic panel ── */
+.tri-access__brand {
+  position: relative;
+  display: flex;
+  min-height: 42vh;
+  overflow: hidden;
+  color: #fff;
+  background: #071833;
+}
+
+.tri-access__brand-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=5");
+  background-size: cover;
+  background-position: center center !important;
+  background-repeat: no-repeat;
+}
+
+.tri-access__brand-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 35, 91, 0.1) 0%,
+      rgba(10, 35, 91, 0.04) 28%,
+      rgba(7, 24, 51, 0.2) 55%,
+      rgba(7, 24, 51, 0.62) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(7, 24, 51, 0.22) 0%,
+      transparent 38%,
+      transparent 100%
+    );
+}
+
+.tri-access__brand-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  min-height: inherit;
+  padding: var(--tri-space-xl, clamp(1.5rem, 3.5vh, 2.75rem))
+    var(--tri-page-gutter, clamp(1.35rem, 3.5vw, 3.25rem))
+    var(--tri-space-2xl, clamp(1.75rem, 4vh, 3rem));
+  box-sizing: border-box;
+}
+
+.tri-access__brand-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.tri-access__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.tri-access__eyebrow-line {
+  width: 1.65rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--tri-yellow);
+  flex: 0 0 auto;
+}
+
+.tri-access__eyebrow-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tri-yellow);
+}
+
+.tri-access__brand-copy {
+  max-width: 34rem;
+}
+
+.tri-access__kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.85rem;
+}
+
+.tri-access__headline {
+  margin: 0;
+  max-width: 22ch;
+  font-size: var(--tri-font-display, clamp(1.85rem, 3.4vw, 2.85rem));
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+
+.tri-access__headline span {
+  color: var(--tri-yellow);
+}
+
+.tri-access__lede {
+  margin: var(--tri-space-sm, 0.95rem) 0 0;
+  max-width: 38ch;
+  font-size: var(--tri-font-lede, clamp(0.88rem, 1.15vw, 1.02rem));
+  font-weight: 400;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* ── Right access panel ── */
+.tri-access__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58vh;
+  padding: var(--tri-space-lg, clamp(1.25rem, 3vh, 2.5rem))
+    var(--tri-page-gutter, clamp(1rem, 3vw, 2rem));
+  background:
+    radial-gradient(ellipse at 80% 0%, rgba(53, 81, 165, 0.06), transparent 55%),
+    linear-gradient(180deg, #f4f7fb 0%, #eef2f7 100%);
+}
+
+.tri-access__card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 1.65rem;
+  padding: clamp(1.65rem, 2.8vh, 2.35rem) clamp(1.35rem, 2.5vw, 2rem)
+    clamp(1.35rem, 2.4vh, 1.85rem);
+  background: #fff;
+  border: 1px solid rgba(10, 35, 91, 0.04);
+  box-shadow: 0 28px 70px rgba(10, 35, 91, 0.12);
+}
+
+.tri-access__card-head {
+  text-align: center;
+}
+
+.tri-access__card-logo {
+  display: flex;
+  justify-content: center;
+}
+
+.tri-access__secure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding: 0.38rem 0.85rem;
+  border-radius: 999px;
+  background: var(--tri-yellow-soft);
+  color: var(--tri-yellow-text);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.tri-access__secure svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: #1a1a1a;
+}
+
+.tri-access__title {
+  margin: var(--tri-space-sm, 0.95rem) 0 0;
+  font-size: var(--tri-font-h3, clamp(1.55rem, 2.4vw, 1.85rem));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+  color: var(--tri-blue-deep);
+}
+
+.tri-access__copy {
+  margin: 0.55rem auto 0;
+  max-width: 32ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--tri-muted);
+}
+
+/* ── Role cards ── */
+.tri-access__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1.45rem;
+}
+
+.tri-access__option {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: center;
+  min-height: 5.45rem;
+  padding: 0.9rem 0.95rem;
+  border-radius: 1.05rem;
+  border: 1.5px solid #e6edf7;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 8px 20px rgba(10, 35, 91, 0.04);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.tri-access__option:hover {
+  transform: translateY(-1px);
+}
+
+.tri-access__option:focus-visible {
+  outline: 2px solid var(--tri-yellow);
+  outline-offset: 2px;
+}
+
+.tri-access__option-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-position: right center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0.38;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(0, 0, 0, 0.35) 58%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(0, 0, 0, 0.35) 58%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+}
+
+.tri-access__option-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 42%,
+    rgba(255, 255, 255, 0.72) 62%,
+    rgba(255, 255, 255, 0.18) 100%
+  );
+}
+
+.tri-access__option > *:not(.tri-access__option-media) {
+  position: relative;
+  z-index: 1;
+}
+
+.tri-access__option--staff {
+  border-color: rgba(255, 204, 0, 0.5);
+}
+
+.tri-access__option--staff:hover {
+  border-color: var(--tri-yellow);
+  box-shadow: 0 14px 30px rgba(255, 204, 0, 0.18);
+}
+
+.tri-access__option--dealer {
+  border-color: rgba(59, 130, 246, 0.42);
+}
+
+.tri-access__option--dealer:hover {
+  border-color: var(--tri-card-blue);
+  box-shadow: 0 14px 30px rgba(59, 130, 246, 0.16);
+}
+
+.tri-access__option--depot {
+  border-color: rgba(16, 185, 129, 0.42);
+}
+
+.tri-access__option--depot:hover {
+  border-color: var(--tri-green);
+  box-shadow: 0 14px 30px rgba(16, 185, 129, 0.16);
+}
+
+.tri-access__option-icon {
+  display: grid;
+  place-items: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 0.8rem;
+  background: var(--tri-yellow);
+  color: var(--tri-blue-deep);
+  border: 1px solid rgba(255, 204, 0, 0.55);
+  flex-shrink: 0;
+}
+
+.tri-access__option-icon--blue {
+  background: var(--tri-blue-deep);
+  color: #fff;
+  border-color: rgba(10, 35, 91, 0.35);
+}
+
+.tri-access__option-icon--green {
+  background: var(--tri-green);
+  color: #fff;
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.tri-access__option-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  min-width: 0;
+}
+
+.tri-access__option-title {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--tri-blue-deep);
+}
+
+.tri-access__option-desc {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--tri-muted);
+}
+
+.tri-access__option-caps {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--tri-muted-soft);
+}
+
+.tri-access__option-go {
+  display: grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 999px;
+  background: var(--tri-yellow);
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.3);
+  transition: transform 0.18s ease;
+}
+
+.tri-access__option:hover .tri-access__option-go {
+  transform: translateX(1px);
+}
+
+.tri-access__option-go--blue {
+  background: var(--tri-card-blue);
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.3);
+}
+
+.tri-access__option-go--green {
+  background: var(--tri-green);
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.3);
+}
+
+/* ── Trust strip ── */
+.tri-access__trust {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 1.35rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid rgba(10, 35, 91, 0.08);
+}
+
+.tri-access__trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.tri-access__trust-item + .tri-access__trust-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 1px;
+  background: rgba(10, 35, 91, 0.1);
+}
+
+.tri-access__trust-icon {
+  display: grid;
+  place-items: center;
+  color: var(--tri-blue);
+}
+
+.tri-access__trust-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.tri-access__trust-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--tri-blue-deep);
+}
+
+/* ── Desktop split ── */
+@media (min-width: 1024px) {
+  .tri-access {
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .tri-access__brand {
+    min-height: 100%;
+    height: 100%;
+  }
+
+  .tri-access__brand-bg {
+    background-position: center center;
+  }
+
+  .tri-access__panel {
+    min-height: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: 2rem 2.25rem;
+  }
+
+  .tri-access__card {
+    max-width: 448px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .tri-access {
+    grid-template-columns: minmax(0, 1.28fr) minmax(0, 1fr);
+  }
+
+  .tri-access__brand-inner {
+    padding-left: 3.5rem;
+    padding-right: 3.5rem;
+    padding-bottom: 3.25rem;
+  }
+
+  .tri-access__headline {
+    max-width: 22ch;
+  }
+}
+
+@media (max-width: 1023px) {
+  .tri-access__brand {
+    min-height: 38vh;
+  }
+
+  .tri-access__brand-bg {
+    background-position: center center !important;
+  }
+
+  .tri-access__brand-inner {
+    justify-content: flex-end;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .tri-access__option {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 5.1rem;
+  }
+
+  .tri-access__option-go {
+    display: none;
+  }
+
+  .tri-access__option-media {
+    opacity: 0.26;
+  }
+
+  .tri-access__trust-title {
+    font-size: 0.62rem;
+  }
+
+  .tri-access__title {
+    font-size: 1.45rem;
+  }
+}

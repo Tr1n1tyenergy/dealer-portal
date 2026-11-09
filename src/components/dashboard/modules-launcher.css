@@ -26,7 +26,7 @@
 
 .mod-browse-btn:hover {
   transform: translateY(-1px);
-  border-color: rgba(245, 184, 0, 0.55) !important;
+  border-color: rgba(255, 204, 0, 0.55) !important;
   box-shadow: 0 12px 26px rgba(10, 35, 91, 0.1) !important;
 }
 
@@ -144,7 +144,7 @@
 }
 
 .tri-lp__app:focus-visible {
-  outline: 2px solid #f5b800;
+  outline: 2px solid #ffcc00;
   outline-offset: 2px;
 }
 
@@ -153,10 +153,10 @@
 }
 
 .tri-lp__app:hover .tri-lp__tile {
-  border-color: rgba(245, 184, 0, 0.45) !important;
+  border-color: rgba(255, 204, 0, 0.45) !important;
   box-shadow:
     0 12px 26px rgba(0, 0, 0, 0.35),
-    0 0 0 2px rgba(245, 184, 0, 0.18) !important;
+    0 0 0 2px rgba(255, 204, 0, 0.18) !important;
 }
 
 .tri-lp__label {
@@ -180,7 +180,7 @@
 }
 
 .tri-lp__footer-link {
-  color: #f5b800 !important;
+  color: #ffcc00 !important;
   font-weight: 700 !important;
   text-decoration: none !important;
 }

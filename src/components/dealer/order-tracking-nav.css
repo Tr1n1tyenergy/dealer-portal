@@ -112,12 +112,12 @@
 }
 
 .dp-ot-find__results button:hover {
-  background: rgba(255, 184, 0, 0.12) !important;
+  background: rgba(255, 204, 0, 0.12) !important;
 }
 
 .dp-ot-find__results strong {
   font-size: 0.8rem !important;
-  color: #ffb800 !important;
+  color: #ffcc00 !important;
 }
 
 .dp-ot-find__results span {

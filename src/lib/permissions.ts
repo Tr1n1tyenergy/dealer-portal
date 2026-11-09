@@ -3,7 +3,15 @@
  * person may have Allow or Deny ticks on top (stored in User.permissions). Deny wins; Act needs View.
  * Client- and edge-safe: no database imports.
  */
-export type PermissionModule = "analytics" | "orders" | "messaging" | "retailUsers" | "adminUsers" | "activity" | "settings";
+export type PermissionModule =
+  | "analytics"
+  | "orders"
+  | "messaging"
+  | "support"
+  | "retailUsers"
+  | "adminUsers"
+  | "activity"
+  | "settings";
 export type PermissionLevel = "view" | "act";
 export type PermissionKey = `${PermissionModule}.${PermissionLevel}`;
 export type StaffUser = { accountType?: string | null; role?: string | null; permissions?: string | null };
@@ -12,6 +20,7 @@ export const PERMISSION_MODULES: { key: PermissionModule; label: string; levels:
   { key: "analytics", label: "Retail Analytics", levels: ["view"] },
   { key: "orders", label: "Orders", levels: ["view", "act"] },
   { key: "messaging", label: "Messaging", levels: ["view", "act"] },
+  { key: "support", label: "Support Tickets", levels: ["view", "act"] },
   { key: "retailUsers", label: "Retail Users", levels: ["view", "act"] },
   { key: "adminUsers", label: "Admin Users", levels: ["view", "act"] },
   { key: "activity", label: "Activity Logs", levels: ["view"] },
@@ -22,7 +31,15 @@ export const PERMISSION_KEYS = PERMISSION_MODULES.flatMap((m) => m.levels.map((l
 
 const ROLE_DEFAULTS: Record<string, readonly PermissionKey[]> = {
   SUPER_ADMIN: PERMISSION_KEYS,
-  SALES_PERSON_EXECUTIVE: ["analytics.view", "orders.view", "orders.act", "messaging.view", "messaging.act"],
+  SALES_PERSON_EXECUTIVE: [
+    "analytics.view",
+    "orders.view",
+    "orders.act",
+    "messaging.view",
+    "messaging.act",
+    "support.view",
+    "support.act",
+  ],
 };
 
 export function roleGrants(role: string | null | undefined, key: PermissionKey): boolean {
@@ -63,5 +80,7 @@ export function canUser(user: StaffUser | null | undefined, module: PermissionMo
 
 /** The Retail Interface opens for anyone who can view one of its areas. */
 export function canAccessRetail(user: StaffUser | null | undefined): boolean {
-  return (["analytics", "orders", "messaging", "retailUsers"] as const).some((m) => canUser(user, m, "view"));
+  return (["analytics", "orders", "messaging", "support", "retailUsers"] as const).some((m) =>
+    canUser(user, m, "view"),
+  );
 }
