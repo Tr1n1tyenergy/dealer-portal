@@ -16,7 +16,7 @@ export function PaymentForm({ orderId, amountDue }: { orderId: string; amountDue
   }
 
   return (
-    <form onSubmit={onSubmit} className="dp-ot-card dp-ot-pay">
+    <form onSubmit={onSubmit} className="ot__card ot__pay">
       <input type="hidden" name="orderId" value={orderId} />
       <h3>Submit payment details</h3>
       <label>

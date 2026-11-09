@@ -12,7 +12,7 @@ export type AnalyticsStatusBucket =
 
 export const STATUS_BUCKET_COLORS: Record<AnalyticsStatusBucket, string> = {
   "Quotation Processing": "#3B82F6",
-  "Awaiting Payment": "#F5B800",
+  "Awaiting Payment": "#ffcc00",
   "PFI Issued": "#F97316",
   "Depot Processing": "#A855F7",
   "In Transit": "#22C55E",

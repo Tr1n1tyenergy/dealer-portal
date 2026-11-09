@@ -50,8 +50,8 @@ describe("dealerOrderViewWhere", () => {
     assert.deepEqual(
       DEALER_ORDER_VIEWS.map((v) => [v.view, v.label, v.href]),
       [
-        ["all", "All", "/dealer/orders"],
-        ["payment", "Needs payment", "/dealer/orders?view=payment"],
+        ["all", "All Orders", "/dealer/orders"],
+        ["payment", "Needs Payment", "/dealer/orders?view=payment"],
         ["documents", "PFIs & Documents", "/dealer/orders?view=documents"],
         ["deliveries", "Deliveries", "/dealer/orders?view=deliveries"],
       ],

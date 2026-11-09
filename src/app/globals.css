@@ -1,8 +1,9 @@
 @import "tailwindcss";
+@import "../styles/responsive-tokens.css" layer(base);
 
 @theme inline {
   --color-trinity-blue: #173d8f;
-  --color-trinity-gold: #f5b800;
+  --color-trinity-gold: #ffcc00;
   --color-trinity-navy: #0a235b;
   --color-trinity-bg: #f5f7fa;
   --color-trinity-card: #ffffff;
@@ -40,6 +41,6 @@
   }
 
   .text-gradient-gold {
-    @apply bg-gradient-to-r from-trinity-gold to-[#ffd666] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-trinity-gold to-[#ffcc00] bg-clip-text text-transparent;
   }
 }

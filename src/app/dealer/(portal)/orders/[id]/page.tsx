@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
   Calendar,
   Check,
   ChevronRight,
+  Download,
   Droplets,
+  ExternalLink,
   FileText,
   Fuel,
-  Home,
   MapPin,
-  Package,
+  StickyNote,
+  Tag,
+  Truck,
 } from "lucide-react";
 import type { DealerOrderStatus } from "@prisma/client";
 import { requireDealer } from "@/lib/session";
@@ -20,8 +22,9 @@ import {
   dealerTrackerSteps,
   type DealerTrackerStep,
 } from "@/lib/orders/state-machine";
-import { PaymentForm } from "@/components/dealer/payment-form";
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
+import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
+import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
 import "@/components/dealer/order-tracking.css";
 
 function formatLitres(n: number) {
@@ -48,18 +51,36 @@ function formatDateTime(date: Date) {
   }).format(date);
 }
 
-function stationArea(name: string) {
-  if (name.toLowerCase().includes("nakuru")) return "Nakuru";
-  if (name.toLowerCase().includes("westlands")) return "Nairobi";
-  return "Kenya";
+function fuelSummaryLine(stationName: string, pms: number, ago: number) {
+  const parts: string[] = [];
+  if (pms > 0) parts.push(`${formatLitres(pms)} PMS`);
+  if (ago > 0) parts.push(`${formatLitres(ago)} AGO`);
+  if (parts.length === 0) parts.push("0 L");
+  return `${stationName} Station · ${parts.join(" · ")}`;
 }
 
-function statusCopy(status: DealerOrderStatus) {
+function fuelOrderedLabel(pms: number, ago: number) {
+  if (pms > 0 && ago > 0) {
+    return `${formatLitres(pms)} PMS · ${formatLitres(ago)} AGO`;
+  }
+  if (pms > 0) return "PMS · Premium Motor Spirit";
+  if (ago > 0) return "AGO · Automotive Gas Oil";
+  return "No fuel lines";
+}
+
+function fuelOrderedVolume(pms: number, ago: number) {
+  return formatLitres(pms + ago);
+}
+
+/** Headline + detail for the floating tracker card from live status. */
+function trackerHeadline(status: DealerOrderStatus, steps: DealerTrackerStep[]) {
+  const active = steps.find((s) => s.state === "active" || s.state === "attention");
   const label = dealerStatusLabel(status);
+
   switch (status) {
     case "SUBMITTED":
       return {
-        label,
+        title: "Order submitted",
         detail: "Your order has been received and is queued for commercial processing.",
       };
     case "ODOO_SYNC_PENDING":
@@ -68,41 +89,97 @@ function statusCopy(status: DealerOrderStatus) {
     case "QUOTATION_READY":
     case "PFI_PENDING":
       return {
-        label: "Quotation Processing",
+        title: "Quotation in progress",
         detail: "Your order has been received and commercial processing is underway.",
       };
     case "PFI_ISSUED":
     case "AWAITING_PAYMENT":
       return {
-        label,
+        title: "Payment pending",
         detail: "Your Pro Forma Invoice is ready. Complete payment to release the order to depot.",
       };
     case "PAYMENT_SUBMITTED":
     case "PAYMENT_VERIFICATION":
       return {
-        label,
+        title: "Payment under review",
         detail: "Payment details have been received and are being verified by Trinity finance.",
       };
     case "PAYMENT_EXCEPTION":
       return {
-        label,
+        title: "Payment needs attention",
         detail: "Trinity finance couldn't verify your payment. Check the details below and submit them again.",
+      };
+    case "PAYMENT_CONFIRMED":
+      return {
+        title: "Payment confirmed",
+        detail: "Payment is confirmed. Trinity will release this order to the depot shortly.",
+      };
+    case "RELEASED_TO_DEPOT":
+      return {
+        title: "Released to depot",
+        detail: "Your order has been released to the depot and is waiting to enter the loading stage.",
+      };
+    case "LOADING":
+      return {
+        title: "Loading in progress",
+        detail: "Your order has been released to the depot and is currently in the loading stage.",
+      };
+    case "LOADED":
+      return {
+        title: "Loaded",
+        detail: "Fuel has been loaded and is preparing for dispatch to your station.",
+      };
+    case "DISPATCHED":
+    case "IN_TRANSIT":
+      return {
+        title: "Your delivery is on the way",
+        detail: "Your fuel order is in transit to the delivery station.",
       };
     case "DELIVERED":
     case "CLOSED":
       return {
-        label,
+        title: "Order delivered",
         detail: "Fuel has been delivered to your station.",
+      };
+    case "CANCELLED":
+      return { title: "Order cancelled", detail: "This order was cancelled and will not progress further." };
+    case "REJECTED":
+      return { title: "Order rejected", detail: "This order was rejected and will not progress further." };
+    case "STOCK_EXCEPTION":
+    case "DELIVERY_EXCEPTION":
+      return {
+        title: label,
+        detail: "Trinity is resolving an exception on this order. Check back shortly or contact support.",
+      };
+    case "REQUIRES_AMENDMENT":
+      return {
+        title: "Needs update",
+        detail: "This order needs an amendment before Trinity can continue processing.",
       };
     default:
       return {
-        label,
+        title: active?.label ?? label,
         detail: "Track each stage of this order as Trinity processes it.",
       };
   }
 }
 
-/** Document badges follow the same tracker as the progress bar, so the two always agree. */
+function stageBadge(steps: DealerTrackerStep[], stopped: string | null) {
+  if (stopped) return "Stopped";
+  const activeIndex = steps.findIndex((s) => s.state === "active" || s.state === "attention");
+  if (activeIndex >= 0) return `Stage ${activeIndex + 1} of ${steps.length}`;
+  if (steps.every((s) => s.state === "done")) return `Stage ${steps.length} of ${steps.length}`;
+  return `Stage — of ${steps.length}`;
+}
+
+function stepSecondary(item: DealerTrackerStep) {
+  if (item.state === "done") return "Done";
+  if (item.state === "pending") return "Pending";
+  if (item.state === "stopped") return "—";
+  return item.note ?? (item.state === "attention" ? "Needs attention" : "In progress");
+}
+
+/** Document badges follow the same tracker as the progress bar. */
 function docState(
   kind: "quotation" | "pfi" | "payment" | "delivery",
   steps: DealerTrackerStep[],
@@ -133,14 +210,6 @@ function docState(
   return { label: "Pending", tone: "pending" as const };
 }
 
-const STEP_STATUS_TEXT: Record<DealerTrackerStep["state"], string> = {
-  done: "Done",
-  active: "In Progress",
-  attention: "Needs attention",
-  pending: "Pending",
-  stopped: "—",
-};
-
 export default async function DealerOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireDealer();
   const { id } = await params;
@@ -165,103 +234,97 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
   }));
 
   const tracker = dealerTrackerSteps(order.status);
-  const canPay = order.status === "AWAITING_PAYMENT" || order.status === "PAYMENT_EXCEPTION";
   const pms = order.lines.find((l) => l.product === "PMS")?.quantityLitres ?? 0;
   const ago = order.lines.find((l) => l.product === "AGO")?.quantityLitres ?? 0;
-  const total = pms + ago;
-  const current = statusCopy(order.status);
+  const headline = trackerHeadline(order.status, tracker.steps);
   const badgeLabel =
     order.status === "SUBMITTED" ? "Order Submitted" : dealerStatusLabel(order.status);
+  const badgeTone =
+    order.status === "CANCELLED" || order.status === "REJECTED"
+      ? "danger"
+      : order.status === "PAYMENT_EXCEPTION" ||
+          order.status === "STOCK_EXCEPTION" ||
+          order.status === "DELIVERY_EXCEPTION" ||
+          order.status === "REQUIRES_AMENDMENT"
+        ? "warn"
+        : order.status === "AWAITING_PAYMENT" || order.status === "PFI_ISSUED"
+          ? "warn"
+          : order.status === "DELIVERED" || order.status === "CLOSED"
+            ? "ok"
+            : "ok";
+  const stageLabel = stageBadge(tracker.steps, tracker.stopped);
 
   const docs = [
     {
-      key: "quotation",
-      title: "Sales Quotation",
+      key: "quotation" as const,
+      title: "Sales quotation",
       ...docState("quotation", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
-      key: "pfi",
+      key: "pfi" as const,
       title: "Pro Forma Invoice (PFI)",
       ...docState("pfi", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
-      key: "payment",
-      title: "Payment Confirmation",
+      key: "payment" as const,
+      title: "Payment confirmation",
       ...docState("payment", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
-      key: "delivery",
-      title: "Delivery Note",
+      key: "delivery" as const,
+      title: "Delivery note",
       ...docState("delivery", tracker.steps, order.status, Boolean(order.proforma)),
     },
   ];
 
   return (
-    <div className="dp-dash">
-      <section
-        className="dp-hero dp-ot-hero"
-        style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
-      >
-        <div className="dp-hero__veil" />
-        <div className="dp-ot-hero__inner">
-          <nav className="dp-po-crumb" aria-label="Breadcrumb">
-            <Link href="/dealer/dashboard" aria-label="Home">
-              <Home size={14} />
+    <div className="ot">
+      <section className="ot__hero" style={dealerHeroPhotoStyle}>
+        <div className="ot__hero-veil" aria-hidden />
+        <div className="ot__hero-inner">
+          <nav className="ot__crumbs" aria-label="Breadcrumb">
+            <Link href="/dealer/orders" className="ot__crumb">
+              Orders
             </Link>
-            <span className="sep">/</span>
-            <Link href="/dealer/orders">My Orders</Link>
-            <span className="sep">/</span>
-            <span className="is-current">{order.reference}</span>
+            <ChevronRight className="ot__crumb-sep" size={14} strokeWidth={2.4} aria-hidden />
+            <span className="ot__crumb is-current">Order Tracking</span>
+            <ChevronRight className="ot__crumb-sep" size={14} strokeWidth={2.4} aria-hidden />
+            <span className="ot__crumb is-leaf">{order.reference}</span>
           </nav>
 
-          <div className="dp-ot-toolbar">
-            <Link href="/dealer/dashboard" className="dp-ot-back">
-              <ArrowLeft size={14} />
-              Back to Dashboard
-            </Link>
-            <OrderTrackingNav orders={navOrders} currentId={order.id} />
+          <h1>{order.reference}</h1>
+          <p className="ot__sub">{fuelSummaryLine(order.station.name, pms, ago)}</p>
+
+          <div className="ot__hero-meta">
+            <span className={`ot__status-pill is-${badgeTone}`}>{badgeLabel}</span>
+            <span className="ot__submitted">Submitted {formatDateTime(order.createdAt)}</span>
           </div>
 
-          <div className="dp-ot-hero__grid">
-            <div className="dp-ot-hero__copy">
-              <div className="dp-ot-ref-row">
-                <span className="dp-ot-ref">{order.reference}</span>
-                <span className="dp-ot-badge">{badgeLabel}</span>
-              </div>
-              <h1>{order.station.name}</h1>
-              <p className="dp-ot-volume">{formatLitres(total)} Fuel Order</p>
-              <div className="dp-ot-meta">
-                <span>
-                  <Calendar size={14} />
-                  Submitted: {formatDateTime(order.createdAt)}
-                </span>
-                <span>
-                  <Calendar size={14} />
-                  Requested Delivery: {formatLongDate(order.requestedDeliveryDate)}
-                </span>
-                <span>
-                  <FileText size={14} />
-                  Dealer Reference: {order.dealerReference || "—"}
-                </span>
-              </div>
-            </div>
+          <DealerHeroActions />
+        </div>
+      </section>
 
-            <aside className="dp-ot-status">
-              <div className="dp-ot-status__icon">
-                <FileText size={18} />
+      <div className="ot__inner">
+        <div className="ot__tracker-stack">
+          <article className="ot__tracker">
+            <header className="ot__tracker-head">
+              <div className="ot__tracker-lead">
+                <span className="ot__tracker-icon" aria-hidden>
+                  <Truck size={22} strokeWidth={2.2} />
+                </span>
+                <div>
+                  <div className="ot__tracker-kicker">Current order status</div>
+                  <h2>{headline.title}</h2>
+                  <p>{headline.detail}</p>
+                </div>
               </div>
-              <div>
-                <div className="dp-ot-status__kicker">Current status</div>
-                <strong>{current.label}</strong>
-                <p>{current.detail}</p>
-              </div>
-            </aside>
-          </div>
+              <span className="ot__stage-pill">{stageLabel}</span>
+            </header>
 
-          <div className="dp-ot-progress-wrap">
-            {tracker.stopped ? <p className="dp-ot-progress__stopped">{tracker.stopped}</p> : null}
+            {tracker.stopped ? <p className="ot__stopped">{tracker.stopped}</p> : null}
+
             <ol
-              className={`dp-ot-progress ${tracker.stopped ? "is-stopped" : ""}`}
+              className={`ot__progress ${tracker.stopped ? "is-stopped" : ""}`}
               aria-label="Order progress"
             >
               {tracker.steps.map((item, index) => {
@@ -276,12 +339,12 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                 return (
                   <li
                     key={item.key}
-                    className={`dp-ot-progress__step is-${item.state}`}
+                    className={`ot__progress-step is-${item.state}`}
                     aria-current={isCurrent ? "step" : undefined}
                   >
-                    <div className="dp-ot-progress__rail">
-                      <div className="dp-ot-progress__node">
-                        <span className="dp-ot-progress__dot">
+                    <div className="ot__progress-rail">
+                      <div className="ot__progress-node">
+                        <span className="ot__progress-dot">
                           {item.state === "done" ? (
                             <Check size={14} strokeWidth={3} />
                           ) : item.state === "attention" ? (
@@ -291,162 +354,159 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                           )}
                         </span>
                         <em>{item.label}</em>
-                        <small>{item.note ?? STEP_STATUS_TEXT[item.state]}</small>
+                        <small>{stepSecondary(item)}</small>
                       </div>
                       {index < tracker.steps.length - 1 ? (
-                        <span className={`dp-ot-progress__line ${connectorClass}`} aria-hidden />
+                        <span className={`ot__progress-line ${connectorClass}`} aria-hidden />
                       ) : null}
                     </div>
                   </li>
                 );
               })}
             </ol>
-          </div>
+          </article>
         </div>
-      </section>
 
-      <section className="dp-body dp-ot-body">
-        <div className="dp-ot-layout">
-          <article className="dp-ot-card">
-            <header className="dp-ot-card__head">
-              <div className="dp-ot-card__title">
-                <span className="dp-ot-card__icon is-blue">
-                  <Fuel size={18} />
+        <div className="ot__tools" aria-label="Browse other orders">
+          <OrderTrackingNav orders={navOrders} currentId={order.id} />
+        </div>
+
+        <div className="ot__grid">
+          <article className="ot__card">
+            <header className="ot__card-head">
+              <div className="ot__card-title">
+                <span className="ot__card-icon" aria-hidden>
+                  <FileText size={18} strokeWidth={2.2} />
                 </span>
-                <div>
-                  <h2>Order Details</h2>
-                  <p>Fuel products, station and delivery information.</p>
-                </div>
+                <h2>Order Details</h2>
               </div>
+              <span className="ot__ref-pill">{order.reference}</span>
             </header>
 
-            <div className="dp-ot-products">
-              {pms > 0 ? (
-                <div className="dp-ot-product is-pms">
-                  <span className="dp-ot-product__icon">
-                    <Droplets size={18} />
-                  </span>
-                  <div>
-                    <strong>PMS</strong>
-                    <em>Premium Motor Spirit</em>
-                  </div>
-                  <b>{formatLitres(pms)}</b>
+            <div className="ot__summary-tiles">
+              <div className="ot__tile is-fuel">
+                <span className="ot__tile-icon" aria-hidden>
+                  <Fuel size={18} strokeWidth={2.2} />
+                </span>
+                <div className="ot__tile-copy">
+                  <span className="ot__tile-label">Fuel Ordered</span>
+                  <strong>{fuelOrderedVolume(pms, ago)}</strong>
+                  <em>{fuelOrderedLabel(pms, ago)}</em>
                 </div>
-              ) : null}
-              {ago > 0 ? (
-                <div className="dp-ot-product is-ago">
-                  <span className="dp-ot-product__icon">
-                    <Fuel size={18} />
-                  </span>
-                  <div>
-                    <strong>AGO</strong>
-                    <em>Automotive Gas Oil</em>
-                  </div>
-                  <b>{formatLitres(ago)}</b>
+                <Droplets className="ot__tile-watermark" size={72} strokeWidth={1.2} aria-hidden />
+              </div>
+
+              <div className="ot__tile is-station">
+                <span className="ot__tile-icon" aria-hidden>
+                  <MapPin size={18} strokeWidth={2.2} />
+                </span>
+                <div className="ot__tile-copy">
+                  <span className="ot__tile-label">Delivery Station</span>
+                  <strong>{order.station.name}</strong>
+                  <em>Requested delivery: {formatLongDate(order.requestedDeliveryDate)}</em>
                 </div>
-              ) : null}
+                <Fuel className="ot__tile-watermark" size={72} strokeWidth={1.2} aria-hidden />
+              </div>
             </div>
 
-            <div className="dp-ot-total">
-              <span>Total Order Volume</span>
-              <strong>{formatLitres(total)}</strong>
-            </div>
+            {pms > 0 && ago > 0 ? (
+              <div className="ot__product-split" aria-label="Product quantities">
+                <div className="ot__product-chip is-pms">
+                  <span>PMS</span>
+                  <strong>{formatLitres(pms)}</strong>
+                </div>
+                <div className="ot__product-chip is-ago">
+                  <span>AGO</span>
+                  <strong>{formatLitres(ago)}</strong>
+                </div>
+              </div>
+            ) : null}
 
-            <div className="dp-ot-facts">
-              <div>
-                <span>
-                  <MapPin size={14} /> Station
+            <ul className="ot__facts">
+              <li>
+                <span className="ot__fact-icon" aria-hidden>
+                  <Calendar size={14} />
                 </span>
-                <strong>{order.station.name}</strong>
-                <em>
-                  {stationArea(order.station.name)} · Active Station
-                </em>
-              </div>
-              <div>
-                <span>
-                  <Calendar size={14} /> Requested Delivery Date
-                </span>
-                <strong>{formatLongDate(order.requestedDeliveryDate)}</strong>
-              </div>
-              <div>
-                <span>
-                  <Calendar size={14} /> Order Date
-                </span>
+                <span className="ot__fact-label">Order date</span>
                 <strong>{formatDateTime(order.createdAt)}</strong>
-              </div>
-            </div>
-
-            <div className="dp-ot-extras">
-              <div>
-                <span>
-                  <FileText size={14} /> Dealer Reference / PO Number
+              </li>
+              <li>
+                <span className="ot__fact-icon" aria-hidden>
+                  <Tag size={14} />
                 </span>
+                <span className="ot__fact-label">Your reference</span>
                 <strong>{order.dealerReference || "Not provided"}</strong>
-              </div>
-              <div>
-                <span>
-                  <Package size={14} /> Order Notes
+              </li>
+              <li>
+                <span className="ot__fact-icon" aria-hidden>
+                  <StickyNote size={14} />
                 </span>
-                <strong>{order.notes || "No additional notes"}</strong>
-              </div>
-            </div>
+                <span className="ot__fact-label">Notes</span>
+                <strong>{order.notes || "None"}</strong>
+              </li>
+            </ul>
           </article>
 
-          <aside className="dp-ot-side">
-            <article className="dp-ot-card">
-              <header className="dp-ot-card__head">
-                <div className="dp-ot-card__title">
-                  <span className="dp-ot-card__icon is-blue">
-                    <FileText size={18} />
+          <aside className="ot__side">
+            <article className="ot__card">
+              <header className="ot__card-head">
+                <div className="ot__card-title">
+                  <span className="ot__card-icon" aria-hidden>
+                    <FileText size={18} strokeWidth={2.2} />
                   </span>
-                  <div>
-                    <h2>Order Documents</h2>
-                    <p>Access all documents related to this order.</p>
-                  </div>
+                  <h2>Documents</h2>
                 </div>
               </header>
 
-              <ul className="dp-ot-docs">
-                {docs.map((doc) =>
-                  doc.key === "pfi" && order.proforma ? (
-                    <li key={doc.key}>
-                      <a
-                        className="dp-ot-docs__link"
-                        href={`/api/orders/${order.id}/pfi`}
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        <span className="dp-ot-docs__icon">
-                          <FileText size={16} />
-                        </span>
-                        <div>
-                          <strong>{doc.title}</strong>
-                          <em className="dp-ot-pill is-ready">View PFI</em>
-                        </div>
-                        <ChevronRight size={16} className="dp-ot-docs__chev" />
-                      </a>
-                    </li>
-                  ) : (
-                    <li key={doc.key}>
-                      <span className="dp-ot-docs__icon">
-                        <FileText size={16} />
+              <ul className="ot__docs">
+                {docs.map((doc) => {
+                  const isPfiReady = doc.key === "pfi" && Boolean(order.proforma);
+
+                  return (
+                    <li key={doc.key} className="ot__doc">
+                      <span className="ot__doc-icon" aria-hidden>
+                        <FileText size={16} strokeWidth={2.2} />
                       </span>
-                      <div>
+                      <div className="ot__doc-copy">
                         <strong>{doc.title}</strong>
-                        <em className={`dp-ot-pill is-${doc.tone}`}>{doc.label}</em>
+                        {isPfiReady ? null : (
+                          <em className={`ot__pill is-${doc.tone}`}>{doc.label}</em>
+                        )}
                       </div>
+                      {isPfiReady ? (
+                        <a
+                          className="ot__doc-action"
+                          href={`/api/orders/${order.id}/pfi`}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          View PFI
+                          <ExternalLink size={14} strokeWidth={2.2} aria-hidden />
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          className="ot__doc-action is-disabled"
+                          disabled
+                          aria-disabled="true"
+                          title={
+                            doc.tone === "ready"
+                              ? "Download will be available when the file is linked"
+                              : "Document not available yet"
+                          }
+                        >
+                          Download
+                          <Download size={14} strokeWidth={2.2} aria-hidden />
+                        </button>
+                      )}
                     </li>
-                  )
-                )}
+                  );
+                })}
               </ul>
             </article>
-
-            {canPay ? (
-              <PaymentForm orderId={order.id} amountDue={order.amountDue ?? null} />
-            ) : null}
           </aside>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

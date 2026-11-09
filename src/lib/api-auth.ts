@@ -40,6 +40,17 @@ export async function requireMessagingApi() {
   return result;
 }
 
+/** Dealer portal APIs — authenticated dealer with an organization. */
+export async function requireDealerApi() {
+  const result = await requireSessionApi();
+  if ("error" in result) return result;
+  const user = result.session.user;
+  if (user.accountType !== "DEALER" || !user.dealerOrganizationId) {
+    return { error: jsonError("Forbidden", 403) as NextResponse };
+  }
+  return result;
+}
+
 /** Staff who may view or act on a module (role default + the person's Allow/Deny ticks). */
 export async function requirePermissionApi(module: PermissionModule, level: PermissionLevel) {
   const result = await requireInternalApi();

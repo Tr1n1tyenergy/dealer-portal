@@ -134,6 +134,11 @@ model User {
   conversationParticipants ConversationParticipant[]
   messagesSent             Message[]                 @relation("MessageSender")
   messageReceipts          MessageReceipt[]
+  supportTicketsCreated    SupportTicket[]           @relation("SupportTicketCreator")
+  supportTicketsAssigned   SupportTicket[]           @relation("SupportTicketAssignee")
+  supportTicketMessages    SupportTicketMessage[]    @relation("SupportTicketMessageAuthor")
+  supportTicketAttachments SupportTicketAttachment[] @relation("SupportTicketAttachmentUploader")
+  supportTicketEvents      SupportTicketEvent[]      @relation("SupportTicketEventActor")
 
   @@index([email])
   @@index([role])
@@ -247,9 +252,11 @@ model DealerOrganization {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  users    User[]
-  stations Station[]
-  orders   DealerOrder[]
+  users             User[]
+  stations          Station[]
+  orders            DealerOrder[]
+  supportTickets    SupportTicket[]
+  stockSaleReports  StockSaleReport[]
 
   @@index([name])
   @@index([odooPartnerId])
@@ -273,14 +280,116 @@ model Station {
   odooStationExternalId String?
   /** JSON array of ProductCode values for this station (may differ from org defaults later) */
   products             String   @default("[\"PMS\",\"AGO\",\"LUBRICANTS\",\"LPG\"]")
+  /**
+   * Optional station forecourt equipment counts for Stock Sale Reporting.
+   * Null until pumps/tanks are configured for the station.
+   */
+  pumpCount            Int?
+  tankCount            Int?
   createdAt            DateTime @default(now())
 
-  orders DealerOrder[]
+  orders           DealerOrder[]
+  stockSaleReports StockSaleReport[]
+  pumps            StationPump[]
+  tanks            StationTank[]
+  rttEvents        StationPumpRttEvent[]
 
   @@index([dealerOrganizationId])
   @@index([odooPartnerId])
   @@index([odooPartnerExternalId])
   @@index([odooStationExternalId])
+}
+
+/** Configured fuel dispensers for Stock Sale Reporting (PMS / AGO). */
+model StationPump {
+  id                String      @id @default(cuid())
+  stationId         String
+  station           Station     @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  /** Stable key within the station, e.g. PMS-1 */
+  pumpKey           String
+  product           ProductCode
+  label             String
+  sortOrder         Int         @default(0)
+  /** Last validated closing meter (litres); becomes next report's opening */
+  lastClosingLitres Float       @default(0)
+  /** False until the first accepted closing (or authorized opening init) is saved. */
+  meterInitialized  Boolean     @default(false)
+  active            Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  rttEvents         StationPumpRttEvent[]
+
+  @@unique([stationId, pumpKey])
+  @@index([stationId, active, sortOrder])
+}
+
+enum StationPumpRttStatus {
+  ACTIVE
+  VOIDED
+}
+
+/** Individual pump test-return (RTT) events — multiple per pump per day. */
+model StationPumpRttEvent {
+  id               String               @id @default(cuid())
+  stationId        String
+  station          Station              @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  pumpId           String
+  pump             StationPump          @relation(fields: [pumpId], references: [id], onDelete: Cascade)
+  pumpKey          String
+  product          ProductCode
+  tankId           String?
+  tankKey          String?
+  tankLabel        String?
+  volumeLitres     Float
+  /** Authoritative server timestamp when the RTT was recorded (UTC). */
+  eventAt          DateTime
+  /** Nairobi business date for aggregation into daily reports. */
+  reportingDate    DateTime             @db.Date
+  /** Required dealer explanation for why RTT was performed (max 250). */
+  notes            String?
+  status           StationPumpRttStatus @default(ACTIVE)
+  recordedById     String
+  /** Client idempotency key to prevent double-submit. */
+  submissionKey    String?
+  /** Optional technician job-card PDF (storage key under RTT upload root). */
+  jobCardStorageKey String?
+  jobCardFileName   String?
+  jobCardMimeType   String?
+  jobCardSizeBytes  Int?
+  /** Correction audit (original volume preserved when corrected). */
+  originalVolumeLitres Float?
+  correctionReason String?
+  correctedAt      DateTime?
+  correctedById    String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@unique([stationId, submissionKey])
+  @@index([stationId, reportingDate, status])
+  @@index([pumpId, reportingDate, status])
+  @@index([recordedById])
+}
+
+/** Configured storage tanks for Stock Sale Reporting (PMS / AGO). */
+model StationTank {
+  id                String      @id @default(cuid())
+  stationId         String
+  station           Station     @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  /** Stable key within the station, e.g. PMS-1 */
+  tankKey           String
+  product           ProductCode
+  label             String
+  sortOrder         Int         @default(0)
+  /** Nominal usable capacity in litres for this tank */
+  capacityLitres    Float
+  /** Last validated closing stock; becomes next report's opening */
+  lastClosingLitres Float       @default(0)
+  active            Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@unique([stationId, tankKey])
+  @@index([stationId, active, sortOrder])
 }
 
 model Depot {
@@ -338,7 +447,8 @@ model DealerOrder {
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
-  lines     DealerOrderLine[]
+  lines          DealerOrderLine[]
+  supportTickets SupportTicket[]
   history   OrderStatusHistory[]
   payments  PaymentRecord[]
   documents OrderDocument[]
@@ -528,4 +638,310 @@ model AuthAttempt {
 
   @@index([kind, email, createdAt])
   @@index([kind, ip, createdAt])
+}
+
+/* ——— Support Centre ticketing ——— */
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  AWAITING_RESPONSE
+  CLOSED
+}
+
+enum SupportTicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum SupportTicketDepartment {
+  IT
+  FINANCE
+  SALES
+  SUPPLY
+}
+
+enum SupportMessageVisibility {
+  DEALER_VISIBLE
+  INTERNAL_NOTE
+}
+
+enum SupportTicketEventType {
+  CREATED
+  STATUS_CHANGED
+  ASSIGNED
+  MESSAGE_ADDED
+  ATTACHMENT_ADDED
+  RESOLVED
+  CLOSED
+  REOPENED
+}
+
+/** Monotonic counter for human ticket refs (TRN-4587). */
+model SupportTicketSequence {
+  id         String @id @default("default")
+  lastNumber Int    @default(4580)
+}
+
+model SupportTicket {
+  id                   String                   @id @default(cuid())
+  reference            String                   @unique
+  dealerOrganizationId String
+  dealerOrganization   DealerOrganization       @relation(fields: [dealerOrganizationId], references: [id], onDelete: Cascade)
+  createdById          String
+  createdBy            User                     @relation("SupportTicketCreator", fields: [createdById], references: [id])
+  assigneeId           String?
+  assignee             User?                    @relation("SupportTicketAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  subject              String
+  description          String
+  department           SupportTicketDepartment
+  priority             SupportTicketPriority
+  status               SupportTicketStatus      @default(OPEN)
+  relatedOrderId       String?
+  relatedOrder         DealerOrder?             @relation(fields: [relatedOrderId], references: [id], onDelete: SetNull)
+  reviewedAt           DateTime?
+  resolvedAt           DateTime?
+  closedAt             DateTime?
+  resolutionSummary    String?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+
+  messages    SupportTicketMessage[]
+  attachments SupportTicketAttachment[]
+  events      SupportTicketEvent[]
+
+  @@index([dealerOrganizationId, updatedAt])
+  @@index([department, status])
+  @@index([createdById])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([relatedOrderId])
+}
+
+model SupportTicketMessage {
+  id         String                   @id @default(cuid())
+  ticketId   String
+  ticket     SupportTicket            @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User                     @relation("SupportTicketMessageAuthor", fields: [authorId], references: [id])
+  body       String
+  visibility SupportMessageVisibility @default(DEALER_VISIBLE)
+  createdAt  DateTime                 @default(now())
+
+  attachments SupportTicketAttachment[]
+
+  @@index([ticketId, createdAt])
+  @@index([authorId])
+}
+
+model SupportTicketAttachment {
+  id           String                @id @default(cuid())
+  ticketId     String
+  ticket       SupportTicket         @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  messageId    String?
+  message      SupportTicketMessage? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  fileName     String
+  storageKey   String
+  mimeType     String
+  sizeBytes    Int
+  uploadedById String
+  uploadedBy   User                  @relation("SupportTicketAttachmentUploader", fields: [uploadedById], references: [id])
+  createdAt    DateTime              @default(now())
+
+  @@index([ticketId])
+  @@index([messageId])
+  @@index([uploadedById])
+}
+
+model SupportTicketEvent {
+  id        String                 @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket          @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  type      SupportTicketEventType
+  fromValue String?
+  toValue   String?
+  note      String?
+  actorId   String?
+  actor     User?                  @relation("SupportTicketEventActor", fields: [actorId], references: [id], onDelete: SetNull)
+  createdAt DateTime               @default(now())
+
+  @@index([ticketId, createdAt])
+  @@index([actorId])
+}
+
+enum StockSaleReportStatus {
+  DRAFT
+  CLOSED
+}
+
+enum StockSaleReportStage {
+  PUMP_METERS
+  TANK_DIPS
+  WET_STOCK
+  MONETARY
+}
+
+enum WetStockResolution {
+  NONE
+  MATCH_DELIVERY
+  REVIEW_READINGS
+  RECORD_LOSS
+  BALANCED
+}
+
+enum WetStockState {
+  NOT_STARTED
+  VARIANCE_DETECTED
+  BALANCED
+  DELIVERY_MATCHING
+  READINGS_UNDER_REVIEW
+  VARIANCE_RECORDED
+  PENDING_APPROVAL
+  RECONCILED
+}
+
+enum MonetaryState {
+  NOT_STARTED
+  INCOMPLETE
+  BALANCED
+  SHORTAGE
+  OVERAGE
+}
+
+/** One stock-sale report per station per Nairobi business calendar date (shift model may expand later). */
+model StockSaleReport {
+  id                   String                @id @default(cuid())
+  dealerOrganizationId String
+  dealerOrganization   DealerOrganization    @relation(fields: [dealerOrganizationId], references: [id], onDelete: Cascade)
+  stationId            String
+  station              Station               @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  /** Africa/Nairobi calendar day stored as UTC midnight of that Y-M-D */
+  reportingDate        DateTime              @db.Date
+  status               StockSaleReportStatus @default(DRAFT)
+  pumpMetersCompletedAt DateTime?
+  tankDipsCompletedAt   DateTime?
+  wetStockCompletedAt   DateTime?
+  monetaryCompletedAt   DateTime?
+  closedAt              DateTime?
+  closedById            String?
+  meterSalesPmsLitres   Float?
+  meterSalesAgoLitres   Float?
+  tankSalesPmsLitres    Float?
+  tankSalesAgoLitres    Float?
+  totalSalesLitres      Float?
+  expectedRevenueKes    Decimal?             @db.Decimal(18, 2)
+  collectionsKes        Decimal?             @db.Decimal(18, 2)
+  wetResolution         WetStockResolution   @default(NONE)
+  wetState              WetStockState        @default(NOT_STARTED)
+  wetVariancePmsLitres  Float?
+  wetVarianceAgoLitres  Float?
+  wetVarianceTotalLitres Float?
+  wetAbsoluteVarianceLitres Float?
+  wetLossReason         String?
+  wetLossAcknowledgedAt DateTime?
+  wetLossAcknowledgedById String?
+  /** Snapshotted pump selling prices (KES/L) used for expected sales. */
+  sellingPricePmsKes    Decimal?             @db.Decimal(12, 4)
+  sellingPriceAgoKes    Decimal?             @db.Decimal(12, 4)
+  expectedPmsKes        Decimal?             @db.Decimal(18, 2)
+  expectedAgoKes        Decimal?             @db.Decimal(18, 2)
+  /** Manual collection totals entered by the dealer (not M-Pesa/card verified imports). */
+  cashCollectionsKes    Decimal?             @db.Decimal(18, 2)
+  mpesaCollectionsKes   Decimal?             @db.Decimal(18, 2)
+  cardCollectionsKes    Decimal?             @db.Decimal(18, 2)
+  monetaryDifferenceKes Decimal?             @db.Decimal(18, 2)
+  monetaryState         MonetaryState        @default(NOT_STARTED)
+  monetaryDiscrepancyReason String?
+  /** Stable human-facing reference, e.g. SSR-KITALE-2026-11-06. Set once on close. */
+  reportReference       String?              @unique
+  /** Equipment counts snapshotted at close (preserve historical display). */
+  submittedPumpCount    Int?
+  submittedTankCount    Int?
+  submittedPumpsPms     Int?
+  submittedPumpsAgo     Int?
+  submittedTanksPms     Int?
+  submittedTanksAgo     Int?
+  revision              Int                  @default(0)
+  createdById           String
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  pumpReadings          StockSalePumpReading[]
+  tankReadings          StockSaleTankReading[]
+  wetAudits             StockSaleWetAudit[]
+  monetaryAudits        StockSaleMonetaryAudit[]
+
+  @@unique([stationId, reportingDate])
+  @@index([dealerOrganizationId, reportingDate])
+  @@index([stationId, status])
+  @@index([createdById])
+}
+
+model StockSalePumpReading {
+  id            String          @id @default(cuid())
+  reportId      String
+  report        StockSaleReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  pumpKey       String
+  product       ProductCode
+  label         String
+  sortOrder     Int             @default(0)
+  openingLitres Float
+  closingLitres Float?
+  rttLitres      Float           @default(0)
+  salesLitres   Float?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([reportId, pumpKey])
+  @@index([reportId, sortOrder])
+}
+
+model StockSaleTankReading {
+  id             String          @id @default(cuid())
+  reportId       String
+  report         StockSaleReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  tankKey        String
+  product        ProductCode
+  label          String
+  sortOrder      Int             @default(0)
+  capacityLitres Float
+  openingLitres  Float
+  closingLitres  Float?
+  /** Opening − Closing (provisional if receipts unresolved) */
+  salesLitres    Float?
+  ullageLitres   Float?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([reportId, tankKey])
+  @@index([reportId, sortOrder])
+}
+
+/** Audit trail for wet-stock reconciliation decisions. */
+model StockSaleWetAudit {
+  id        String          @id @default(cuid())
+  reportId  String
+  report    StockSaleReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  actorId   String
+  action    String
+  details   String?
+  createdAt DateTime        @default(now())
+
+  @@index([reportId, createdAt])
+  @@index([actorId])
+}
+
+/** Audit trail for monetary reconciliation drafts and shift closure. */
+model StockSaleMonetaryAudit {
+  id        String          @id @default(cuid())
+  reportId  String
+  report    StockSaleReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  actorId   String
+  action    String
+  details   String?
+  createdAt DateTime        @default(now())
+
+  @@index([reportId, createdAt])
+  @@index([actorId])
 }

@@ -40,8 +40,8 @@ export function ModuleCards({ user }: { user: StaffUser }) {
 
                 <div className="mod-card__body">
                   <div className="mod-card__top">
-                    <div className="mod-card__icon" style={{ color: "#F5B800" }}>
-                      <Icon color="#F5B800" size={20} strokeWidth={2} />
+                    <div className="mod-card__icon" style={{ color: "#ffcc00" }}>
+                      <Icon color="#ffcc00" size={20} strokeWidth={2} />
                     </div>
                     <div className="mod-card__heading">
                       <h3 className="mod-card__title">{mod.title}</h3>

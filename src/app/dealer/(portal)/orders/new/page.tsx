@@ -11,7 +11,7 @@ export default async function NewOrderPage() {
   const stations = await prisma.station.findMany({
     where: { dealerOrganizationId: session.user.dealerOrganizationId! },
     orderBy: { name: "asc" },
-    select: { id: true, name: true },
+    select: { id: true, name: true, code: true },
   });
 
   return <PlaceOrderForm stations={stations} orderingNotice={dealerOrderingNotice()} />;

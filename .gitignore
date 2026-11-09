@@ -51,4 +51,7 @@ prisma/*.db-journal
 *.db
 *.db-journal
 
+# private support ticket uploads (local disk)
+/.data/
+
 # Keep .env.example tracked; ignore only secret env files (patterns above)

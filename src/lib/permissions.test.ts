@@ -11,17 +11,30 @@ const staff = (role: string, overrides: Record<string, string> | string = "[]") 
 const EXPECTED_DEFAULTS: Record<string, PermissionKey[]> = {
   SUPER_ADMIN: [
     "analytics.view", "orders.view", "orders.act", "messaging.view", "messaging.act",
+    "support.view", "support.act",
     "retailUsers.view", "retailUsers.act", "adminUsers.view", "adminUsers.act", "activity.view", "settings.view",
   ],
-  SALES_PERSON_EXECUTIVE: ["analytics.view", "orders.view", "orders.act", "messaging.view", "messaging.act"],
+  SALES_PERSON_EXECUTIVE: [
+    "analytics.view", "orders.view", "orders.act", "messaging.view", "messaging.act",
+    "support.view", "support.act",
+  ],
   STANDARD_USER: [],
 };
 
 describe("canUser", () => {
-  it("lists the seven modules in order", () => {
+  it("lists the eight modules in order", () => {
     assert.deepEqual(
       PERMISSION_MODULES.map((m) => m.label),
-      ["Retail Analytics", "Orders", "Messaging", "Retail Users", "Admin Users", "Activity Logs", "Settings"],
+      [
+        "Retail Analytics",
+        "Orders",
+        "Messaging",
+        "Support Tickets",
+        "Retail Users",
+        "Admin Users",
+        "Activity Logs",
+        "Settings",
+      ],
     );
   });
 

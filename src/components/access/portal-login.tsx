@@ -1,82 +1,76 @@
 "use client";
 
-import { SUPPORT_EMAIL } from "@/lib/company/contact";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  FileText,
+  Headphones,
+  Lock,
+  Mail,
+  Shield,
+  Users,
+} from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
-import { cn } from "@/lib/utils";
-import "@/app/intelligence/login/login.css";
+import { SUPPORT_EMAIL } from "@/lib/company/contact";
 import { loginErrorMessage } from "@/lib/security/login-errors";
+import { cn } from "@/lib/utils";
+import "./portal-auth.css";
 
+const DEFAULT_TRUST = [
+  { title: "Secure Access", icon: Shield },
+  { title: "Role Based Access", icon: Users },
+  { title: "Audit Logging", icon: FileText },
+] as const;
+
+/** Left cinematic panel — same forecourt plate + framing as dealer login. */
 export function BrandPanel({
-  image,
+  kicker,
   headline,
   highlight,
-  copy,
-  features,
-  statusTitle,
-  statusSub,
-  countries,
+  lede,
+  ariaLabel = "Trinity Retail Intelligence",
 }: {
-  image: string;
-  headline: string;
-  highlight: string;
-  copy: string;
-  features: { title: string; description: string; icon: React.ComponentType<{ className?: string }> }[];
-  statusTitle: string;
-  statusSub: string;
-  countries?: string[];
+  kicker: string;
+  /** First line of the caption (before the highlight line). */
+  headline: ReactNode;
+  /** Yellow emphasized line (second line). */
+  highlight: ReactNode;
+  lede: string;
+  ariaLabel?: string;
 }) {
   return (
-    <aside className="login-brand">
-      <div className="login-brand__bg" style={{ backgroundImage: `url("${image}")` }} />
-      <div className="login-brand__veil" />
-      <div className="login-brand__grid" />
-      <div className="login-brand__content">
-        <div>
-          <TrinityLogo variant="light" height={48} />
-          <div className="login-eyebrow">
-            <div className="login-eyebrow__line" />
-            <div className="login-eyebrow__text">Trinity Retail Intelligence</div>
+    <aside className="dl__brand" aria-label={ariaLabel}>
+      <div
+        className="dl__brand-bg"
+        role="img"
+        aria-label="TrinityNRG fuel station at sunset"
+      />
+      <div className="dl__brand-veil" aria-hidden />
+      <div className="dl__brand-inner">
+        <div className="dl__brand-top">
+          <TrinityLogo variant="dark" height={46} />
+          <div className="dl__eyebrow">
+            <span className="dl__eyebrow-line" aria-hidden />
+            <span className="dl__eyebrow-text">Trinity Retail Intelligence</span>
           </div>
         </div>
-        <div>
-          <h1 className="login-headline">
-            {headline} <span>{highlight}</span>
+
+        <div className="dl__brand-copy">
+          <div className="dl__kicker">
+            <span className="dl__eyebrow-line" aria-hidden />
+            <span className="dl__eyebrow-text">{kicker}</span>
+          </div>
+          <h1 className="dl__headline">
+            {headline}
+            <br />
+            <span>{highlight}</span>
           </h1>
-          <p className="login-subcopy">{copy}</p>
-          <div className="login-features">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div key={feature.title} className="login-feature">
-                  <div className="login-feature__icon">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="login-feature__title">{feature.title}</div>
-                  <div className="login-feature__desc">{feature.description}</div>
-                </div>
-              );
-            })}
-          </div>
-          {countries ? (
-            <div className="login-countries">
-              {countries.map((c) => (
-                <span key={c}>{c}</span>
-              ))}
-            </div>
-          ) : null}
-        </div>
-        <div className="login-status">
-          <span className="login-status__dot" />
-          <div>
-            <div className="login-status__title">{statusTitle}</div>
-            <div className="login-status__sub">{statusSub}</div>
-          </div>
+          <p className="dl__lede">{lede}</p>
         </div>
       </div>
     </aside>
@@ -92,10 +86,11 @@ export function PortalLogin({
   button,
   destination,
   support,
-  trust,
+  forgotPortal,
+  trust = DEFAULT_TRUST,
   brand,
 }: {
-  portal: "dealer" | "depot";
+  portal: "staff" | "dealer" | "depot";
   badge: string;
   badgeTone?: "blue" | "green";
   title: string;
@@ -103,8 +98,10 @@ export function PortalLogin({
   button: string;
   destination: string;
   support: string;
-  trust: { title: string; subtitle: string; icon: React.ComponentType<{ className?: string }> }[];
-  brand: React.ReactNode;
+  /** Query value for forgot-password; defaults to `portal`. */
+  forgotPortal?: string;
+  trust?: readonly { title: string; icon: React.ComponentType<{ className?: string }> }[];
+  brand: ReactNode;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -118,87 +115,149 @@ export function PortalLogin({
     e.preventDefault();
     setLoading(true);
     setError("");
-    const result = await signIn("credentials", { email, password, portal, redirect: false });
+    const result = await signIn("credentials", {
+      email,
+      password,
+      portal,
+      redirect: false,
+    });
     setLoading(false);
     if (result?.error) {
-      setError(loginErrorMessage(result.error, "Invalid credentials, or this account is not provisioned for this portal."));
+      setError(
+        loginErrorMessage(
+          result.error,
+          "Invalid credentials, or this account is not provisioned for this portal."
+        )
+      );
       return;
     }
     router.push(destination);
     router.refresh();
   }
 
+  const forgotHref = `/intelligence/forgot-password?portal=${forgotPortal ?? portal}`;
+
   return (
-    <div className="login-shell">
+    <div className="dl">
       {brand}
-      <section className="login-panel">
-        <div className="login-card-wrap">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="login-card">
-            <div style={{ textAlign: "center" }}>
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <TrinityLogo variant="dark" height={48} />
+
+      <section className="dl__panel">
+        <div className="dl__card">
+          <div className="dl__card-head">
+            <div className="dl__card-logo">
+              <TrinityLogo variant="dark" height={48} />
+            </div>
+            <div className={cn("dl__badge", badgeTone === "green" && "dl__badge--green")}>
+              <Lock aria-hidden />
+              {badge}
+            </div>
+            <h2 className="dl__title">{title}</h2>
+            <p className="dl__copy">{description}</p>
+            <Link href="/access" className="dl__back">
+              Back to access options
+            </Link>
+          </div>
+
+          <form onSubmit={onSubmit} className="dl__form">
+            <div className="dl__field">
+              <label htmlFor="email">Email Address</label>
+              <div className="dl__input-wrap">
+                <Mail className="dl__input-icon" aria-hidden />
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.co.ke"
+                  className="dl__input"
+                />
               </div>
-              <div className={cn("login-badge", badgeTone === "green" && "login-badge--green")}>{badge}</div>
-              <h2 className="login-title">{title}</h2>
-              <p className="login-copy">{description}</p>
-              <Link href="/access" className="login-back">
-                Back to access options
+            </div>
+
+            <div className="dl__field">
+              <label htmlFor="password">Password</label>
+              <div className="dl__input-wrap">
+                <Lock className="dl__input-icon" aria-hidden />
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="dl__input"
+                />
+                <button
+                  type="button"
+                  className="dl__input-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="dl__row">
+              <button
+                type="button"
+                className="dl__remember"
+                onClick={() => setRemember((v) => !v)}
+              >
+                <span className={cn("dl__check", remember && "is-on")}>
+                  {remember ? "✓" : ""}
+                </span>
+                Remember me
+              </button>
+              <Link href={forgotHref} className="dl__forgot">
+                Forgot Password?
               </Link>
             </div>
-            <form onSubmit={onSubmit} style={{ marginTop: "1.4rem" }}>
-              <div className="login-field">
-                <label htmlFor="email">Email Address</label>
-                <div className="login-input-wrap">
-                  <Mail className="login-input-icon" />
-                  <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.co.ke" className="login-input" />
-                </div>
+
+            {error ? (
+              <div className="dl__error" role="alert">
+                {error}
               </div>
-              <div className="login-field">
-                <label htmlFor="password">Password</label>
-                <div className="login-input-wrap">
-                  <Lock className="login-input-icon" />
-                  <input id="password" type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="login-input" />
-                  <button type="button" className="login-input-toggle" onClick={() => setShowPassword((v) => !v)} aria-label="Toggle password">
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-              <div className="login-row">
-                <button type="button" className="login-remember" onClick={() => setRemember((v) => !v)}>
-                  <span className={cn("login-check", remember && "is-on")}>{remember ? "✓" : ""}</span>
-                  Remember me
-                </button>
-                <Link href={`/intelligence/forgot-password?portal=${portal}`} className="login-forgot">Forgot Password?</Link>
-              </div>
-              {error ? <div className="login-error">{error}</div> : null}
-              <button type="submit" className="login-submit" disabled={loading}>
-                <span className="login-submit__label">{loading ? "Signing in..." : button}</span>
-                <span className="login-submit__arrow"><ArrowRight className="h-3.5 w-3.5" /></span>
-              </button>
-            </form>
-            <a className="login-support" href={`mailto:${SUPPORT_EMAIL}`}>
-              <div>
-                <strong>Contact Trinity Support</strong>
-                <span>{support}</span>
-              </div>
+            ) : null}
+
+            <button type="submit" className="dl__submit" disabled={loading}>
+              <span className="dl__submit-label">
+                {loading ? "Signing in..." : button}
+              </span>
+              <span className="dl__submit-arrow" aria-hidden>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </button>
+          </form>
+
+          <a className="dl__help" href={`mailto:${SUPPORT_EMAIL}`}>
+            <span className="dl__help-icon" aria-hidden>
+              <Headphones className="h-4 w-4" />
+            </span>
+            <span className="dl__help-copy">
+              <span className="dl__help-title">Need Help?</span>
+              <span className="dl__help-text">{support}</span>
+            </span>
+            <span className="dl__help-go" aria-hidden>
               <ArrowRight className="h-4 w-4" />
-            </a>
-            <div className="login-trust">
-              {trust.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.title} className="login-trust__item">
-                    <div className="login-trust__icon"><Icon className="h-3.5 w-3.5" /></div>
-                    <div className="login-trust__title">{item.title}</div>
-                    <div className="login-trust__sub">{item.subtitle}</div>
+            </span>
+          </a>
+
+          <div className="dl__trust">
+            {trust.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.title} className="dl__trust-item">
+                  <div className="dl__trust-icon">
+                    <Icon aria-hidden />
                   </div>
-                );
-              })}
-            </div>
-          </motion.div>
-          <div className="login-footer">
-            <div>© {new Date().getFullYear()} Trinity Energy Limited</div>
-            <div style={{ marginTop: "0.25rem" }}>Retail Intelligence Platform • Version 1.0</div>
+                  <div className="dl__trust-title">{item.title}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

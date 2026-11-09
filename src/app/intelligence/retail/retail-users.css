@@ -7,7 +7,7 @@
   --ru-card-border: rgba(148, 163, 184, 0.14);
   --ru-ink: #f8fafc;
   --ru-muted: #94a3b8;
-  --ru-gold: #f5b800;
+  --ru-gold: #ffcc00;
   --ru-blue: #3b82f6;
   --ru-royal: #1260d8;
   --ru-green: #22c55e;
@@ -38,7 +38,7 @@
 
 .ru-head__copy h1 {
   margin: 0;
-  font-size: clamp(1.85rem, 2.4vw, 2.25rem);
+  font-size: var(--tri-font-h2, clamp(1.85rem, 2.4vw, 2.25rem));
   font-weight: 800;
   letter-spacing: -0.03em;
   color: #fff;
@@ -216,8 +216,8 @@
 }
 
 .ru-card__icon--gold {
-  background: linear-gradient(145deg, #ffc933, #f5b800);
-  box-shadow: 0 4px 14px rgba(245, 184, 0, 0.35);
+  background: linear-gradient(145deg, #ffcc00, #ffcc00);
+  box-shadow: 0 4px 14px rgba(255, 204, 0, 0.35);
 }
 
 .ru-card__icon--blue {
@@ -353,9 +353,9 @@
 }
 
 .ru-btn--gold {
-  background: linear-gradient(135deg, #ffc933, #f5b800);
+  background: linear-gradient(135deg, #ffcc00, #ffcc00);
   color: #0a192f;
-  box-shadow: 0 6px 18px rgba(245, 184, 0, 0.3);
+  box-shadow: 0 6px 18px rgba(255, 204, 0, 0.3);
 }
 
 .ru-btn--blue {
@@ -805,7 +805,7 @@
   place-items: center;
   background: var(--ru-gold);
   color: #0a192f;
-  box-shadow: 0 2px 8px rgba(245, 184, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.4);
 }
 
 .ru-empty strong {
@@ -922,7 +922,7 @@
 }
 
 .ru-multi__option input {
-  accent-color: #f5b800;
+  accent-color: #ffcc00;
 }
 
 .ru-multi__option em {

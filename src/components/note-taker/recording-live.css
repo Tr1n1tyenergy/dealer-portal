@@ -183,24 +183,24 @@
 .rlive__mic-ring {
   position: absolute;
   border-radius: 999px;
-  border: 1.5px solid rgba(245, 184, 0, 0.35);
+  border: 1.5px solid rgba(255, 204, 0, 0.35);
   inset: -0.4rem;
-  box-shadow: 0 0 14px rgba(245, 184, 0, 0.14);
+  box-shadow: 0 0 14px rgba(255, 204, 0, 0.14);
 }
 
 .rlive__mic-ring--2 {
   inset: -0.85rem;
-  border-color: rgba(245, 184, 0, 0.22);
+  border-color: rgba(255, 204, 0, 0.22);
 }
 
 .rlive__mic-ring--3 {
   inset: -1.35rem;
-  border-color: rgba(245, 184, 0, 0.12);
+  border-color: rgba(255, 204, 0, 0.12);
 }
 
 .rlive__mic-ring--4 {
   inset: -1.9rem;
-  border-color: rgba(245, 184, 0, 0.06);
+  border-color: rgba(255, 204, 0, 0.06);
   box-shadow: none;
 }
 
@@ -217,7 +217,7 @@
     0 10px 28px rgba(0, 8, 28, 0.35);
   display: grid;
   place-items: center;
-  color: #f5b800;
+  color: #ffcc00;
 }
 
 .rlive__strip {
@@ -455,7 +455,7 @@
 }
 
 .rlive__tip svg {
-  color: #f5b800;
+  color: #ffcc00;
   flex-shrink: 0;
 }
 

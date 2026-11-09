@@ -136,7 +136,7 @@ export function ModulesLauncher({
                   color: "#fff",
                 }}
               >
-                <Grid2x2 size={18} color="#F5B800" strokeWidth={2} />
+                <Grid2x2 size={18} color="#ffcc00" strokeWidth={2} />
                 Modules
               </div>
               <button
@@ -203,7 +203,7 @@ export function ModulesLauncher({
                       }}
                     >
                       <span style={TILE_STYLE}>
-                        <Icon size={28} color="#F5B800" strokeWidth={1.75} />
+                        <Icon size={28} color="#ffcc00" strokeWidth={1.75} />
                       </span>
                       <span
                         style={{
@@ -238,7 +238,7 @@ export function ModulesLauncher({
               <Link
                 href="/intelligence/dashboard"
                 onClick={onClose}
-                style={{ color: "#f5b800", fontWeight: 700, textDecoration: "none" }}
+                style={{ color: "#ffcc00", fontWeight: 700, textDecoration: "none" }}
               >
                 Intelligence Suite
               </Link>
