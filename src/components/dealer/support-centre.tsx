@@ -744,16 +744,6 @@ function RaiseTicketForm({
         Back to Support Centre
       </button>
 
-              fill="rgba(53,81,165,0.12)"
-            />
-            <path
-              d="M0 58 C35 30 60 68 95 48 C125 30 145 58 160 46 L160 72 L0 72 Z"
-              fill="rgba(255,204,0,0.28)"
-            />
-          </svg>
-        </div>
-      </header>
-
       {error ? (
         <p className="ds__error" role="alert">
           {error}
@@ -1253,16 +1243,8 @@ function ContactPanel({
   const primaryPhone = SUPPORT_CONTACT.phones[0] ?? "";
   const mailto = `mailto:${SUPPORT_CONTACT.email}?subject=${encodeURIComponent(SUPPORT_CONTACT.emailSubject)}`;
 
-              fill="rgba(53,81,165,0.12)"
-            />
-            <path
-              d="M0 72 C45 40 85 85 130 58 C170 35 195 75 220 55 L220 90 L0 90 Z"
-              fill="rgba(255,204,0,0.26)"
-            />
-          </svg>
-        </div>
-      </header>
-
+  return (
+    <div className="ds__contact">
       <h3 className="ds__contact-section-title">Choose how you&apos;d like to reach us</h3>
       <div className="ds__reach-grid">
         <article className="ds__reach-card ds__reach-card--primary">
