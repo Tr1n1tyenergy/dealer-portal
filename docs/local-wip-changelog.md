@@ -117,6 +117,10 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-09 — Remove redundant PFIs header nav
+- Dropped the top-level **PFIs** link from `DEALER_PRIMARY_NAV` (`src/lib/dealer/nav.ts`); it only opened `/dealer/orders?view=documents` and crowded Stock Sale Reporting.
+- Orders page still has the **PFIs & Documents** sub-tab. Primary highlight for that view stays on **Orders**.
+
 ### 2026-11-09 — Trinity site-wide responsive token system
 - Added `src/styles/responsive-tokens.css` (`--tri-font-*`, `--tri-space-*`, `--tri-page-gutter`, content max, short-height hero caps) imported from `globals.css` as `layer(base)` so Tailwind v4 keeps `:root` defs.
 - Remapped Access, portal-auth, staff login leftovers, dealer portal shell + modules (dashboard, orders, place-order, tracking, SSR/wizard, messaging, support) to tokens; hero uses capped `--dp-hero-height`.
