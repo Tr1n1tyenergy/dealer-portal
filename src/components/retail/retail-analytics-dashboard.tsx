@@ -1,356 +1,236 @@
 import Link from "next/link";
-import {
-  BarChart3,
-  CalendarDays,
-  Clock3,
-  FileText,
-  Fuel,
-  Hourglass,
-  MapPin,
-  Users,
-} from "lucide-react";
-import {
-  STATUS_BUCKET_COLORS,
-  type AnalyticsStatusBucket,
-  sparklinePath,
-} from "@/lib/retail/analytics";
-
-export type RetailKpi = {
-  label: string;
-  value: number;
-  deltaPct: number;
-  /** Only real monthly series; KPIs without one show no trend line. */
-  spark?: number[];
-  tone: "blue" | "gold" | "purple" | "green";
-  icon: "orders" | "invites" | "orgs" | "stations";
-};
+import { sparklinePath } from "@/lib/retail/analytics";
+import { formatWaited } from "@/lib/insights/order-flow";
+import { statusLabel } from "@/lib/orders/stages";
+import type { FeedEvent } from "@/lib/live/recent-events";
+import { HappeningNow } from "@/components/live/happening-now";
+import { OrderTrendChart } from "./order-trend-chart";
 
 export type TrendPoint = { label: string; pms: number; ago: number };
 
-export type StatusSlice = { bucket: AnalyticsStatusBucket; count: number; pct: number };
-
-export type RecentOrderRow = {
-  id: string;
-  reference: string;
-  dealer: string;
-  station: string;
-  products: string;
-  volume: string;
-  status: string;
-  tone: string;
-  created: string;
+type Props = {
+  tiles: { key: string; label: string; tab: string; count: number }[];
+  stuck: { id: string; reference: string; dealer: string; status: string; waitedMs: number }[];
+  stuckCount: number;
+  events: FeedEvent[];
+  kpis: { label: string; value: string; title?: string; delta: number; spark: number[] }[];
+  litres: TrendPoint[];
+  cycle: { step: string; medianMs: number | null }[];
+  regions: { region: string; thisMonth: number; lastMonth: number }[];
+  dealers: { dealer: string; litres: number }[];
+  quiet: { name: string; days: number | null }[];
+  nowIso: string;
 };
 
-export type StationVolumeRow = {
-  name: string;
-  litres: number;
-  pct: number;
+const ORDERS = "/intelligence/retail/orders";
+const kl = (n: number) => (n >= 1000 ? `${Math.round(n / 100) / 10}K L` : `${n.toLocaleString("en-KE")} L`);
+const duration = (ms: number | null) => {
+  if (ms === null) return "—";
+  const h = ms / 3600e3;
+  if (h < 1) return `${Math.max(1, Math.round(ms / 60e3))} min`;
+  return h < 24 ? `${Math.round(h * 10) / 10} hours` : `${Math.round((h / 24) * 10) / 10} days`;
 };
 
-export function RetailAnalyticsDashboard({
-  welcomeName,
-  dateRangeLabel,
-  kpis,
-  trend,
-  statusSlices,
-  totalOrders,
-  recentOrders,
-  topStations,
-}: {
-  welcomeName: string;
-  dateRangeLabel: string;
-  kpis: RetailKpi[];
-  trend: TrendPoint[];
-  statusSlices: StatusSlice[];
-  totalOrders: number;
-  recentOrders: RecentOrderRow[];
-  topStations: StationVolumeRow[];
-}) {
-  const otherOrders = totalOrders - statusSlices.reduce((sum, s) => sum + s.count, 0);
+/** Staff Analytics, direction C: live strip (stages, stuck, happening now), the month's figures, then the business picture. */
+export function RetailAnalyticsDashboard(p: Props) {
+  const busiest = Math.max(0, ...p.tiles.map((t) => t.count));
+  const slowest = Math.max(0, ...p.cycle.map((c) => c.medianMs ?? 0));
+  const regionMax = Math.max(1, ...p.regions.flatMap((r) => [r.thisMonth, r.lastMonth]));
+  const dealerMax = Math.max(1, ...p.dealers.map((d) => d.litres));
   return (
     <div className="rad">
-      {/* Media uses fixed height (not 100%) so it never stretches behind charts */}
-      <section className="rad-top">
-        <div className="rad-hero__media" aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/assets2/img/retail/dashboard-hero-station.jpg"
-            alt=""
-            className="rad-hero__img"
-          />
-          <div className="rad-hero__fade" />
+      <section className="rad-strip" aria-label="Right now">
+        <div className="rad-strip__main">
+          <div className="rad-head">
+            <h2 className="ui-section-title">Orders by stage</h2>
+            <span className="rad-sub">
+              {p.stuckCount} stuck · {p.tiles.find((t) => t.key === "checking")?.count ?? 0} payments to check
+            </span>
+          </div>
+          <ol className="rad-tiles">
+            {p.tiles.map((t) => (
+              <li key={t.key}>
+                <Link href={`${ORDERS}?stage=${t.tab}`} className={`rad-tile${t.count > 0 && t.count === busiest ? " is-busiest" : ""}`}>
+                  <b>{t.count}</b>
+                  <span>{t.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+          <div className="rad-head" style={{ marginTop: 14 }}>
+            <h2 className="ui-section-title">Stuck</h2>
+            <Link href={`${ORDERS}?stage=stuck`} className="ui-navlink">
+              See all stuck orders
+            </Link>
+          </div>
+          {p.stuck.length === 0 ? (
+            <p className="rad-empty">Nothing stuck right now.</p>
+          ) : (
+            <ul className="rad-stuck">
+              {p.stuck.map((s) => (
+                <li key={s.id}>
+                  <span>
+                    <b>{s.reference}</b>
+                    <em>
+                      {s.dealer} · {statusLabel(s.status)}
+                    </em>
+                  </span>
+                  <span className="ui-chip ui-chip--problem">{formatWaited(s.waitedMs)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <div className="rad-hero__copy">
-          <h1 className="rad-hero__title">
-            Welcome back, <span>{welcomeName}</span>
-          </h1>
-          <p className="rad-hero__sub">
-            Here&apos;s an overview of dealer orders and retail operations across Trinity.
-          </p>
+        <div className="rad-strip__feed">
+          <h2 className="ui-section-title">Happening now</h2>
+          <HappeningNow events={p.events} nowIso={p.nowIso} />
         </div>
-        <span className="rad-date">
-          <CalendarDays size={15} strokeWidth={1.75} />
-          <span>{dateRangeLabel}</span>
-        </span>
+      </section>
 
-        <section className="rad-kpis">
-          {kpis.map((k) => (
-            <article key={k.label} className={`rad-kpi rad-kpi--${k.tone}`}>
-              <span className="rad-kpi__icon" aria-hidden>
-                {kpiIcon(k.icon)}
+      <section className="rad-kpis" aria-label="This month in numbers">
+        {p.kpis.map((k) => (
+          <article key={k.label} className="ui-panel rad-kpi">
+            <span className="rad-kpi__label">{k.label}</span>
+            <div className="rad-kpi__mid">
+              <span className="rad-kpi__value" title={k.title}>
+                {k.value}
               </span>
-              <div className="rad-kpi__body">
-                <span className="rad-kpi__label">{k.label}</span>
-                <div className="rad-kpi__mid">
-                  <span className="rad-kpi__value">{k.value.toLocaleString()}</span>
-                  {k.spark ? (
-                    <svg className="rad-kpi__spark" viewBox="0 0 120 36" preserveAspectRatio="none">
-                      <path d={sparklinePath(k.spark)} fill="none" strokeWidth="2.4" />
-                    </svg>
-                  ) : null}
-                </div>
-                <span className={`rad-kpi__delta ${k.deltaPct >= 0 ? "is-up" : "is-down"}`}>
-                  {k.deltaPct >= 0 ? "↑ +" : "↓ "}
-                  {Math.abs(k.deltaPct)}% vs last month
-                </span>
-              </div>
-            </article>
-          ))}
-        </section>
+              {k.spark.some((v) => v > 0) ? (
+                <svg className="rad-kpi__spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden>
+                  <path d={sparklinePath(k.spark)} fill="none" strokeWidth="2" />
+                </svg>
+              ) : null}
+            </div>
+            <span className="rad-kpi__delta">
+              <span className={k.delta >= 0 ? "is-up" : "is-down"} aria-hidden>
+                {k.delta >= 0 ? "↑" : "↓"}
+              </span>{" "}
+              {k.delta >= 0 ? "+" : "−"}
+              {Math.abs(k.delta)}% vs last month
+            </span>
+          </article>
+        ))}
       </section>
 
       <div className="rad-body">
-        <div className="rad-col rad-col--main">
-          <article className="rad-card rad-trend">
-            <header className="rad-card__head">
-              <div className="rad-card__title">
-                <BarChart3 size={16} strokeWidth={1.75} />
-                <span>Order Trend</span>
-              </div>
-              <span className="rad-select">Last 6 months</span>
-            </header>
-            <OrderTrendChart points={trend} />
-            <div className="rad-legend">
+        <article className="ui-panel" aria-labelledby="rad-litres">
+          <header className="rad-head">
+            <div>
+              <h2 id="rad-litres" className="ui-section-title">
+                Litres ordered
+              </h2>
+              <p className="rad-sub">Per month, last 12 months · this month so far</p>
+            </div>
+            <div className="rad-legend" aria-hidden>
               <span>
-                <i className="rad-dot rad-dot--pms" /> PMS Orders
+                <i className="rad-dot rad-dot--pms" /> PMS
               </span>
               <span>
-                <i className="rad-dot rad-dot--ago" /> AGO Orders
+                <i className="rad-dot rad-dot--ago" /> AGO
               </span>
             </div>
-          </article>
-
-          <article className="rad-card rad-orders">
-            <header className="rad-card__head">
-              <div className="rad-card__title">
-                <FileText size={16} strokeWidth={1.75} />
-                <span>Recent Orders</span>
-              </div>
-              <Link href="/intelligence/retail/orders" className="rad-link">
-                View all orders
-              </Link>
-            </header>
-            <div className="rad-table-wrap">
-              <table className="rad-table">
-                <thead>
-                  <tr>
-                    <th>Order Ref</th>
-                    <th>Dealer</th>
-                    <th>Station</th>
-                    <th>Products</th>
-                    <th>Volume</th>
-                    <th>Status</th>
-                    <th>Created</th>
+          </header>
+          <OrderTrendChart points={p.litres} unit="litres" />
+          <details className="rad-table-view">
+            <summary>Show as a table</summary>
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>PMS</th>
+                  <th>AGO</th>
+                </tr>
+              </thead>
+              <tbody>
+                {p.litres.map((m) => (
+                  <tr key={m.label}>
+                    <td>{m.label}</td>
+                    <td>{m.pms.toLocaleString("en-KE")} L</td>
+                    <td>{m.ago.toLocaleString("en-KE")} L</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="rad-empty">
-                        No dealer orders yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    recentOrders.map((o) => (
-                      <tr key={o.id}>
-                        <td className="rad-mono">{o.reference}</td>
-                        <td>{o.dealer}</td>
-                        <td>{o.station}</td>
-                        <td>{o.products}</td>
-                        <td>{o.volume}</td>
-                        <td>
-                          <span className={`rad-pill rad-pill--${o.tone}`}>{o.status}</span>
-                        </td>
-                        <td>{o.created}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </div>
-
-        <div className="rad-col rad-col--side">
-          <article className="rad-card rad-status">
-            <header className="rad-card__head">
-              <div className="rad-card__title">
-                <Clock3 size={16} strokeWidth={1.75} />
-                <span>Orders by Status</span>
-              </div>
-              <span className="rad-select">This month</span>
-            </header>
-            <div className="rad-status__body">
-              <StatusDonut slices={statusSlices} total={totalOrders} />
-              <ul className="rad-status__legend">
-                {statusSlices.map((s) => (
-                  <li key={s.bucket}>
-                    <span
-                      className="rad-status__swatch"
-                      style={{ background: STATUS_BUCKET_COLORS[s.bucket] }}
-                    />
-                    <span className="rad-status__name">{s.bucket}</span>
-                    <span className="rad-status__pct">{s.pct}%</span>
-                  </li>
                 ))}
-                {otherOrders > 0 ? (
-                  // Cancelled, rejected and needs-amendment orders: the grey gap in the donut.
-                  <li>
-                    <span className="rad-status__swatch" style={{ background: "#cbd5e1" }} />
-                    <span className="rad-status__name">Cancelled / other</span>
-                    <span className="rad-status__pct">{Math.round((otherOrders / totalOrders) * 100)}%</span>
-                  </li>
-                ) : null}
-              </ul>
-            </div>
-          </article>
+              </tbody>
+            </table>
+          </details>
+        </article>
 
-          <article className="rad-card rad-stations">
-            <header className="rad-card__head">
-              <div className="rad-card__title">
-                <MapPin size={16} strokeWidth={1.75} />
-                <span>Top Stations by Order Volume</span>
-              </div>
-              <span className="rad-select">This month</span>
-            </header>
-            <ol className="rad-rank">
-              {topStations.length === 0 ? (
-                <li className="rad-empty">No station volume yet.</li>
-              ) : (
-                topStations.map((s, i) => (
-                  <li key={s.name}>
-                    <span className="rad-rank__n">{i + 1}</span>
-                    <div className="rad-rank__meta">
-                      <div className="rad-rank__row">
-                        <strong>{s.name}</strong>
-                        <em>
-                          {s.litres.toLocaleString()} L · {s.pct}%
-                        </em>
-                      </div>
-                      <div className="rad-rank__bar">
-                        <span style={{ width: `${Math.max(s.pct, 4)}%` }} />
-                      </div>
-                    </div>
-                  </li>
-                ))
-              )}
-            </ol>
-          </article>
-        </div>
+        <article className="ui-panel" aria-labelledby="rad-cycle">
+          <h2 id="rad-cycle" className="ui-section-title">
+            How long orders take
+          </h2>
+          <p className="rad-sub">Median per step, orders placed this month · slowest in yellow</p>
+          <ul className="rad-cyc">
+            {p.cycle.map((c) => (
+              <li key={c.step}>
+                <span>{c.step}</span>
+                <span className="rad-bars__track" aria-hidden>
+                  <span className={c.medianMs !== null && c.medianMs === slowest && slowest > 0 ? "is-slow" : undefined} style={{ width: `${c.medianMs && slowest ? (c.medianMs / slowest) * 100 : 0}%` }} />
+                </span>
+                <b>{duration(c.medianMs)}</b>
+              </li>
+            ))}
+          </ul>
+        </article>
       </div>
-    </div>
-  );
-}
 
-function kpiIcon(kind: RetailKpi["icon"]) {
-  if (kind === "orders") return <FileText size={22} strokeWidth={1.75} />;
-  if (kind === "invites") return <Hourglass size={22} strokeWidth={1.75} />;
-  if (kind === "orgs") return <Users size={22} strokeWidth={1.75} />;
-  return <Fuel size={22} strokeWidth={1.75} />;
-}
-
-function OrderTrendChart({ points }: { points: TrendPoint[] }) {
-  const w = 640;
-  const h = 220;
-  const pad = { t: 16, r: 12, b: 32, l: 36 };
-  const innerW = w - pad.l - pad.r;
-  const innerH = h - pad.t - pad.b;
-  const maxY = Math.max(1, ...points.flatMap((p) => [p.pms, p.ago]));
-  const xAt = (i: number) =>
-    pad.l + (points.length <= 1 ? innerW / 2 : (i / (points.length - 1)) * innerW);
-  const yAt = (v: number) => pad.t + innerH - (v / maxY) * innerH;
-
-  const pathFor = (key: "pms" | "ago") =>
-    points
-      .map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)} ${yAt(p[key]).toFixed(1)}`)
-      .join(" ");
-
-  const grid = [0, 0.25, 0.5, 0.75, 1].map((t) => pad.t + innerH * (1 - t));
-
-  return (
-    <svg className="rad-trend__svg" viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Order trend">
-      {grid.map((y) => (
-        <line
-          key={y}
-          x1={pad.l}
-          x2={w - pad.r}
-          y1={y}
-          y2={y}
-          className="rad-trend__grid"
-        />
-      ))}
-      <path d={pathFor("pms")} className="rad-trend__line rad-trend__line--pms" />
-      <path d={pathFor("ago")} className="rad-trend__line rad-trend__line--ago" />
-      {points.map((p, i) => (
-        <g key={p.label}>
-          <circle cx={xAt(i)} cy={yAt(p.pms)} r="3.5" className="rad-trend__dot rad-trend__dot--pms" />
-          <circle cx={xAt(i)} cy={yAt(p.ago)} r="3.5" className="rad-trend__dot rad-trend__dot--ago" />
-          <text x={xAt(i)} y={h - 8} textAnchor="middle" className="rad-trend__xlabel">
-            {p.label.replace(/ \d{4}$/, "")}
-          </text>
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-function StatusDonut({ slices, total }: { slices: StatusSlice[]; total: number }) {
-  const size = 152;
-  const cx = size / 2;
-  const cy = size / 2;
-  const r = 54;
-  const stroke = 18;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
-
-  return (
-    <div className="rad-donut">
-      <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
-        <circle cx={cx} cy={cy} r={r} className="rad-donut__track" strokeWidth={stroke} />
-        {slices.map((s) => {
-          const len = total > 0 ? (s.count / total) * circ : 0;
-          const el = (
-            <circle
-              key={s.bucket}
-              cx={cx}
-              cy={cy}
-              r={r}
-              fill="none"
-              stroke={STATUS_BUCKET_COLORS[s.bucket]}
-              strokeWidth={stroke}
-              strokeDasharray={`${len} ${circ - len}`}
-              strokeDashoffset={-offset}
-              strokeLinecap="butt"
-              transform={`rotate(-90 ${cx} ${cy})`}
-            />
-          );
-          offset += len;
-          return el;
-        })}
-      </svg>
-      <div className="rad-donut__center">
-        <strong>{total}</strong>
-        <span>Total Orders</span>
+      <div className="rad-three">
+        <article className="ui-panel" aria-labelledby="rad-region">
+          <h2 id="rad-region" className="ui-section-title">
+            By loading region
+          </h2>
+          <p className="rad-sub">Litres this month · the dark tick is last month</p>
+          <ul className="rad-bars">
+            {p.regions.map((r) => (
+              <li key={r.region} title={`${r.region}: ${r.thisMonth.toLocaleString("en-KE")} L this month, ${r.lastMonth.toLocaleString("en-KE")} L last month`}>
+                <span className="rad-bars__name">{r.region}</span>
+                <span className="rad-bars__value">{kl(r.thisMonth)}</span>
+                <span className="rad-bars__track rad-bars__track--tick" aria-hidden>
+                  <span style={{ width: `${(r.thisMonth / regionMax) * 100}%` }} />
+                  <i style={{ left: `${(r.lastMonth / regionMax) * 100}%` }} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </article>
+        <article className="ui-panel" aria-labelledby="rad-dealers">
+          <h2 id="rad-dealers" className="ui-section-title">
+            Top dealers
+          </h2>
+          <p className="rad-sub">Litres this month</p>
+          {p.dealers.length === 0 ? (
+            <p className="rad-empty">No orders this month yet.</p>
+          ) : (
+            <ol className="rad-bars">
+              {p.dealers.map((d) => (
+                <li key={d.dealer}>
+                  <span className="rad-bars__name">{d.dealer}</span>
+                  <span className="rad-bars__value">{kl(d.litres)}</span>
+                  <span className="rad-bars__track" aria-hidden>
+                    <span style={{ width: `${(d.litres / dealerMax) * 100}%` }} />
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </article>
+        <article className="ui-panel" aria-labelledby="rad-quiet">
+          <h2 id="rad-quiet" className="ui-section-title">
+            Gone quiet
+          </h2>
+          <p className="rad-sub">Dealers with no order in 30 days</p>
+          {p.quiet.length === 0 ? (
+            <p className="rad-empty">Every dealer ordered in the last 30 days.</p>
+          ) : (
+            <ul className="rad-quiet">
+              {p.quiet.map((q) => (
+                <li key={q.name}>
+                  <span>{q.name}</span>
+                  <em>{q.days === null ? "No orders yet" : `${q.days} days`}</em>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
       </div>
     </div>
   );

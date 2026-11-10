@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
-import { requireMessagingApi, jsonError } from "@/lib/api-auth";
+import { jsonError, requireSessionApi } from "@/lib/api-auth";
+import { liveChannelAccess } from "@/lib/live/channel-access";
+import { canUseMessaging } from "@/lib/messaging/authz";
 import { getPusherServer, pusherConfigured } from "@/lib/pusher/server";
 import { assertParticipant } from "@/lib/messaging/service";
 
+/** Pusher private-channel auth: message threads for their participants, live order channels per liveChannelAccess. */
 export async function POST(req: Request) {
-  const auth = await requireMessagingApi();
+  const auth = await requireSessionApi();
   if ("error" in auth) return auth.error;
-
   if (!pusherConfigured()) {
     return jsonError("Realtime is not configured (Pusher).", 503);
   }
@@ -19,15 +21,15 @@ export async function POST(req: Request) {
   const pusher = getPusherServer();
   if (!pusher) return jsonError("Pusher unavailable", 503);
 
-  const userId = auth.session.user.id;
-
-  if (channel.startsWith("private-conversation-")) {
-    const conversationId = channel.replace("private-conversation-", "");
-    const ok = await assertParticipant(conversationId, userId);
+  const user = auth.session.user;
+  const access = liveChannelAccess(user, channel);
+  if (access === "conversation") {
+    // Same rule as before: messaging accounts, and only threads they take part in.
+    if (!canUseMessaging(user)) return jsonError("Messaging is not available for this account.", 403);
+    const ok = await assertParticipant(channel.replace("private-conversation-", ""), user.id);
     if (!ok) return jsonError("Forbidden", 403);
-    const authResponse = pusher.authorizeChannel(socketId, channel);
-    return NextResponse.json(authResponse);
+  } else if (access === "deny") {
+    return jsonError("Forbidden", 403);
   }
-
-  return jsonError("Unsupported channel", 403);
+  return NextResponse.json(pusher.authorizeChannel(socketId, channel));
 }

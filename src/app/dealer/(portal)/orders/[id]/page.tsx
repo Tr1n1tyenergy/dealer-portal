@@ -25,6 +25,8 @@ import {
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { LiveRefresh } from "@/components/live/live-refresh";
+import { ordersDealerChannel } from "@/lib/pusher/server-channels";
 import "@/components/dealer/order-tracking.css";
 
 function formatLitres(n: number) {
@@ -287,7 +289,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
               Orders
             </Link>
             <ChevronRight className="ot__crumb-sep" size={14} strokeWidth={2.4} aria-hidden />
-            <span className="ot__crumb is-current">Order Tracking</span>
+            <span className="ot__crumb is-current">Order tracking</span>
             <ChevronRight className="ot__crumb-sep" size={14} strokeWidth={2.4} aria-hidden />
             <span className="ot__crumb is-leaf">{order.reference}</span>
           </nav>
@@ -298,9 +300,10 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
           <div className="ot__hero-meta">
             <span className={`ot__status-pill is-${badgeTone}`}>{badgeLabel}</span>
             <span className="ot__submitted">Submitted {formatDateTime(order.createdAt)}</span>
+            <LiveRefresh channel={ordersDealerChannel(orgId)} />
           </div>
 
-          <DealerHeroActions />
+          <DealerHeroActions showPay />
         </div>
       </section>
 
@@ -378,7 +381,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                 <span className="ot__card-icon" aria-hidden>
                   <FileText size={18} strokeWidth={2.2} />
                 </span>
-                <h2>Order Details</h2>
+                <h2>Order details</h2>
               </div>
               <span className="ot__ref-pill">{order.reference}</span>
             </header>
@@ -389,7 +392,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                   <Fuel size={18} strokeWidth={2.2} />
                 </span>
                 <div className="ot__tile-copy">
-                  <span className="ot__tile-label">Fuel Ordered</span>
+                  <span className="ot__tile-label">Fuel ordered</span>
                   <strong>{fuelOrderedVolume(pms, ago)}</strong>
                   <em>{fuelOrderedLabel(pms, ago)}</em>
                 </div>
@@ -401,7 +404,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                   <MapPin size={18} strokeWidth={2.2} />
                 </span>
                 <div className="ot__tile-copy">
-                  <span className="ot__tile-label">Delivery Station</span>
+                  <span className="ot__tile-label">Delivery station</span>
                   <strong>{order.station.name}</strong>
                   <em>Requested delivery: {formatLongDate(order.requestedDeliveryDate)}</em>
                 </div>

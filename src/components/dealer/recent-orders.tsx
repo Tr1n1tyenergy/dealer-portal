@@ -56,7 +56,7 @@ function litres(n: number) {
 export function RecentOrders({
   orders,
   stations,
-  title = "Recent Orders",
+  title = "Recent orders",
   subtitle = "Your latest fuel orders and their current status.",
   showViewAll = true,
   initialQuery = "",
@@ -143,7 +143,7 @@ export function RecentOrders({
         <label className="dp-ro__select">
           <Filter size={14} className="dp-ro__select-ico" />
           <select value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="all">All Statuses</option>
+            <option value="all">All statuses</option>
             {statusOptions.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -154,7 +154,7 @@ export function RecentOrders({
         <label className="dp-ro__select">
           <MapPin size={14} className="dp-ro__select-ico" />
           <select value={station} onChange={(e) => setStation(e.target.value)}>
-            <option value="all">All Stations</option>
+            <option value="all">All stations</option>
             {stations.map((s) => (
               <option key={s} value={s}>
                 {s}
@@ -170,7 +170,7 @@ export function RecentOrders({
             <tr>
               <th>Order</th>
               <th>Station</th>
-              <th>Products &amp; Quantities</th>
+              <th>Products &amp; quantities</th>
               <th>Status</th>
               <th>Updated</th>
               <th>Action</th>

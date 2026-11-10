@@ -343,7 +343,7 @@ function CountdownScreen({
             <span className="rcd__ring rcd__ring--2" />
             <span className="rcd__ring" />
             <span className="rcd__mic">
-              <Mic size={18} color="#ffcc00" strokeWidth={2.25} />
+              <Mic size={18} color="#ffca06" strokeWidth={2.25} />
             </span>
           </div>
 
@@ -388,7 +388,7 @@ function CountdownScreen({
                       cx={tipX}
                       cy={tipY}
                       r="6"
-                      fill="#ffcc00"
+                      fill="#ffca06"
                       style={{ transition: "cx 0.85s linear, cy 0.85s linear" }}
                     />
                   );
@@ -815,7 +815,7 @@ export function RecordingStudio({ session }: { session: Session }) {
             <span className="rlive__mic-ring rlive__mic-ring--2" />
             <span className="rlive__mic-ring" />
             <span className="rlive__mic">
-              <Mic size={28} color="#ffcc00" strokeWidth={2.2} />
+              <Mic size={28} color="#ffca06" strokeWidth={2.2} />
             </span>
           </div>
         </div>

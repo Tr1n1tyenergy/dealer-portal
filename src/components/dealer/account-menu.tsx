@@ -76,7 +76,7 @@ export function AccountMenu({
         <span className="dp-user__avatar">{initials}</span>
         <span className="dp-user__meta">
           <strong>{orgName}</strong>
-          <em>Dealer Account</em>
+          <em>Dealer account</em>
         </span>
         <ChevronDown size={16} strokeWidth={2} />
       </button>

@@ -23,9 +23,9 @@
 }
 
 .ssr {
-  --ssr-blue: #3551a5;
+  --ssr-blue: var(--tri-blue);
   --ssr-ink: #0a235b;
-  --ssr-yellow: #ffcc00;
+  --ssr-yellow: var(--tri-yellow);
   --ssr-muted: #64748b;
   --ssr-line: #e2e8f0;
   --ssr-canvas: #eef2f7;
@@ -189,7 +189,7 @@
   border-left-color: var(--ssr-yellow);
   color: var(--ssr-ink);
   font-weight: 800;
-  box-shadow: inset 0 0 0 1px rgba(255, 204, 0, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(255, 202, 6, 0.35);
 }
 
 .ssr__nav-link.is-active svg {
@@ -418,14 +418,14 @@
   background: var(--ssr-blue);
   border-color: var(--ssr-blue);
   color: #fff;
-  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.14);
+  box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.14);
 }
 
 .ssr__progress-step.is-active .ssr__progress-dot {
   background: var(--ssr-yellow);
   border-color: var(--ssr-yellow);
   color: var(--ssr-ink);
-  box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.22);
+  box-shadow: 0 0 0 4px rgba(255, 202, 6, 0.22);
 }
 
 .ssr__progress-step.is-pending .ssr__progress-dot {
@@ -509,7 +509,7 @@
 .ssr__btn--primary {
   background: var(--ssr-yellow);
   color: var(--ssr-ink);
-  box-shadow: 0 10px 22px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 10px 22px rgba(255, 202, 6, 0.28);
 }
 
 .ssr__btn--primary:hover:not(:disabled) {
@@ -900,7 +900,7 @@
   font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 10px 22px rgba(255, 202, 6, 0.28);
 }
 
 .ssr-records__apply:hover {
@@ -986,7 +986,7 @@
 
 .ssr-records__page-num.is-active {
   background: var(--ssr-yellow);
-  border-color: rgba(255, 204, 0, 0.75);
+  border-color: rgba(255, 202, 6, 0.75);
   color: var(--ssr-ink);
 }
 
@@ -1049,9 +1049,9 @@
 
 .ssr-rtt__tab.is-active {
   background: var(--ssr-yellow);
-  border-color: rgba(255, 204, 0, 0.8);
+  border-color: rgba(255, 202, 6, 0.8);
   color: var(--ssr-ink);
-  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 4px 12px rgba(255, 202, 6, 0.28);
 }
 
 .ssr-rtt__success {

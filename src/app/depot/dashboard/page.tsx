@@ -4,7 +4,8 @@ import { MAX_LITRES } from "@/lib/orders/order-input";
 import { requireDepot } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { depotOrderAction } from "@/lib/orders/actions";
-import { SignOutButton } from "@/components/auth/sign-out-button";
+import { AccountMenu } from "@/components/layout/account-menu";
+import { PortalHeader } from "@/components/layout/portal-header";
 import "../../dealer/dealer-portal.css";
 
 const queues: { title: string; statuses: DealerOrderStatus[] }[] = [
@@ -33,7 +34,26 @@ export default async function DepotDashboardPage() {
     orderBy: { updatedAt: "desc" },
   });
 
+  const name = `${session.user.firstName ?? ""} ${session.user.lastName ?? ""}`.trim() || "Depot";
+  const initials = name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+
   return (
+    <>
+    <PortalHeader
+      portal="depot"
+      active="board"
+      actions={
+        <AccountMenu
+          title={name}
+          subtitle="Depot"
+          initials={initials}
+          name={name}
+          email={session.user.email ?? ""}
+          changePasswordHref="/intelligence/forgot-password?portal=depot"
+          signOutUrl="/depot/login"
+        />
+      }
+    />
     <div className="portal">
       <header className="portal-top">
         <div>
@@ -41,7 +61,6 @@ export default async function DepotDashboardPage() {
           <h1>Today</h1>
           <p>Release queue, loading and dispatch. Only paid orders released by Trinity staff appear here.</p>
         </div>
-        <SignOutButton />
       </header>
       {queues.map((queue) => {
         const rows = orders.filter((order) => (queue.statuses as string[]).includes(order.status));
@@ -84,5 +103,6 @@ export default async function DepotDashboardPage() {
         );
       })}
     </div>
+    </>
   );
 }

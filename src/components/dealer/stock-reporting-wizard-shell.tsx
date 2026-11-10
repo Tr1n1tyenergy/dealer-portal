@@ -117,7 +117,7 @@ export function StockReportingWizardShell({
             disabled={saveExitPending || closed || !onSaveExit}
           >
             <Save size={15} strokeWidth={2.25} aria-hidden />
-            Save &amp; Exit
+            Save &amp; exit
           </button>
 
         </aside>

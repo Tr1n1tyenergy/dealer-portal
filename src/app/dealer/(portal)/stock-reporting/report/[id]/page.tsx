@@ -36,7 +36,7 @@ export default async function StockSaleReportDetailPage({
   return (
     <StockReportingModuleShell
       module="records"
-      title="Stock Sale Report"
+      title="Stock sale report"
       subtitle={`${report.station.name} · ${formatStockReportDate(report.reportingDate)}`}
     >
       <section className="ssr__card">
@@ -106,7 +106,7 @@ export default async function StockSaleReportDetailPage({
 
         <div className="ssr__actions" style={{ marginTop: "1.25rem" }}>
           <Link href="/dealer/stock-reporting" className="ssr__btn ssr__btn--ghost">
-            Return to Stock Reporting Dashboard
+            Return to stock reporting dashboard
           </Link>
         </div>
       </section>

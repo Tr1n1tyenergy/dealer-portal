@@ -25,12 +25,22 @@ import { formatLitresWithUnit } from "@/lib/stock-reporting/pump-calc";
 import {
   computeMonetarySummary,
   formatKesFixed,
+  MONETARY_CLOSE_TOLERANCE_KES,
   formatKesSigned,
   formatKesWithCurrency,
   parseKesInput,
 } from "@/lib/stock-reporting/monetary-calc";
 import { cn } from "@/lib/utils";
 import { StockReportingWizardShell } from "./stock-reporting-wizard-shell";
+
+/** Plain words for the wet stock outcome in the closing summary (was the raw enum codes). */
+const WET_RESOLUTION_LABEL: Record<string, string> = {
+  NONE: "No variance",
+  BALANCED: "Balanced",
+  MATCH_DELIVERY: "Matched to a delivery",
+  REVIEW_READINGS: "Readings under review",
+  RECORD_LOSS: "Variance recorded as a loss",
+};
 
 function formatSavedAt(iso: string | null) {
   if (!iso) return "Not saved yet";
@@ -188,7 +198,7 @@ export function MonetaryForm({
             <CalendarDays size={16} strokeWidth={2} aria-hidden />
           </span>
           <div>
-            <p className="ssw__meta-label">Reporting Date</p>
+            <p className="ssw__meta-label">Reporting date</p>
             <p className="ssw__meta-value">{reportingDateLabel}</p>
           </div>
           <button
@@ -258,8 +268,9 @@ export function MonetaryForm({
           <strong>Expected sales</strong> = meter volume × snapshotted pump selling price per litre.{" "}
           <strong>Collections</strong> are manual Cash, M-Pesa, and Visa/Card totals for the day
           (not verified payment imports). <strong>Difference</strong> = Total Collections − Expected
-          Sales (signed). Exact balance is required to close the shift; shortage/overage approval
-          policy is not yet configured. Closing freezes the report as submitted.
+          Sales (signed). A difference of up to {formatKesWithCurrency(MONETARY_CLOSE_TOLERANCE_KES)} closes
+          normally; a larger one needs an explanation and is recorded as a shortage or overage.
+          Closing freezes the report as submitted.
         </div>
       ) : null}
 
@@ -284,7 +295,7 @@ export function MonetaryForm({
               <Fuel size={18} strokeWidth={2.25} aria-hidden />
             </span>
             <div>
-              <h3>Expected Sales (from Meter Readings)</h3>
+              <h3>Expected sales (from meter readings)</h3>
               <p>Sales volume multiplied by the selling price per litre.</p>
             </div>
           </div>
@@ -293,9 +304,9 @@ export function MonetaryForm({
               <thead>
                 <tr>
                   <th scope="col">Product</th>
-                  <th scope="col">Volume Sold (L)</th>
-                  <th scope="col">Selling Price (KES/L)</th>
-                  <th scope="col">Expected Amount (KES)</th>
+                  <th scope="col">Volume sold (L)</th>
+                  <th scope="col">Selling price (KES/L)</th>
+                  <th scope="col">Expected amount (KES)</th>
                 </tr>
               </thead>
               <tbody>
@@ -323,7 +334,7 @@ export function MonetaryForm({
                   </tr>
                 ))}
                 <tr className="ssw__mini-total">
-                  <td colSpan={3}>Total Expected Sales</td>
+                  <td colSpan={3}>Total expected sales</td>
                   <td>{formatKesWithCurrency(summary.expectedTotalKes)}</td>
                 </tr>
               </tbody>
@@ -347,7 +358,7 @@ export function MonetaryForm({
                 <Wallet size={16} strokeWidth={2.25} aria-hidden />
               </span>
               <div>
-                <p className="ssw__vs-label">Expected Sales (Meter)</p>
+                <p className="ssw__vs-label">Expected sales (meter)</p>
                 <p className="ssw__vs-value">{formatKesWithCurrency(summary.expectedTotalKes)}</p>
               </div>
             </li>
@@ -356,15 +367,20 @@ export function MonetaryForm({
                 <Layers size={16} strokeWidth={2.25} aria-hidden />
               </span>
               <div>
-                <p className="ssw__vs-label">Total Collections (Cash + M-Pesa + Visa)</p>
+                <p className="ssw__vs-label">Total collections (cash + M-Pesa + Visa)</p>
                 <p className="ssw__vs-value">
                   {formatKesWithCurrency(summary.collectionsTotalKes)}
                 </p>
               </div>
             </li>
             <li className={cn("ssw__vs-diff", diffClass)}>
-              <span className="ssw__vs-ico ssw__vs-ico--diff">
-                <Check size={16} strokeWidth={2.75} aria-hidden />
+              {/* A tick only when it balances; a shortage or overage must not look approved. */}
+              <span className={`ssw__vs-ico ssw__vs-ico--diff${summary.state === "BALANCED" ? "" : " is-off"}`}>
+                {summary.state === "BALANCED" ? (
+                  <Check size={16} strokeWidth={2.75} aria-hidden />
+                ) : (
+                  <Info size={16} strokeWidth={2.75} aria-hidden />
+                )}
               </span>
               <div>
                 <p className="ssw__vs-label">Difference</p>
@@ -385,7 +401,7 @@ export function MonetaryForm({
             <Wallet size={18} strokeWidth={2.25} aria-hidden />
           </span>
           <h3>
-            Actual Collections
+            Actual collections
             <span>Enter total amount received for the day.</span>
           </h3>
         </div>
@@ -439,7 +455,7 @@ export function MonetaryForm({
             <span className="ssw__collect-icon">
               <CreditCard size={18} strokeWidth={2.25} aria-hidden />
             </span>
-            <span className="ssw__collect-label">Visa / Card</span>
+            <span className="ssw__collect-label">Visa / card</span>
             <span className="ssw__collect-input">
               <span className="ssw__collect-prefix">KES</span>
               <input
@@ -461,7 +477,7 @@ export function MonetaryForm({
             <span className="ssw__collect-icon ssw__collect-icon--total">
               <Layers size={18} strokeWidth={2.25} aria-hidden />
             </span>
-            <span className="ssw__collect-label">Total Collections</span>
+            <span className="ssw__collect-label">Total collections</span>
             <strong className="ssw__collect-total">
               {formatKesWithCurrency(summary.collectionsTotalKes)}
             </strong>
@@ -475,7 +491,7 @@ export function MonetaryForm({
             <Check size={18} strokeWidth={2.75} />
           </span>
           <div>
-            <strong>Monetary Reconciliation Balanced</strong>
+            <strong>Monetary reconciliation balanced</strong>
             <p>
               Total collections match the expected sales. You can now close and submit the daily
               report.
@@ -490,11 +506,11 @@ export function MonetaryForm({
             <Info size={18} strokeWidth={2.5} />
           </span>
           <div>
-            <strong>Collection Shortage Detected</strong>
+            <strong>Collection shortage detected</strong>
             <p>
               Recorded collections are {formatKesWithCurrency(Math.abs(summary.differenceKes ?? 0))}{" "}
-              below expected sales. Review the amounts before submitting. Exact balance is required
-              for normal closure.
+              below expected sales. Review the amounts; beyond{" "}
+              {formatKesWithCurrency(MONETARY_CLOSE_TOLERANCE_KES)} you need to explain the difference to close.
             </p>
           </div>
         </div>
@@ -506,11 +522,11 @@ export function MonetaryForm({
             <Info size={18} strokeWidth={2.5} />
           </span>
           <div>
-            <strong>Collection Overage Detected</strong>
+            <strong>Collection overage detected</strong>
             <p>
               Recorded collections exceed expected sales by{" "}
-              {formatKesWithCurrency(summary.differenceKes)}. Review the amounts before submitting.
-              Exact balance is required for normal closure.
+              {formatKesWithCurrency(summary.differenceKes)}. Review the amounts; beyond{" "}
+              {formatKesWithCurrency(MONETARY_CLOSE_TOLERANCE_KES)} you need to explain the difference to close.
             </p>
           </div>
         </div>
@@ -522,7 +538,7 @@ export function MonetaryForm({
             <Info size={18} strokeWidth={2.5} />
           </span>
           <div>
-            <strong>Monetary Reconciliation Incomplete</strong>
+            <strong>Monetary reconciliation incomplete</strong>
             <p>
               {pricesMissing
                 ? "Selling prices are missing, so expected sales cannot be finalized."
@@ -534,10 +550,11 @@ export function MonetaryForm({
 
       {summary.state === "SHORTAGE" || summary.state === "OVERAGE" ? (
         <div className="ssw__opt-panel" style={{ marginBottom: "1rem" }}>
-          <h4>Discrepancy note (optional)</h4>
+          <h4>Explain the difference</h4>
           <p>
-            You may record an explanation while correcting collections. Closing with a shortage or
-            overage is blocked until an approved tolerance/approval policy is configured.
+            Up to {formatKesWithCurrency(MONETARY_CLOSE_TOLERANCE_KES)} closes without a note. For a
+            larger difference, say what happened (at least 10 characters); the report is then
+            recorded as a shortage or overage for Trinity to review.
           </p>
           <textarea
             value={discrepancyReason}
@@ -566,7 +583,7 @@ export function MonetaryForm({
         <div className="ssw__footer-actions">
           <Link href="/dealer/stock-reporting/wet-stock" className="ssw__btn ssw__btn--ghost">
             <ArrowLeft size={16} strokeWidth={2.5} aria-hidden />
-            Back to Wet Stock Reconciliation
+            Back to wet stock reconciliation
           </Link>
           <button
             type="button"
@@ -583,7 +600,7 @@ export function MonetaryForm({
             disabled={pending || readOnly}
             onClick={() => setConfirmOpen(true)}
           >
-            Close Shift &amp; Submit Report
+            Close shift &amp; submit report
             <Send size={16} strokeWidth={2.5} aria-hidden />
           </button>
         </div>
@@ -597,7 +614,7 @@ export function MonetaryForm({
             aria-modal="true"
             aria-labelledby="close-shift-title"
           >
-            <h3 id="close-shift-title">Close and Submit Daily Report?</h3>
+            <h3 id="close-shift-title">Close and submit daily report?</h3>
             <dl className="ssw__modal-summary">
               <div>
                 <dt>Station</dt>
@@ -630,7 +647,7 @@ export function MonetaryForm({
               <div>
                 <dt>Wet stock</dt>
                 <dd>
-                  {wetResolution} · {wetState}
+                  {WET_RESOLUTION_LABEL[wetResolution] ?? wetResolution}
                 </dd>
               </div>
             </dl>
@@ -650,7 +667,7 @@ export function MonetaryForm({
                 onClick={() => runSave("close", { confirmClose: true })}
               >
                 {pending ? <Loader2 size={16} className="animate-spin" aria-hidden /> : null}
-                Confirm &amp; Close Shift
+                Confirm &amp; close shift
               </button>
             </div>
           </div>

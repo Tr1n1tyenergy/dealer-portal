@@ -1,7 +1,7 @@
 import Pusher from "pusher";
-import { conversationChannel } from "./server-channels";
+import { conversationChannel, ORDERS_STAFF_CHANNEL, ordersDealerChannel } from "./server-channels";
 
-export { conversationChannel } from "./server-channels";
+export { conversationChannel, ORDERS_STAFF_CHANNEL, ordersDealerChannel } from "./server-channels";
 
 let client: Pusher | null = null;
 
@@ -23,6 +23,7 @@ export function getPusherServer(): Pusher | null {
       secret: process.env.PUSHER_SECRET!,
       cluster: process.env.PUSHER_CLUSTER!,
       useTLS: true,
+      timeout: 3000, // order changes and messages wait for the notice; never longer than this
     });
   }
   return client;
@@ -39,4 +40,19 @@ export async function triggerConversationEvent(
   await pusher.trigger(conversationChannel(conversationId), event, data).catch((error: unknown) => {
     console.warn(`[pusher] ${event} not delivered:`, error instanceof Error ? error.message : error);
   });
+}
+
+/**
+ * Tells open dashboards an order changed (after the change is saved). Carries the id and status only, never
+ * money or names; best-effort like messages, so a Pusher problem never fails the order change.
+ */
+export async function notifyOrderChanged(order: { id: string; status: string; dealerOrganizationId: string }) {
+  const pusher = getPusherServer();
+  if (!pusher) return;
+  try {
+    // trigger() can also throw before sending (bad channel name), hence try/await rather than .catch alone
+    await pusher.trigger([ORDERS_STAFF_CHANNEL, ordersDealerChannel(order.dealerOrganizationId)], "order-changed", { orderId: order.id, status: order.status });
+  } catch (error: unknown) {
+    console.warn("[pusher] order-changed not delivered:", error instanceof Error ? error.message : error);
+  }
 }

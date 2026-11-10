@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { AuthLayout } from "@/components/access/auth-layout";
 
 export default function ResetPasswordPage() {
   const search = useSearchParams();
@@ -39,47 +37,23 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-trinity-bg px-6 py-12">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-md rounded-[28px] border border-white/60 bg-white p-8 shadow-[0_24px_60px_rgba(10,35,91,0.12)]"
-      >
-        <div className="text-xs font-bold uppercase tracking-[0.16em] text-trinity-gold">
-          Password Reset
+    <AuthLayout headline="Choose a new password." copy="After you save it, every other device signed in to your account is signed out.">
+      <h2 className="login-title">Choose a new password</h2>
+      <p className="login-copy">Use at least 8 characters.</p>
+      <form onSubmit={onSubmit}>
+        <div className="login-field">
+          <label htmlFor="reset-password">New password</label>
+          <input id="reset-password" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className="login-input" style={{ paddingLeft: 14 }} autoComplete="new-password" />
         </div>
-        <h1 className="mt-2 text-3xl font-black text-trinity-navy">Choose a new password</h1>
-
-        <div className="mt-6 space-y-4">
-          <div>
-            <Label>New Password</Label>
-            <Input
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label>Confirm Password</Label>
-            <Input
-              type="password"
-              required
-              minLength={8}
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-            />
-          </div>
-          {error ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </div>
-          ) : null}
-          <Button type="submit" className="w-full" disabled={loading || !token}>
-            {loading ? "Saving..." : "Reset Password"}
-          </Button>
+        <div className="login-field">
+          <label htmlFor="reset-confirm">Confirm password</label>
+          <input id="reset-confirm" type="password" required minLength={8} value={confirm} onChange={(e) => setConfirm(e.target.value)} className="login-input" style={{ paddingLeft: 14 }} autoComplete="new-password" />
         </div>
+        {error ? <div className="login-error" role="alert">{error}</div> : null}
+        <button type="submit" className="ui-btn ui-btn--primary login-submit" disabled={loading || !token}>
+          {loading ? "Saving…" : "Save new password"}
+        </button>
       </form>
-    </div>
+    </AuthLayout>
   );
 }

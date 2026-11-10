@@ -56,7 +56,7 @@ export function renderStockSaleReportPdf(data: StockSaleReportPdfData): Promise<
     doc.on("error", reject);
   });
 
-  const blue = "#3551A5";
+  const blue = "#3853a4";
   const ink = "#0a235b";
 
   doc.fillColor(blue).fontSize(16).text("Trinitynrg", { continued: false });
@@ -97,7 +97,8 @@ export function renderStockSaleReportPdf(data: StockSaleReportPdfData): Promise<
 
   doc.fillColor(blue).fontSize(12).text("Wet Stock Reconciliation");
   doc.fillColor(ink).fontSize(10);
-  doc.text(`Variance (Meter − Tank): ${litres(data.varianceTotal)}`);
+  // Plain hyphen: the built-in PDF font has no U+2212 minus sign and printed it as a quote.
+  doc.text(`Variance (Meter - Tank): ${litres(data.varianceTotal)}`);
   doc.text(`Resolution: ${wetResolutionLabel(data.wetResolution, data.wetState)}`);
   if (data.wetLossReason) doc.text(`Loss note: ${data.wetLossReason}`);
   doc.moveDown(0.6);

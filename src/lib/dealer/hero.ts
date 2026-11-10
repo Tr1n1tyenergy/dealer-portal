@@ -6,20 +6,22 @@
  * Access / dealer login left panels use a separate asset
  * (`trinitynrg-forecourt-at-sunset.png`) — do not reuse this hero plate there.
  *
- * Display: full plate at native aspect (no cover zoom/crop).
- * Source pixels: 1024 × 211 (as provided — used exactly as-is).
+ * Source: v5 = the v4 plate rebuilt at 3072 × 633 (3×) with the scene taken from the sharp
+ * station photo (brand/station-sunset.jpg); v4 was 1024 × 211 and blurred when stretched.
  */
-export const DEALER_FORECOURT_SRC = "/assets2/img/access/forecourt-hero-banner-v4.jpg?v=65";
+export const DEALER_FORECOURT_SRC = "/assets2/img/access/forecourt-hero-banner-v5.jpg";
 
-/** Exact plate fit — width 100%, height matches aspect; no cover/contain zoom. */
-export const DEALER_FORECOURT_SIZE = "100% 100%";
-export const DEALER_FORECOURT_POSITION = "center center";
+/* Size and position live in dealer-portal.css (--dp-hero-photo-size / -position): cover, anchored
+ * right, on wider screens; the whole photo at the foot of the hero on phones. */
 export const DEALER_FORECOURT_ASPECT = "1024 / 211";
 
 export const dealerHeroPhotoStyle = {
-  backgroundImage: `url("${DEALER_FORECOURT_SRC}")`,
+  // Shade behind the text (left and top) so the yellow eyebrow and white title read on the photo.
+  backgroundImage: [
+    "linear-gradient(90deg, rgba(8, 20, 46, 0.62) 0%, rgba(8, 20, 46, 0.3) 45%, rgba(8, 20, 46, 0) 72%)",
+    "linear-gradient(180deg, rgba(8, 20, 46, 0.28) 0%, rgba(8, 20, 46, 0) 60%)",
+    `url("${DEALER_FORECOURT_SRC}")`,
+  ].join(", "),
   backgroundRepeat: "no-repeat",
-  ["--dp-hero-photo-size" as string]: DEALER_FORECOURT_SIZE,
-  ["--dp-hero-photo-position" as string]: DEALER_FORECOURT_POSITION,
   ["--dp-hero-aspect" as string]: DEALER_FORECOURT_ASPECT,
 } as const;

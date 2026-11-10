@@ -1,9 +1,9 @@
 /* Premium Create Fuel Order — scoped under .po. Shared header untouched. */
 
 .po {
-  --po-blue: #3551a5;
+  --po-blue: var(--tri-blue);
   --po-ink: #0a235b;
-  --po-yellow: #ffcc00;
+  --po-yellow: var(--tri-yellow);
   --po-muted: #64748b;
   --po-line: #e6edf7;
   --po-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
@@ -67,7 +67,7 @@
 
 a.po__crumb:hover {
   text-decoration: underline;
-  color: #ffcc00;
+  color: var(--tri-yellow);
 }
 
 .po__crumb.is-current {
@@ -75,7 +75,7 @@ a.po__crumb:hover {
 }
 
 .po__crumb-sep {
-  color: rgba(255, 204, 0, 0.65);
+  color: rgba(255, 202, 6, 0.65);
   flex-shrink: 0;
 }
 
@@ -929,7 +929,7 @@ a.po__crumb:hover {
   font-size: 0.92rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 10px 24px rgba(255, 202, 6, 0.28);
 }
 
 .po__cta:disabled {

@@ -1,0 +1,10 @@
+/* Access requests panel (Admins: staff Home and Admin users). */
+.arp ul { list-style: none; margin: 0; padding: 0; }
+.arp-sub { margin: 4px 0 8px; color: var(--tri-soft); font-size: 14px; }
+.arp li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--tri-line); }
+.arp li:first-child { border-top: 0; }
+.arp-who { display: grid; gap: 2px; min-width: 0; font-size: 15px; }
+.arp-who em { font-style: normal; color: var(--tri-soft); font-size: 13px; }
+.arp-who q { color: var(--tri-soft); font-size: 14px; }
+.arp-btns { display: flex; gap: 8px; }
+.arp-error { margin: 8px 0 0; color: var(--tri-problem); font-size: 14px; }

@@ -22,7 +22,7 @@ export function StockReportingSubmittedShell({
             <span className="ssw__hero-accent" aria-hidden />
             <div>
               <p className="ssw__hero-kicker">Stock Sale Reporting</p>
-              <h1>Daily Report Submitted</h1>
+              <h1>Daily report submitted</h1>
               <p>
                 Your daily stock, sales and monetary reconciliation has been successfully submitted.
               </p>
@@ -57,7 +57,7 @@ export function StockReportingSubmittedShell({
             <span className="ssw__submitted-flag-ico" aria-hidden>
               <FileCheck2 size={18} strokeWidth={2.25} />
             </span>
-            <strong>Report Submitted</strong>
+            <strong>Report submitted</strong>
           </div>
 
         </aside>

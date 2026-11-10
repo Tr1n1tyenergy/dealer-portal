@@ -45,7 +45,7 @@ describe("activePrimaryNav", () => {
 
   it("does not include a top-level PFIs nav item", () => {
     assert.equal(
-      DEALER_PRIMARY_NAV.some((item) => item.key === "documents" || item.label === "PFIs"),
+      DEALER_PRIMARY_NAV.some((item) => (item.key as string) === "documents" || (item.label as string) === "PFIs"),
       false,
     );
   });

@@ -1,0 +1,62 @@
+/* Staff home: Today tiles raised over the photo, Needs action + Happening now, then EPRA, depots and the month. */
+.sh-hero .photo-hero { padding-bottom: 82px; }
+.sh { display: grid; gap: 28px; font-variant-numeric: tabular-nums; }
+.sh-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.sh-sub { margin: 4px 0 0; color: var(--tri-soft); font-size: 14px; }
+
+.sh-today { position: relative; margin-top: -86px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.sh-today--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sh-tile { display: grid; gap: 4px; align-content: start; padding: 18px 18px 20px; border-radius: 16px; background: #fff; box-shadow: 0 14px 34px -18px rgba(14, 22, 48, 0.45), 0 0 0 1px var(--tri-line); color: var(--tri-ink); text-decoration: none; }
+.sh-tile--link { transition: box-shadow 0.2s ease, transform 0.2s ease; }
+.sh-tile--link:hover { transform: translateY(-2px); box-shadow: 0 18px 38px -18px rgba(14, 22, 48, 0.5), 0 0 0 1.5px var(--tri-blue); }
+.sh-tile--link:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 2px; }
+.sh-tile__label { color: var(--tri-soft); font-size: 14px; }
+.sh-tile__value { font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; white-space: nowrap; }
+.sh-tile__sub { color: var(--tri-soft); font-size: 14px; }
+
+.sh-main { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.sh-now .sh-head { margin-bottom: 8px; }
+.sh-list { list-style: none; margin: 12px 0 0; padding: 0; border-top: 1px solid var(--tri-line); }
+.sh-row { display: grid; grid-template-columns: minmax(0, 1fr) 10rem auto; grid-template-areas: "ref amount chip" "act act act"; gap: 8px 14px; align-items: center; padding: 14px 4px; border-bottom: 1px solid var(--tri-line); font-size: 15px; }
+.sh-row:not(:has(.so-actions)) { grid-template-areas: "ref amount chip"; }
+.sh-row__ref { grid-area: ref; display: grid; gap: 2px; min-width: 0; }
+.sh-row__ref span { color: var(--tri-soft); font-size: 14px; overflow-wrap: break-word; }
+.sh-row__amount { grid-area: amount; text-align: right; white-space: nowrap; }
+.sh-row__chips { grid-area: chip; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.sh-row__act { grid-area: act; }
+.sh-row__act:empty { display: none; }
+
+.sh-row3 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.sh-epra__to { display: block; margin-top: 14px; font-size: 22px; letter-spacing: -0.01em; }
+.sh-meter { display: block; height: 8px; margin: 10px 0 8px; border-radius: 99px; background: var(--tri-tint); overflow: hidden; }
+.sh-meter > span { display: block; height: 100%; border-radius: inherit; background: var(--tri-blue); }
+.sh-epra__left { margin: 0; font-size: 14px; color: var(--tri-soft); }
+.sh-epra.is-ending .sh-meter > span { background: var(--tri-problem); }
+.sh-epra.is-ending .sh-epra__left { color: var(--tri-problem); }
+.sh-depots ul { list-style: none; margin: 8px 0 0; padding: 0; }
+.sh-depots li, .sh-month dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--tri-line); font-size: 16px; }
+.sh-depots li:last-child, .sh-month dl > div:last-child { border-bottom: 0; }
+.sh-depots em { font-style: normal; font-weight: 600; text-align: right; }
+.sh-depots em.is-idle { color: var(--tri-soft); font-weight: 400; }
+.sh-month dl { margin: 0; display: grid; }
+.sh-month dt { color: var(--tri-soft); }
+.sh-month dd { margin: 0; font-weight: 700; }
+
+/* Action items and decisions, for staff with meetings. */
+.sh-meet { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+
+@media (max-width: 1100px) {
+  .sh-today { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-today--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sh-main, .sh-row3, .sh-meet { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767px) {
+  .sh-hero .photo-hero { padding-bottom: 64px; }
+  .sh-today { margin-top: -58px; gap: 10px; }
+  .sh-today, .sh-today--three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sh-tile { padding: 14px; }
+  .sh-tile__value { font-size: 24px; }
+  .sh-row, .sh-row:not(:has(.so-actions)) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "ref" "amount" "chip" "act"; }
+  .sh-row__amount { text-align: left; }
+  .sh-row__chips { justify-content: flex-start; }
+}

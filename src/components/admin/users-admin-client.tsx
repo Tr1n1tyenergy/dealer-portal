@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { roleLabel, STAFF_ROLES } from "@/lib/access";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { canUser, type StaffUser } from "@/lib/permissions";
+import { adminRowActions } from "@/lib/users/user-controls";
 import { PermissionsDialog } from "./permissions-dialog";
+import "./users-admin.css";
 
 type UserRow = {
   id: string;
@@ -21,7 +20,15 @@ type UserRow = {
   permissions: string;
 };
 
-export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: UserRow[]; canManage: boolean }) {
+/** Admin → Users: create staff accounts and manage each one; only the buttons the signed-in person may use. */
+export function UsersAdminClient({
+  initialUsers,
+  actor,
+}: {
+  initialUsers: UserRow[];
+  actor: StaffUser & { email: string; id: string };
+}) {
+  const canManage = canUser(actor, "adminUsers", "act");
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers);
   const [form, setForm] = useState({
@@ -111,141 +118,129 @@ export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: Us
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Create User</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={createUser} className="grid gap-3 md:grid-cols-2">
-            <div>
-              <Label>First Name</Label>
-              <Input
-                required
-                value={form.firstName}
-                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Last Name</Label>
-              <Input
-                required
-                value={form.lastName}
-                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input
-                required
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Department</Label>
-              <Input
-                required
-                value={form.department}
-                onChange={(e) => setForm({ ...form, department: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Role</Label>
-              <select
-                className="flex h-11 w-full rounded-xl border border-black/10 bg-white px-3 text-sm"
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-              >
+    <div className="ua">
+      {canManage ? (
+        <section className="ui-panel ua-create" aria-labelledby="ua-create-title">
+          <h2 id="ua-create-title" className="ui-section-title">
+            Create a user
+          </h2>
+          <form onSubmit={createUser} className="ua-form">
+            <label className="ui-field">
+              First name
+              <input className="ui-input" required value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+            </label>
+            <label className="ui-field">
+              Last name
+              <input className="ui-input" required value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+            </label>
+            <label className="ui-field">
+              Email
+              <input className="ui-input" required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            </label>
+            <label className="ui-field">
+              Department
+              <input className="ui-input" required value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} />
+            </label>
+            <label className="ui-field">
+              Role
+              <select className="ui-input" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
                 {STAFF_ROLES.map((role) => (
                   <option key={role} value={role}>
                     {roleLabel(role)}
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
             {error ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 md:col-span-2">
+              <p className="ua-flash ua-flash--error" role="alert">
                 {error}
-              </div>
+              </p>
             ) : null}
             {inviteNotice ? (
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 md:col-span-2">
+              <p className="ua-flash ua-flash--ok" role="status">
                 {inviteNotice}
-              </div>
+              </p>
             ) : null}
-            <div className="md:col-span-2">
-              <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create User"}
-              </Button>
+            <div className="ua-form__foot">
+              <button type="submit" className="ui-btn ui-btn--primary" disabled={loading}>
+                {loading ? "Creating…" : "Create user"}
+              </button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </section>
+      ) : error ? (
+        <p className="ua-flash ua-flash--error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
-      <div className="card-premium overflow-hidden">
-        <div className="border-b border-black/5 px-6 py-4 text-lg font-bold text-trinity-navy">
-          Users
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
-              <tr>
-                <th className="px-6 py-3">Name</th>
-                <th className="px-6 py-3">Email</th>
-                <th className="px-6 py-3">Department</th>
-                <th className="px-6 py-3">Role</th>
-                <th className="px-6 py-3">Status</th>
-                <th className="px-6 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id} className="border-t border-black/5">
-                  <td className="px-6 py-4 font-semibold text-trinity-navy">
+      <section className="ui-panel" aria-labelledby="ua-list-title">
+        <h2 id="ua-list-title" className="ui-section-title">
+          Users ({users.length})
+        </h2>
+        <table className="ua-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Role</th>
+              <th>Status</th>
+              {canManage ? <th>Actions</th> : null}
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => {
+              const can = adminRowActions(actor, u);
+              return (
+                <tr key={u.id}>
+                  <td className="ua-name">
                     {u.firstName} {u.lastName}
                   </td>
-                  <td className="px-6 py-4">{u.email}</td>
-                  <td className="px-6 py-4">{u.department}</td>
-                  <td className="px-6 py-4">{roleLabel(u.role)}</td>
-                  <td className="px-6 py-4">{u.status}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          void patchUser(u.id, {
-                            status: u.status === "DISABLED" ? "ACTIVE" : "DISABLED",
-                          })
-                        }
-                      >
-                        {u.status === "DISABLED" ? "Enable" : "Disable"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => void patchUser(u.id, { resetInvite: true })}
-                      >
-                        Reset Invite
-                      </Button>
-                      {canManage && u.accountType === "INTERNAL" ? (
-                        <Button size="sm" variant="outline" onClick={() => setPermissionsFor(u)}>
-                          Permissions
-                        </Button>
-                      ) : null}
-                      <Button size="sm" variant="danger" onClick={() => void deleteUser(u.id)}>
-                        Delete
-                      </Button>
-                    </div>
+                  <td>{u.email}</td>
+                  <td>{u.department}</td>
+                  <td>{roleLabel(u.role)}</td>
+                  <td>
+                    <span className={`ui-chip ui-chip--${u.status === "ACTIVE" ? "done" : u.status === "PENDING" ? "dealer" : "muted"}`}>
+                      {u.status === "ACTIVE" ? "Active" : u.status === "PENDING" ? "Pending" : "Disabled"}
+                    </span>
                   </td>
+                  {canManage ? (
+                    <td>
+                      <div className="ua-actions">
+                        {can.toggle ? (
+                          <button
+                            type="button"
+                            className="ui-btn ui-btn--secondary"
+                            onClick={() => void patchUser(u.id, { status: u.status === "DISABLED" ? "ACTIVE" : "DISABLED" })}
+                          >
+                            {u.status === "DISABLED" ? "Enable" : "Disable"}
+                          </button>
+                        ) : null}
+                        {can.resetInvite ? (
+                          <button type="button" className="ui-btn ui-btn--secondary" onClick={() => void patchUser(u.id, { resetInvite: true })}>
+                            Reset invite
+                          </button>
+                        ) : null}
+                        {can.permissions ? (
+                          <button type="button" className="ui-btn ui-btn--secondary" onClick={() => setPermissionsFor(u)}>
+                            Permissions
+                          </button>
+                        ) : null}
+                        {can.delete ? (
+                          <button type="button" className="ui-btn ui-btn--destructive" onClick={() => void deleteUser(u.id)}>
+                            Delete
+                          </button>
+                        ) : null}
+                      </div>
+                    </td>
+                  ) : null}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
       {permissionsFor ? (
         <PermissionsDialog
           person={permissionsFor}

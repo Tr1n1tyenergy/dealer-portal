@@ -1,9 +1,9 @@
 /* Premium My Orders page — scoped under .do. Shared header stays untouched. */
 
 .do {
-  --do-blue: #3551a5;
+  --do-blue: var(--tri-blue);
   --do-ink: #0a235b;
-  --do-yellow: #ffcc00;
+  --do-yellow: var(--tri-yellow);
   --do-turquoise: rgb(0, 198, 214);
   --do-red: rgb(239, 0, 18);
   --do-muted: #64748b;
@@ -140,7 +140,7 @@
   background: #fff8db;
   border-color: var(--do-yellow);
   color: var(--do-ink);
-  box-shadow: 0 6px 16px rgba(255, 204, 0, 0.18);
+  box-shadow: 0 6px 16px rgba(255, 202, 6, 0.18);
 }
 
 /* Filters */
@@ -472,4 +472,5 @@
     flex: 0 0 auto;
     min-width: 9.5rem;
   }
+
 }

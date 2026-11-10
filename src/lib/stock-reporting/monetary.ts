@@ -2,6 +2,7 @@ import { Prisma, type MonetaryState } from "@prisma/client";
 import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
 import { prisma } from "@/lib/prisma";
 import {
+  closeShiftBlock,
   computeMonetarySummary,
   parseKesInput,
   type MonetarySummary,
@@ -204,16 +205,9 @@ export async function saveMonetaryReconciliation(params: {
         }
       );
     }
-    if (summary.state !== "BALANCED") {
-      throw new StockReportingError(
-        summary.state === "SHORTAGE"
-          ? `Collection shortage of ${Math.abs(summary.differenceKes ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KES. Exact balance is required for normal closure; discrepancy approval policy is not yet configured.`
-          : `Collection overage of ${(summary.differenceKes ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KES. Exact balance is required for normal closure; discrepancy approval policy is not yet configured.`,
-        "VALIDATION",
-        discrepancyReason
-          ? undefined
-          : { discrepancyReason: "You may record an explanation while correcting collections, but closure still requires an exact balance." }
-      );
+    const block = closeShiftBlock(summary, discrepancyReason);
+    if (block) {
+      throw new StockReportingError(block, "VALIDATION", { discrepancyReason: block });
     }
   }
 

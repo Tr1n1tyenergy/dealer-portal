@@ -1,0 +1,81 @@
+/* Shared controls (portal redesign spec §3). Colours and radii come from the --tri-* tokens. */
+
+/* Menu words and tabs: brand blue, yellow underline slides in; the current one stays underlined. */
+.ui-navlink { position: relative; color: var(--tri-blue); text-decoration: none; padding: 6px 0; font-weight: 400; white-space: nowrap; }
+.ui-navlink::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: 3px; background: var(--tri-yellow); transform: scaleX(0); transform-origin: left; transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.ui-navlink:hover::after, .ui-navlink:focus-visible::after, .ui-navlink[aria-current="page"]::after { transform: scaleX(1); }
+.ui-navlink[aria-current="page"] { font-weight: 700; }
+.ui-navlink:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 4px; border-radius: 4px; }
+.ui-tabs { display: flex; flex-wrap: nowrap; gap: 24px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; border-bottom: 1px solid var(--tri-line); }
+.ui-tabs .ui-navlink { padding: 10px 0; }
+
+/* Buttons for plain links and non-React markup; the Button component uses the same look. */
+.ui-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: var(--tri-radius-control); font: inherit; font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; border: 0; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, box-shadow 0.2s; }
+.ui-btn:hover { transform: translateY(-1px); }
+.ui-btn:active { transform: translateY(1px) scale(0.98); }
+.ui-btn:focus-visible { outline: 2px solid var(--tri-blue); outline-offset: 3px; }
+.ui-btn:disabled, .ui-btn[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+.ui-btn--primary { background: var(--tri-yellow); color: var(--tri-ink); }
+.ui-btn--primary:hover { background: #ffd23a; }
+.ui-btn--secondary { background: transparent; color: var(--tri-blue); box-shadow: inset 0 0 0 1.5px rgba(56, 83, 164, 0.45); }
+.ui-btn--secondary:hover { background: rgba(56, 83, 164, 0.06); }
+.ui-btn--quiet { background: transparent; color: var(--tri-blue); padding: 0 6px; }
+.ui-btn--quiet:hover { text-decoration: underline; text-decoration-color: var(--tri-yellow); text-underline-offset: 4px; }
+.ui-btn--destructive { background: transparent; color: var(--tri-problem); box-shadow: inset 0 0 0 1.5px rgba(161, 40, 31, 0.5); }
+.ui-btn--destructive:hover { background: rgba(161, 40, 31, 0.06); }
+
+/* Status chips: one colour per meaning; never wrap. */
+.ui-chip { display: inline-block; border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 700; white-space: nowrap; line-height: 1.4; }
+.ui-chip--dealer { background: #fff4cc; color: #7a5b00; }
+.ui-chip--trinity { background: #eceffa; color: #3853a4; }
+.ui-chip--moving { background: #e3f6f9; color: #0f6f7c; }
+.ui-chip--done { background: #e6f4ec; color: #1d6b41; }
+.ui-chip--problem { background: #fde8e8; color: var(--tri-problem); }
+.ui-chip--muted { background: #eef0f4; color: #64708a; }
+
+/* Empty, loading and error states. */
+.ui-empty, .ui-error { display: grid; gap: 12px; justify-items: start; padding: 24px 0; color: var(--tri-ink); font-size: 16px; }
+.ui-error p { color: var(--tri-problem); }
+.ui-skeleton { display: block; height: 1em; border-radius: 8px; background: linear-gradient(90deg, #eef0f4 25%, #f6f7fa 50%, #eef0f4 75%); background-size: 200% 100%; animation: ui-shimmer 1.4s linear infinite; }
+@keyframes ui-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-navlink::after, .ui-btn, .ui-skeleton { transition: none; animation: none; }
+  .ui-btn:hover, .ui-btn:active { transform: none; }
+}
+
+/* Working pages (spec §6): title, one line and the main action, over a centred column. */
+.ui-page { max-width: 1280px; margin: 0 auto; padding: 28px 24px 48px; color: var(--tri-ink); font-variant-numeric: tabular-nums; }
+.ui-page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-bottom: 24px; }
+.ui-page-head__text { min-width: 0; max-width: 46rem; }
+.ui-page-head__back { display: inline-block; margin-bottom: 8px; font-size: 15px; }
+.ui-page-head h1 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; overflow-wrap: anywhere; text-wrap: balance; }
+.ui-page-head p { margin: 6px 0 0; color: var(--tri-soft); font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.ui-page-head__action { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ui-panel { background: var(--tri-surface); border-radius: var(--tri-radius-panel); padding: 20px; box-shadow: 0 1px 2px rgba(24, 33, 58, 0.06); }
+.ui-section-title { margin: 0 0 12px; font-size: 18px; font-weight: 700; }
+@media (max-width: 767px) {
+  .ui-page { padding: 20px 16px 40px; }
+  .ui-page-head h1 { font-size: 24px; }
+  .ui-page-head__action { width: 100%; }
+}
+.ui-page-head__title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* Inputs for pages styled in CSS (same look as components/ui/input.tsx): label above, help or error below. */
+.ui-field { display: grid; gap: 6px; font-size: 15px; font-weight: 700; color: var(--tri-ink); }
+.ui-field__help { font-size: 13px; font-weight: 400; color: var(--tri-soft); }
+.ui-field__error { font-size: 14px; font-weight: 400; color: var(--tri-problem); }
+.ui-input { width: 100%; height: 48px; padding: 0 14px; border: 1px solid var(--tri-line); border-radius: 12px; background: #fff; font: inherit; font-size: 16px; font-weight: 400; color: var(--tri-ink); transition: border-color 0.2s, box-shadow 0.2s; }
+textarea.ui-input { height: auto; padding: 10px 14px; min-height: 72px; resize: vertical; }
+select.ui-input { appearance: none; padding-right: 36px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%2364708a' stroke-width='2'%3E%3Cpath d='m1 1 5 5 5-5'/%3E%3C/svg%3E") right 14px center no-repeat; }
+.ui-input::placeholder { color: var(--tri-soft); }
+.ui-input:focus-visible { outline: none; border-color: var(--tri-blue); box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.2); }
+.ui-input[aria-invalid="true"] { border-color: var(--tri-problem); }
+
+/* Live badge for dashboards: green and pulsing when real-time is connected, grey with the last update time otherwise. */
+.ui-live { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; background: #eef0f4; color: var(--tri-soft); font-size: 13px; font-weight: 700; white-space: nowrap; }
+.ui-live::before { content: ""; width: 8px; height: 8px; border-radius: 99px; background: #9aa3b5; }
+.ui-live.is-on { background: #e6f4ec; color: #1d6b41; }
+.ui-live.is-on::before { background: #1d8a55; animation: ui-live-pulse 1.8s infinite; }
+@keyframes ui-live-pulse { 0% { box-shadow: 0 0 0 0 rgba(29, 138, 85, 0.45); } 70% { box-shadow: 0 0 0 8px rgba(29, 138, 85, 0); } 100% { box-shadow: 0 0 0 0 rgba(29, 138, 85, 0); } }
+@media (prefers-reduced-motion: reduce) { .ui-live.is-on::before { animation: none; } }

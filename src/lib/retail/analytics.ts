@@ -10,15 +10,6 @@ export type AnalyticsStatusBucket =
   | "In Transit"
   | "Delivered";
 
-export const STATUS_BUCKET_COLORS: Record<AnalyticsStatusBucket, string> = {
-  "Quotation Processing": "#3B82F6",
-  "Awaiting Payment": "#ffcc00",
-  "PFI Issued": "#F97316",
-  "Depot Processing": "#A855F7",
-  "In Transit": "#22C55E",
-  "Delivered": "#14B8A6",
-};
-
 export function analyticsStatusBucket(status: DealerOrderStatus): AnalyticsStatusBucket | null {
   switch (status) {
     case "SUBMITTED":
@@ -53,27 +44,8 @@ export function analyticsStatusBucket(status: DealerOrderStatus): AnalyticsStatu
   }
 }
 
-export function staffStatusPill(status: DealerOrderStatus): {
-  label: string;
-  tone: string;
-} {
-  const bucket = analyticsStatusBucket(status);
-  const label = bucket ?? dealerStatusLabel(status);
-  const tone =
-    bucket === "Quotation Processing"
-      ? "blue"
-      : bucket === "Awaiting Payment"
-        ? "gold"
-        : bucket === "PFI Issued"
-          ? "orange"
-          : bucket === "Depot Processing"
-            ? "purple"
-            : bucket === "In Transit"
-              ? "green"
-              : bucket === "Delivered"
-                ? "teal"
-                : "muted";
-  return { label, tone };
+export function staffStatusPill(status: DealerOrderStatus): { label: string } {
+  return { label: analyticsStatusBucket(status) ?? dealerStatusLabel(status) };
 }
 
 export function pctChange(current: number, previous: number): number {

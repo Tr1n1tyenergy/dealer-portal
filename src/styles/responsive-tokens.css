@@ -38,7 +38,9 @@
     --tri-hero-aspect-h: 211;
     --tri-hero-height: calc(100vw * var(--tri-hero-aspect-h) / var(--tri-hero-aspect-w));
     --tri-hero-height-max: 280px;
-    --tri-hero-height-capped: min(var(--tri-hero-height), var(--tri-hero-height-max));
+    /* Floor so the title and both buttons always clear the cards that overlap the hero's foot */
+    --tri-hero-height-min: 0px;
+    --tri-hero-height-capped: clamp(var(--tri-hero-height-min), var(--tri-hero-height), var(--tri-hero-height-max));
 
     /* Brand aliases kept for modules that already use --dp-* */
     --dp-gutter: var(--tri-page-gutter);
@@ -48,16 +50,24 @@
   /* Short laptop / short viewport: tighten vertical chrome without clipping CTAs */
   @media (min-width: 1024px) and (max-height: 800px) {
     :root {
-      --tri-hero-height-max: 180px;
+      --tri-hero-height-max: 230px;
       --tri-space-lg: clamp(1rem, 0.75rem + 0.8vw, 1.5rem);
       --tri-space-xl: clamp(1.25rem, 0.9rem + 1.1vw, 2rem);
       --tri-space-2xl: clamp(1.5rem, 1rem + 1.4vw, 2.4rem);
     }
   }
 
-  @media (min-width: 1024px) and (max-height: 720px) {
+  /* Tablets and phones: the plate's own aspect gives 80-160px, too short for the title and buttons */
+  @media (max-width: 1023px) {
     :root {
-      --tri-hero-height-max: 150px;
+      --tri-hero-height-min: 250px;
+      --tri-hero-height-max: 300px;
+    }
+  }
+
+  @media (max-width: 720px) {
+    :root {
+      --tri-hero-height-min: 270px;
     }
   }
 

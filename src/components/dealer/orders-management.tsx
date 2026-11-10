@@ -168,7 +168,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
       <div className="do__inner">
         <div className="do__filters">
           <label className="do__search">
-            <Search size={16} color="#3551A5" aria-hidden />
+            <Search size={16} color="#3853a4" aria-hidden />
             <input
               type="search"
               value={query}
@@ -190,10 +190,10 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                 </option>
               ))}
             </select>
-            <ChevronDown size={15} color="#3551A5" aria-hidden />
+            <ChevronDown size={15} color="#3853a4" aria-hidden />
           </label>
           <label className="do__select">
-            <Clock size={15} color="#3551A5" aria-hidden />
+            <Clock size={15} color="#3853a4" aria-hidden />
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
@@ -204,7 +204,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
               <option value="7d">Last 7 days</option>
               <option value="month">This month</option>
             </select>
-            <ChevronDown size={15} color="#3551A5" aria-hidden />
+            <ChevronDown size={15} color="#3853a4" aria-hidden />
           </label>
         </div>
 
@@ -220,7 +220,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                   <p>You haven&apos;t placed any fuel orders. Create your first order to get started.</p>
                   <Link href="/dealer/orders/new" className="do__empty-cta">
                     <ShoppingCart size={15} aria-hidden />
-                    Place Your First Order
+                    Place your first order
                   </Link>
                 </>
               ) : filtersActive ? (
@@ -246,7 +246,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                     <th>
                       <span className="do__th">
                         <FileText size={13} aria-hidden />
-                        Order Number
+                        Order number
                       </span>
                     </th>
                     <th>
@@ -258,7 +258,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                     <th>
                       <span className="do__th">
                         <Layers size={13} aria-hidden />
-                        Products &amp; Quantities
+                        Products &amp; quantities
                       </span>
                     </th>
                     <th>
@@ -270,7 +270,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                     <th>
                       <span className="do__th">
                         <Clock size={13} aria-hidden />
-                        Last Updated
+                        Last updated
                       </span>
                     </th>
                     <th>Actions</th>
@@ -279,7 +279,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                 <tbody>
                   {filtered.map((order, index) => (
                     <tr key={order.id}>
-                      <td>
+                      <td data-label="Order">
                         <div className="do__order">
                           <span className={`do__order-ico is-${iconTone(index)}`} aria-hidden>
                             <FileText size={14} strokeWidth={2.1} />
@@ -292,21 +292,21 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                           </div>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Station">
                         <span className="do__station">{order.stationName}</span>
                       </td>
-                      <td>
+                      <td data-label="Products">
                         <span className="do__products">{productsLabel(order)}</span>
                       </td>
-                      <td>
+                      <td data-label="Status">
                         <span className={`do__pill ${pillClass(order.tone, order.statusLabel)}`}>
                           {order.statusLabel}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Updated">
                         <span className="do__updated">{relativeTime(order.updatedAt)}</span>
                       </td>
-                      <td>
+                      <td data-label="Action">
                         {order.hasPfi ? (
                           <a
                             href={`/api/orders/${order.id}/pfi`}
@@ -321,7 +321,7 @@ export function OrdersManagement({ orders, view, accountEmpty, initialQuery = ""
                           </a>
                         ) : (
                           <Link href={`/dealer/orders/${order.id}`} className="do__action is-muted">
-                            View Order
+                            View order
                             <ChevronRight size={13} aria-hidden />
                           </Link>
                         )}

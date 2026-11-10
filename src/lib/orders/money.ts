@@ -19,3 +19,15 @@ export function sameAmount(a: string | null | undefined, b: string | null | unde
   const x = toCents(a);
   return x !== null && x === toCents(b);
 }
+
+/** The sum of stored amounts, worked in whole cents; blanks and text are skipped. "0.00" for none. */
+export function sumKes(amounts: (string | null | undefined)[]): string {
+  const cents = amounts.reduce((sum: number, a) => sum + (toCents(a) ?? 0), 0);
+  return (cents / 100).toFixed(2);
+}
+
+/** "KES 18.4M" / "KES 950K", for figures that must fit a card; show the exact amount alongside or as a title. */
+export function formatKesShort(amount: string | number): string {
+  const n = Number(amount);
+  return n >= 1e6 ? `KES ${Math.round(n / 1e5) / 10}M` : n >= 1e3 ? `KES ${Math.round(n / 100) / 10}K` : `KES ${Math.round(n)}`;
+}

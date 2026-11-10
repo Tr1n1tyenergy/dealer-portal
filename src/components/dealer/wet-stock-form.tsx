@@ -154,7 +154,7 @@ export function WetStockForm({
             <CalendarDays size={16} strokeWidth={2} aria-hidden />
           </span>
           <div>
-            <p className="ssw__meta-label">Reporting Date</p>
+            <p className="ssw__meta-label">Reporting date</p>
             <p className="ssw__meta-value">{reportingDateLabel}</p>
           </div>
           <button
@@ -220,7 +220,7 @@ export function WetStockForm({
         <div className="ssw__how-pop" role="note">
           <strong>Meter sales</strong> come from Step 1. <strong>Tank stock sales</strong> come from
           Step 2 (Opening − Closing, adjusted for verified receipts when available).{" "}
-          <strong>Variance = Meter − Tank</strong> per product (signed). Match a delivery only when a
+          <strong>Variance = meter − tank</strong> per product (signed). Match a delivery only when a
           verified receipt exists; otherwise correct readings or acknowledge a variance for review.
           Acknowledging does not automatically post an inventory write-off.
         </div>
@@ -246,7 +246,7 @@ export function WetStockForm({
               <Fuel size={18} strokeWidth={2.25} aria-hidden />
             </span>
             <div>
-              <h3>Meter Sales (from Pump Readings)</h3>
+              <h3>Meter sales (from pump readings)</h3>
               <p>Total stock sold based on dispenser meter readings.</p>
             </div>
           </div>
@@ -267,7 +267,7 @@ export function WetStockForm({
                 <td>{formatVarianceLitres(summary.meterAgo)}</td>
               </tr>
               <tr className="ssw__mini-total">
-                <td>Total Meter Sales</td>
+                <td>Total meter sales</td>
                 <td>{formatLitresWithUnit(summary.meterTotal)}</td>
               </tr>
             </tbody>
@@ -280,7 +280,7 @@ export function WetStockForm({
               <Layers size={18} strokeWidth={2.25} aria-hidden />
             </span>
             <div>
-              <h3>Tank Stock Sales (from Dip Readings)</h3>
+              <h3>Tank stock sales (from dip readings)</h3>
               <p>Total stock movement based on physical tank readings.</p>
             </div>
           </div>
@@ -288,7 +288,7 @@ export function WetStockForm({
             <thead>
               <tr>
                 <th scope="col">Product</th>
-                <th scope="col">Tank Sales (L)</th>
+                <th scope="col">Tank sales (L)</th>
               </tr>
             </thead>
             <tbody>
@@ -301,7 +301,7 @@ export function WetStockForm({
                 <td>{formatVarianceLitres(summary.tankAgo)}</td>
               </tr>
               <tr className="ssw__mini-total">
-                <td>Total Tank Sales</td>
+                <td>Total tank sales</td>
                 <td>{formatLitresWithUnit(summary.tankTotal)}</td>
               </tr>
             </tbody>
@@ -335,7 +335,7 @@ export function WetStockForm({
                 <td>{formatVarianceLitres(summary.varianceAgo)}</td>
               </tr>
               <tr className="ssw__mini-total ssw__mini-total--var">
-                <td>Total Variance</td>
+                <td>Total variance</td>
                 <td>{formatLitresWithUnit(Math.abs(summary.varianceTotal))}</td>
               </tr>
             </tbody>
@@ -381,7 +381,7 @@ export function WetStockForm({
                   {resolution === "MATCH_DELIVERY" ? <span className="ssw__radio-dot" /> : null}
                 </span>
               </div>
-              <strong>Match a Stock Delivery</strong>
+              <strong>Match a stock delivery</strong>
               <span>Reconcile using a confirmed delivery received today.</span>
             </button>
 
@@ -401,7 +401,7 @@ export function WetStockForm({
                   {resolution === "REVIEW_READINGS" ? <span className="ssw__radio-dot" /> : null}
                 </span>
               </div>
-              <strong>Review &amp; Correct Readings</strong>
+              <strong>Review &amp; correct readings</strong>
               <span>Go back to adjust pump meters or tank dip readings.</span>
             </button>
 
@@ -452,10 +452,10 @@ export function WetStockForm({
               </p>
               <div className="ssw__opt-actions">
                 <Link href="/dealer/stock-reporting/pump-meters" className="ssw__btn ssw__btn--ghost">
-                  Review Pump Meter Readings
+                  Review pump meter readings
                 </Link>
                 <Link href="/dealer/stock-reporting/tank-dips" className="ssw__btn ssw__btn--ghost">
-                  Review Tank Dip Readings
+                  Review tank dip readings
                 </Link>
               </div>
             </div>
@@ -502,7 +502,7 @@ export function WetStockForm({
         <div className="ssw__footer-actions">
           <Link href="/dealer/stock-reporting/tank-dips" className="ssw__btn ssw__btn--ghost">
             <ArrowLeft size={16} strokeWidth={2.5} aria-hidden />
-            Back to Tank Dip Readings
+            Back to tank dip readings
           </Link>
           <button
             type="button"

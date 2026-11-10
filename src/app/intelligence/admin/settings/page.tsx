@@ -1,7 +1,8 @@
 import { requirePermission } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHead } from "@/components/layout/page-head";
+import "../admin.css";
 
 export default async function AdminSettingsPage() {
   await requirePermission("settings", "view");
@@ -10,45 +11,40 @@ export default async function AdminSettingsPage() {
 
   return (
     <AppShell>
-      <div className="mb-8">
-        <div className="text-xs font-bold uppercase tracking-[0.16em] text-trinity-gold">
-          Admin
-        </div>
-        <h1 className="mt-2 text-3xl font-black text-trinity-navy">System Settings</h1>
-        <p className="mt-2 text-slate-500">
-          Platform configuration store for future connectors (email, storage, AI).
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Environment</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-slate-600">
-            <div>Auth: NextAuth credentials</div>
-            <div>Email: Resend ({process.env.RESEND_API_KEY ? "configured" : "not configured — invites and resets can't be sent"})</div>
-            <div>Storage: AWS S3 hooks prepared</div>
-            <div>AI: Whisper / OpenAI pipeline placeholders ready</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Stored Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-slate-600">
-            {settings.length === 0 ? (
-              <p>No custom settings yet. Seed defaults via admin tools as needed.</p>
-            ) : (
-              settings.map((s) => (
-                <div key={s.id} className="flex justify-between gap-4 border-b border-black/5 py-2">
-                  <span className="font-semibold text-trinity-navy">{s.key}</span>
-                  <span>{s.value}</span>
+      <PageHead title="Settings" description="How the portal is set up, and any stored settings." />
+      <div className="adm-grid">
+        <section className="ui-panel" aria-labelledby="adm-env">
+          <h2 id="adm-env" className="ui-section-title">
+            Set-up
+          </h2>
+          <dl className="adm-list">
+            <div>
+              <dt>Sign-in</dt>
+              <dd>Email and password (NextAuth)</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd>{process.env.RESEND_API_KEY ? "Resend, configured" : "Resend, not configured: invites and resets can't be sent"}</dd>
+            </div>
+          </dl>
+        </section>
+        <section className="ui-panel" aria-labelledby="adm-stored">
+          <h2 id="adm-stored" className="ui-section-title">
+            Stored settings
+          </h2>
+          {settings.length === 0 ? (
+            <p className="adm-empty">No stored settings yet.</p>
+          ) : (
+            <dl className="adm-list">
+              {settings.map((s) => (
+                <div key={s.id}>
+                  <dt>{s.key}</dt>
+                  <dd>{s.value}</dd>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+              ))}
+            </dl>
+          )}
+        </section>
       </div>
     </AppShell>
   );

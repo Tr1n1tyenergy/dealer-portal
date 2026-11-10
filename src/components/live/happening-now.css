@@ -1,0 +1,15 @@
+/* "Happening now" feed, shared by staff Analytics and staff Home. */
+.rad-feed { list-style: none; margin: 0; padding: 0; }
+.rad-feed li { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; gap: 10px; padding: 9px 6px; border-top: 1px solid var(--tri-line); font-size: 14px; border-radius: 8px; }
+.rad-feed li:first-child { border-top: 0; }
+.rad-feed li.is-new { animation: rad-flash 3s ease-out 1; }
+.rad-feed__ago { color: var(--tri-soft); }
+.rad-feed b { white-space: nowrap; }
+.rad-feed-empty { margin: 0; padding: 16px 0; font-size: 16px; }
+@keyframes rad-flash { from { background: #fff7d6; } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .rad-feed li.is-new { animation: none; } }
+@media (max-width: 767px) {
+  .rad-feed li { grid-template-columns: 3.4rem minmax(0, 1fr); }
+  .rad-feed b { grid-column: 2; }
+  .rad-feed b:empty { display: none; }
+}

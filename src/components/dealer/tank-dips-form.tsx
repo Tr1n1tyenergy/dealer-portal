@@ -172,7 +172,7 @@ export function TankDipsForm({
             <CalendarDays size={16} strokeWidth={2} aria-hidden />
           </span>
           <div>
-            <p className="ssw__meta-label">Reporting Date</p>
+            <p className="ssw__meta-label">Reporting date</p>
             <p className="ssw__meta-value">{reportingDateLabel}</p>
           </div>
           <button
@@ -243,7 +243,7 @@ export function TankDipsForm({
           <strong>Closing stock</strong> is today&apos;s dip/volume and cannot exceed capacity.{" "}
           <strong>Tank sales = Opening − Closing</strong> when there are no receipts; if closing
           exceeds opening, the figure is provisional until receipts are matched in Wet Stock
-          Reconciliation. <strong>Ullage = Capacity − Closing</strong>.
+          Reconciliation. <strong>Ullage = capacity − closing</strong>.
         </div>
       ) : null}
 
@@ -266,18 +266,18 @@ export function TankDipsForm({
             <tr>
               <th scope="col">Tank</th>
               <th scope="col">Product</th>
-              <th scope="col">Tank Capacity (L)</th>
+              <th scope="col">Tank capacity (L)</th>
               <th scope="col">
                 <span className="ssw__th-tip">
-                  Opening Stock (L)
+                  Opening stock (L)
                   <Info size={12} strokeWidth={2.25} aria-hidden />
                 </span>
               </th>
               <th scope="col">
-                Closing Stock (L) <span className="ssw__req">*</span>
+                Closing stock (L) <span className="ssw__req">*</span>
               </th>
               <th scope="col">
-                Tank Sales (L)
+                Tank sales (L)
                 <span className="ssw__th-sub">(Opening − Closing)</span>
               </th>
               <th scope="col">
@@ -349,7 +349,7 @@ export function TankDipsForm({
             <Fuel size={18} strokeWidth={2.25} aria-hidden />
           </span>
           <div>
-            <p className="ssw__total-label">Total PMS Tank Sales</p>
+            <p className="ssw__total-label">Total PMS tank sales</p>
             <p className="ssw__total-value">{formatLitresWithUnit(totals.pms)}</p>
           </div>
         </article>
@@ -358,7 +358,7 @@ export function TankDipsForm({
             <Fuel size={18} strokeWidth={2.25} aria-hidden />
           </span>
           <div>
-            <p className="ssw__total-label">Total AGO Tank Sales</p>
+            <p className="ssw__total-label">Total AGO tank sales</p>
             <p className="ssw__total-value">{formatLitresWithUnit(totals.ago)}</p>
           </div>
         </article>
@@ -367,7 +367,7 @@ export function TankDipsForm({
             <Layers size={18} strokeWidth={2.25} aria-hidden />
           </span>
           <div>
-            <p className="ssw__total-label">Total Tank Sales</p>
+            <p className="ssw__total-label">Total tank sales</p>
             <p className="ssw__total-value">{formatLitresWithUnit(totals.total)}</p>
           </div>
         </article>
@@ -384,7 +384,7 @@ export function TankDipsForm({
         <div className="ssw__footer-actions">
           <Link href="/dealer/stock-reporting/pump-meters" className="ssw__btn ssw__btn--ghost">
             <ArrowLeft size={16} strokeWidth={2.5} aria-hidden />
-            Back to Pump Meters
+            Back to pump meters
           </Link>
           <button
             type="button"

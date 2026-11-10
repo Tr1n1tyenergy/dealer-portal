@@ -156,7 +156,7 @@ export function RttCalibrationPage({
     }
     if (file.size > RTT_JOB_CARD_MAX_BYTES) {
       setJobCard(null);
-      setJobCardError("Max size 10 MB.");
+      setJobCardError(`Max size ${RTT_JOB_CARD_MAX_BYTES / (1024 * 1024)} MB.`);
       return;
     }
     setJobCard(file);
@@ -230,7 +230,7 @@ export function RttCalibrationPage({
     <StockReportingModuleShell
       module="rtt"
       kicker="STOCK SALE REPORTING"
-      title="RTT & Truck Calibration"
+      title="RTT & truck calibration"
       subtitle="Record pump test returns (RTT) as they happen and manage truck calibration reconciliation."
     >
       <section className="ssr__summary" aria-label="RTT summary">
@@ -240,7 +240,7 @@ export function RttCalibrationPage({
               <Info size={18} strokeWidth={2} aria-hidden />
             </span>
             <div>
-              <p className="ssr__summary-label">Reporting Date</p>
+              <p className="ssr__summary-label">Reporting date</p>
               <p className="ssr__summary-value">{reportingDateLabel}</p>
             </div>
           </div>
@@ -262,7 +262,7 @@ export function RttCalibrationPage({
               <Beaker size={18} strokeWidth={2} aria-hidden />
             </span>
             <div>
-              <p className="ssr__summary-label">RTT Events Today</p>
+              <p className="ssr__summary-label">RTT events today</p>
               <p className="ssr__summary-value">
                 {totals.eventCount} {totals.eventCount === 1 ? "Event" : "Events"}
               </p>
@@ -275,7 +275,7 @@ export function RttCalibrationPage({
               <Coins size={18} strokeWidth={2} aria-hidden />
             </span>
             <div>
-              <p className="ssr__summary-label">Total RTT Volume Today</p>
+              <p className="ssr__summary-label">Total RTT volume today</p>
               <p className="ssr__summary-value">{formatLitresWithUnit(totals.total)}</p>
             </div>
           </div>
@@ -291,7 +291,7 @@ export function RttCalibrationPage({
           onClick={() => setTab("rtt")}
         >
           <Beaker size={16} strokeWidth={2.25} aria-hidden />
-          RTT Recording
+          RTT recording
         </button>
         <button
           type="button"
@@ -301,7 +301,7 @@ export function RttCalibrationPage({
           onClick={() => setTab("truck")}
         >
           <Truck size={16} strokeWidth={2.25} aria-hidden />
-          Truck Calibration Reconciliation
+          Truck calibration reconciliation
         </button>
       </div>
 
@@ -321,7 +321,7 @@ export function RttCalibrationPage({
           <span className="ssr-rtt__empty-icon">
             <Truck size={28} strokeWidth={1.75} aria-hidden />
           </span>
-          <h2 className="ssr__card-title">Truck Calibration Reconciliation</h2>
+          <h2 className="ssr__card-title">Truck calibration reconciliation</h2>
           <p className="ssr__card-sub">
             Truck calibration reconciliation will be configured in a future update. This tab is a
             placeholder and does not affect RTT, tank dips, or monetary reconciliation.
@@ -338,7 +338,7 @@ export function RttCalibrationPage({
                   </span>
                   <div>
                     <h2 id="rtt-form-title" className="ssr__card-title">
-                      Record New RTT
+                      Record new RTT
                     </h2>
                     <p className="ssr__card-sub">
                       Record fuel used for pump testing immediately after the test and return are
@@ -352,7 +352,7 @@ export function RttCalibrationPage({
                 <div className="ssr-rtt__form-row">
                   <label className="ssr-rtt__field ssr-rtt__field--grow">
                     <span>
-                      Pump / Dispenser <span className="ssr-rtt__req">*</span>
+                      Pump / dispenser <span className="ssr-rtt__req">*</span>
                     </span>
                     <select
                       value={pumpId}
@@ -392,7 +392,7 @@ export function RttCalibrationPage({
 
                 <label className="ssr-rtt__field">
                   <span>
-                    RTT Volume (L) <span className="ssr-rtt__req">*</span>
+                    RTT volume (L) <span className="ssr-rtt__req">*</span>
                   </span>
                   <input
                     inputMode="decimal"
@@ -408,7 +408,7 @@ export function RttCalibrationPage({
 
                 <label className="ssr-rtt__field">
                   <span>
-                    Reason / Explanation <span className="ssr-rtt__req">*</span>
+                    Reason / explanation <span className="ssr-rtt__req">*</span>
                   </span>
                   <div className="ssr-rtt__textarea-wrap">
                     <textarea
@@ -430,7 +430,7 @@ export function RttCalibrationPage({
                 </label>
 
                 <div className="ssr-rtt__field">
-                  <span>Job Card (PDF) — Optional</span>
+                  <span>Job card (PDF) — optional</span>
                   <div
                     className={cn(
                       "ssr-rtt__upload",
@@ -470,7 +470,7 @@ export function RttCalibrationPage({
                         <Upload size={22} strokeWidth={2} aria-hidden />
                         <div className="ssr-rtt__upload-copy">
                           <strong>Upload job card (PDF)</strong>
-                          <span>Max size: 10 MB • PDF only</span>
+                          <span>Max size: {RTT_JOB_CARD_MAX_BYTES / (1024 * 1024)} MB • PDF only</span>
                         </div>
                         <button
                           type="button"
@@ -478,7 +478,7 @@ export function RttCalibrationPage({
                           disabled={pending}
                           onClick={() => fileInputRef.current?.click()}
                         >
-                          Choose File
+                          Choose file
                         </button>
                       </>
                     )}
@@ -511,7 +511,7 @@ export function RttCalibrationPage({
                   ) : (
                     <Plus size={16} strokeWidth={2.5} aria-hidden />
                   )}
-                  Save RTT Entry
+                  Save RTT entry
                 </button>
                 <button
                   type="button"
@@ -532,7 +532,7 @@ export function RttCalibrationPage({
                   </span>
                   <div>
                     <h2 id="rtt-by-pump-title" className="ssr__card-title">
-                      Today&apos;s RTT by Pump
+                      Today&apos;s RTT by pump
                     </h2>
                     <p className="ssr__card-sub">Cumulative RTT for the reporting date.</p>
                   </div>
@@ -543,9 +543,9 @@ export function RttCalibrationPage({
                 <table className="ssr__table">
                   <thead>
                     <tr>
-                      <th scope="col">Pump / Dispenser</th>
+                      <th scope="col">Pump / dispenser</th>
                       <th scope="col">Product</th>
-                      <th scope="col">Linked Tank</th>
+                      <th scope="col">Linked tank</th>
                       <th scope="col" className="is-num">
                         RTT (L)
                       </th>
@@ -610,7 +610,7 @@ export function RttCalibrationPage({
             <div className="ssr__recent-head">
               <div>
                 <h2 id="rtt-log-title" className="ssr__card-title">
-                  RTT Activity Log
+                  RTT activity log
                 </h2>
                 <p className="ssr__card-sub">
                   All RTT entries recorded for the reporting date.
@@ -623,7 +623,7 @@ export function RttCalibrationPage({
                     value={pumpFilter}
                     onChange={(e) => setPumpFilter(e.target.value)}
                   >
-                    <option value="ALL">All Pumps</option>
+                    <option value="ALL">All pumps</option>
                     {pumps.map((p) => (
                       <option key={p.pumpKey} value={p.pumpKey}>
                         {p.label}
@@ -651,15 +651,15 @@ export function RttCalibrationPage({
                 <table className="ssr__table">
                   <thead>
                     <tr>
-                      <th scope="col">Date &amp; Time</th>
+                      <th scope="col">Date &amp; time</th>
                       <th scope="col">Pump</th>
                       <th scope="col">Product</th>
                       <th scope="col" className="is-num">
                         RTT (L)
                       </th>
                       <th scope="col">Reason</th>
-                      <th scope="col">Job Card</th>
-                      <th scope="col">Recorded By</th>
+                      <th scope="col">Job card</th>
+                      <th scope="col">Recorded by</th>
                       <th scope="col">Actions</th>
                     </tr>
                   </thead>
@@ -736,7 +736,7 @@ export function RttCalibrationPage({
             <h3 id="rtt-view-title">RTT entry details</h3>
             <dl className="ssr-rtt__detail">
               <div>
-                <dt>Date &amp; Time</dt>
+                <dt>Date &amp; time</dt>
                 <dd>{formatEventDateTime(viewEvent.eventAt)}</dd>
               </div>
               <div>

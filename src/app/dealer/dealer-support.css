@@ -1,9 +1,9 @@
 /* Dealer Support Centre — light premium shell matching approved mockup. */
 
 .ds {
-  --ds-blue: #3551a5;
+  --ds-blue: var(--tri-blue);
   --ds-ink: #0a235b;
-  --ds-yellow: #ffcc00;
+  --ds-yellow: var(--tri-yellow);
   --ds-muted: #64748b;
   --ds-line: #e2e8f0;
   --ds-canvas: #eef2f7;
@@ -137,7 +137,7 @@
 }
 
 .ds__nav-item.is-active {
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
 }
 
@@ -152,7 +152,7 @@
 
 .ds__nav-item svg {
   flex-shrink: 0;
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .ds__nav-item.is-active svg {
@@ -210,14 +210,14 @@
   padding: 0 1.05rem;
   border: 0;
   border-radius: 999px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   font: inherit;
   font-size: 0.84rem;
   font-weight: 800;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 8px 18px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 8px 18px rgba(255, 202, 6, 0.28);
   white-space: nowrap;
 }
 
@@ -246,7 +246,7 @@
   border-radius: 999px;
   border: 1px solid #d7e0ee;
   background: #fff;
-  color: #3551a5;
+  color: var(--tri-blue);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 750;
@@ -254,8 +254,8 @@
 }
 
 .ds__tab.is-active {
-  background: #3551a5;
-  border-color: #3551a5;
+  background: var(--tri-blue);
+  border-color: var(--tri-blue);
   color: #fff;
 }
 
@@ -353,7 +353,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-weight: 800;
 }
 
@@ -379,7 +379,7 @@
 
 .ds__pill--priority-LOW {
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   border-color: #c5d4f0;
 }
 .ds__pill--priority-MEDIUM {
@@ -405,7 +405,7 @@
 }
 .ds__pill--status-IN_PROGRESS {
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   border-color: #c5d4f0;
 }
 .ds__pill--status-AWAITING_RESPONSE {
@@ -437,7 +437,7 @@
   height: 4.25rem;
   border-radius: 1.1rem;
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: grid;
   place-items: center;
   margin: 0 auto 0.85rem;
@@ -599,9 +599,9 @@
 }
 
 .ds__priority.is-on {
-  border-color: #3551a5;
+  border-color: var(--tri-blue);
   background: #eef3fb;
-  box-shadow: 0 0 0 1px #3551a5;
+  box-shadow: 0 0 0 1px var(--tri-blue);
 }
 
 .ds__drop {
@@ -616,7 +616,7 @@
 }
 
 .ds__drop.is-over {
-  border-color: #3551a5;
+  border-color: var(--tri-blue);
   background: #eef3fb;
 }
 
@@ -735,7 +735,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-weight: 750;
   text-decoration: none;
   padding: 0.75rem 0.9rem;
@@ -822,7 +822,7 @@
 
 .ds__bubble--mine {
   margin-left: auto;
-  background: #3551a5;
+  background: var(--tri-blue);
   color: #fff;
 }
 
@@ -860,7 +860,7 @@
   align-items: center;
   gap: 0.35rem;
   margin-bottom: 0.75rem;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-weight: 750;
   font-size: 0.84rem;
   text-decoration: none;
@@ -895,7 +895,7 @@
   border-radius: 999px;
   border: 2px solid #c5d4f0;
   background: #eef3fb;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -976,10 +976,10 @@
 }
 
 .ds__faq-cat-pill.is-active {
-  background: #3551a5;
-  border-color: #3551a5;
+  background: var(--tri-blue);
+  border-color: var(--tri-blue);
   color: #fff;
-  box-shadow: 0 6px 14px rgba(53, 81, 165, 0.22);
+  box-shadow: 0 6px 14px rgba(56, 83, 164, 0.22);
 }
 
 .ds__faq-list {
@@ -1014,7 +1014,7 @@
 }
 
 .ds__faq-q:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.28);
+  outline: 3px solid rgba(56, 83, 164, 0.28);
   outline-offset: -3px;
 }
 
@@ -1023,7 +1023,7 @@
   height: 2.05rem;
   border-radius: 999px;
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -1065,7 +1065,7 @@
   width: fit-content;
   border: 0;
   background: transparent;
-  color: #3551a5;
+  color: var(--tri-blue);
   font: inherit;
   font-size: 0.84rem;
   font-weight: 750;
@@ -1106,7 +1106,7 @@
   height: 2.35rem;
   border-radius: 12px;
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: grid;
   place-items: center;
   margin-bottom: 0.65rem;
@@ -1121,7 +1121,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  color: #3551a5;
+  color: var(--tri-blue);
   margin-bottom: 0.55rem;
 }
 
@@ -1164,14 +1164,14 @@
 }
 
 .ds__quick-row:hover {
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .ds__aside-card--speak .ds__speak-head {
   display: flex;
   gap: 0.65rem;
   align-items: flex-start;
-  color: #3551a5;
+  color: var(--tri-blue);
   margin-bottom: 0.75rem;
 }
 
@@ -1198,7 +1198,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-weight: 750;
   font-size: 0.86rem;
   text-decoration: none;
@@ -1282,13 +1282,13 @@
 
 .ds__reach-card:hover {
   border-color: #c5d4f0;
-  box-shadow: 0 8px 18px rgba(53, 81, 165, 0.08);
+  box-shadow: 0 8px 18px rgba(56, 83, 164, 0.08);
 }
 
 .ds__reach-card--primary {
-  border-color: #ffcc00;
+  border-color: var(--tri-yellow);
   background: linear-gradient(180deg, #fffceb 0%, #fff 55%);
-  box-shadow: 0 8px 18px rgba(255, 204, 0, 0.14);
+  box-shadow: 0 8px 18px rgba(255, 202, 6, 0.14);
 }
 
 .ds__reach-ico {
@@ -1296,14 +1296,14 @@
   height: 2.55rem;
   border-radius: 12px;
   background: #eef3fb;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: grid;
   place-items: center;
   margin-bottom: 0.15rem;
 }
 
 .ds__reach-card--primary .ds__reach-ico {
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
 }
 
@@ -1342,18 +1342,18 @@
 }
 
 .ds__reach-btn:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.28);
+  outline: 3px solid rgba(56, 83, 164, 0.28);
   outline-offset: 2px;
 }
 
 .ds__reach-btn--yellow {
-  border: 1px solid #ffcc00;
-  background: #ffcc00;
+  border: 1px solid var(--tri-yellow);
+  background: var(--tri-yellow);
   color: #0a235b;
 }
 
 .ds__reach-btn--yellow:hover {
-  background: #ffcc00;
+  background: var(--tri-yellow);
   filter: brightness(1.03);
 }
 
@@ -1364,8 +1364,8 @@
 }
 
 .ds__reach-btn--outline:hover {
-  border-color: #3551a5;
-  color: #3551a5;
+  border-color: var(--tri-blue);
+  color: var(--tri-blue);
   background: #f8fafc;
 }
 
@@ -1398,13 +1398,13 @@
 }
 
 .ds__dept-card:hover {
-  border-color: #3551a5;
+  border-color: var(--tri-blue);
   background: #fff;
-  box-shadow: 0 6px 14px rgba(53, 81, 165, 0.08);
+  box-shadow: 0 6px 14px rgba(56, 83, 164, 0.08);
 }
 
 .ds__dept-card:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.28);
+  outline: 3px solid rgba(56, 83, 164, 0.28);
   outline-offset: 2px;
 }
 
@@ -1419,7 +1419,7 @@
 
 .ds__dept-card-ico--it {
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 .ds__dept-card-ico--finance {
   background: #fff7ed;
@@ -1481,14 +1481,14 @@
   height: 2rem;
   border-radius: 10px;
   background: #eef3fb;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: grid;
   place-items: center;
   flex-shrink: 0;
 }
 
 .ds__info-list a {
-  color: #3551a5;
+  color: var(--tri-blue);
   font-size: 0.84rem;
   font-weight: 750;
   text-decoration: none;
@@ -1520,7 +1520,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  color: #3551a5;
+  color: var(--tri-blue);
   margin-bottom: 0.55rem;
 }
 
@@ -1631,7 +1631,7 @@
   width: fit-content;
   border: 0;
   background: transparent;
-  color: #3551a5;
+  color: var(--tri-blue);
   font: inherit;
   font-size: 0.82rem;
   font-weight: 750;
@@ -1655,12 +1655,12 @@
   width: 3rem;
   height: 3rem;
   border-radius: 12px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 8px 18px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 8px 18px rgba(255, 202, 6, 0.28);
 }
 
 .ds__raise-head-copy {
@@ -1700,7 +1700,7 @@
   width: 3px;
   height: 1.05rem;
   border-radius: 999px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   flex-shrink: 0;
 }
 
@@ -1725,7 +1725,7 @@
   border-radius: 12px;
   border: 1px solid #c5d4f0;
   background: #eef3fb;
-  color: #3551a5;
+  color: var(--tri-blue);
   min-width: 0;
 }
 
@@ -1773,8 +1773,8 @@
 }
 
 .ds__control:focus-within {
-  border-color: #3551a5;
-  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.12);
+  border-color: var(--tri-blue);
+  box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.12);
 }
 
 .ds__control input,
@@ -1828,7 +1828,7 @@
 
 .ds__prio-pill--LOW {
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   border-color: #c5d4f0;
 }
 .ds__prio-pill--MEDIUM {
@@ -1865,8 +1865,8 @@
 }
 
 .ds__textarea-wrap:focus-within {
-  border-color: #3551a5;
-  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.12);
+  border-color: var(--tri-blue);
+  box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.12);
 }
 
 .ds__textarea-ico {
@@ -1935,12 +1935,12 @@
 }
 
 .ds__dropzone.is-over {
-  border-color: #3551a5;
+  border-color: var(--tri-blue);
   background: #e4ebfa;
 }
 
 .ds__dropzone svg {
-  color: #3551a5;
+  color: var(--tri-blue);
   margin-bottom: 0.2rem;
 }
 
@@ -1957,9 +1957,9 @@
 
 .ds__browse {
   margin-top: 0.45rem;
-  border: 1px solid #3551a5;
+  border: 1px solid var(--tri-blue);
   background: #fff;
-  color: #3551a5;
+  color: var(--tri-blue);
   border-radius: 999px;
   padding: 0.4rem 0.95rem;
   font: inherit;
@@ -1996,7 +1996,7 @@
   min-height: 2.55rem;
   padding: 0 1.15rem;
   border-radius: 999px;
-  border: 1.5px solid #3551a5;
+  border: 1.5px solid var(--tri-blue);
   background: #fff;
   color: #0a235b;
   font: inherit;
@@ -2047,7 +2047,7 @@
 
 .ds__dept-guide-ico--it {
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 .ds__dept-guide-ico--finance {
   background: #fff7ed;
@@ -2089,7 +2089,7 @@
   width: 110px;
   height: 110px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(255, 204, 0, 0.28) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 202, 6, 0.28) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -2114,10 +2114,10 @@
 }
 
 .ds__priority-dot--LOW {
-  background: #3551a5;
+  background: var(--tri-blue);
 }
 .ds__priority-dot--MEDIUM {
-  background: #ffcc00;
+  background: var(--tri-yellow);
 }
 .ds__priority-dot--HIGH {
   background: #ea580c;

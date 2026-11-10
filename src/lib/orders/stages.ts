@@ -10,10 +10,10 @@ export const ORDER_STAGES: { key: StageKey; label: string; statuses: DealerOrder
     statuses: ["DRAFT", "SUBMITTED", "ODOO_SYNC_PENDING", "QUOTATION_CREATING", "QUOTATION_READY", "PFI_PENDING"],
   },
   { key: "awaiting-payment", label: "Awaiting payment", statuses: ["PFI_ISSUED", "AWAITING_PAYMENT"] },
-  { key: "verification", label: "Payment verification", statuses: ["PAYMENT_SUBMITTED", "PAYMENT_VERIFICATION"] },
-  { key: "paid", label: "Payment completed", statuses: ["PAYMENT_CONFIRMED"] },
+  { key: "verification", label: "Checking payment", statuses: ["PAYMENT_SUBMITTED", "PAYMENT_VERIFICATION"] },
+  { key: "paid", label: "Paid", statuses: ["PAYMENT_CONFIRMED"] },
   { key: "depot", label: "At depot", statuses: ["RELEASED_TO_DEPOT", "LOADING", "LOADED", "DISPATCHED", "IN_TRANSIT"] },
-  { key: "complete", label: "Order complete", statuses: ["DELIVERED", "CLOSED"] },
+  { key: "complete", label: "Complete", statuses: ["DELIVERED", "CLOSED"] },
   {
     key: "exceptions",
     label: "Exceptions",
@@ -33,9 +33,9 @@ export function stageOf(status: DealerOrderStatus): StageKey {
   return ORDER_STAGES.find((stage) => stage.statuses.includes(status))?.key ?? "exceptions";
 }
 
-/** The ?stage= value; with no valid tab, All while searching (so a search finds every order), else Pending. */
-export function parseStage(value: unknown, searching = false): StageKey | "all" {
-  if (value === "all") return "all";
+/** The ?stage= value (a stage, All, or Stuck); with no valid tab, All while searching, else Pending. */
+export function parseStage(value: unknown, searching = false): StageKey | "all" | "stuck" {
+  if (value === "all" || value === "stuck") return value;
   return ORDER_STAGES.find((stage) => stage.key === value)?.key ?? (searching ? "all" : "pending");
 }
 

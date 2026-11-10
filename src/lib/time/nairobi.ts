@@ -17,3 +17,11 @@ export function nairobiMonthStart(at: Date = new Date(), monthsAhead = 0): Date 
   const { year, month } = nairobiParts(at);
   return new Date(Date.UTC(year, month - 1 + monthsAhead, 1) - NAIROBI_OFFSET_MS);
 }
+
+/** "Good morning" / "Good afternoon" / "Good evening" by the Nairobi clock. */
+export function nairobiGreeting(at: Date = new Date()): string {
+  const { hour } = nairobiParts(at);
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}

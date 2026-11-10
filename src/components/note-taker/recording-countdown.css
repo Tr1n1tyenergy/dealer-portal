@@ -84,19 +84,19 @@
 .rcd__ring {
   position: absolute;
   border-radius: 999px;
-  border: 1.5px solid rgba(255, 204, 0, 0.35);
+  border: 1.5px solid rgba(255, 202, 6, 0.35);
   inset: 0;
-  box-shadow: 0 0 18px rgba(255, 204, 0, 0.12);
+  box-shadow: 0 0 18px rgba(255, 202, 6, 0.12);
 }
 
 .rcd__ring--2 {
   inset: -0.5rem;
-  border-color: rgba(255, 204, 0, 0.22);
+  border-color: rgba(255, 202, 6, 0.22);
 }
 
 .rcd__ring--3 {
   inset: -1rem;
-  border-color: rgba(255, 204, 0, 0.12);
+  border-color: rgba(255, 202, 6, 0.12);
 }
 
 .rcd__mic {
@@ -107,9 +107,9 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 999px;
-  background: rgba(255, 204, 0, 0.14);
-  color: #ffcc00;
-  box-shadow: 0 0 24px rgba(255, 204, 0, 0.2);
+  background: rgba(255, 202, 6, 0.14);
+  color: var(--tri-yellow);
+  box-shadow: 0 0 24px rgba(255, 202, 6, 0.2);
 }
 
 .rcd__title {
@@ -196,7 +196,7 @@
 
 .rcd__eq {
   margin-top: 0.55rem;
-  color: #ffcc00;
+  color: var(--tri-yellow);
   display: flex;
   align-items: flex-end;
   gap: 2.5px;
@@ -393,9 +393,9 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.22);
+  box-shadow: 0 0 0 3px rgba(255, 202, 6, 0.22);
 }
 
 .rcd__cancel {

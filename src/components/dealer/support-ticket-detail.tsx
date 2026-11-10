@@ -157,7 +157,7 @@ export function SupportTicketDetail({
       <div className="ds__workspace" style={{ gridTemplateColumns: "1fr" }}>
         <div className="ds__main">
           <Link href="/dealer/support" className="ds__back">
-            <ArrowLeft size={15} /> Back to Support Centre
+            <ArrowLeft size={15} /> Back to support centre
           </Link>
           <p className="ds__error">{error || "Ticket not found."}</p>
         </div>
@@ -169,7 +169,7 @@ export function SupportTicketDetail({
     <div className="ds__workspace" style={{ gridTemplateColumns: "1fr" }}>
       <div className="ds__main">
         <Link href="/dealer/support" className="ds__back">
-          <ArrowLeft size={15} /> Back to My Tickets
+          <ArrowLeft size={15} /> Back to my tickets
         </Link>
 
         <div className="ds__main-head">
@@ -238,7 +238,7 @@ export function SupportTicketDetail({
                   </span>
                   <a
                     href={`/api/support/tickets/${ticket.id}/attachments/${a.id}`}
-                    style={{ marginLeft: "auto", color: "#3551a5" }}
+                    style={{ marginLeft: "auto", color: "#3853a4" }}
                     aria-label={`Download ${a.fileName}`}
                   >
                     <Download size={15} />

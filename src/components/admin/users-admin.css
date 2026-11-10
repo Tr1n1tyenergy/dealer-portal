@@ -1,0 +1,25 @@
+/* Admin → Users: the create form and the users table on white panels. */
+.ua { display: grid; gap: 20px; font-variant-numeric: tabular-nums; }
+.ua-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.ua-form__foot, .ua-flash { grid-column: 1 / -1; }
+.ua-flash { margin: 0; padding: 10px 14px; border-radius: 12px; font-size: 15px; }
+.ua-flash--error { background: #fde8e8; color: var(--tri-problem); }
+.ua-flash--ok { background: #e6f4ec; color: #1d6b41; }
+.ua-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.ua-table th { padding: 10px 12px; text-align: left; font-size: 14px; font-weight: 700; color: var(--tri-soft); border-bottom: 1px solid var(--tri-line); }
+.ua-table td { padding: 12px; border-bottom: 1px solid var(--tri-line); vertical-align: middle; overflow-wrap: break-word; }
+.ua-table tbody tr:last-child td { border-bottom: 0; }
+.ua-name { font-weight: 700; }
+.ua-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ua-actions .ui-btn { min-height: 40px; padding: 0 14px; font-size: 14px; }
+@media (max-width: 1023px) {
+  .ua-table thead { display: none; }
+  .ua-table, .ua-table tbody, .ua-table tr, .ua-table td { display: block; width: 100%; }
+  .ua-table tr { padding: 12px 0; border-bottom: 1px solid var(--tri-line); }
+  .ua-table td { padding: 2px 0; border: 0; }
+  .ua-table td:not(.ua-name) { color: var(--tri-soft); font-size: 14px; }
+  .ua-actions { margin-top: 8px; }
+}
+@media (max-width: 767px) {
+  .ua-form { grid-template-columns: minmax(0, 1fr); }
+}

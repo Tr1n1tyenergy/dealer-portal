@@ -3,12 +3,12 @@
    ========================================================= */
 
 :root {
-  --dp-blue: #3551a5;
+  --dp-blue: var(--tri-blue);
   --dp-navy: #001b3a;
   --dp-navy-2: #0a235b;
   --dp-navy-3: #0a192f;
-  --dp-gold: #ffcc00;
-  --dp-gold-2: #ffcc00;
+  --dp-gold: var(--tri-yellow);
+  --dp-gold-2: var(--tri-yellow);
   --dp-turquoise: rgb(0, 198, 214);
   --dp-ink: #0a235b;
   --dp-muted: #64748b;
@@ -20,13 +20,24 @@
   --dp-topbar-h: 64px;
   /* Gutters + hero height come from src/styles/responsive-tokens.css */
   --dp-gutter: var(--tri-page-gutter, clamp(1rem, 2.2vw, 1.75rem));
-  --dp-font: Inter, system-ui, -apple-system, sans-serif;
+  --dp-font: var(--font-sans); /* brand stack (Century Gothic), same as the staff portal */
   --dp-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
-  /* Shared forecourt hero — keep in sync with hero.ts (full plate, no cover zoom) */
+  /* Shared forecourt hero — keep in sync with hero.ts (cover, anchored right) */
   --dp-hero-aspect: 1024 / 211;
   --dp-hero-height: var(--tri-hero-height-capped, calc(100vw * 211 / 1024));
-  --dp-hero-photo-size: 100% 100%;
-  --dp-hero-photo-position: center center;
+  --dp-hero-photo-size: cover;
+  --dp-hero-photo-position: right center;
+}
+
+/* Live badge in dealer heroes (orders refresh when staff change them) */
+.dd__eyebrow .ui-live,
+.do__eyebrow .ui-live,
+.ot__hero-meta .ui-live {
+  margin-left: 0.6rem;
+  padding: 3px 10px;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 /* ---------- Shell ---------- */
@@ -385,7 +396,7 @@ button.dp-sidebar__link {
 }
 
 .dp-sidebar__link.is-active {
-  background: rgba(255, 204, 0, 0.12);
+  background: rgba(255, 202, 6, 0.12);
   border-color: var(--dp-gold);
   color: var(--dp-gold);
 }
@@ -622,17 +633,17 @@ button.dp-sidebar__link {
   gap: 0.75rem;
   padding: 0.95rem 1rem;
   border-radius: 14px;
-  background: linear-gradient(145deg, #ffcc00 0%, #ffcc00 55%, #ffcc00 100%);
+  background: linear-gradient(145deg, var(--tri-yellow) 0%, var(--tri-yellow) 55%, var(--tri-yellow) 100%);
   color: var(--dp-navy);
   text-decoration: none;
   min-height: 118px;
-  box-shadow: 0 12px 28px rgba(255, 204, 0, 0.35);
+  box-shadow: 0 12px 28px rgba(255, 202, 6, 0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .dp-order-cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 32px rgba(255, 204, 0, 0.42);
+  box-shadow: 0 16px 32px rgba(255, 202, 6, 0.42);
 }
 
 .dp-order-cta__plus {
@@ -868,7 +879,7 @@ button.dp-sidebar__link {
 }
 
 .dp-card__title.is-gold svg {
-  color: #ffcc00;
+  color: var(--tri-yellow);
 }
 
 .dp-card__head p {
@@ -1427,6 +1438,27 @@ button.dp-sidebar__link {
   }
 }
 
+@media (max-width: 720px) {
+  /* Phones: show the whole photo across the width at the foot of the hero (nothing cropped);
+     the title and buttons sit on navy above it. */
+  :root {
+    --dp-hero-photo-size: 100% auto;
+    --dp-hero-photo-position: center bottom;
+  }
+
+  .dp-hero,
+  .dd__hero,
+  .do__hero,
+  .ot__hero,
+  .po__hero,
+  .dm__hero,
+  .ds__hero,
+  .ssr__hero,
+  .ssw__hero {
+    background-color: #071833 !important;
+  }
+}
+
 @media (max-width: 560px) {
   .dp-user__meta {
     display: none;
@@ -1518,9 +1550,9 @@ button.dp-sidebar__link {
   width: 44px;
   height: 44px;
   border-radius: 11px;
-  border: 1px solid rgba(255, 204, 0, 0.55);
-  background: rgba(255, 204, 0, 0.12);
-  color: #ffcc00;
+  border: 1px solid rgba(255, 202, 6, 0.55);
+  background: rgba(255, 202, 6, 0.12);
+  color: var(--tri-yellow);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1560,14 +1592,14 @@ button.dp-sidebar__link {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
   border-radius: 12px;
-  background: rgba(255, 204, 0, 0.14);
-  border: 1px solid rgba(255, 204, 0, 0.35);
+  background: rgba(255, 202, 6, 0.14);
+  border: 1px solid rgba(255, 202, 6, 0.35);
   color: #fff;
   font-size: 0.88rem;
 }
 
 .dp-orders-banner strong {
-  color: #ffcc00;
+  color: var(--tri-yellow);
 }
 
 .dp-orders-empty {
@@ -1623,7 +1655,7 @@ button.dp-sidebar__link {
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.04em;
-  color: #ffcc00;
+  color: var(--tri-yellow);
   margin-bottom: 0.25rem;
 }
 
@@ -1754,7 +1786,7 @@ button.dp-sidebar__link {
   margin-top: 0.35rem;
   border: 0;
   border-radius: 12px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   font-weight: 800;
   padding: 0.8rem 1rem;

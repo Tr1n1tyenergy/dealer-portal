@@ -42,7 +42,9 @@ export const STATUS_GUIDE: { status: SupportTicketStatus; description: string }[
 ];
 
 export const MAX_SUPPORT_ATTACHMENTS = 5;
-export const MAX_SUPPORT_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+/** Vercel refuses request bodies over 4.5 MB, so all files in one send must stay under it. */
+export const MAX_SUPPORT_UPLOAD_TOTAL_BYTES = 4 * 1024 * 1024;
+export const MAX_SUPPORT_ATTACHMENT_BYTES = MAX_SUPPORT_UPLOAD_TOTAL_BYTES;
 export const MAX_SUPPORT_SUBJECT = 160;
 export const MAX_SUPPORT_DESCRIPTION = 2000;
 export const MAX_SUPPORT_MESSAGE = 4000;
@@ -53,3 +55,13 @@ export const ALLOWED_SUPPORT_MIME = new Set([
   "image/webp",
   "application/pdf",
 ]);
+
+/** Why these files cannot be sent together, or null when they can. */
+export function supportUploadProblem(sizes: number[]): string | null {
+  if (sizes.length > MAX_SUPPORT_ATTACHMENTS) return `You can attach up to ${MAX_SUPPORT_ATTACHMENTS} files.`;
+  const total = sizes.reduce((sum, n) => sum + n, 0);
+  if (total > MAX_SUPPORT_UPLOAD_TOTAL_BYTES) {
+    return `Attachments can be up to ${MAX_SUPPORT_UPLOAD_TOTAL_BYTES / (1024 * 1024)} MB in total. Remove a file or send it in a reply.`;
+  }
+  return null;
+}

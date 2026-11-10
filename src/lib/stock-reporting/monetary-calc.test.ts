@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  closeShiftBlock,
   computeMonetarySummary,
+  MONETARY_CLOSE_TOLERANCE_KES,
   expectedAmountKes,
   parseKesInput,
 } from "./monetary-calc";
@@ -77,5 +79,34 @@ describe("parseKesInput", () => {
     assert.equal(parseKesInput("-1"), null);
     assert.equal(parseKesInput("abc"), null);
     assert.equal(parseKesInput("1,200,000.00"), 1_200_000);
+  });
+});
+
+describe("closeShiftBlock", () => {
+  const summary = (cash: number) =>
+    computeMonetarySummary({ meterPms: 1000, meterAgo: 0, pricePms: 200, priceAgo: 200, cashKes: cash, mpesaKes: 0, cardKes: 0 });
+
+  it("closes an exact balance with no note", () => {
+    assert.equal(closeShiftBlock(summary(200_000), null), null);
+  });
+
+  it("closes a difference within the tolerance with no note", () => {
+    assert.equal(MONETARY_CLOSE_TOLERANCE_KES, 100);
+    assert.equal(closeShiftBlock(summary(200_000 - 100), null), null);
+    assert.equal(closeShiftBlock(summary(200_000 + 100), ""), null);
+  });
+
+  it("asks for an explanation beyond the tolerance", () => {
+    assert.match(closeShiftBlock(summary(200_000 - 100.01), null) ?? "", /shortage of KES 100\.01.*explanation/i);
+    assert.match(closeShiftBlock(summary(200_500), "short") ?? "", /overage of KES 500\.00.*explanation/i);
+  });
+
+  it("closes beyond the tolerance once a real explanation is given", () => {
+    assert.equal(closeShiftBlock(summary(150_000), "Pump 2 card terminal was offline"), null);
+  });
+
+  it("never closes while collections are incomplete", () => {
+    const s = computeMonetarySummary({ meterPms: 1000, meterAgo: 0, pricePms: 200, priceAgo: 200, cashKes: 1, mpesaKes: null, cardKes: 0 });
+    assert.match(closeShiftBlock(s, "Pump 2 card terminal was offline") ?? "", /collections/i);
   });
 });

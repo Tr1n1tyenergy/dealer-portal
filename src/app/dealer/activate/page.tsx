@@ -3,7 +3,7 @@ import { ActivatePasswordForm } from "@/components/auth/activate-password-form";
 
 export default function DealerActivatePage() {
   return (
-    <Suspense fallback={<div className="login-page">Loading…</div>}>
+    <Suspense fallback={null}>
       <ActivatePasswordForm
         portal="dealer"
         loginHref="/dealer/login"

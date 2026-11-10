@@ -2,9 +2,9 @@
    Scoped to .tri-access so dealer/depot/staff login shells stay unchanged. */
 
 .tri-access {
-  --tri-blue: #3551a5;
+  --tri-blue: var(--tri-blue);
   --tri-blue-deep: #0a235b;
-  --tri-yellow: #ffcc00;
+  --tri-yellow: var(--tri-yellow);
   --tri-yellow-soft: #fff3cc;
   --tri-yellow-text: #b8860b;
   --tri-muted: #64748b;
@@ -146,7 +146,7 @@
   padding: var(--tri-space-lg, clamp(1.25rem, 3vh, 2.5rem))
     var(--tri-page-gutter, clamp(1rem, 3vw, 2rem));
   background:
-    radial-gradient(ellipse at 80% 0%, rgba(53, 81, 165, 0.06), transparent 55%),
+    radial-gradient(ellipse at 80% 0%, rgba(56, 83, 164, 0.06), transparent 55%),
     linear-gradient(180deg, #f4f7fb 0%, #eef2f7 100%);
 }
 
@@ -291,12 +291,12 @@
 }
 
 .tri-access__option--staff {
-  border-color: rgba(255, 204, 0, 0.5);
+  border-color: rgba(255, 202, 6, 0.5);
 }
 
 .tri-access__option--staff:hover {
   border-color: var(--tri-yellow);
-  box-shadow: 0 14px 30px rgba(255, 204, 0, 0.18);
+  box-shadow: 0 14px 30px rgba(255, 202, 6, 0.18);
 }
 
 .tri-access__option--dealer {
@@ -325,7 +325,7 @@
   border-radius: 0.8rem;
   background: var(--tri-yellow);
   color: var(--tri-blue-deep);
-  border: 1px solid rgba(255, 204, 0, 0.55);
+  border: 1px solid rgba(255, 202, 6, 0.55);
   flex-shrink: 0;
 }
 
@@ -381,7 +381,7 @@
   background: var(--tri-yellow);
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.3);
+  box-shadow: 0 6px 14px rgba(255, 202, 6, 0.3);
   transition: transform 0.18s ease;
 }
 

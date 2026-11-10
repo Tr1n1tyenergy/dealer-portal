@@ -51,7 +51,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 18% 12%, rgba(255, 204, 0, 0.18), transparent 38%),
+    radial-gradient(circle at 18% 12%, rgba(255, 202, 6, 0.18), transparent 38%),
     linear-gradient(145deg, rgba(7, 24, 51, 0.94) 0%, rgba(10, 35, 91, 0.86) 48%, rgba(23, 61, 143, 0.72) 100%);
 }
 
@@ -95,7 +95,7 @@
 .login-eyebrow__line {
   width: 2rem;
   height: 1px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
 }
 
 .login-eyebrow__text {
@@ -103,7 +103,7 @@
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #ffcc00;
+  color: var(--tri-yellow);
 }
 
 .login-headline {
@@ -117,7 +117,7 @@
 }
 
 .login-headline span {
-  color: #ffcc00;
+  color: var(--tri-yellow);
 }
 
 .login-subcopy {
@@ -154,9 +154,9 @@
   height: 2.4rem;
   margin-bottom: 0.75rem;
   border-radius: 0.75rem;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
-  box-shadow: 0 8px 18px rgba(255, 204, 0, 0.35);
+  box-shadow: 0 8px 18px rgba(255, 202, 6, 0.35);
 }
 
 .login-feature__title {
@@ -223,7 +223,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 70% 18%, rgba(255, 204, 0, 0.12), transparent 40%),
+    radial-gradient(circle at 70% 18%, rgba(255, 202, 6, 0.12), transparent 40%),
     radial-gradient(circle at 100% 0%, rgba(23, 61, 143, 0.06), transparent 35%);
 }
 
@@ -326,8 +326,8 @@
 }
 
 .login-input:focus {
-  border-color: rgba(255, 204, 0, 0.7);
-  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.22);
+  border-color: rgba(255, 202, 6, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 202, 6, 0.22);
 }
 
 .login-input-toggle {
@@ -378,8 +378,8 @@
 }
 
 .login-check.is-on {
-  border-color: #ffcc00;
-  background: #ffcc00;
+  border-color: var(--tri-yellow);
+  background: var(--tri-yellow);
   color: #0a235b;
 }
 
@@ -391,7 +391,7 @@
 }
 
 .login-forgot:hover {
-  color: #ffcc00;
+  color: var(--tri-yellow);
 }
 
 .login-error {
@@ -414,11 +414,11 @@
   border: 0;
   border-radius: 0.85rem;
   padding: 0 0.55rem 0 1.15rem;
-  background: linear-gradient(90deg, #ffcc00 0%, #ffcc00 48%, #ff8a00 100%);
+  background: linear-gradient(90deg, var(--tri-yellow) 0%, var(--tri-yellow) 48%, #ff8a00 100%);
   color: #0a235b;
   font-size: 0.95rem;
   font-weight: 900;
-  box-shadow: 0 12px 28px rgba(255, 204, 0, 0.35);
+  box-shadow: 0 12px 28px rgba(255, 202, 6, 0.35);
   cursor: pointer;
 }
 
@@ -554,12 +554,12 @@
 }
 
 .access-card--staff {
-  border-color: rgba(255, 204, 0, 0.45);
+  border-color: rgba(255, 202, 6, 0.45);
 }
 
 .access-card--staff:hover {
-  border-color: #ffcc00;
-  box-shadow: 0 12px 28px rgba(255, 204, 0, 0.16);
+  border-color: var(--tri-yellow);
+  box-shadow: 0 12px 28px rgba(255, 202, 6, 0.16);
 }
 
 .access-card--dealer {
@@ -587,8 +587,8 @@
   height: 2.7rem;
   border-radius: 0.8rem;
   background: #0a235b;
-  color: #ffcc00;
-  border: 1px solid rgba(255, 204, 0, 0.35);
+  color: var(--tri-yellow);
+  border: 1px solid rgba(255, 202, 6, 0.35);
   flex-shrink: 0;
 }
 
@@ -640,10 +640,10 @@
   width: 2.15rem;
   height: 2.15rem;
   border-radius: 999px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 6px 14px rgba(255, 202, 6, 0.28);
 }
 
 .access-card__go--blue {

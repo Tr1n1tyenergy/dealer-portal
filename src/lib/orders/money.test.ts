@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
-import { formatKes, sameAmount } from "./money";
+import { describe, it, test } from "node:test";
+import { formatKes, formatKesShort, sameAmount, sumKes } from "./money";
 
 describe("money display", () => {
   it("formats stored amounts as KES with commas and cents", () => {
@@ -21,4 +21,19 @@ describe("money display", () => {
     assert.equal(sameAmount("43019000.00", "abc"), false);
     assert.equal(sameAmount(null, "100"), false);
   });
+});
+
+describe("sumKes", () => {
+  it("adds to the cent and skips blanks and text", () => {
+    assert.equal(sumKes(["1225746.00", null, "0.10", "0.20", "abc"]), "1225746.30");
+  });
+  it("is 0.00 for nothing", () => {
+    assert.equal(sumKes([]), "0.00");
+  });
+});
+
+test("formatKesShort: KES 18.4M, KES 950K, KES 640", () => {
+  assert.equal(formatKesShort("18412345.50"), "KES 18.4M");
+  assert.equal(formatKesShort(950_000), "KES 950K");
+  assert.equal(formatKesShort("640"), "KES 640");
 });

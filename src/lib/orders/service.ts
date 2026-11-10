@@ -1,3 +1,4 @@
+import { notifyOrderChanged } from "@/lib/pusher/server";
 import type { DealerOrderStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { nairobiParts } from "@/lib/time/nairobi";
@@ -169,7 +170,7 @@ export async function submitDealerOrder(params: {
   return syncQuotation(created, params.actorId);
 }
 
-export async function syncQuotation(orderId: string, actorId?: string | null) {
+async function syncQuotationNow(orderId: string, actorId?: string | null) {
   const current = await prisma.dealerOrder.findUnique({
     where: { id: orderId },
     include: { lines: true, station: true, dealerOrganization: true },
@@ -295,7 +296,7 @@ export const PFI_NO_PRICE_NOTE = "PFI not issued: this station has no price yet.
  * Issue the PFI from the order's frozen line prices: 8% VAT on top, numbered with the SO
  * (quotation) number, fixed signatories. Odoo is not contacted.
  */
-export async function generatePfi(orderId: string, actorId: string | null) {
+async function generatePfiNow(orderId: string, actorId: string | null) {
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId }, include: { lines: true, station: true } });
   if (!order?.odooQuotationId) throw new Error("A quotation is required before a PFI.");
 
@@ -421,7 +422,7 @@ export async function generatePfi(orderId: string, actorId: string | null) {
   return saved;
 }
 
-export async function submitPayment(params: {
+async function submitPaymentNow(params: {
   orderId: string;
   actorId: string;
   dealerOrganizationId: string;
@@ -480,7 +481,7 @@ export async function submitPayment(params: {
   return saved;
 }
 
-export async function confirmPayment(orderId: string, actorId: string, accept: boolean) {
+async function confirmPaymentNow(orderId: string, actorId: string, accept: boolean) {
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Order not found.");
   const to = accept ? "PAYMENT_CONFIRMED" : "PAYMENT_EXCEPTION";
@@ -506,7 +507,7 @@ export async function confirmPayment(orderId: string, actorId: string, accept: b
   return saved;
 }
 
-export async function releaseToDepot(orderId: string, actorId: string, depotId: string) {
+async function releaseToDepotNow(orderId: string, actorId: string, depotId: string) {
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Order not found.");
   const depot = await prisma.depot.findUnique({ where: { id: depotId } });
@@ -531,7 +532,7 @@ export async function releaseToDepot(orderId: string, actorId: string, depotId: 
   return saved;
 }
 
-export async function applyDepotAction(
+async function applyDepotActionNow(
   orderId: string,
   actor: { id: string; role: string; depotId: string | null },
   action: "accept" | "complete" | "dispatch" | "deliver" | "close",
@@ -612,3 +613,21 @@ export async function applyDepotAction(
   });
   return saved;
 }
+
+/** Runs an order change, then tells open dashboards (after its transaction has committed). */
+function withOrderNotice<A extends unknown[], R extends { id: string; status: string; dealerOrganizationId: string }>(
+  change: (...args: A) => Promise<R>,
+) {
+  return async (...args: A): Promise<R> => {
+    const order = await change(...args);
+    await notifyOrderChanged(order);
+    return order;
+  };
+}
+
+export const syncQuotation = withOrderNotice(syncQuotationNow);
+export const generatePfi = withOrderNotice(generatePfiNow);
+export const submitPayment = withOrderNotice(submitPaymentNow);
+export const confirmPayment = withOrderNotice(confirmPaymentNow);
+export const releaseToDepot = withOrderNotice(releaseToDepotNow);
+export const applyDepotAction = withOrderNotice(applyDepotActionNow);

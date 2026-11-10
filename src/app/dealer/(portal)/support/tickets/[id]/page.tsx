@@ -20,7 +20,7 @@ export default async function DealerSupportTicketPage({
           <div className="ds__hero-copy">
             <span className="ds__hero-accent" aria-hidden />
             <div>
-              <h1>Support Centre</h1>
+              <h1>Support centre</h1>
               <p>Raise a ticket, track its progress and get help from the Trinity team.</p>
             </div>
           </div>
