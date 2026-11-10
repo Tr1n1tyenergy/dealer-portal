@@ -1210,6 +1210,11 @@
   color: #15803d;
 }
 
+.ssw__vs-ico--diff.is-off {
+  background: #fef3c7;
+  color: #b45309;
+}
+
 .ssw__vs-label {
   margin: 0;
   font-size: 0.74rem;

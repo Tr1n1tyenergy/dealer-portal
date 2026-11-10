@@ -22,11 +22,11 @@
   --dp-gutter: var(--tri-page-gutter, clamp(1rem, 2.2vw, 1.75rem));
   --dp-font: Inter, system-ui, -apple-system, sans-serif;
   --dp-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
-  /* Shared forecourt hero — keep in sync with hero.ts (full plate, no cover zoom) */
+  /* Shared forecourt hero — keep in sync with hero.ts (cover, anchored right) */
   --dp-hero-aspect: 1024 / 211;
   --dp-hero-height: var(--tri-hero-height-capped, calc(100vw * 211 / 1024));
-  --dp-hero-photo-size: 100% 100%;
-  --dp-hero-photo-position: center center;
+  --dp-hero-photo-size: cover;
+  --dp-hero-photo-position: right center;
 }
 
 /* ---------- Shell ---------- */
@@ -1427,8 +1427,22 @@ button.dp-sidebar__link {
   }
 }
 
+@media (max-width: 720px) {
+  /* Tall, narrow hero: centre on the canopy and pumps so the canopy logo is not behind the title */
+  :root {
+    --dp-hero-photo-position: 58% center;
+  }
+}
+
 @media (max-width: 560px) {
   .dp-user__meta {
+    display: none;
+  }
+
+  /* Logo only on phones: the "Dealer Portal / Trinity Retail Intelligence" label wrapped to four
+     lines, and even on one line it ran under the bell. */
+  .dp-topbar__divider,
+  .dp-topbar__title {
     display: none;
   }
 

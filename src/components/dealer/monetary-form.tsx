@@ -363,8 +363,13 @@ export function MonetaryForm({
               </div>
             </li>
             <li className={cn("ssw__vs-diff", diffClass)}>
-              <span className="ssw__vs-ico ssw__vs-ico--diff">
-                <Check size={16} strokeWidth={2.75} aria-hidden />
+              {/* A tick only when it balances; a shortage or overage must not look approved. */}
+              <span className={`ssw__vs-ico ssw__vs-ico--diff${summary.state === "BALANCED" ? "" : " is-off"}`}>
+                {summary.state === "BALANCED" ? (
+                  <Check size={16} strokeWidth={2.75} aria-hidden />
+                ) : (
+                  <Info size={16} strokeWidth={2.75} aria-hidden />
+                )}
               </span>
               <div>
                 <p className="ssw__vs-label">Difference</p>
