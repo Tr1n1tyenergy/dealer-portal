@@ -45,6 +45,26 @@ describe("uploads are kept in the database", { skip: usingTestDatabase ? false :
     await assert.rejects(() => rtt.readRttJobCard(stored.storageKey));
   });
 
+  it("the dealer's ticket view never carries the internal storage key", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    const svc = await import("@/lib/support/service");
+    const org = await prisma.dealerOrganization.create({ data: { name: `Org ${run}`, code: `ORG${run}` } });
+    const user = await prisma.user.create({ data: { firstName: "T", lastName: "D", email: `d.${run}@example.test`, department: "T", role: "DEALER_ADMIN", accountType: "DEALER", status: "ACTIVE", dealerOrganizationId: org.id } });
+    try {
+      const buffer = Buffer.from("%PDF-1.4 view " + run);
+      const created = await svc.createTicket({ dealerOrganizationId: org.id, createdById: user.id, subject: "Key check", description: "Storage key must stay on the server.", department: "IT", priority: "LOW", uploads: [{ buffer, fileName: "k.pdf", mimeType: "application/pdf", sizeBytes: buffer.length }] });
+      const ticket = await svc.getTicketForDealer(created.id, org.id);
+      assert.equal(ticket.attachments.length, 1);
+      assert.equal(JSON.stringify(ticket).includes("storageKey"), false);
+    } finally {
+      const keys = (await prisma.supportTicketAttachment.findMany({ where: { uploadedById: user.id } })).map((a) => a.storageKey);
+      await prisma.storedFile.deleteMany({ where: { key: { in: keys } } });
+      await prisma.supportTicket.deleteMany({ where: { dealerOrganizationId: org.id } });
+      await prisma.user.delete({ where: { id: user.id } });
+      await prisma.dealerOrganization.delete({ where: { id: org.id } });
+    }
+  });
+
   it("a file saved on disk before this change still opens", async () => {
     const key = path.join(`old-${run}`, "legacy.pdf");
     await mkdir(path.join(diskRoot, `old-${run}`), { recursive: true });

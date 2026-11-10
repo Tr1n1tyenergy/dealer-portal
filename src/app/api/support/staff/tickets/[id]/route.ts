@@ -20,7 +20,7 @@ export async function GET(_req: Request, ctx: Ctx) {
       assignee: { select: { id: true, firstName: true, lastName: true, department: true } },
       dealerOrganization: { select: { id: true, name: true, code: true } },
       relatedOrder: { select: { id: true, reference: true, status: true } },
-      attachments: { orderBy: { createdAt: "asc" } },
+      attachments: { orderBy: { createdAt: "asc" }, omit: { storageKey: true } }, // the key stays on the server
       messages: {
         orderBy: { createdAt: "asc" },
         include: {

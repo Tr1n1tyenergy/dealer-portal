@@ -4,7 +4,7 @@ import {
   SupportTicketStatus,
 } from "@prisma/client";
 import { jsonError, requireDealerApi } from "@/lib/api-auth";
-import { MAX_SUPPORT_ATTACHMENTS } from "@/lib/support/constants";
+import { supportUploadProblem } from "@/lib/support/constants";
 import { createTicket, listTicketsForOrg } from "@/lib/support/service";
 import { validateSupportUpload } from "@/lib/support/storage";
 
@@ -65,9 +65,8 @@ export async function POST(req: Request) {
     .getAll("attachments")
     .filter((f): f is File => typeof File !== "undefined" && f instanceof File && f.size > 0);
 
-  if (files.length > MAX_SUPPORT_ATTACHMENTS) {
-    return jsonError(`You can attach up to ${MAX_SUPPORT_ATTACHMENTS} files.`, 400);
-  }
+  const uploadProblem = supportUploadProblem(files.map((f) => f.size));
+  if (uploadProblem) return jsonError(uploadProblem, 400);
 
   try {
     const uploads = [];

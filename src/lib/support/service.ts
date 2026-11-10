@@ -44,18 +44,13 @@ function assertPriority(v: string): SupportTicketPriority {
 }
 
 async function nextTicketReference(tx: Prisma.TransactionClient) {
-  try {
-    const row = await tx.supportTicketSequence.update({
-      where: { id: "default" },
-      data: { lastNumber: { increment: 1 } },
-    });
-    return `TRN-${row.lastNumber}`;
-  } catch {
-    const row = await tx.supportTicketSequence.create({
-      data: { id: "default", lastNumber: 4581 },
-    });
-    return `TRN-${row.lastNumber}`;
-  }
+  // One statement: a failed update inside a Postgres transaction aborts it, so update-then-create cannot work.
+  const row = await tx.supportTicketSequence.upsert({
+    where: { id: "default" },
+    update: { lastNumber: { increment: 1 } },
+    create: { id: "default", lastNumber: 4581 },
+  });
+  return `TRN-${row.lastNumber}`;
 }
 
 function dateFromRange(range: TicketListFilters["dateRange"]) {
@@ -121,7 +116,7 @@ export async function getTicketForDealer(ticketId: string, dealerOrganizationId:
       createdBy: { select: { id: true, firstName: true, lastName: true, email: true } },
       assignee: { select: { id: true, firstName: true, lastName: true, department: true } },
       relatedOrder: { select: { id: true, reference: true, status: true } },
-      attachments: { orderBy: { createdAt: "asc" } },
+      attachments: { orderBy: { createdAt: "asc" }, omit: { storageKey: true } }, // the key stays on the server
       messages: {
         where: { visibility: SupportMessageVisibility.DEALER_VISIBLE },
         orderBy: { createdAt: "asc" },
@@ -129,7 +124,7 @@ export async function getTicketForDealer(ticketId: string, dealerOrganizationId:
           author: {
             select: { id: true, firstName: true, lastName: true, accountType: true, department: true },
           },
-          attachments: true,
+          attachments: { omit: { storageKey: true } },
         },
       },
       events: { orderBy: { createdAt: "asc" } },

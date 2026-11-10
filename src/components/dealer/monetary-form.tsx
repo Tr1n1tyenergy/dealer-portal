@@ -33,6 +33,15 @@ import {
 import { cn } from "@/lib/utils";
 import { StockReportingWizardShell } from "./stock-reporting-wizard-shell";
 
+/** Plain words for the wet stock outcome in the closing summary (was the raw enum codes). */
+const WET_RESOLUTION_LABEL: Record<string, string> = {
+  NONE: "No variance",
+  BALANCED: "Balanced",
+  MATCH_DELIVERY: "Matched to a delivery",
+  REVIEW_READINGS: "Readings under review",
+  RECORD_LOSS: "Variance recorded as a loss",
+};
+
 function formatSavedAt(iso: string | null) {
   if (!iso) return "Not saved yet";
   const d = new Date(iso);
@@ -638,7 +647,7 @@ export function MonetaryForm({
               <div>
                 <dt>Wet stock</dt>
                 <dd>
-                  {wetResolution} · {wetState}
+                  {WET_RESOLUTION_LABEL[wetResolution] ?? wetResolution}
                 </dd>
               </div>
             </dl>
@@ -658,7 +667,7 @@ export function MonetaryForm({
                 onClick={() => runSave("close", { confirmClose: true })}
               >
                 {pending ? <Loader2 size={16} className="animate-spin" aria-hidden /> : null}
-                Confirm &amp; Close Shift
+                Confirm &amp; close shift
               </button>
             </div>
           </div>

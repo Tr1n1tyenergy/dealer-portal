@@ -50,7 +50,8 @@ import {
 import {
   DEPARTMENT_LABELS,
   MAX_SUPPORT_ATTACHMENTS,
-  MAX_SUPPORT_ATTACHMENT_BYTES,
+  MAX_SUPPORT_UPLOAD_TOTAL_BYTES,
+  supportUploadProblem,
   MAX_SUPPORT_DESCRIPTION,
   MAX_SUPPORT_SUBJECT,
   PRIORITY_LABELS,
@@ -655,8 +656,9 @@ function RaiseTicketForm({
         setError(`You can attach up to ${MAX_SUPPORT_ATTACHMENTS} files.`);
         break;
       }
-      if (f.size > MAX_SUPPORT_ATTACHMENT_BYTES) {
-        setError(`Each file must be ${MAX_SUPPORT_ATTACHMENT_BYTES / (1024 * 1024)} MB or smaller.`);
+      const problem = supportUploadProblem([...next, f].map((x) => x.size));
+      if (problem) {
+        setError(problem);
         continue;
       }
       next.push(f);
@@ -903,7 +905,7 @@ function RaiseTicketForm({
                 <Paperclip size={14} strokeWidth={2} aria-hidden />
                 Attachments
               </span>
-              <em className="ds__attach-hint">(Max 10 MB per file)</em>
+              <em className="ds__attach-hint">(Up to {MAX_SUPPORT_UPLOAD_TOTAL_BYTES / (1024 * 1024)} MB in total)</em>
             </label>
             <div
               className={`ds__dropzone ${dragOver ? "is-over" : ""}`}

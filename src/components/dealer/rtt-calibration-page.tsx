@@ -156,7 +156,7 @@ export function RttCalibrationPage({
     }
     if (file.size > RTT_JOB_CARD_MAX_BYTES) {
       setJobCard(null);
-      setJobCardError("Max size 10 MB.");
+      setJobCardError(`Max size ${RTT_JOB_CARD_MAX_BYTES / (1024 * 1024)} MB.`);
       return;
     }
     setJobCard(file);
@@ -470,7 +470,7 @@ export function RttCalibrationPage({
                         <Upload size={22} strokeWidth={2} aria-hidden />
                         <div className="ssr-rtt__upload-copy">
                           <strong>Upload job card (PDF)</strong>
-                          <span>Max size: 10 MB • PDF only</span>
+                          <span>Max size: {RTT_JOB_CARD_MAX_BYTES / (1024 * 1024)} MB • PDF only</span>
                         </div>
                         <button
                           type="button"
@@ -511,7 +511,7 @@ export function RttCalibrationPage({
                   ) : (
                     <Plus size={16} strokeWidth={2.5} aria-hidden />
                   )}
-                  Save RTT Entry
+                  Save RTT entry
                 </button>
                 <button
                   type="button"
