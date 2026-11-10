@@ -39,12 +39,12 @@
   --msg-line: #e2e8f0;
   --msg-glass: #ffffff;
   --msg-glass-2: #f4f7fb;
-  --msg-mine: #3551a5;
+  --msg-mine: var(--tri-blue);
   --msg-theirs: #ffffff;
   --msg-tick: rgba(255, 255, 255, 0.75);
   --msg-tick-read: #ffffff;
-  --msg-royal: #3551a5;
-  --msg-gold: #ffcc00;
+  --msg-royal: var(--tri-blue);
+  --msg-gold: var(--tri-yellow);
   --msg-green: #16a34a;
   display: grid;
   grid-template-columns: minmax(240px, 29%) minmax(0, 43%) minmax(220px, 28%);
@@ -152,10 +152,10 @@
 }
 
 .msg-app--dealer .msg-sidebar__new {
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   border: none;
-  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 6px 14px rgba(255, 202, 6, 0.28);
 }
 
 .msg-app--dealer .msg-sidebar__new:hover {
@@ -280,7 +280,7 @@
 
 .msg-app--dealer .msg-list__item.is-active {
   background: #eef3fb;
-  box-shadow: inset 3px 0 0 #ffcc00;
+  box-shadow: inset 3px 0 0 var(--tri-yellow);
   border-color: transparent;
 }
 
@@ -588,9 +588,9 @@
 }
 
 .msg-app--dealer .msg-bubble--mine {
-  background: #3551a5;
+  background: var(--tri-blue);
   color: #fff;
-  box-shadow: 0 8px 18px rgba(53, 81, 165, 0.22);
+  box-shadow: 0 8px 18px rgba(56, 83, 164, 0.22);
 }
 
 .msg-app--dealer .msg-bubble--theirs {
@@ -750,10 +750,10 @@
   height: 42px;
   padding: 0;
   border-radius: 999px;
-  background: #3551a5;
+  background: var(--tri-blue);
   color: #fff;
   font-weight: 800;
-  box-shadow: 0 8px 16px rgba(53, 81, 165, 0.28);
+  box-shadow: 0 8px 16px rgba(56, 83, 164, 0.28);
 }
 
 /* ——— Context panel ——— */
@@ -1306,15 +1306,15 @@
   border-radius: 999px;
   border: 1px solid #d7e0ee;
   background: #fff;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-size: 0.78rem;
   font-weight: 750;
   padding: 0.35rem 0.7rem;
 }
 
 .msg-app--dealer .msg-filters button.is-active {
-  background: #3551a5;
-  border-color: #3551a5;
+  background: var(--tri-blue);
+  border-color: var(--tri-blue);
   color: #fff;
   box-shadow: none;
 }
@@ -1335,7 +1335,7 @@
 
 .msg-app--dealer .msg-filters button.is-active .msg-filters__badge {
   background: #fff;
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .msg-app--dealer .msg-list {
@@ -1345,7 +1345,7 @@
 .msg-app--dealer .msg-avatar {
   color: #fff;
   position: relative;
-  background: linear-gradient(145deg, #3551a5, #243a7a);
+  background: linear-gradient(145deg, var(--tri-blue), #243a7a);
   border: none;
   width: 44px;
   height: 44px;
@@ -1369,7 +1369,7 @@
 }
 
 .msg-app--dealer .msg-list__unread {
-  background: #3551a5;
+  background: var(--tri-blue);
   box-shadow: none;
 }
 
@@ -1392,7 +1392,7 @@
   height: 4.5rem;
   border-radius: 1.15rem;
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: grid;
   place-items: center;
   margin-bottom: 0.35rem;
@@ -1422,13 +1422,13 @@
   padding: 0 1.25rem;
   border: 0;
   border-radius: 999px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   font: inherit;
   font-size: 0.88rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(255, 204, 0, 0.3);
+  box-shadow: 0 10px 22px rgba(255, 202, 6, 0.3);
 }
 
 .msg-thread__empty-cta:hover {
@@ -1449,7 +1449,7 @@
 .msg-app--dealer .msg-thread__actions button:hover:not(:disabled),
 .msg-app--dealer .msg-thread__actions button.is-on {
   background: #eef3fb;
-  color: #3551a5;
+  color: var(--tri-blue);
   border-color: #d7e0ee;
 }
 
@@ -1489,7 +1489,7 @@
 }
 
 .msg-app--dealer .msg-composer__icon:hover:not(:disabled) {
-  color: #3551a5;
+  color: var(--tri-blue);
   background: #eef3fb;
 }
 
@@ -1554,7 +1554,7 @@
   color: #fff;
   border: 2px solid #c5d4f0;
   box-shadow: 0 8px 18px rgba(10, 35, 91, 0.1);
-  background: linear-gradient(145deg, #3551a5, #243a7a);
+  background: linear-gradient(145deg, var(--tri-blue), #243a7a);
 }
 
 .msg-app--dealer .msg-profile__actions {
@@ -1580,7 +1580,7 @@
 
 .msg-app--dealer .msg-profile__actions a:hover,
 .msg-app--dealer .msg-profile__actions button:hover:not(:disabled) {
-  border-color: #3551a5;
+  border-color: var(--tri-blue);
   background: #eef3fb;
 }
 
@@ -1607,7 +1607,7 @@
 }
 
 .msg-app--dealer .msg-card__head a {
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .msg-app--dealer .msg-card__head a:hover {
@@ -1648,7 +1648,7 @@
 
 .msg-app--dealer .msg-pill--blue {
   background: #e8eefc;
-  color: #3551a5;
+  color: var(--tri-blue);
   border-color: #c5d4f0;
 }
 
@@ -1677,7 +1677,7 @@
 }
 
 .msg-app--dealer .msg-file__dl:hover {
-  color: #3551a5;
+  color: var(--tri-blue);
   background: #eef3fb;
 }
 

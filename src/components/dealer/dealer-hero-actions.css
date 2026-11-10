@@ -16,12 +16,12 @@
   min-height: 2.45rem;
   padding: 0 1.15rem;
   border-radius: 0.7rem;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   font-size: 0.88rem;
   font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 10px 24px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 10px 24px rgba(255, 202, 6, 0.28);
 }
 
 .dp-hero-actions__place:hover {

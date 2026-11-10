@@ -1,9 +1,9 @@
 /* Order Tracking Dashboard — scoped under .ot. Shared header untouched. */
 
 .ot {
-  --ot-blue: #3551a5;
+  --ot-blue: var(--tri-blue);
   --ot-ink: #0a235b;
-  --ot-yellow: #ffcc00;
+  --ot-yellow: var(--tri-yellow);
   --ot-muted: #64748b;
   --ot-line: #e6edf7;
   --ot-bg: #f5f8fd;
@@ -75,7 +75,7 @@
 
 a.ot__crumb:hover {
   text-decoration: underline;
-  color: #ffcc00;
+  color: var(--tri-yellow);
 }
 
 .ot__crumb.is-current {
@@ -91,7 +91,7 @@ a.ot__crumb:hover {
 }
 
 .ot__crumb-sep {
-  color: rgba(255, 204, 0, 0.65);
+  color: rgba(255, 202, 6, 0.65);
   flex-shrink: 0;
 }
 
@@ -133,8 +133,8 @@ a.ot__crumb:hover {
 }
 
 .ot__status-pill.is-warn {
-  background: rgba(255, 204, 0, 0.22);
-  border-color: rgba(255, 204, 0, 0.55);
+  background: rgba(255, 202, 6, 0.22);
+  border-color: rgba(255, 202, 6, 0.55);
   color: #ffe58f;
 }
 
@@ -332,14 +332,14 @@ a.ot__crumb:hover {
   background: var(--ot-blue);
   border-color: var(--ot-blue);
   color: #fff;
-  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.14);
+  box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.14);
 }
 
 .ot__progress-step.is-active .ot__progress-dot {
   background: var(--ot-yellow);
   border-color: var(--ot-yellow);
   color: var(--ot-ink);
-  box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.22);
+  box-shadow: 0 0 0 4px rgba(255, 202, 6, 0.22);
 }
 
 .ot__progress-step.is-attention .ot__progress-dot {

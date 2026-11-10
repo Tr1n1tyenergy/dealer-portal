@@ -280,7 +280,7 @@ function PayPfiModal({
                       <dd>KES {formatMoney(vatAmount!)}</dd>
                     </div>
                     <div className="is-total">
-                      <dt>Total (VAT Incl.)</dt>
+                      <dt>Total (VAT incl.)</dt>
                       <dd>KES {formatMoney(amountDue!)}</dd>
                     </div>
                   </dl>

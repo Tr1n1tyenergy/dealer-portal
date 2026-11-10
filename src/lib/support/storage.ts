@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, writeFile, readFile, unlink } from "node:fs/promises";
 import path from "node:path";
+import { deleteStoredFile, getStoredFile, putStoredFile } from "@/lib/files/stored-files";
 import {
   ALLOWED_SUPPORT_MIME,
   MAX_SUPPORT_ATTACHMENT_BYTES,
@@ -69,37 +69,17 @@ export async function storeSupportUpload(
   ticketId: string,
   upload: ValidatedUpload,
 ): Promise<{ storageKey: string }> {
-  const root = uploadRoot();
-  const dir = path.join(root, ticketId);
-  await mkdir(dir, { recursive: true });
   const hash = createHash("sha256").update(upload.buffer).digest("hex").slice(0, 12);
   const token = randomBytes(8).toString("hex");
   const storageKey = path.join(ticketId, `${token}-${hash}-${upload.fileName}`);
-  const abs = path.join(root, storageKey);
-  // Prevent path escape
-  if (!abs.startsWith(path.join(root, ticketId))) {
-    throw new Error("Invalid storage path.");
-  }
-  await writeFile(abs, upload.buffer);
+  await putStoredFile(storageKey, upload.buffer);
   return { storageKey };
 }
 
 export async function readSupportUpload(storageKey: string): Promise<Buffer> {
-  const root = uploadRoot();
-  const abs = path.resolve(root, storageKey);
-  if (!abs.startsWith(path.resolve(root) + path.sep) && abs !== path.resolve(root)) {
-    throw new Error("Invalid storage key.");
-  }
-  return readFile(abs);
+  return getStoredFile(storageKey, uploadRoot());
 }
 
 export async function deleteSupportUpload(storageKey: string): Promise<void> {
-  try {
-    const root = uploadRoot();
-    const abs = path.resolve(root, storageKey);
-    if (!abs.startsWith(path.resolve(root) + path.sep)) return;
-    await unlink(abs);
-  } catch {
-    // best-effort cleanup
-  }
+  await deleteStoredFile(storageKey).catch(() => undefined); // best-effort cleanup
 }

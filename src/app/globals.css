@@ -73,6 +73,6 @@
   }
 
   .text-gradient-gold {
-    @apply bg-gradient-to-r from-trinity-gold to-[#ffcc00] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-trinity-gold to-[var(--tri-yellow)] bg-clip-text text-transparent;
   }
 }

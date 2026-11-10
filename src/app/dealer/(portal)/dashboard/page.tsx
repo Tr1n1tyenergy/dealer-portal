@@ -29,6 +29,8 @@ import { FuelOrderedPanel } from "@/components/dealer/fuel-ordered-panel";
 import { PayPfiPanel } from "@/components/dealer/pay-pfi-panel";
 import { cn } from "@/lib/utils";
 import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { LiveRefresh } from "@/components/live/live-refresh";
+import { ordersDealerChannel } from "@/lib/pusher/server-channels";
 import { DEALER_PAYABLE_STATUSES, toPayPfiProps } from "@/lib/dealer/pay-pfi";
 import "../../dealer-dashboard.css";
 
@@ -285,6 +287,7 @@ export default async function DealerDashboardPage() {
           <div className="dd__eyebrow">
             <span className="dd__eyebrow-line" aria-hidden />
             <span className="dd__eyebrow-text">Dealer Portal</span>
+            <LiveRefresh channel={ordersDealerChannel(orgId)} />
           </div>
           <h1>
             {greeting()}, {orgName}
@@ -292,7 +295,7 @@ export default async function DealerDashboardPage() {
           <p className="dd__hero-summary">{summary}</p>
           <div className="dd__hero-actions">
             <Link href="/dealer/orders/new" className="dd__btn dd__btn--primary">
-              Place an Order
+              Place an order
             </Link>
             {oldestPayable && oldestPayable.proforma ? (
               <PayPfiPanel
@@ -314,7 +317,7 @@ export default async function DealerDashboardPage() {
               <Wallet size={16} />
             </span>
             <span className="dd__kpi-copy">
-              <div className="dd__kpi-label">To Pay</div>
+              <div className="dd__kpi-label">To pay</div>
               <div className="dd__kpi-value">
                 {toPayCents > 0
                   ? `KES ${(toPayCents / 100).toLocaleString("en-US", {
@@ -346,7 +349,7 @@ export default async function DealerDashboardPage() {
               <Truck size={16} />
             </span>
             <span className="dd__kpi-copy">
-              <div className="dd__kpi-label">On the Way</div>
+              <div className="dd__kpi-label">On the way</div>
               <div className="dd__kpi-value">{onTheWay?.reference ?? "None active"}</div>
               <div className="dd__kpi-meta">
                 {onTheWay
@@ -365,7 +368,7 @@ export default async function DealerDashboardPage() {
               <BarChart3 size={16} />
             </span>
             <span className="dd__kpi-copy">
-              <div className="dd__kpi-label">This Month</div>
+              <div className="dd__kpi-label">This month</div>
               <div className="dd__kpi-value">{monthLitres.toLocaleString("en-US")} L</div>
               <div className="dd__kpi-meta">
                 {monthOrders.length} order{monthOrders.length === 1 ? "" : "s"}
@@ -474,7 +477,7 @@ export default async function DealerDashboardPage() {
                   <span className="dd__card-icon">
                     <Tag size={15} />
                   </span>
-                  Today&apos;s Prices
+                  Today&apos;s prices
                 </div>
               </div>
             </div>

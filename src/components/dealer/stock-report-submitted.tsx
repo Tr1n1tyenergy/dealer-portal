@@ -127,7 +127,7 @@ export function StockReportSubmittedView({
             <Check size={28} strokeWidth={3} />
           </span>
           <div>
-            <h2>Daily Report Submitted Successfully</h2>
+            <h2>Daily report submitted successfully</h2>
             <p>
               The {stationName} Station report for <strong>{reportingDateLabel}</strong> has been
               received and is now closed.
@@ -138,7 +138,7 @@ export function StockReportSubmittedView({
           <div className="ssw__success-ref-card">
             <Layers size={18} strokeWidth={2.25} aria-hidden />
             <div>
-              <p className="ssw__meta-label">Report Reference</p>
+              <p className="ssw__meta-label">Report reference</p>
               <p className="ssw__success-ref-code">{reportReference}</p>
             </div>
             <span className="ssw__closed-pill">
@@ -161,7 +161,7 @@ export function StockReportSubmittedView({
             <CalendarDays size={16} strokeWidth={2} aria-hidden />
           </span>
           <div>
-            <p className="ssw__meta-label">Reporting Date</p>
+            <p className="ssw__meta-label">Reporting date</p>
             <p className="ssw__meta-value">{reportingDateLabel}</p>
           </div>
         </article>
@@ -200,20 +200,20 @@ export function StockReportSubmittedView({
             <span className="ssw__compare-icon">
               <Fuel size={18} strokeWidth={2.25} aria-hidden />
             </span>
-            <h3>Meter Sales (Dispensers)</h3>
+            <h3>Meter sales (dispensers)</h3>
           </div>
           <dl className="ssw__submit-rows">
             <div>
-              <dt>PMS Sales</dt>
+              <dt>PMS sales</dt>
               <dd>{formatLitresWithUnit(meterPms)}</dd>
             </div>
             <div>
-              <dt>AGO Sales</dt>
+              <dt>AGO sales</dt>
               <dd>{formatLitresWithUnit(meterAgo)}</dd>
             </div>
           </dl>
           <div className="ssw__submit-total">
-            <span>Total Meter Sales</span>
+            <span>Total meter sales</span>
             <strong>{formatLitresWithUnit(meterTotal)}</strong>
           </div>
         </article>
@@ -223,20 +223,20 @@ export function StockReportSubmittedView({
             <span className="ssw__compare-icon">
               <Layers size={18} strokeWidth={2.25} aria-hidden />
             </span>
-            <h3>Tank Stock Sales (Dips)</h3>
+            <h3>Tank stock sales (dips)</h3>
           </div>
           <dl className="ssw__submit-rows">
             <div>
-              <dt>PMS Tank Sales</dt>
+              <dt>PMS tank sales</dt>
               <dd>{formatLitresWithUnit(tankPms)}</dd>
             </div>
             <div>
-              <dt>AGO Tank Sales</dt>
+              <dt>AGO tank sales</dt>
               <dd>{formatLitresWithUnit(tankAgo)}</dd>
             </div>
           </dl>
           <div className="ssw__submit-total">
-            <span>Total Tank Sales</span>
+            <span>Total tank sales</span>
             <strong>{formatLitresWithUnit(tankTotal)}</strong>
           </div>
         </article>
@@ -246,11 +246,11 @@ export function StockReportSubmittedView({
             <span className="ssw__compare-icon ssw__compare-icon--var">
               <Scale size={18} strokeWidth={2.25} aria-hidden />
             </span>
-            <h3>Stock Reconciliation</h3>
+            <h3>Stock reconciliation</h3>
           </div>
           <dl className="ssw__submit-rows">
             <div>
-              <dt>Variance (Meter − Tank)</dt>
+              <dt>Variance (meter − tank)</dt>
               <dd>
                 {varianceTotal == null ? "—" : formatLitresWithUnit(Math.abs(varianceTotal))}
               </dd>
@@ -271,7 +271,7 @@ export function StockReportSubmittedView({
             <span className="ssw__compare-icon">
               <Layers size={18} strokeWidth={2.25} aria-hidden />
             </span>
-            <h3>Expected Revenue (from Meter Sales)</h3>
+            <h3>Expected revenue (from meter sales)</h3>
           </div>
           <dl className="ssw__submit-rows">
             <div>
@@ -290,7 +290,7 @@ export function StockReportSubmittedView({
             </div>
           </dl>
           <div className="ssw__submit-total ssw__submit-total--yellow">
-            <span>Total Expected Sales</span>
+            <span>Total expected sales</span>
             <strong>{formatKesWithCurrency(expectedTotal)}</strong>
           </div>
         </article>
@@ -300,7 +300,7 @@ export function StockReportSubmittedView({
             <span className="ssw__compare-icon ssw__compare-icon--var">
               <Wallet size={18} strokeWidth={2.25} aria-hidden />
             </span>
-            <h3>Actual Collections</h3>
+            <h3>Actual collections</h3>
           </div>
           <div className="ssw__collect-cols">
             <div>
@@ -321,12 +321,12 @@ export function StockReportSubmittedView({
               <span className="ssw__collect-mini-ico">
                 <CreditCard size={14} strokeWidth={2.25} aria-hidden />
               </span>
-              <p>Visa / Card</p>
+              <p>Visa / card</p>
               <strong>{formatKesWithCurrency(card)}</strong>
             </div>
           </div>
           <div className="ssw__submit-total ssw__submit-total--yellow">
-            <span>Total Collections</span>
+            <span>Total collections</span>
             <strong>{formatKesWithCurrency(collectionsTotal)}</strong>
           </div>
         </article>
@@ -341,7 +341,7 @@ export function StockReportSubmittedView({
             <span className="ssw__money-result-check" aria-hidden>
               <Check size={22} strokeWidth={2.75} />
             </span>
-            <p className="ssw__meta-label">Monetary Reconciliation</p>
+            <p className="ssw__meta-label">Monetary reconciliation</p>
             <strong>{monetaryBalanced ? "Balanced" : monetaryState}</strong>
             <p>
               Difference:{" "}
@@ -359,14 +359,14 @@ export function StockReportSubmittedView({
             <Info size={16} strokeWidth={2.25} />
           </span>
           <div>
-            <strong>Next Step</strong>
+            <strong>Next step</strong>
             <p>You can view, download or print this report from Report Records.</p>
           </div>
         </div>
         <div className="ssw__submit-actions">
           <Link href={`/dealer/stock-reporting/report/${reportId}`} className="ssw__btn ssw__btn--ghost">
             <Eye size={16} strokeWidth={2.25} aria-hidden />
-            View Report
+            View report
           </Link>
           <a
             href={`/api/stock-reporting/reports/${reportId}/pdf`}

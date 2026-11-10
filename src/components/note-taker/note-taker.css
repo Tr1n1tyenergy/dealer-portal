@@ -93,8 +93,8 @@
   display: block !important;
   width: 2.35rem !important;
   height: 2.35rem !important;
-  color: #ffcc00 !important;
-  stroke: #ffcc00 !important;
+  color: var(--tri-yellow) !important;
+  stroke: var(--tri-yellow) !important;
 }
 
 .nt-hero__copy {
@@ -133,7 +133,7 @@
   font-weight: 800 !important;
   letter-spacing: 0.16em !important;
   text-transform: uppercase !important;
-  color: #ffcc00 !important;
+  color: var(--tri-yellow) !important;
   line-height: 1.2 !important;
 }
 
@@ -277,7 +277,7 @@
 }
 
 .nt-insights__link:hover {
-  color: #ffcc00 !important;
+  color: var(--tri-yellow) !important;
 }
 
 /* ONE horizontal row of 4 insight items — icon beside text */
@@ -637,7 +637,7 @@
 .nt-col__title-icon {
   display: grid !important;
   place-items: center !important;
-  color: #ffcc00 !important;
+  color: var(--tri-yellow) !important;
 }
 
 .nt-col__link {
@@ -654,7 +654,7 @@
 }
 
 .nt-col__link:hover {
-  color: #ffcc00 !important;
+  color: var(--tri-yellow) !important;
 }
 
 .nt-col__body {
@@ -689,7 +689,7 @@
 }
 
 .nt-col__foot-link:hover {
-  color: #ffcc00 !important;
+  color: var(--tri-yellow) !important;
 }
 
 .nt-empty {
@@ -1072,8 +1072,8 @@
 
 .nt-field input:focus {
   outline: none !important;
-  border-color: rgba(255, 204, 0, 0.7) !important;
-  box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.18) !important;
+  border-color: rgba(255, 202, 6, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(255, 202, 6, 0.18) !important;
 }
 
 .nt-modal__error {
@@ -1119,7 +1119,7 @@
 }
 
 .nt-btn--gold {
-  background: #ffcc00 !important;
+  background: var(--tri-yellow) !important;
   color: #0a235b !important;
 }
 

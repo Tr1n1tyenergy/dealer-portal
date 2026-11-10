@@ -17,9 +17,9 @@ const DELIVERY_STATUSES: DealerOrderStatus[] = [
 ];
 
 export const DEALER_ORDER_VIEWS: { view: DealerOrderView; label: string; href: string }[] = [
-  { view: "all", label: "All Orders", href: "/dealer/orders" },
-  { view: "payment", label: "Needs Payment", href: "/dealer/orders?view=payment" },
-  { view: "documents", label: "PFIs & Documents", href: "/dealer/orders?view=documents" },
+  { view: "all", label: "All orders", href: "/dealer/orders" },
+  { view: "payment", label: "Needs payment", href: "/dealer/orders?view=payment" },
+  { view: "documents", label: "PFIs & documents", href: "/dealer/orders?view=documents" },
   { view: "deliveries", label: "Deliveries", href: "/dealer/orders?view=deliveries" },
 ];
 

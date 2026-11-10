@@ -87,14 +87,14 @@ function statusBadge(status: StockReportingDashboardProps["reportStatus"]) {
     return (
       <span className="ssr__status ssr__status--progress">
         <Loader2 size={13} strokeWidth={2.5} aria-hidden />
-        In Progress
+        In progress
       </span>
     );
   }
   return (
     <span className="ssr__status ssr__status--idle">
       <ClipboardList size={13} strokeWidth={2.5} aria-hidden />
-      Not Started
+      Not started
     </span>
   );
 }
@@ -221,7 +221,7 @@ export function StockReportingDashboard(props: StockReportingDashboardProps) {
                   </span>
                   <div>
                     <h2 id="ssr-today-title" className="ssr__card-title">
-                      Today&apos;s Stock Report
+                      Today&apos;s stock report
                     </h2>
                     <p className="ssr__card-sub">
                       {props.reportStatus === "not_started"
@@ -297,7 +297,7 @@ export function StockReportingDashboard(props: StockReportingDashboardProps) {
                   </button>
                 ) : props.reportStatus === "closed" ? (
                   <Link href={continueHref} className="ssr__btn ssr__btn--primary">
-                    View Report
+                    View report
                     <ArrowRight size={16} strokeWidth={2.5} aria-hidden />
                   </Link>
                 ) : (
@@ -330,7 +330,7 @@ export function StockReportingDashboard(props: StockReportingDashboardProps) {
                   }
                 >
                   <RefreshCw size={15} strokeWidth={2.25} aria-hidden />
-                  Start Over
+                  Start over
                 </button>
               </div>
 
@@ -344,7 +344,7 @@ export function StockReportingDashboard(props: StockReportingDashboardProps) {
                   </span>
                   <div>
                     <h2 id="ssr-process-title" className="ssr__card-title">
-                      Reporting Process
+                      Reporting process
                     </h2>
                     <p className="ssr__card-sub">A quick guide to daily stock sale reporting.</p>
                   </div>
@@ -391,7 +391,7 @@ export function StockReportingDashboard(props: StockReportingDashboardProps) {
             <div className="ssr__recent-head">
               <div>
                 <h2 id="ssr-recent-title" className="ssr__card-title">
-                  Recent Reports
+                  Recent reports
                 </h2>
                 <p className="ssr__card-sub">View and track your past daily reports.</p>
               </div>
@@ -410,11 +410,11 @@ export function StockReportingDashboard(props: StockReportingDashboardProps) {
                 <table className="ssr__table">
                   <thead>
                     <tr>
-                      <th scope="col">Reporting Date</th>
-                      <th scope="col">Meter Sales (L)</th>
-                      <th scope="col">Tank Sales (L)</th>
-                      <th scope="col">Total Sales (L)</th>
-                      <th scope="col">Expected Revenue (KES)</th>
+                      <th scope="col">Reporting date</th>
+                      <th scope="col">Meter sales (L)</th>
+                      <th scope="col">Tank sales (L)</th>
+                      <th scope="col">Total sales (L)</th>
+                      <th scope="col">Expected revenue (KES)</th>
                       <th scope="col">Collections (KES)</th>
                       <th scope="col">Status</th>
                       <th scope="col">Actions</th>

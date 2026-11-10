@@ -119,7 +119,7 @@ export function ReportRecordsPageView({
     <StockReportingModuleShell
       module="records"
       kicker="DEALER PORTAL"
-      title="Report Records"
+      title="Report records"
       subtitle="View all stock sale reports for your station."
     >
       <section className="ssr__card ssr-records" aria-labelledby="ssr-records-title">
@@ -130,7 +130,7 @@ export function ReportRecordsPageView({
             </span>
             <div>
               <h2 id="ssr-records-title" className="ssr__card-title">
-                Report Records
+                Report records
               </h2>
               <p className="ssr__card-sub">
                 {stationName
@@ -181,7 +181,7 @@ export function ReportRecordsPageView({
         <form className="ssr-records__filters" method="get">
           {stationId ? <input type="hidden" name="stationId" value={stationId} /> : null}
           <label className="ssr-records__field ssr-records__field--date">
-            <span>Reporting Date</span>
+            <span>Reporting date</span>
             <div className="ssr-records__date-range">
               <CalendarDays size={16} strokeWidth={2} aria-hidden />
               <span className="ssr-records__date-label" aria-hidden>
@@ -238,7 +238,7 @@ export function ReportRecordsPageView({
             ) : (
               <>
                 Reports appear after you start a daily stock report.{" "}
-                <Link href="/dealer/stock-reporting">Go to Stock Reporting</Link>.
+                <Link href="/dealer/stock-reporting">Go to stock reporting</Link>.
               </>
             )}
           </div>
@@ -249,18 +249,18 @@ export function ReportRecordsPageView({
                 <thead>
                   <tr>
                     <th scope="col">
-                      Reporting Date <span aria-hidden>↓</span>
+                      Reporting date <span aria-hidden>↓</span>
                     </th>
                     <th scope="col">Pumps</th>
                     <th scope="col">Tanks</th>
                     <th scope="col" className="is-num">
-                      Meter Sales (L)
+                      Meter sales (L)
                     </th>
                     <th scope="col" className="is-num">
-                      Tank Sales (L)
+                      Tank sales (L)
                     </th>
                     <th scope="col" className="is-num">
-                      Expected Revenue (KES)
+                      Expected revenue (KES)
                     </th>
                     <th scope="col" className="is-num">
                       Collections (KES)

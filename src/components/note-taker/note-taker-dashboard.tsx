@@ -284,8 +284,8 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
                   .nt-hero__mic svg {
                     width: 2.35rem !important;
                     height: 2.35rem !important;
-                    color: #ffcc00 !important;
-                    stroke: #ffcc00 !important;
+                    color: #ffca06 !important;
+                    stroke: #ffca06 !important;
                   }
                   .nt-hero__copy {
                     flex: 1 1 auto !important;
@@ -298,7 +298,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
             />
             <div className="nt-hero__row">
               <div className="nt-hero__mic" aria-hidden>
-                <Mic className="nt-hero__mic-icon" color="#ffcc00" strokeWidth={1.7} />
+                <Mic className="nt-hero__mic-icon" color="#ffca06" strokeWidth={1.7} />
               </div>
               <div className="nt-hero__copy" ref={copyRef}>
                 <div className="nt-hero__eyebrow">AI Note Taker</div>
@@ -356,7 +356,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
               disabled={loading}
             >
               <span className="nt-action__icon">
-                <Mic size={18} color="#ffcc00" strokeWidth={2} />
+                <Mic size={18} color="#ffca06" strokeWidth={2} />
               </span>
               <span className="nt-action__copy">
                 <span className="nt-action__label">Start Recording</span>
@@ -375,7 +375,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
               disabled={loading}
             >
               <span className="nt-action__icon">
-                <CalendarDays size={16} color="#ffcc00" strokeWidth={2} />
+                <CalendarDays size={16} color="#ffca06" strokeWidth={2} />
               </span>
               <span className="nt-action__copy">
                 <span className="nt-action__label">Schedule Recording</span>
@@ -394,7 +394,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
               disabled={loading}
             >
               <span className="nt-action__icon">
-                <CloudUpload size={16} color="#ffcc00" strokeWidth={2} />
+                <CloudUpload size={16} color="#ffca06" strokeWidth={2} />
               </span>
               <span className="nt-action__copy">
                 <span className="nt-action__label">Upload Audio</span>
@@ -663,7 +663,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
                 padding: 0 !important;
               }
               [data-nt-cols="equal"] .nt-col__link:hover {
-                color: #ffcc00 !important;
+                color: #ffca06 !important;
               }
               [data-nt-cols="equal"] .nt-col__head,
               [data-nt-cols="equal"] .nt-col__foot {
@@ -692,7 +692,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
         <section className="nt-col">
           <div className="nt-col__head">
             <div className="nt-col__title">
-              <CalendarDays size={16} color="#ffcc00" strokeWidth={2} />
+              <CalendarDays size={16} color="#ffca06" strokeWidth={2} />
               Upcoming Meetings
             </div>
             <button type="button" className="nt-col__link">
@@ -742,7 +742,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
         <section className="nt-col">
           <div className="nt-col__head">
             <div className="nt-col__title">
-              <AudioLines size={16} color="#ffcc00" strokeWidth={2} />
+              <AudioLines size={16} color="#ffca06" strokeWidth={2} />
               Recent Recordings
             </div>
             <Link href="/intelligence/note-taker" className="nt-col__link">
@@ -791,7 +791,7 @@ export function NoteTakerDashboard({ sessions }: { sessions: NoteSessionRow[] })
         <section className="nt-col" id="generated-notes">
           <div className="nt-col__head">
             <div className="nt-col__title">
-              <FileText size={16} color="#ffcc00" strokeWidth={2} />
+              <FileText size={16} color="#ffca06" strokeWidth={2} />
               Generated Notes
             </div>
             <Link href="/intelligence/note-taker" className="nt-col__link">

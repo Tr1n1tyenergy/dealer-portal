@@ -18,7 +18,12 @@ export const DEALER_FORECOURT_SIZE = "cover";
 export const DEALER_FORECOURT_ASPECT = "1024 / 211";
 
 export const dealerHeroPhotoStyle = {
-  backgroundImage: `url("${DEALER_FORECOURT_SRC}")`,
+  // Shade behind the text (left and top) so the yellow eyebrow and white title read on the photo.
+  backgroundImage: [
+    "linear-gradient(90deg, rgba(8, 20, 46, 0.62) 0%, rgba(8, 20, 46, 0.3) 45%, rgba(8, 20, 46, 0) 72%)",
+    "linear-gradient(180deg, rgba(8, 20, 46, 0.28) 0%, rgba(8, 20, 46, 0) 60%)",
+    `url("${DEALER_FORECOURT_SRC}")`,
+  ].join(", "),
   backgroundRepeat: "no-repeat",
   ["--dp-hero-photo-size" as string]: DEALER_FORECOURT_SIZE,
   ["--dp-hero-aspect" as string]: DEALER_FORECOURT_ASPECT,

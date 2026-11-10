@@ -220,7 +220,7 @@ export function SupportCentre({
           <div className="ds__hero-copy">
             <span className="ds__hero-accent" aria-hidden />
             <div>
-              <h1>Support Centre</h1>
+              <h1>Support centre</h1>
               <p>{heroSubtitle}</p>
             </div>
           </div>
@@ -245,7 +245,7 @@ export function SupportCentre({
           onClick={() => goNew()}
         >
           <PlusSquare size={16} strokeWidth={2} />
-          Raise a New Ticket
+          Raise a new ticket
         </button>
         <button
           type="button"
@@ -254,9 +254,9 @@ export function SupportCentre({
         >
           <CircleHelp size={16} strokeWidth={2} />
           <span>
-            Frequently Asked
+            Frequently asked
             <br />
-            Questions
+            questions
           </span>
         </button>
         <button
@@ -317,12 +317,12 @@ export function SupportCentre({
               <p>Raise a ticket and our team will get back to you as soon as possible.</p>
               <button type="button" className="ds__btn-yellow" onClick={() => goNew()}>
                 <TicketPlus size={16} strokeWidth={2.2} />
-                Raise a New Ticket
+                Raise a new ticket
               </button>
             </div>
             <div className="ds__aside-card">
               <div className="ds__guide-head">
-                <h3>Ticket Status Guide</h3>
+                <h3>Ticket status guide</h3>
                 <Info size={16} strokeWidth={2} aria-hidden />
               </div>
               {STATUS_GUIDE.map((row) => (
@@ -386,7 +386,7 @@ function RaiseAside() {
     <>
       <div className="ds__aside-card ds__aside-card--guide">
         <div className="ds__guide-head">
-          <h3>Ticketing Guide</h3>
+          <h3>Ticketing guide</h3>
           <Info size={16} strokeWidth={2} aria-hidden />
         </div>
         <div className="ds__dept-guide">
@@ -406,7 +406,7 @@ function RaiseAside() {
           <svg viewBox="0 0 220 80" preserveAspectRatio="none">
             <path
               d="M0 50 C40 20 70 70 110 40 C150 12 180 55 220 30 L220 80 L0 80 Z"
-              fill="rgba(53,81,165,0.1)"
+              fill="rgba(56, 83, 164,0.1)"
             />
           </svg>
         </div>
@@ -415,7 +415,7 @@ function RaiseAside() {
       <div className="ds__aside-card ds__aside-card--priority">
         <div className="ds__section-title">
           <span className="ds__section-accent" aria-hidden />
-          <h3>Priority Levels</h3>
+          <h3>Priority levels</h3>
         </div>
         <div className="ds__priority-legend">
           {priorities.map((p) => (
@@ -463,10 +463,10 @@ function TicketsPanel({
   onOpen: (id: string) => void;
 }) {
   const tabs: { key: SupportStatus | "ALL"; label: string; count: number }[] = [
-    { key: "ALL", label: "All Tickets", count: counts.total },
+    { key: "ALL", label: "All tickets", count: counts.total },
     { key: "OPEN", label: "Open", count: counts.byStatus.OPEN },
-    { key: "IN_PROGRESS", label: "In Progress", count: counts.byStatus.IN_PROGRESS },
-    { key: "AWAITING_RESPONSE", label: "Awaiting Response", count: counts.byStatus.AWAITING_RESPONSE },
+    { key: "IN_PROGRESS", label: "In progress", count: counts.byStatus.IN_PROGRESS },
+    { key: "AWAITING_RESPONSE", label: "Awaiting response", count: counts.byStatus.AWAITING_RESPONSE },
     { key: "CLOSED", label: "Closed", count: counts.byStatus.CLOSED },
   ];
 
@@ -474,12 +474,12 @@ function TicketsPanel({
     <>
       <div className="ds__main-head">
         <div>
-          <h2>My Support Tickets</h2>
+          <h2>My support tickets</h2>
           <p>Track and manage all your support requests.</p>
         </div>
         <button type="button" className="ds__btn-yellow" onClick={onRaise}>
           <TicketPlus size={16} strokeWidth={2.2} />
-          Raise a New Ticket
+          Raise a new ticket
         </button>
       </div>
 
@@ -514,7 +514,7 @@ function TicketsPanel({
           onChange={(e) => setDepartment(e.target.value as SupportDepartment | "ALL")}
           aria-label="Department filter"
         >
-          <option value="ALL">All Departments</option>
+          <option value="ALL">All departments</option>
           {SUPPORT_DEPARTMENTS.map((d) => (
             <option key={d} value={d}>
               {DEPARTMENT_LABELS[d]}
@@ -527,10 +527,10 @@ function TicketsPanel({
           onChange={(e) => setDateRange(e.target.value as "ALL" | "7d" | "30d" | "90d")}
           aria-label="Date range"
         >
-          <option value="ALL">All Time</option>
-          <option value="7d">Last 7 Days</option>
-          <option value="30d">Last 30 Days</option>
-          <option value="90d">Last 90 Days</option>
+          <option value="ALL">All time</option>
+          <option value="7d">Last 7 days</option>
+          <option value="30d">Last 30 days</option>
+          <option value="90d">Last 90 days</option>
         </select>
       </div>
 
@@ -547,7 +547,7 @@ function TicketsPanel({
           <p>Raise a ticket when you need help with orders, PFIs, payments, or account access.</p>
           <button type="button" className="ds__btn-yellow" onClick={onRaise}>
             <TicketPlus size={16} />
-            Raise a New Ticket
+            Raise a new ticket
           </button>
         </div>
       ) : (
@@ -560,7 +560,7 @@ function TicketsPanel({
                 <th>Department</th>
                 <th>Priority</th>
                 <th>Status</th>
-                <th>Last Updated</th>
+                <th>Last updated</th>
                 <th aria-label="Open" />
               </tr>
             </thead>
@@ -710,7 +710,7 @@ function RaiseTicketForm({
         <div className="ds__empty-ico" aria-hidden>
           <CheckCircle2 size={28} />
         </div>
-        <h3>Ticket Submitted Successfully</h3>
+        <h3>Ticket submitted successfully</h3>
         <p>
           Your request was routed to{" "}
           {DEPARTMENT_LABELS[success.department as SupportDepartment] || success.department}.
@@ -727,10 +727,10 @@ function RaiseTicketForm({
         </dl>
         <div style={{ display: "flex", gap: "0.65rem", justifyContent: "center", flexWrap: "wrap" }}>
           <button type="button" className="ds__btn-yellow" onClick={() => onCreated(success.id)}>
-            View Ticket
+            View ticket
           </button>
           <button type="button" className="ds__btn-outline" onClick={onCancel}>
-            Back to My Tickets
+            Back to my tickets
           </button>
         </div>
       </div>
@@ -741,7 +741,7 @@ function RaiseTicketForm({
     <form className="ds__raise" onSubmit={submit} noValidate>
       <button type="button" className="ds__back-link" onClick={requestCancel}>
         <ArrowLeft size={14} strokeWidth={2.4} />
-        Back to Support Centre
+        Back to support centre
       </button>
 
       {error ? (
@@ -773,7 +773,7 @@ function RaiseTicketForm({
           <div className="ds__identity-card">
             <Building2 size={16} strokeWidth={2} aria-hidden />
             <div>
-              <span>Dealership / Company</span>
+              <span>Dealership / company</span>
               <strong>{identity.organizationName}</strong>
             </div>
           </div>
@@ -1010,8 +1010,8 @@ function FaqPanel({ onRaise }: { onRaise: () => void }) {
             <CircleHelp size={28} strokeWidth={2} />
           </span>
           <div>
-            <p className="ds__faq-kicker">Support Centre</p>
-            <h2>Frequently Asked Questions</h2>
+            <p className="ds__faq-kicker">Support centre</p>
+            <h2>Frequently asked questions</h2>
             <p>
               Find quick answers to common questions. If you still need help, you can raise a ticket
               or contact the Trinity team.
@@ -1051,7 +1051,7 @@ function FaqPanel({ onRaise }: { onRaise: () => void }) {
           <p>Try another search or raise a support ticket for assistance.</p>
           <button type="button" className="ds__btn-yellow" onClick={onRaise}>
             <TicketPlus size={16} />
-            Raise a New Ticket
+            Raise a new ticket
           </button>
         </div>
       ) : (
@@ -1129,7 +1129,7 @@ function FaqAside({
         </p>
         <button type="button" className="ds__btn-yellow ds__btn-help" onClick={onRaise}>
           <TicketPlus size={16} strokeWidth={2.2} />
-          Raise a New Ticket
+          Raise a new ticket
           <ChevronRight size={16} strokeWidth={2.4} />
         </button>
       </div>
@@ -1137,17 +1137,17 @@ function FaqAside({
       <div className="ds__aside-card">
         <div className="ds__quick-head">
           <Link2 size={16} strokeWidth={2} aria-hidden />
-          <h3>Quick Links</h3>
+          <h3>Quick links</h3>
         </div>
         <div className="ds__quick-list">
           <Link href="/dealer/orders" className="ds__quick-row">
             <Truck size={15} />
-            <span>Order Tracking</span>
+            <span>Order tracking</span>
             <ChevronRight size={15} />
           </Link>
           <Link href="/dealer/orders?view=documents" className="ds__quick-row">
             <FileText size={15} />
-            <span>PFI Portal</span>
+            <span>PFI portal</span>
             <ChevronRight size={15} />
           </Link>
           <button type="button" className="ds__quick-row" onClick={onContact}>
@@ -1157,7 +1157,7 @@ function FaqAside({
           </button>
           <Link href="/dealer/orders?view=documents" className="ds__quick-row">
             <Download size={15} />
-            <span>Download Documents</span>
+            <span>Download documents</span>
             <ChevronRight size={15} />
           </Link>
         </div>
@@ -1251,10 +1251,10 @@ function ContactPanel({
           <span className="ds__reach-ico" aria-hidden>
             <Ticket size={22} strokeWidth={2} />
           </span>
-          <h4>Raise a Ticket</h4>
+          <h4>Raise a ticket</h4>
           <p>Log a request, attach details and track progress.</p>
           <button type="button" className="ds__reach-btn ds__reach-btn--yellow" onClick={onRaise}>
-            Create Ticket
+            Create ticket
             <ArrowRight size={15} strokeWidth={2.4} aria-hidden />
           </button>
         </article>
@@ -1263,10 +1263,10 @@ function ContactPanel({
           <span className="ds__reach-ico" aria-hidden>
             <MessageCircle size={22} strokeWidth={2} />
           </span>
-          <h4>Send a Message</h4>
+          <h4>Send a message</h4>
           <p>Have a quick question? Chat with our team in real time.</p>
           <Link href="/dealer/messaging" className="ds__reach-btn ds__reach-btn--outline">
-            Open Messages
+            Open messages
           </Link>
         </article>
 
@@ -1274,14 +1274,14 @@ function ContactPanel({
           <span className="ds__reach-ico" aria-hidden>
             <Phone size={22} strokeWidth={2} />
           </span>
-          <h4>Call Us</h4>
+          <h4>Call us</h4>
           <p>Speak directly with a Trinity representative for immediate support.</p>
           {primaryPhone ? (
             <a href={telHref(primaryPhone)} className="ds__reach-btn ds__reach-btn--outline">
-              Call Now
+              Call now
             </a>
           ) : (
-            <span className="ds__reach-btn ds__reach-btn--outline is-disabled">Call Now</span>
+            <span className="ds__reach-btn ds__reach-btn--outline is-disabled">Call now</span>
           )}
         </article>
 
@@ -1289,15 +1289,15 @@ function ContactPanel({
           <span className="ds__reach-ico" aria-hidden>
             <Mail size={22} strokeWidth={2} />
           </span>
-          <h4>Email Us</h4>
+          <h4>Email us</h4>
           <p>Send us your enquiry and we&apos;ll get back to you promptly.</p>
           <a href={mailto} className="ds__reach-btn ds__reach-btn--outline">
-            Send Email
+            Send email
           </a>
         </article>
       </div>
 
-      <h3 className="ds__contact-section-title">Contact by Department</h3>
+      <h3 className="ds__contact-section-title">Contact by department</h3>
       <div className="ds__dept-grid">
         {CONTACT_DEPARTMENTS.map((d) => (
           <button
@@ -1327,7 +1327,7 @@ function ContactAside() {
   return (
     <>
       <div className="ds__aside-card ds__aside-card--info">
-        <h3>Trinity Contact Information</h3>
+        <h3>Trinity contact information</h3>
         <ul className="ds__info-list">
           <li>
             <span className="ds__info-ico" aria-hidden>
@@ -1357,7 +1357,7 @@ function ContactAside() {
 
       <div className="ds__aside-card ds__aside-card--hours">
         <div className="ds__hours-head">
-          <h3>Support Hours</h3>
+          <h3>Support hours</h3>
           <CalendarDays size={16} strokeWidth={2} aria-hidden />
         </div>
         <ul className="ds__hours-list">
@@ -1373,7 +1373,7 @@ function ContactAside() {
       <div className="ds__aside-card ds__aside-card--urgent">
         <div className="ds__urgent-head">
           <Headphones size={18} strokeWidth={2} aria-hidden />
-          <h3>Urgent / Critical Support</h3>
+          <h3>Urgent / critical support</h3>
         </div>
         <p>For service outages or urgent operational issues, call our priority line.</p>
         {primary ? (

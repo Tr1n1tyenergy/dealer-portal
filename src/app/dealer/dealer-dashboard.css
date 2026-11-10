@@ -1,9 +1,9 @@
 /* Premium dealer dashboard (approved mockup). Scoped under .dd */
 
 .dd {
-  --dd-blue: #3551a5;
+  --dd-blue: var(--tri-blue);
   --dd-ink: #0a235b;
-  --dd-yellow: #ffcc00;
+  --dd-yellow: var(--tri-yellow);
   --dd-turquoise: rgb(0, 198, 214);
   --dd-muted: #64748b;
   --dd-line: #e6edf7;
@@ -470,14 +470,14 @@
   background: var(--dd-blue) !important;
   border-color: var(--dd-blue) !important;
   color: #fff !important;
-  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.14) !important;
+  box-shadow: 0 0 0 3px rgba(56, 83, 164, 0.14) !important;
 }
 
 .dd .dd__progress-step.is-active .dd__progress-dot {
   background: var(--dd-yellow) !important;
   border-color: var(--dd-yellow) !important;
   color: var(--dd-ink) !important;
-  box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.22) !important;
+  box-shadow: 0 0 0 4px rgba(255, 202, 6, 0.22) !important;
 }
 
 .dd .dd__progress-step.is-attention .dd__progress-dot {

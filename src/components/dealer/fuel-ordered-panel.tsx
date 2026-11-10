@@ -22,7 +22,7 @@ export function FuelOrderedPanel({ points }: { points: FuelMonthPoint[] }) {
             <span className="dd__card-icon">
               <Fuel size={15} strokeWidth={2} />
             </span>
-            Fuel Ordered
+            Fuel ordered
           </div>
           <div className="dd__card-sub">Litres per month, last 6 months</div>
         </div>

@@ -22,9 +22,9 @@ import { cn } from "@/lib/utils";
 import "@/components/access/portal-auth.css";
 
 const trust = [
-  { title: "Secure Access", icon: Shield },
-  { title: "Role Based Access", icon: Users },
-  { title: "Audit Logging", icon: FileText },
+  { title: "Secure access", icon: Shield },
+  { title: "Role-based access", icon: Users },
+  { title: "Audit logging", icon: FileText },
 ] as const;
 
 export default function DealerLoginPage() {
@@ -104,7 +104,7 @@ export default function DealerLoginPage() {
               <Lock aria-hidden />
               Dealer Portal
             </div>
-            <h2 className="dl__title">Sign In to the Dealer Portal</h2>
+            <h2 className="dl__title">Sign in to the Dealer Portal</h2>
             <p className="dl__copy">
               Access your dealer account to place fuel orders, view PFIs, manage payments and
               track deliveries.
@@ -116,7 +116,7 @@ export default function DealerLoginPage() {
 
           <form onSubmit={onSubmit} className="dl__form">
             <div className="dl__field">
-              <label htmlFor="email">Email Address</label>
+              <label htmlFor="email">Email address</label>
               <div className="dl__input-wrap">
                 <Mail className="dl__input-icon" aria-hidden />
                 <input
@@ -172,7 +172,7 @@ export default function DealerLoginPage() {
                 href="/intelligence/forgot-password?portal=dealer"
                 className="dl__forgot"
               >
-                Forgot Password?
+                Forgot password?
               </Link>
             </div>
 
@@ -197,7 +197,7 @@ export default function DealerLoginPage() {
               <Headphones className="h-4 w-4" />
             </span>
             <span className="dl__help-copy">
-              <span className="dl__help-title">Need Help?</span>
+              <span className="dl__help-title">Need help?</span>
               <span className="dl__help-text">
                 Contact Trinity Support for account setup or any dealer portal assistance.
               </span>

@@ -1,9 +1,9 @@
 /* Stock Sale Reporting — daily report wizard (Step 1 Pump Meters). */
 
 .ssw {
-  --ssw-blue: #3551a5;
+  --ssw-blue: var(--tri-blue);
   --ssw-ink: #0a235b;
-  --ssw-yellow: #ffcc00;
+  --ssw-yellow: var(--tri-yellow);
   --ssw-muted: #64748b;
   --ssw-line: #e2e8f0;
   --ssw-canvas: #eef2f7;
@@ -150,7 +150,7 @@
 .ssw__step-link.is-active {
   background: #fff4b8;
   border-left-color: var(--ssw-yellow);
-  box-shadow: inset 0 0 0 1px rgba(255, 204, 0, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(255, 202, 6, 0.35);
 }
 
 .ssw__step-link.is-disabled {
@@ -311,7 +311,7 @@
 }
 
 .ssw__meta-edit:hover {
-  background: rgba(53, 81, 165, 0.08);
+  background: rgba(56, 83, 164, 0.08);
 }
 
 .ssw__section-head {
@@ -517,7 +517,7 @@
 }
 
 .ssw__input:focus {
-  outline: 2px solid rgba(53, 81, 165, 0.25);
+  outline: 2px solid rgba(56, 83, 164, 0.25);
   border-color: var(--ssw-blue);
 }
 
@@ -556,7 +556,7 @@
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .ssw__init-note-divider {
@@ -579,7 +579,7 @@
   font-size: 16px;
   font-weight: 800;
   line-height: 1.25;
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .ssw__init-note-text {
@@ -603,8 +603,8 @@
 }
 
 .ssw__input-with-badge:focus-within {
-  outline: 2px solid rgba(53, 81, 165, 0.25);
-  border-color: var(--ssw-blue, #3551a5);
+  outline: 2px solid rgba(56, 83, 164, 0.25);
+  border-color: var(--ssw-blue, var(--tri-blue));
 }
 
 .ssw__input-with-badge.is-invalid {
@@ -635,7 +635,7 @@
   padding: 0.18rem 0.5rem;
   border-radius: 999px;
   background: #fff0a8;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -810,7 +810,7 @@
 .ssw__btn--primary {
   background: var(--ssw-yellow);
   color: var(--ssw-ink);
-  box-shadow: 0 10px 22px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 10px 22px rgba(255, 202, 6, 0.28);
 }
 
 .ssw__btn--primary:hover:not(:disabled) {
@@ -982,7 +982,7 @@
 .ssw__opt.is-selected {
   background: #fff8d9;
   border-color: var(--ssw-yellow);
-  box-shadow: 0 0 0 1px rgba(255, 204, 0, 0.45);
+  box-shadow: 0 0 0 1px rgba(255, 202, 6, 0.45);
 }
 
 .ssw__opt:disabled {
@@ -1377,7 +1377,7 @@
 .ssw__money-banner--info {
   background: #eef4fb;
   border: 1px solid #d7e3f2;
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .ssw__money-banner-ico {

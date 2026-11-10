@@ -56,7 +56,7 @@ export function renderStockSaleReportPdf(data: StockSaleReportPdfData): Promise<
     doc.on("error", reject);
   });
 
-  const blue = "#3551A5";
+  const blue = "#3853a4";
   const ink = "#0a235b";
 
   doc.fillColor(blue).fontSize(16).text("Trinitynrg", { continued: false });

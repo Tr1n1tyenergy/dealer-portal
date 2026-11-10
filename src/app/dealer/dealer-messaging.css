@@ -1,9 +1,9 @@
 /* Dealer Messaging — light premium shell (header locked in DealerShell). */
 
 .dm {
-  --dm-blue: #3551a5;
+  --dm-blue: var(--tri-blue);
   --dm-ink: #0a235b;
-  --dm-yellow: #ffcc00;
+  --dm-yellow: var(--tri-yellow);
   --dm-muted: #64748b;
   --dm-line: #e2e8f0;
   --dm-canvas: #eef2f7;

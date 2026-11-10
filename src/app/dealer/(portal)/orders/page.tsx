@@ -9,6 +9,8 @@ import {
 import { OrdersManagement } from "@/components/dealer/orders-management";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { LiveRefresh } from "@/components/live/live-refresh";
+import { ordersDealerChannel } from "@/lib/pusher/server-channels";
 import "../../dealer-orders.css";
 
 /**
@@ -48,10 +50,11 @@ export default async function MyOrdersPage({
           <div className="do__eyebrow">
             <span className="do__eyebrow-line" aria-hidden />
             <span className="do__eyebrow-text">Orders</span>
+            <LiveRefresh channel={ordersDealerChannel(orgId)} />
           </div>
-          <h1>Your Orders</h1>
+          <h1>Your orders</h1>
           <p>Every fuel order from submission to delivery.</p>
-          <DealerHeroActions />
+          <DealerHeroActions showPay />
         </div>
       </section>
 

@@ -60,11 +60,11 @@ const NEXT_STEPS = [
 
 const HERO = {
   details: {
-    title: "Create Fuel Order",
+    title: "Create fuel order",
     copy: "Select your station, specify the required products and tell us when you need the delivery.",
   },
   review: {
-    title: "Review Fuel Order",
+    title: "Review fuel order",
     copy: "Check your order details below. Make sure everything is correct before submitting your order to Trinity.",
   },
 } as const;
@@ -192,7 +192,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                 <FileText size={18} strokeWidth={2.1} />
               </span>
               <span className="po__wizard-copy">
-                <strong>Order Details</strong>
+                <strong>Order details</strong>
                 <span>Select station and products</span>
               </span>
               {step === "review" ? (
@@ -207,7 +207,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                 <FileText size={18} strokeWidth={2.1} />
               </span>
               <span className="po__wizard-copy">
-                <strong>Review Order</strong>
+                <strong>Review order</strong>
                 <span>Check quantities, delivery and amount</span>
               </span>
             </li>
@@ -217,7 +217,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                 <CircleCheck size={18} strokeWidth={2.1} />
               </span>
               <span className="po__wizard-copy">
-                <strong>Submit Order</strong>
+                <strong>Submit order</strong>
                 <span>Confirm and place your order</span>
               </span>
             </li>
@@ -248,7 +248,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                       <MapPin size={18} strokeWidth={2.1} />
                     </span>
                     <div>
-                      <h2>Station &amp; Delivery</h2>
+                      <h2>Station &amp; delivery</h2>
                       <p>Choose the station that will receive this order and when you need the delivery.</p>
                     </div>
                   </header>
@@ -265,7 +265,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                         <div className="po__station__body">
                           <strong>{station?.name ?? "Select station"}</strong>
                           <span className="po__station__status">
-                            <i /> Active Station
+                            <i /> Active station
                           </span>
                         </div>
                         <ChevronDown size={18} className="po__chev" aria-hidden />
@@ -286,9 +286,9 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                     </div>
 
                     <div className="po__field">
-                      <label htmlFor="delivery-date">Requested Delivery Date</label>
+                      <label htmlFor="delivery-date">Requested delivery date</label>
                       <div className="po__date">
-                        <Calendar size={20} strokeWidth={1.8} color="#3551A5" aria-hidden />
+                        <Calendar size={20} strokeWidth={1.8} color="#3853a4" aria-hidden />
                         <div className="po__date__body">
                           <strong>{summaryDate}</strong>
                           <em>Up to {formatDisplayDate(dateWindow.max)} (current EPRA prices)</em>
@@ -322,7 +322,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                       <Fuel size={18} strokeWidth={2.1} />
                     </span>
                     <div>
-                      <h2>Fuel Requirements</h2>
+                      <h2>Fuel requirements</h2>
                       <p>Specify the required product quantities in litres.</p>
                     </div>
                   </header>
@@ -441,8 +441,8 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
 
                   <div className="po__total-bar">
                     <div className="po__total-bar-left">
-                      <Layers size={18} color="#3551A5" aria-hidden />
-                      <span>Total Order Volume</span>
+                      <Layers size={18} color="#3853a4" aria-hidden />
+                      <span>Total order volume</span>
                     </div>
                     <strong>{formatLitres(total)}</strong>
                   </div>
@@ -455,7 +455,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                     <CheckCircle2 size={18} strokeWidth={2.1} />
                   </span>
                   <div>
-                    <h2>Confirm Order Details</h2>
+                    <h2>Confirm order details</h2>
                     <p>Review your fuel order before submitting it to Trinity.</p>
                   </div>
                   {canReview ? (
@@ -478,7 +478,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                       </span>
                       <strong>{station?.name ?? "—"}</strong>
                       <em>
-                        <i /> Active Station
+                        <i /> Active station
                         <span className="po__review-meta"> · Kenya</span>
                       </em>
                     </div>
@@ -532,9 +532,9 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
 
                 <div className="po__total-bar is-review">
                   <div className="po__total-bar-left">
-                    <Layers size={18} color="#3551A5" aria-hidden />
+                    <Layers size={18} color="#3853a4" aria-hidden />
                     <div>
-                      <span>Total Order Volume</span>
+                      <span>Total order volume</span>
                       <em>
                         {pms > 0 ? `PMS ${formatLitres(pms)}` : null}
                         {pms > 0 && ago > 0 ? " · " : null}
@@ -556,7 +556,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
 
                 <button type="button" className="po__back" onClick={goToDetails}>
                   <ArrowLeft size={16} aria-hidden />
-                  Edit Order Details
+                  Edit order details
                 </button>
               </section>
             )}
@@ -566,7 +566,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
             <div className="po__summary">
               <div className="po__summary-head">
                 <FileText size={18} aria-hidden />
-                <h3>Order Summary</h3>
+                <h3>Order summary</h3>
               </div>
               <dl>
                 <div>
@@ -587,7 +587,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                 </div>
               </dl>
               <div className="po__summary-total">
-                <span>Total Volume</span>
+                <span>Total volume</span>
                 <strong>{formatLitres(total)}</strong>
               </div>
 
@@ -615,7 +615,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
 
               {step === "details" ? (
                 <button type="button" className="po__cta" disabled={!canReview} onClick={goToReview}>
-                  Review Order
+                  Review order
                   <ArrowRight size={18} strokeWidth={2.5} aria-hidden />
                 </button>
               ) : (

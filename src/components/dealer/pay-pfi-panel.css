@@ -29,13 +29,13 @@
   padding: 0.72rem 1.15rem;
   border: 0;
   border-radius: 999px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   font: inherit;
   font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(255, 204, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(255, 202, 6, 0.35);
   animation: pay-cta-pulse 1.8s ease-in-out infinite;
 }
 
@@ -54,20 +54,32 @@
 }
 
 .pay-cta__btn:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.45);
+  outline: 3px solid rgba(56, 83, 164, 0.45);
   outline-offset: 2px;
 }
 
 @keyframes pay-cta-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.55), 0 10px 24px rgba(255, 204, 0, 0.35);
+    box-shadow: 0 0 0 0 rgba(255, 202, 6, 0.55), 0 10px 24px rgba(255, 202, 6, 0.35);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 12px rgba(255, 204, 0, 0), 0 12px 28px rgba(255, 204, 0, 0.4);
+    box-shadow: 0 0 0 12px rgba(255, 202, 6, 0), 0 12px 28px rgba(255, 202, 6, 0.4);
     transform: scale(1.03);
   }
+}
+
+/* In a hero it is the secondary action: white, no pulse, so "Place an order" stays the one main button. */
+.pay-cta--inline .pay-cta__btn {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--tri-blue);
+  box-shadow: 0 6px 16px rgba(10, 35, 91, 0.18);
+  animation: none;
+}
+
+.pay-cta--inline .pay-cta__btn:hover:not(:disabled) {
+  background: #fff;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -139,7 +151,7 @@
 }
 
 .pay-modal__close:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.4);
+  outline: 3px solid rgba(56, 83, 164, 0.4);
   outline-offset: 2px;
 }
 
@@ -156,13 +168,13 @@
   width: 2.45rem;
   height: 2.45rem;
   border-radius: 999px;
-  background: #ffcc00;
-  color: #3551a5;
+  background: var(--tri-yellow);
+  color: var(--tri-blue);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.25);
+  box-shadow: 0 6px 14px rgba(255, 202, 6, 0.25);
 }
 
 .pay-modal__head-ico svg {
@@ -199,7 +211,7 @@
 .pay-modal__rule {
   height: 2px;
   border-radius: 999px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   margin: 0 0 0.8rem;
 }
 
@@ -245,7 +257,7 @@
 }
 
 .pay-modal__amount-note svg {
-  color: #3551a5;
+  color: var(--tri-blue);
   flex-shrink: 0;
   margin-top: 0.1rem;
 }
@@ -261,7 +273,7 @@
   margin: 0 0 0.3rem auto;
   border: 0;
   background: transparent;
-  color: #3551a5;
+  color: var(--tri-blue);
   font: inherit;
   font-size: 0.72rem;
   font-weight: 750;
@@ -319,7 +331,7 @@
 }
 
 .pay-modal__breakdown .is-total {
-  background: #3551a5;
+  background: var(--tri-blue);
   border-bottom: 0;
 }
 
@@ -360,9 +372,9 @@
 }
 
 .pay-modal__method.is-on {
-  border-color: #ffcc00;
+  border-color: var(--tri-yellow);
   background: #fffbeb;
-  box-shadow: 0 0 0 1px #ffcc00;
+  box-shadow: 0 0 0 1px var(--tri-yellow);
 }
 
 .pay-modal__method.is-unavailable:not(.is-on) {
@@ -370,7 +382,7 @@
 }
 
 .pay-modal__method:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.35);
+  outline: 3px solid rgba(56, 83, 164, 0.35);
   outline-offset: 2px;
 }
 
@@ -379,7 +391,7 @@
   height: 1.85rem;
   border-radius: 8px;
   background: #eef3fb;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -425,8 +437,8 @@
 
 .pay-modal__method.is-on .pay-modal__radio,
 .pay-modal__bank.is-on .pay-modal__radio {
-  border-color: #3551a5;
-  background: radial-gradient(circle at center, #3551a5 0 42%, #fff 45%);
+  border-color: var(--tri-blue);
+  background: radial-gradient(circle at center, var(--tri-blue) 0 42%, #fff 45%);
 }
 
 .pay-modal__card-note {
@@ -461,7 +473,7 @@
 }
 
 .pay-modal__bank-lead svg {
-  color: #3551a5;
+  color: var(--tri-blue);
   flex-shrink: 0;
   margin-top: 0.15rem;
 }
@@ -501,13 +513,13 @@
 }
 
 .pay-modal__bank.is-on {
-  border-color: #3551a5;
+  border-color: var(--tri-blue);
   background: #e8eefc;
-  box-shadow: 0 0 0 1px #3551a5;
+  box-shadow: 0 0 0 1px var(--tri-blue);
 }
 
 .pay-modal__bank:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.35);
+  outline: 3px solid rgba(56, 83, 164, 0.35);
   outline-offset: 2px;
 }
 
@@ -535,7 +547,7 @@
 }
 
 .pay-modal__bank-logo.is-generic {
-  background: #3551a5;
+  background: var(--tri-blue);
   color: #fff;
 }
 
@@ -561,12 +573,12 @@
   font-style: normal;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-variant-numeric: tabular-nums;
 }
 
 .pay-modal__bank-check {
-  color: #3551a5;
+  color: var(--tri-blue);
 }
 
 .pay-modal__fields {
@@ -628,7 +640,7 @@
   border: 0;
   border-radius: 7px;
   background: transparent;
-  color: #3551a5;
+  color: var(--tri-blue);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -683,7 +695,7 @@
   align-items: center;
   gap: 0.3rem;
   margin-top: 0.15rem;
-  color: #3551a5;
+  color: var(--tri-blue);
   font-weight: 750;
   text-decoration: none;
   width: fit-content;
@@ -720,7 +732,7 @@
   gap: 0.3rem;
   border: 0;
   border-radius: 10px;
-  background: #ffcc00;
+  background: var(--tri-yellow);
   color: #0a235b;
   padding: 0.55rem 0.95rem;
   font: inherit;
@@ -728,7 +740,7 @@
   font-weight: 850;
   cursor: pointer;
   min-height: 2.3rem;
-  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.25);
+  box-shadow: 0 6px 14px rgba(255, 202, 6, 0.25);
 }
 
 .pay-modal__submit:disabled {
@@ -739,7 +751,7 @@
 
 .pay-modal__submit:focus-visible,
 .pay-modal__cancel:focus-visible {
-  outline: 3px solid rgba(53, 81, 165, 0.4);
+  outline: 3px solid rgba(56, 83, 164, 0.4);
   outline-offset: 2px;
 }
 

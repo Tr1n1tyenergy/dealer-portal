@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, writeFile, readFile, unlink } from "node:fs/promises";
 import path from "node:path";
+import { deleteStoredFile, getStoredFile, putStoredFile } from "@/lib/files/stored-files";
 
 import { RTT_JOB_CARD_MAX_BYTES } from "./rtt-constants";
 
@@ -53,36 +53,17 @@ export async function storeRttJobCard(
   eventId: string,
   upload: ValidatedRttJobCard
 ): Promise<{ storageKey: string }> {
-  const root = uploadRoot();
-  const dir = path.join(root, stationId, eventId);
-  await mkdir(dir, { recursive: true });
   const hash = createHash("sha256").update(upload.buffer).digest("hex").slice(0, 12);
   const token = randomBytes(8).toString("hex");
   const storageKey = path.join(stationId, eventId, `${token}-${hash}-${upload.fileName}`);
-  const abs = path.join(root, storageKey);
-  if (!abs.startsWith(path.join(root, stationId))) {
-    throw new Error("Invalid storage path.");
-  }
-  await writeFile(abs, upload.buffer);
+  await putStoredFile(storageKey, upload.buffer);
   return { storageKey };
 }
 
 export async function readRttJobCard(storageKey: string): Promise<Buffer> {
-  const root = uploadRoot();
-  const abs = path.resolve(root, storageKey);
-  if (!abs.startsWith(path.resolve(root) + path.sep) && abs !== path.resolve(root)) {
-    throw new Error("Invalid storage key.");
-  }
-  return readFile(abs);
+  return getStoredFile(storageKey, uploadRoot());
 }
 
 export async function deleteRttJobCard(storageKey: string): Promise<void> {
-  try {
-    const root = uploadRoot();
-    const abs = path.resolve(root, storageKey);
-    if (!abs.startsWith(path.resolve(root) + path.sep)) return;
-    await unlink(abs);
-  } catch {
-    // best-effort cleanup
-  }
+  await deleteStoredFile(storageKey).catch(() => undefined); // best-effort cleanup
 }

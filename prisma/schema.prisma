@@ -1072,3 +1072,11 @@ model StockSaleMonetaryAudit {
   @@index([reportId, createdAt])
   @@index([actorId])
 }
+
+/// Uploaded files (support attachments, RTT job cards) kept in the database: the server's own
+/// disk does not survive between requests on Vercel. Keys are the storage keys the owners record.
+model StoredFile {
+  key       String   @id
+  data      Bytes
+  createdAt DateTime @default(now())
+}

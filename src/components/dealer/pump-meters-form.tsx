@@ -194,7 +194,7 @@ export function PumpMetersForm({
             <CalendarDays size={16} strokeWidth={2} aria-hidden />
           </span>
           <div>
-            <p className="ssw__meta-label">Reporting Date</p>
+            <p className="ssw__meta-label">Reporting date</p>
             <p className="ssw__meta-value">{reportingDateLabel}</p>
           </div>
           <button
@@ -265,7 +265,7 @@ export function PumpMetersForm({
         <aside
           className="ssw__init-note"
           role="note"
-          aria-label="First-Time Meter Setup"
+          aria-label="First-time meter setup"
           style={{
             display: "flex",
             alignItems: "center",
@@ -290,7 +290,7 @@ export function PumpMetersForm({
               flexShrink: 0,
               width: 24,
               height: 24,
-              color: "#3551A5",
+              color: "#3853a4",
             }}
           >
             <Info size={20} strokeWidth={2.35} />
@@ -317,10 +317,10 @@ export function PumpMetersForm({
                 fontSize: 16,
                 fontWeight: 800,
                 lineHeight: 1.25,
-                color: "#3551A5",
+                color: "#3853a4",
               }}
             >
-              First-Time Meter Setup
+              First-time meter setup
             </p>
             <p
               className="ssw__init-note-text"
@@ -343,20 +343,20 @@ export function PumpMetersForm({
         <table className="ssw__table">
           <thead>
             <tr>
-              <th scope="col">Pump / Dispenser</th>
+              <th scope="col">Pump / dispenser</th>
               <th scope="col">Product</th>
-              <th scope="col">Opening Meter (L)</th>
+              <th scope="col">Opening meter (L)</th>
               <th scope="col">
-                Closing Meter (L) <span className="ssw__req">*</span>
+                Closing meter (L) <span className="ssw__req">*</span>
               </th>
               <th scope="col">
                 <span className="ssw__th-tip" title="RTT is automatically calculated from test-return entries recorded in the RTT & Truck Calibration module.">
-                  RTT Applied (L)
+                  RTT applied (L)
                   <Info size={12} strokeWidth={2.25} aria-hidden />
                 </span>
               </th>
               <th scope="col">
-                Net Sales (L)
+                Net sales (L)
                 <span className="ssw__th-sub">(Closing − Opening − RTT)</span>
               </th>
             </tr>
@@ -441,7 +441,7 @@ export function PumpMetersForm({
             <Fuel size={18} strokeWidth={2.25} aria-hidden />
           </span>
           <div>
-            <p className="ssw__total-label">Total PMS Sales</p>
+            <p className="ssw__total-label">Total PMS sales</p>
             <p className="ssw__total-value">{formatLitresWithUnit(totals.pms)}</p>
           </div>
         </article>
@@ -450,7 +450,7 @@ export function PumpMetersForm({
             <Fuel size={18} strokeWidth={2.25} aria-hidden />
           </span>
           <div>
-            <p className="ssw__total-label">Total AGO Sales</p>
+            <p className="ssw__total-label">Total AGO sales</p>
             <p className="ssw__total-value">{formatLitresWithUnit(totals.ago)}</p>
           </div>
         </article>
@@ -459,7 +459,7 @@ export function PumpMetersForm({
             <Layers size={18} strokeWidth={2.25} aria-hidden />
           </span>
           <div>
-            <p className="ssw__total-label">Total Fuel Sales</p>
+            <p className="ssw__total-label">Total fuel sales</p>
             <p className="ssw__total-value">{formatLitresWithUnit(totals.total)}</p>
           </div>
         </article>

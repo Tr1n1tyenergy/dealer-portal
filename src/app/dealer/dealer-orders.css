@@ -1,9 +1,9 @@
 /* Premium My Orders page — scoped under .do. Shared header stays untouched. */
 
 .do {
-  --do-blue: #3551a5;
+  --do-blue: var(--tri-blue);
   --do-ink: #0a235b;
-  --do-yellow: #ffcc00;
+  --do-yellow: var(--tri-yellow);
   --do-turquoise: rgb(0, 198, 214);
   --do-red: rgb(239, 0, 18);
   --do-muted: #64748b;
@@ -140,7 +140,7 @@
   background: #fff8db;
   border-color: var(--do-yellow);
   color: var(--do-ink);
-  box-shadow: 0 6px 16px rgba(255, 204, 0, 0.18);
+  box-shadow: 0 6px 16px rgba(255, 202, 6, 0.18);
 }
 
 /* Filters */
@@ -471,5 +471,60 @@
   .do__tab {
     flex: 0 0 auto;
     min-width: 9.5rem;
+  }
+
+  /* Phones: each order is a card instead of a table row that scrolls sideways. */
+  .do__scroll {
+    overflow: visible;
+  }
+
+  .do__table,
+  .do__table tbody,
+  .do__table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .do__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .do__table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.55rem 0.75rem;
+    padding: 0.9rem 0.95rem;
+    border-bottom: 1px solid var(--dp-line);
+  }
+
+  .do__table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .do__table td[data-label="Order"] { grid-column: 1; grid-row: 1; }
+  .do__table td[data-label="Status"] { grid-column: 2; grid-row: 1; text-align: right; }
+  .do__table td[data-label="Station"],
+  .do__table td[data-label="Products"] { grid-column: 1 / -1; }
+  .do__table td[data-label="Updated"] { grid-column: 1; align-self: center; }
+  .do__table td[data-label="Action"] { grid-column: 2; text-align: right; }
+
+  .do__table td[data-label="Station"]::before,
+  .do__table td[data-label="Products"]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--dp-muted, #64748b);
+    margin-bottom: 0.1rem;
+  }
+
+  .do__order-ref {
+    white-space: nowrap;
   }
 }

@@ -574,7 +574,7 @@ export function MessagingApp({
           <h2>Conversations</h2>
           <button type="button" className="msg-sidebar__new" onClick={() => void openDirectory()}>
             <MessageSquarePlus size={15} strokeWidth={2} />
-            New Chat
+            New chat
           </button>
         </div>
 
@@ -609,7 +609,7 @@ export function MessagingApp({
           {filteredConversations.length === 0 ? (
             <div className="msg-list__empty">
               {conversations.length === 0
-                ? "No conversations yet. Start one with New Chat."
+                ? "No conversations yet. Start one with New chat."
                 : "No conversations match this filter."}
             </div>
           ) : (

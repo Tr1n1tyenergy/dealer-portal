@@ -143,3 +143,26 @@ export function computeMonetarySummary(input: {
     state,
   };
 }
+
+/**
+ * Collections may differ from expected sales by up to this much and still close normally.
+ * shortcut: KES 100 is a placeholder until Finance sets the tolerance; change it here.
+ */
+export const MONETARY_CLOSE_TOLERANCE_KES = 100;
+/** Shortest explanation accepted for closing beyond the tolerance. */
+export const MONETARY_REASON_MIN_CHARS = 10;
+
+/**
+ * Why the shift cannot close yet, or null when it can. Within the tolerance it closes as is;
+ * beyond it, it closes only with an explanation (the report keeps its SHORTAGE/OVERAGE state).
+ */
+export function closeShiftBlock(summary: MonetarySummary, reason: string | null | undefined): string | null {
+  if (!summary.collectionsComplete || summary.differenceKes == null) {
+    return "Enter Cash, M-Pesa and Visa/Card collections before closing the shift.";
+  }
+  const diffCents = kesToCents(summary.differenceKes);
+  if (Math.abs(diffCents) <= kesToCents(MONETARY_CLOSE_TOLERANCE_KES)) return null;
+  if ((reason ?? "").trim().length >= MONETARY_REASON_MIN_CHARS) return null;
+  const kind = diffCents < 0 ? "shortage" : "overage";
+  return `Collection ${kind} of KES ${formatKesFixed(Math.abs(summary.differenceKes))}. Add an explanation (at least ${MONETARY_REASON_MIN_CHARS} characters) to close the shift with this difference.`;
+}
