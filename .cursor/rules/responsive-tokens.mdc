@@ -1,0 +1,17 @@
+---
+description: Use Trinity --tri-* fluid tokens for new UI type, spacing, and gutters
+alwaysApply: true
+---
+
+# Trinity responsive token discipline
+
+Shared fluid scale lives in `src/styles/responsive-tokens.css` (imported from `globals.css`).
+
+When adding or restyling UI (Access, logins, dealer portal, staff TRI, depot):
+
+1. Prefer `--tri-font-*`, `--tri-space-*`, `--tri-page-gutter`, `--tri-content-max`, and hero via `--dp-hero-height` / `--tri-hero-height-capped`.
+2. Do **not** introduce new hard-coded major type sizes or page padding that bypass the scale (one-off `clamp()` for a page title is OK only as a `var(--tri-font-*, …)` fallback).
+3. No whole-page `transform: scale()`.
+4. Keep content-driven media queries; short laptops already tighten via `@media (min-width: 1024px) and (max-height: 800px)` on the tokens.
+5. Wide data tables: horizontal scroll for now — dedicated mobile card/sheet UIs wait for mockups.
+6. Preserve approved desktop compositions; scale and reflow only.

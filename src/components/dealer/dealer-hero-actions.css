@@ -1,0 +1,39 @@
+/* Shared left-aligned hero CTAs (Orders, Order Tracking, etc.) — match Dashboard */
+
+.dp-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1.05rem;
+}
+
+.dp-hero-actions__place {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.45rem;
+  padding: 0 1.15rem;
+  border-radius: 0.7rem;
+  background: #ffcc00;
+  color: #0a235b;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(255, 204, 0, 0.28);
+}
+
+.dp-hero-actions__place:hover {
+  filter: brightness(1.03);
+}
+
+.dp-hero-actions .pay-cta--inline {
+  display: inline-flex;
+}
+
+.dp-hero-actions .pay-cta__btn {
+  min-height: 2.45rem;
+  border-radius: 0.7rem;
+  padding: 0 1.15rem;
+}

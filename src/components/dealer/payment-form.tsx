@@ -16,15 +16,12 @@ export function PaymentForm({ orderId, amountDue }: { orderId: string; amountDue
   }
 
   return (
-    <form onSubmit={onSubmit} className="ui-panel ot-pay" aria-labelledby="ot-pay-title">
+    <form onSubmit={onSubmit} className="ot__card ot__pay">
       <input type="hidden" name="orderId" value={orderId} />
-      <h2 id="ot-pay-title" className="ui-section-title">
-        Submit payment details
-      </h2>
-      <label className="ui-field">
-        Amount (KES)
+      <h3>Submit payment details</h3>
+      <label>
+        Amount
         <input
-          className="ui-input"
           name="amount"
           required
           inputMode="decimal"
@@ -32,29 +29,29 @@ export function PaymentForm({ orderId, amountDue }: { orderId: string; amountDue
           aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? "pay-error" : undefined}
         />
-        {state?.error ? (
-          <span id="pay-error" className="ui-field__error" role="alert">
-            {state.error}
-          </span>
-        ) : null}
       </label>
-      <label className="ui-field">
+      {state?.error ? (
+        <p id="pay-error" className="dp-ot-pay__error" role="alert">
+          {state.error}
+        </p>
+      ) : null}
+      <label>
         Bank reference
-        <input className="ui-input" name="bankReference" maxLength={100} />
+        <input name="bankReference" maxLength={100} />
       </label>
-      <label className="ui-field">
+      <label>
         Transaction reference
-        <input className="ui-input" name="transactionReference" maxLength={100} />
+        <input name="transactionReference" maxLength={100} />
       </label>
-      <label className="ui-field">
+      <label>
         Payment date
-        <input className="ui-input" name="paymentDate" type="date" />
+        <input name="paymentDate" type="date" />
       </label>
-      <label className="ui-field">
+      <label>
         Note
-        <textarea className="ui-input" name="note" rows={2} maxLength={500} />
+        <textarea name="note" rows={2} maxLength={500} />
       </label>
-      <button type="submit" className="ui-btn ui-btn--primary" disabled={pending}>
+      <button type="submit" disabled={pending}>
         {pending ? "Submitting…" : "Submit payment"}
       </button>
     </form>

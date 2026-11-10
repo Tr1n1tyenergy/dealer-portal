@@ -17,8 +17,8 @@ const DELIVERY_STATUSES: DealerOrderStatus[] = [
 ];
 
 export const DEALER_ORDER_VIEWS: { view: DealerOrderView; label: string; href: string }[] = [
-  { view: "all", label: "All", href: "/dealer/orders" },
-  { view: "payment", label: "Needs payment", href: "/dealer/orders?view=payment" },
+  { view: "all", label: "All Orders", href: "/dealer/orders" },
+  { view: "payment", label: "Needs Payment", href: "/dealer/orders?view=payment" },
   { view: "documents", label: "PFIs & Documents", href: "/dealer/orders?view=documents" },
   { view: "deliveries", label: "Deliveries", href: "/dealer/orders?view=deliveries" },
 ];
@@ -50,11 +50,20 @@ export type RecentOrderRow = {
   createdAt: string;
   updatedAt: string;
   statusLabel: string;
-  status: DealerOrderStatus;
+  tone: string;
   pms: number | null;
   ago: number | null;
   hasPfi: boolean;
 };
+
+function statusTone(status: DealerOrderStatus) {
+  const label = dealerStatusLabel(status);
+  if (label === "Delivered" || label === "Closed") return "delivered";
+  if (label === "In Transit" || label === "Dispatched" || label === "Loaded") return "transit";
+  if (label === "PFI Ready") return "pfi";
+  if (label === "Awaiting Payment" || label.includes("Payment")) return "payment";
+  return "processing";
+}
 
 export function toDealerOrderRow(
   order: DealerOrder & { station: Station; lines: DealerOrderLine[]; proforma: ProFormaInvoice | null },
@@ -66,7 +75,7 @@ export function toDealerOrderRow(
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),
     statusLabel: dealerStatusLabel(order.status),
-    status: order.status,
+    tone: statusTone(order.status),
     pms: order.lines.find((l) => l.product === "PMS")?.quantityLitres ?? null,
     ago: order.lines.find((l) => l.product === "AGO")?.quantityLitres ?? null,
     hasPfi: Boolean(order.proforma),

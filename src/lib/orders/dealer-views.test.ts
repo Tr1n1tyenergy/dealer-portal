@@ -50,8 +50,8 @@ describe("dealerOrderViewWhere", () => {
     assert.deepEqual(
       DEALER_ORDER_VIEWS.map((v) => [v.view, v.label, v.href]),
       [
-        ["all", "All", "/dealer/orders"],
-        ["payment", "Needs payment", "/dealer/orders?view=payment"],
+        ["all", "All Orders", "/dealer/orders"],
+        ["payment", "Needs Payment", "/dealer/orders?view=payment"],
         ["documents", "PFIs & Documents", "/dealer/orders?view=documents"],
         ["deliveries", "Deliveries", "/dealer/orders?view=deliveries"],
       ],
@@ -95,7 +95,7 @@ describe("toDealerOrderRow", () => {
     assert.equal(row.pms, 6000);
     assert.equal(row.ago, 10000);
     assert.equal(row.statusLabel, "Awaiting Payment");
-    assert.equal(row.status, "AWAITING_PAYMENT");
+    assert.equal(row.tone, "payment");
     assert.equal(row.hasPfi, true);
     assert.equal(row.createdAt, "2026-10-19T10:00:00.000Z");
   });

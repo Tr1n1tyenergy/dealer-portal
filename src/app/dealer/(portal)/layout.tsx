@@ -2,6 +2,7 @@ import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { DealerShell } from "@/components/dealer/dealer-shell";
 import { unreadMessageCount } from "@/lib/messaging/service";
+import { DEALER_PAYABLE_STATUSES, toPayPfiProps } from "@/lib/dealer/pay-pfi";
 import "../dealer-portal.css";
 
 export default async function DealerPortalLayout({
@@ -10,9 +11,10 @@ export default async function DealerPortalLayout({
   children: React.ReactNode;
 }) {
   const session = await requireDealer();
-  const [org, unread] = await Promise.all([
+  const orgId = session.user.dealerOrganizationId!;
+  const [org, unread, payableOrder] = await Promise.all([
     prisma.dealerOrganization.findUnique({
-      where: { id: session.user.dealerOrganizationId! },
+      where: { id: orgId },
       include: {
         stations: {
           select: { tradingName: true, name: true },
@@ -23,6 +25,19 @@ export default async function DealerPortalLayout({
     }),
     // The bell is a nicety: a messaging error must not take every dealer page down.
     unreadMessageCount(session.user.id).catch(() => 0),
+    prisma.dealerOrder.findFirst({
+      where: {
+        dealerOrganizationId: orgId,
+        status: { in: DEALER_PAYABLE_STATUSES },
+        proforma: { isNot: null },
+      },
+      include: {
+        station: { select: { name: true } },
+        proforma: true,
+        dealerOrganization: { select: { name: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
   ]);
   // Post-activation: trading name is the primary dealer label
   const orgName =
@@ -35,6 +50,8 @@ export default async function DealerPortalLayout({
     .slice(0, 2)
     .toUpperCase() || "AB";
 
+  const payPfi = payableOrder ? toPayPfiProps(payableOrder) : null;
+
   return (
     <DealerShell
       orgName={orgName}
@@ -45,6 +62,7 @@ export default async function DealerPortalLayout({
       }
       email={session.user.email ?? ""}
       unread={unread}
+      payPfi={payPfi}
     >
       {children}
     </DealerShell>

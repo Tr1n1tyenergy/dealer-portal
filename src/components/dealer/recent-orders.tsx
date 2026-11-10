@@ -4,16 +4,26 @@ import "./recent-orders.css";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import {
+  ArrowRight,
+  Droplets,
+  Filter,
+  Fuel,
+  LayoutList,
+  MapPin,
+  Search,
+} from "lucide-react";
 
 import type { RecentOrderRow } from "@/lib/orders/dealer-views";
-import { dealerStatusLabel } from "@/lib/orders/state-machine";
-import { StatusChip } from "@/components/ui/status-chip";
 
 export type { RecentOrderRow };
 
 function formatDay(iso: string) {
-  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(iso));
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(iso));
 }
 
 function formatDateTime(iso: string) {
@@ -39,26 +49,27 @@ function relativeTime(iso: string) {
   return formatDay(iso);
 }
 
-function fuel(order: RecentOrderRow) {
-  const parts = [
-    order.pms != null ? `PMS ${order.pms.toLocaleString()} L` : null,
-    order.ago != null ? `AGO ${order.ago.toLocaleString()} L` : null,
-  ].filter(Boolean);
-  return parts.length ? parts.join(" · ") : "—";
+function litres(n: number) {
+  return `${n.toLocaleString()} L`;
 }
 
-/** The dealer's orders: tabs, search and filters, then one row per order that opens it. */
 export function RecentOrders({
   orders,
   stations,
+  title = "Recent Orders",
+  subtitle = "Your latest fuel orders and their current status.",
+  showViewAll = true,
   initialQuery = "",
   tabs,
   emptyMessage = "No orders yet. Place a fuel order when you are ready.",
 }: {
   orders: RecentOrderRow[];
   stations: string[];
+  title?: string;
+  subtitle?: string;
+  showViewAll?: boolean;
   initialQuery?: string;
-  /** Links to the Orders tabs; the active one is marked for screen readers. */
+  /** Links to the My Orders tabs; the active one is marked for screen readers. */
   tabs?: { label: string; href: string; active: boolean }[];
   /** Shown when there are no orders to list (e.g. nothing on this tab). */
   emptyMessage?: string;
@@ -67,7 +78,10 @@ export function RecentOrders({
   const [status, setStatus] = useState("all");
   const [station, setStation] = useState("all");
 
-  const statusOptions = useMemo(() => Array.from(new Set(orders.map((o) => o.statusLabel))).sort(), [orders]);
+  const statusOptions = useMemo(() => {
+    const set = new Set(orders.map((o) => o.statusLabel));
+    return Array.from(set).sort();
+  }, [orders]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -84,79 +98,169 @@ export function RecentOrders({
   }, [orders, query, status, station]);
 
   return (
-    <section className="ro" id="orders" aria-label="Orders">
+    <article className="dp-ro" id="orders">
+      <div className="dp-ro__head">
+        <div>
+          <div className="dp-ro__title">
+            <LayoutList size={18} strokeWidth={1.8} />
+            {title}
+          </div>
+          <p>{subtitle}</p>
+        </div>
+        {showViewAll ? (
+          <Link href="/dealer/orders" className="dp-ro__all">
+            View all orders →
+          </Link>
+        ) : null}
+      </div>
+
       {tabs ? (
-        <nav className="ui-tabs ro__tabs" aria-label="Order views">
+        <nav className="dp-ro__tabs" aria-label="Order views">
           {tabs.map((tab) => (
-            <Link key={tab.href} href={tab.href} className="ui-navlink" aria-current={tab.active ? "page" : undefined}>
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={tab.active ? "is-active" : undefined}
+              aria-current={tab.active ? "page" : undefined}
+            >
               {tab.label}
             </Link>
           ))}
         </nav>
       ) : null}
 
-      <div className="ro__filters">
-        <label className="ro__search">
-          <Search size={16} aria-hidden />
+      <div className="dp-ro__filters">
+        <label className="dp-ro__search">
+          <Search size={15} />
           <input
             type="search"
-            className="ui-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by order number, station or status"
+            placeholder="Search by order number, station, or reference..."
             aria-label="Search orders"
-            data-quick-search="page"
           />
         </label>
-        <select className="ui-input" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
-          <option value="all">All statuses</option>
-          {statusOptions.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-        {stations.length > 1 ? (
-          <select className="ui-input" value={station} onChange={(e) => setStation(e.target.value)} aria-label="Station">
-            <option value="all">All stations</option>
+        <label className="dp-ro__select">
+          <Filter size={14} className="dp-ro__select-ico" />
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="all">All Statuses</option>
+            {statusOptions.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="dp-ro__select">
+          <MapPin size={14} className="dp-ro__select-ico" />
+          <select value={station} onChange={(e) => setStation(e.target.value)}>
+            <option value="all">All Stations</option>
             {stations.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
           </select>
-        ) : null}
+        </label>
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="ro__empty">{orders.length === 0 ? emptyMessage : "No orders match your filters."}</p>
-      ) : (
-        <ul className="ro__list">
-          {filtered.map((order) => (
-            <li key={order.id} className="ro__item">
-              <Link href={`/dealer/orders/${order.id}`} className="ro__row">
-                <span className="ro__ref">
-                  <b>{order.reference}</b>
-                  <span>{formatDay(order.createdAt)}</span>
-                </span>
-                <span className="ro__station">{order.stationName}</span>
-                <span className="ro__fuel">{fuel(order)}</span>
-                <span className="ro__chip">
-                  <StatusChip status={order.status} label={order.statusLabel || dealerStatusLabel(order.status)} />
-                </span>
-                <span className="ro__updated" title={formatDateTime(order.updatedAt)}>
-                  {relativeTime(order.updatedAt)}
-                </span>
-              </Link>
-              {order.hasPfi ? (
-                <a href={`/api/orders/${order.id}/pfi`} target="_blank" rel="noopener" className="ui-navlink ro__pfi">
-                  View PFI
-                </a>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+      <div className="dp-ro__scroll">
+        <table className="dp-ro__table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Station</th>
+              <th>Products &amp; Quantities</th>
+              <th>Status</th>
+              <th>Updated</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((order) => (
+              <tr key={order.id}>
+                <td>
+                  <div className="dp-ro__order">
+                    <strong>{order.reference}</strong>
+                    <span>{formatDay(order.createdAt)}</span>
+                  </div>
+                </td>
+                <td>
+                  <div className="dp-ro__station">
+                    <span
+                      className="dp-ro__thumb"
+                      style={{ backgroundImage: "url(/assets2/img/dealer/hero-station.jpg)" }}
+                      aria-hidden
+                    />
+                    <div>
+                      <strong>{order.stationName}</strong>
+                      <em>
+                        <i /> Active
+                      </em>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div className="dp-ro__products">
+                    {order.pms != null ? (
+                      <div className="is-pms">
+                        <Droplets size={14} />
+                        <span>PMS</span>
+                        <b>{litres(order.pms)}</b>
+                      </div>
+                    ) : null}
+                    {order.ago != null ? (
+                      <div className="is-ago">
+                        <Fuel size={14} />
+                        <span>AGO</span>
+                        <b>{litres(order.ago)}</b>
+                      </div>
+                    ) : null}
+                    {order.pms == null && order.ago == null ? <span>—</span> : null}
+                  </div>
+                </td>
+                <td>
+                  <span className={`dp-ro__badge is-${order.tone}`}>
+                    <i />
+                    {order.statusLabel}
+                  </span>
+                </td>
+                <td>
+                  <div className="dp-ro__updated">
+                    <strong>{formatDateTime(order.updatedAt)}</strong>
+                    <span>{relativeTime(order.updatedAt)}</span>
+                  </div>
+                </td>
+                <td>
+                  <div className="dp-ro__actions">
+                    <Link href={`/dealer/orders/${order.id}`} className="dp-ro__view">
+                      View
+                      <ArrowRight size={14} />
+                    </Link>
+                    {order.hasPfi ? (
+                      <a
+                        href={`/api/orders/${order.id}/pfi`}
+                        target="_blank"
+                        rel="noopener"
+                        className="dp-ro__pfi"
+                      >
+                        View PFI
+                      </a>
+                    ) : null}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="dp-ro__empty">
+                  {orders.length === 0 ? emptyMessage : "No orders match your filters."}
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </article>
   );
 }

@@ -1,7 +1,9 @@
 import { MessagingApp } from "@/components/messaging/messaging-app";
+import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { listConversationsForUser } from "@/lib/messaging/service";
+import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
 import { requireDealer } from "@/lib/session";
-import { PageHead } from "@/components/layout/page-head";
+import "../../dealer-messaging.css";
 
 export default async function DealerMessagingPage() {
   const session = await requireDealer();
@@ -25,9 +27,22 @@ export default async function DealerMessagingPage() {
   }));
 
   return (
-    <div className="ui-page msg-page">
-      <PageHead title="Messages" description="Conversations with the Trinity team." />
-      <div className="msg-page__workspace">
+    <div className="dm">
+      <section className="dm__hero" style={dealerHeroPhotoStyle}>
+        <div className="dm__hero-veil" aria-hidden />
+        <div className="dm__hero-inner">
+          <div className="dm__hero-copy">
+            <span className="dm__hero-accent" aria-hidden />
+            <div>
+              <h1>Messages</h1>
+              <p>Real-time conversations with the Trinity team.</p>
+            </div>
+          </div>
+          <DealerHeroActions />
+        </div>
+      </section>
+
+      <div className="dm__workspace">
         <MessagingApp variant="dealer" initialConversations={initialConversations} />
       </div>
     </div>
