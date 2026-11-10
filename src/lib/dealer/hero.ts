@@ -8,13 +8,11 @@
  *
  * Source: v5 = the v4 plate rebuilt at 3072 × 633 (3×) with the scene taken from the sharp
  * station photo (brand/station-sunset.jpg); v4 was 1024 × 211 and blurred when stretched.
- * Display: cover, anchored right, so the canopy stays in view and the picture is never squashed.
  */
 export const DEALER_FORECOURT_SRC = "/assets2/img/access/forecourt-hero-banner-v5.jpg";
 
-/** Cover: the sky on the left is what gets trimmed on narrow or short heroes. The crop position
- * lives in dealer-portal.css (--dp-hero-photo-position) so phones can centre on the forecourt. */
-export const DEALER_FORECOURT_SIZE = "cover";
+/* Size and position live in dealer-portal.css (--dp-hero-photo-size / -position): cover, anchored
+ * right, on wider screens; the whole photo at the foot of the hero on phones. */
 export const DEALER_FORECOURT_ASPECT = "1024 / 211";
 
 export const dealerHeroPhotoStyle = {
@@ -25,6 +23,5 @@ export const dealerHeroPhotoStyle = {
     `url("${DEALER_FORECOURT_SRC}")`,
   ].join(", "),
   backgroundRepeat: "no-repeat",
-  ["--dp-hero-photo-size" as string]: DEALER_FORECOURT_SIZE,
   ["--dp-hero-aspect" as string]: DEALER_FORECOURT_ASPECT,
 } as const;

@@ -1439,12 +1439,15 @@ button.dp-sidebar__link {
 }
 
 @media (max-width: 720px) {
-  /* Tall, narrow hero: centre on the canopy and pumps so the canopy logo is not behind the title */
+  /* Phones: show the whole photo across the width at the foot of the hero (nothing cropped);
+     the title and buttons sit on navy above it. */
   :root {
-    --dp-hero-photo-position: 58% center;
+    --dp-hero-photo-size: 100% auto;
+    --dp-hero-photo-position: center bottom;
   }
 
-  /* Working pages on phones: a compact brand bar sized to its text; the photo stays on Home only. */
+  .dp-hero,
+  .dd__hero,
   .do__hero,
   .ot__hero,
   .po__hero,
@@ -1452,31 +1455,12 @@ button.dp-sidebar__link {
   .ds__hero,
   .ssr__hero,
   .ssw__hero {
-    background: linear-gradient(135deg, #18213a 0%, var(--tri-blue) 100%) !important;
-    height: auto !important;
-    min-height: 0 !important;
-  }
-
-  .do__hero > *,
-  .ot__hero > *,
-  .po__hero > *,
-  .dm__hero > *,
-  .ds__hero > *,
-  .ssr__hero > *,
-  .ssw__hero > * {
-    min-height: 0 !important;
+    background-color: #071833 !important;
   }
 }
 
 @media (max-width: 560px) {
   .dp-user__meta {
-    display: none;
-  }
-
-  /* Logo only on phones: the "Dealer Portal / Trinity Retail Intelligence" label wrapped to four
-     lines, and even on one line it ran under the bell. */
-  .dp-topbar__divider,
-  .dp-topbar__title {
     display: none;
   }
 
