@@ -1,9 +1,4 @@
-/* Staff Orders workspace + Order Details — light mockup theme inside the dark retail shell. */
-
-.ri-content:has(.so) {
-  background: #eef2f8;
-  padding: 0;
-}
+/* Staff Orders / Order Details / Support / Messages — light mockup theme inside StaffPortalShell. */
 
 .so {
   --so-blue: #3551a5;
@@ -17,7 +12,7 @@
   min-height: 100%;
   color: var(--so-navy);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: #eef2f8;
+  background: var(--sp-bg, #f4f7fb);
   padding-bottom: 32px;
 }
 
@@ -28,10 +23,10 @@
   background-color: #071833;
   background-image:
     linear-gradient(90deg, rgba(7, 24, 51, 0.72) 0%, rgba(7, 24, 51, 0.35) 45%, rgba(7, 24, 51, 0.05) 75%),
-    url("/assets2/img/access/forecourt-hero-banner-v6.jpg");
+    url("/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=5");
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center 22%; /* keeps the canopy logo in view */
+  background-position: 42% 30%; /* same crop as the staff Home hero: canopy fascia in view */
   display: flex;
   align-items: flex-start;
   padding: 34px clamp(16px, 4vw, 48px) 86px;
@@ -382,8 +377,8 @@
 .so-track__step.is-active .so-track__dot { background: var(--so-gold); color: #231a00; box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.25); }
 .so-track__step.is-active::before { background: var(--so-blue); }
 .so-track__step.is-attention .so-track__dot { background: #e4572e; color: #fff; }
-.so-track__label { font-size: 0.68rem; font-weight: 700; color: var(--so-navy); line-height: 1.2; }
-.so-track__sub { font-size: 0.64rem; color: var(--so-muted); }
+.so-track__label { font-size: 0.68rem; font-weight: 700; color: var(--so-navy); line-height: 1.2; padding: 0 3px; overflow-wrap: anywhere; }
+.so-track__sub { font-size: 0.64rem; color: var(--so-muted); padding: 0 3px; line-height: 1.25; }
 .so-track--big .so-track__dot { width: 36px; height: 36px; }
 .so-track--big .so-track__step::before, .so-track--big .so-track__step::after { top: 17px; }
 .so-track--big .so-track__label { font-size: 0.74rem; }
@@ -490,9 +485,9 @@
 }
 
 @media (max-width: 1024px) {
-  .so-cols, .sod-grid { grid-template-columns: 1fr; }
+  .so-cols, .sod-grid { grid-template-columns: minmax(0, 1fr); }
   .so-preview { position: static; order: 2; }
-  .sod-row2 { grid-template-columns: 1fr; }
+  .sod-row2 { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 720px) {

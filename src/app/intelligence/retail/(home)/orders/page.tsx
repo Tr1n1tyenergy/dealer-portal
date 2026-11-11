@@ -316,7 +316,7 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
                         <td className="so-updated">{whenLabel(order.updatedAt)}</td>
                         <td>
                           <span className="so-row-actions">
-                            <Link href={query(filters, { sel: order.id })} className="so-icon-link" aria-label={`Preview ${order.reference}`}>
+                            <Link href={`${query(filters, { sel: order.id })}#preview`} className="so-icon-link" aria-label={`Preview ${order.reference}`}>
                               <Eye size={15} />
                             </Link>
                             <Link href={`/intelligence/retail/orders/${order.id}`} className="so-icon-link so-icon-link--go" aria-label={`Open ${order.reference}`}>
@@ -355,7 +355,7 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
             </div>
           </section>
 
-          <aside className="so-preview so-card" aria-label="Order tracking preview">
+          <aside id="preview" className="so-preview so-card" aria-label="Order tracking preview">
             <div className="so-card__head">
               <span className="so-ico"><Truck size={15} /></span>
               Order Tracking

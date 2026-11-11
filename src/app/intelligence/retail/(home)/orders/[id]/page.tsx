@@ -38,6 +38,12 @@ const when = (at: Date | null | undefined, withTime = true) =>
       })
     : null;
 
+/** "2 Nov, 15:01" — short enough for seven tracker columns. */
+const shortWhen = (at: Date | null | undefined) =>
+  at
+    ? at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" })
+    : null;
+
 export default async function StaffOrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireInternal();
   if (!canUser(session.user, "orders", "view")) redirect("/intelligence/retail");
@@ -120,7 +126,7 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                     <span className="so-track__label">{step.label}</span>
                     <span className="so-track__sub">
                       {step.state === "done"
-                        ? when(stepTimes[index]) ?? ""
+                        ? shortWhen(stepTimes[index]) ?? ""
                         : step.state === "active" || step.state === "attention"
                           ? step.note ?? statusLabel(order.status)
                           : ""}

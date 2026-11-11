@@ -208,7 +208,7 @@ export default async function StaffHomePage() {
       label: "Payments Made Today",
       value: formatKes(payToday.total),
       meta: `${payToday.count} payment${payToday.count === 1 ? "" : "s"} confirmed`,
-      href: "/intelligence/retail/orders?stage=verification",
+      href: "/intelligence/retail/orders?stage=checking-payment",
       tone: "gold",
       icon: "wallet",
     },
@@ -256,7 +256,7 @@ export default async function StaffHomePage() {
       badge: `${paymentReviewCount} Pending`,
       badgeTone: "pending",
       actionLabel: "Review Payments →",
-      actionHref: "/intelligence/retail/orders?stage=verification",
+      actionHref: "/intelligence/retail/orders?stage=checking-payment",
       actionVariant: "yellow",
       icon: "coins",
     });

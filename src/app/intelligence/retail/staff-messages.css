@@ -16,3 +16,6 @@
     margin-top: -40px;
   }
 }
+
+/* Four filter pills (All / Dealers / Internal / Unread) wrap instead of crushing together. */
+.sm .msg-filters { flex-wrap: wrap; row-gap: 0.4rem; }
