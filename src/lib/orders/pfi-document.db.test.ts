@@ -84,7 +84,7 @@ describe(
       const loaded = await loader.loadPfiDocument(order.id);
 
       assert.ok(loaded);
-      assert.equal(loaded.document.totals.total, "244630.80");
+      assert.equal(loaded.document.totals.total, "213300.00"); // 1,000 L × 197.5 + 8% VAT
       assert.equal(loaded.document.approvedBy, "EVAN OTIATO");
       const afterLine = await prisma.dealerOrderLine.findFirstOrThrow({ where: { orderId: order.id } });
       assert.equal(afterLine.unitPriceExVat, before.unitPriceExVat);

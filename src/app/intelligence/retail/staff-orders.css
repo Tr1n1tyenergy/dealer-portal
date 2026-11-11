@@ -377,7 +377,7 @@
 .so-track__step.is-active .so-track__dot { background: var(--so-gold); color: #231a00; box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.25); }
 .so-track__step.is-active::before { background: var(--so-blue); }
 .so-track__step.is-attention .so-track__dot { background: #e4572e; color: #fff; }
-.so-track__label { font-size: 0.68rem; font-weight: 700; color: var(--so-navy); line-height: 1.2; padding: 0 3px; overflow-wrap: anywhere; }
+.so-track__label { font-size: 0.68rem; font-weight: 700; color: var(--so-navy); line-height: 1.2; padding: 0 2px; overflow-wrap: normal; hyphens: manual; }
 .so-track__sub { font-size: 0.64rem; color: var(--so-muted); padding: 0 3px; line-height: 1.25; }
 .so-track--big .so-track__dot { width: 36px; height: 36px; }
 .so-track--big .so-track__step::before, .so-track--big .so-track__step::after { top: 17px; }
@@ -497,4 +497,14 @@
   .so-track__label { font-size: 0.6rem; }
   .so-track--big .so-track__label { font-size: 0.64rem; }
   .sod-summary__cell { border-left: 0; padding: 0 12px; flex: 1 1 40%; }
+}
+
+.so-preview .so-track__label { font-size: 0.6rem; }
+
+/* Side-by-side layouts: slimmer preview and tighter cells so every column, actions included, fits. */
+@media (min-width: 1025px) {
+  .so-cols { grid-template-columns: minmax(0, 1fr) 300px; }
+  .so-table { min-width: 0; font-size: 0.8rem; }
+  .so-table th, .so-table td { padding-left: 8px; padding-right: 8px; }
+  .so-preview__body { padding-left: 12px; padding-right: 12px; }
 }

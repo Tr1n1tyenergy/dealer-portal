@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
-  Banknote,
   Building2,
   Calendar,
   ClipboardList,

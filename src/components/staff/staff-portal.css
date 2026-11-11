@@ -308,8 +308,12 @@
   position: relative;
 }
 
-@media (max-width: 1200px) {
+/* The single-row nav needs the search's width below ~1500px; pages keep their own search. */
+@media (max-width: 1500px) {
   .sp-search {
+    display: none;
+  }
+  .sp-user__meta {
     display: none;
   }
 }
@@ -337,5 +341,20 @@
   }
   .sp-nav {
     justify-content: flex-start;
+  }
+}
+
+/* Phones: no room beside the logo, so the nav gets its own swipeable row (it was squeezed to 0px). */
+@media (max-width: 640px) {
+  .sp-header__inner {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 64px;
+    row-gap: 0;
+  }
+  .sp-nav {
+    order: 3;
+    flex: 1 0 100%;
+    padding-bottom: 0.45rem;
   }
 }

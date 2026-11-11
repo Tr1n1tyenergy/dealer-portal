@@ -153,9 +153,6 @@
 .sup-kv dd { margin: 0; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
 .sup-kv h3 { margin: 10px 0 2px; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--so-blue); }
 
-@media (max-width: 1360px) {
-  .sup-cols { grid-template-columns: 200px minmax(0, 1fr) 340px; }
-}
 @media (max-width: 1180px) {
   .sup-cols { grid-template-columns: 220px minmax(0, 1fr); }
   .sup-ticket { grid-column: 1 / -1; position: static; }
@@ -166,4 +163,14 @@
   .sup-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sup-pane { max-height: none; }
   .sup-search input { min-width: 0; flex: 1; }
+}
+
+/* Three-column layouts: narrower side columns and compact cells so Status and Updated stay visible. */
+@media (min-width: 1181px) {
+  .sup-cols { grid-template-columns: 196px minmax(0, 1fr) 330px; }
+  .sup .so-table { min-width: 0; font-size: 0.75rem; }
+  .sup .so-table th, .sup .so-table td { padding-left: 6px; padding-right: 6px; }
+  .sup .so-table th { letter-spacing: 0.02em; font-size: 0.64rem; }
+  .sup .so-table td:nth-child(2) { min-width: 96px; }
+  .sup .so-pill { padding: 3px 8px; font-size: 0.7rem; }
 }
