@@ -22,8 +22,8 @@ import { formatKes } from "@/lib/orders/money";
 import { nairobiMonthStart, nairobiParts } from "@/lib/time/nairobi";
 import {
   EPRA_TEMP_PRICES_BY_WAREHOUSE,
-  epraUnitPriceForStation,
 } from "@/lib/integrations/odoo/epra-temp-prices";
+import { dealerUnitPriceForStation } from "@/lib/integrations/odoo/dealer-prices";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
 import { FuelOrderedPanel } from "@/components/dealer/fuel-ordered-panel";
 import { PayPfiPanel } from "@/components/dealer/pay-pfi-panel";
@@ -252,8 +252,8 @@ export default async function DealerDashboardPage() {
   const priceStation = stations.find((s) => s.code) ?? stations[0] ?? null;
   const fulfillment = priceStation?.code ? fulfillmentForStation(priceStation.code) : null;
   const epra = fulfillment ? EPRA_TEMP_PRICES_BY_WAREHOUSE[fulfillment.warehouseKey] : null;
-  const pmsPrice = priceStation?.code ? epraUnitPriceForStation(priceStation.code, "PMS") : null;
-  const agoPrice = priceStation?.code ? epraUnitPriceForStation(priceStation.code, "AGO") : null;
+  const pmsPrice = priceStation?.code ? dealerUnitPriceForStation(priceStation.code, "PMS") : null;
+  const agoPrice = priceStation?.code ? dealerUnitPriceForStation(priceStation.code, "AGO") : null;
   const sampleLitres = 10_000;
   const sampleTotal =
     pmsPrice == null ? null : Math.round(sampleLitres * pmsPrice * 1.08 * 100) / 100;
@@ -480,7 +480,7 @@ export default async function DealerDashboardPage() {
             </div>
             <div className="dd__prices-meta">
               {epra && priceStation
-                ? `${priceStation.name} · EPRA ${epra.epraTown} list valid to ${new Date(
+                ? `${priceStation.name} · your prices, excl. VAT · valid to ${new Date(
                     epra.periodTo + "T12:00:00Z"
                   ).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
                 : "Station price list unavailable"}
@@ -507,7 +507,7 @@ export default async function DealerDashboardPage() {
                 ) : null}
               </>
             ) : (
-              <div className="dd__empty">Current EPRA prices are not available for this station.</div>
+              <div className="dd__empty">Prices are not yet available for this station.</div>
             )}
           </article>
         </section>

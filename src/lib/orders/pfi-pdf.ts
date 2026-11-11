@@ -166,7 +166,7 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
   let top = 256.0;
   data.totals.lines.forEach((line, i) => {
     // Unit price is printed exactly as stored.
-    const cells = [String(i + 1), DESCRIPTIONS[line.product], "L", formatVolume(line.quantityLitres), line.unitPriceExVat, formatMoney(line.amount)];
+    const cells = [String(i + 1), DESCRIPTIONS[line.product], "L", formatVolume(line.quantityLitres), Number(line.unitPriceExVat).toFixed(2), formatMoney(line.amount)];
     cols.forEach((col, c) => {
       rect(col.x, top, col.w, 16);
       if (col.align === "right") text(cells[c], col.x, top + 11.6, col.w - 2.6, { align: "right" });

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PFI_SIGNATORIES } from "@/lib/company/pfi-settings";
-import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
+import { dealerUnitPriceForStation } from "@/lib/integrations/odoo/dealer-prices";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
 import { pfiTotals, PFI_VAT_RATE, type PfiLineInput } from "@/lib/orders/pfi-totals";
 import type { PfiDocument } from "@/lib/orders/pfi-pdf";
@@ -24,11 +24,11 @@ export async function loadPfiDocument(
     .filter((line) => line.product === "PMS" || line.product === "AGO")
     .map((line) => {
       const product = line.product as "PMS" | "AGO";
-      const today = stationCode ? epraUnitPriceForStation(stationCode, product) : null;
+      const today = stationCode ? dealerUnitPriceForStation(stationCode, product) : null;
       return {
         product,
         quantityLitres: line.quantityLitres,
-        unitPriceExVat: line.unitPriceExVat ?? (today == null ? "0.00" : today.toFixed(2)),
+        unitPriceExVat: line.unitPriceExVat ?? (today == null ? "0.00" : String(today)),
       };
     });
   const totals = pfiTotals(lines, pfi.vatRate ?? PFI_VAT_RATE);

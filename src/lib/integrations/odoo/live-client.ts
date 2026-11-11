@@ -3,7 +3,7 @@ import { odooEnv, odooProductIdForKind, ODOO_TRINITY } from "./config";
 import type { FuelProductKind } from "./fuel-products";
 import { resolveFuelProductExternalId } from "./fuel-products";
 import { fulfillmentForStation } from "./quotation-contract";
-import { epraUnitPriceForStation, type EpraFuelProduct } from "./epra-temp-prices";
+import { dealerUnitPriceForStation, type DealerFuelProduct } from "./dealer-prices";
 import { parseOdooExternalId } from "./external-ids";
 
 type JsonRpcResult<T> = { jsonrpc: string; id: number | null; result?: T; error?: { message: string; data?: unknown } };
@@ -274,11 +274,11 @@ export class LiveOdooClient implements OdooClient {
       input.lines.map(async (line) => {
         const epraProduct = (line.product === "PMS" || line.product === "AGO"
           ? line.product
-          : null) as EpraFuelProduct | null;
+          : null) as DealerFuelProduct | null;
         const unitPrice =
           line.unitPrice ??
           (input.stationCode && epraProduct
-            ? epraUnitPriceForStation(input.stationCode, epraProduct)
+            ? dealerUnitPriceForStation(input.stationCode, epraProduct)
             : null);
 
         return [
