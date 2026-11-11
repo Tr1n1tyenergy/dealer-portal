@@ -293,6 +293,7 @@ model Station {
   pumps            StationPump[]
   tanks            StationTank[]
   rttEvents        StationPumpRttEvent[]
+  stockIntelligenceConfigs StationStockIntelligenceConfig[]
 
   @@index([dealerOrganizationId])
   @@index([odooPartnerId])
@@ -955,4 +956,40 @@ model StockSaleMonetaryAudit {
 
   @@index([reportId, createdAt])
   @@index([actorId])
+}
+
+/**
+ * Effective-dated staff configuration for Stock Intelligence
+ * (sales volume targets + stock-holding thresholds per station).
+ * Longer-period targets may be null → derived from daily × 7 / 30 / 365.
+ */
+model StationStockIntelligenceConfig {
+  id                     String   @id @default(cuid())
+  stationId              String
+  station                Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  /** Africa/Nairobi calendar day this config becomes effective */
+  effectiveFrom          DateTime @db.Date
+  pmsDailyTargetLitres   Float?
+  agoDailyTargetLitres   Float?
+  pmsWeeklyTargetLitres  Float?
+  agoWeeklyTargetLitres  Float?
+  pmsMonthlyTargetLitres Float?
+  agoMonthlyTargetLitres Float?
+  pmsYearlyTargetLitres  Float?
+  agoYearlyTargetLitres  Float?
+  pmsMinHoldingLitres    Float?
+  agoMinHoldingLitres    Float?
+  pmsTwoDayHoldingLitres Float?
+  agoTwoDayHoldingLitres Float?
+  pmsWarningCoverDays    Float    @default(3)
+  agoWarningCoverDays    Float    @default(3)
+  pmsCriticalCoverDays   Float    @default(1)
+  agoCriticalCoverDays   Float    @default(1)
+  createdById            String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@unique([stationId, effectiveFrom])
+  @@index([stationId, effectiveFrom])
+  @@index([createdById])
 }

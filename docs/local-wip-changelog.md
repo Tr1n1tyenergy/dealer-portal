@@ -117,6 +117,76 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-11 — Monetary export + site fluid scale
+- Monetary Sales: single **Export Report** dropdown (CSV / Excel / PDF), same pattern as reconciliation.
+- Site-wide fluid root (`--tri-root-font`) + wider `--tri-content-max`; dealer hero grows with content (no CTA clip); staff wraps use content-max token.
+
+### 2026-11-11 — Monetary Sales controls + payment legend
+- Period/date toolbar: segmented control + pill date field (mockup layout).
+- Collections payment rows: bordered pills filling the card; Cash/M-Pesa/Card colors match mockup (blue / yellow / light blue).
+
+### 2026-11-11 — Stock Intelligence mid-row polish
+- Sales Performance: horizontal PMS/AGO pills with volume + bar beside (not stacked).
+- Layout: Tank Levels + Sales Performance side-by-side; Targets & Projections full-width below (no table scroll).
+- Tank Levels: cylinder cap/base, product badges, gloss + meniscus fill styling.
+
+### 2026-11-11 — SSR reconciliation layout polish
+- Stations sidebar capped to right-pane height (`height:0; min-height:100%`) with internal scroll; station name + dealer badge; Trinity yellow dots.
+- Sync official catalog stations into DB when short (`ensureOfficialStationsInDb`) so all ~22 stations list.
+- Section selectors: always yellow top accent (selected + idle); blue fill when active; no yellow bottom underline.
+- Caption on its own full-width row (single line); **Export Report** dropdown.
+
+### 2026-11-11 — SSR section selector cards
+- Stock Sale section cards restyled like Staff Home KPI cards (top accent borders, softer shadow); removed yellow underline on selected state; kept blue fill when active.
+
+### 2026-11-11 — Staff hero revert to prior forecourt plate
+- Reverted staff Home/SSR heroes to `trinitynrg-forecourt-at-sunset.png?v=6` with prior `128%` left-pin / `object-position: 18% 30%`. Messaging/Analytics/Dealers back to `dashboard-hero-station.jpg` prior crop.
+
+### 2026-11-11 — Targets modal drop cover-alert UI
+- Removed non-mockup **Cover alert days** (Warn/Crit) editors from the targets modal; Alert Level stays badge-only. Defaults (warn 3 / crit 1) still drive classification server-side.
+
+### 2026-11-11 — Targets modal compact + bidirectional cascade
+- Scaled Set Sales Targets modal to fit one laptop view; station + Target Period styled to mockup; holdings alert column is badge-only so no horizontal scroll.
+- All Daily/Weekly/Monthly/Yearly fields editable; any edit cascades via daily rate (÷7/÷30/÷365). Live comparisons use actual calendar days in the selected month/year (`comparisonPeriodTarget`).
+- Files: `staff-stock-intelligence.tsx/.ts`, tests, stock-reporting page (intel + monetary), `staff-stock-reporting.css`.
+
+### 2026-11-11 — SSR recon controls single row
+- Stock Reconciliation period chips + date + 3 KPI cards stay on one line (mockup): `.ssr-controls` `nowrap`, chips `nowrap`, KPIs `margin-left: auto` and shrink; wrap only below 800px.
+
+### 2026-11-11 — SSR hero canopy further right
+- Wide laptop heroes are width-locked under `object-fit: cover`, so `object-position` X alone had no visible pan. Hero img now `width: 128%` pinned `left: 0` (SSR + Staff Home) so the right of the plate is cropped and the canopy sits further right; cache `?v=6`.
+
+### 2026-11-11 — SSR hero canopy crop
+- Stock Sale Reporting hero `object-position` nudged left (42% → 28%) so the station canopy sits further right in frame.
+- Hero copy vertically centered and nudged right for professional placement (SSR + Staff Home).
+
+### 2026-11-11 — Staff targets modal redesign (Stock Intelligence)
+- Redesigned **Set Sales Targets & Stock Thresholds** modal to match approved mockup: header copy, section focus tabs (both panels stay visible), station selector, target-period emphasis, PMS/AGO badges, auto-calc + how-it-works info boxes, footer actions.
+- Preserved existing `StationStockIntelligenceConfig` GET/PUT, ×7/×30/×365 derivation (null = derived), two-day holding derivation, computed alert preview + warn/crit cover days, unsaved-change confirm, station switch load/save.
+- Files: `staff-stock-intelligence.tsx`, `staff-stock-reconciliation.tsx` (stations wiring), `staff-stock-reporting.css`.
+
+### 2026-11-11 — Staff SSR station labels + Home container polish
+- Stock Sale Reporting sidebar lists **Dealer — Station** for every mapped station (sorted by dealer), scrollable list panel.
+- Staff Home containers: light dealer-style top accent borders on KPI / ops / intel cards (Trinity blue/yellow accents).
+- Prisma singleton freshness: require `stationStockIntelligenceConfig` delegate (fixes Turbopack stale client `findFirst` crash).
+
+### 2026-11-11 — Staff Monetary Sales (Stock Sale Reporting §3)
+- Implemented Monetary Sales section on shared SSR shell: 7 KPIs, revenue breakdown (snapshotted shift prices / weighted avg), collections donut (Cash/M-Pesa/Card), targets vs actual (volume targets × price), SVG revenue trend (missing days not zeroed).
+- Aggregation in `staff-monetary-sales.ts` from CLOSED `StockSaleReport` monetary fields; monetary variance = collections − expected revenue (separate from target variance). Export supports `section=monetary` (CSV/XLS/PDF). View Shift Reports reuses shifts page.
+- Files: `staff-monetary-sales.tsx`, helpers/tests, page loader, export route, CSS.
+
+### 2026-11-11 — Staff Stock Intelligence (Stock Sale Reporting §2)
+- Implemented Stock Intelligence section (shared hero/section cards/station sidebar): 6 KPIs, tank level viz from `StationTank`, sales performance bars, targets & projections, stock holding/replenishment, forecast outlook.
+- New effective-dated `StationStockIntelligenceConfig` (+ migration); Set Targets & Thresholds modal (config-only) via PUT `/api/intelligence/stock-reporting/targets` (activity-logged). Contact Dealer → messaging deep-link `?c=`.
+- Calcs in `staff-stock-intelligence.ts` (cover = stock÷avg CLOSED sales; station cover = min product; projections from avg×remaining days). Missing targets show “Not configured”; orders in transit noted but not counted as stock.
+- Files: `staff-stock-intelligence.tsx`, intelligence helpers/tests, targets + contact-dealer APIs, schema/migration, messaging `?c=` open, CSS + page loader.
+
+### 2026-11-11 — Staff Stock Reconciliation (Stock Sale Reporting §1)
+- Replaced thin missing/closed lists with mockup Stock Sale Intelligence page: hero (same forecourt plate), 3 section cards, station sidebar + search, period controls, KPIs, recon table, insights, report details.
+- Live aggregation from CLOSED `StockSaleReport` + tank/pump readings (`staff-reconciliation.ts`). Received/Purchases = 0 until delivery ledger exists. Completeness = CLOSED days vs expected Nairobi days (future days clipped).
+- View Shift Reports list + variance explanations; export CSV / SpreadsheetML `.xls` / PDF via `/api/intelligence/stock-reporting/export` (activity-logged). Stock Intelligence / Monetary Sales cards navigate to placeholders only.
+- Files: `(home)/stock-reporting/page.tsx`, `shifts/page.tsx`, `staff-stock-reconciliation.tsx`, `staff-stock-reporting.css`, `staff-reconciliation.ts` (+test), export route.
+
 ### 2026-11-11 — Staff Home hero/KPI layout polish
 - Hero crop: `object-position: 42% 30%` + `--tri-hero-height-capped` so the blue Trinity canopy/fascia reads (not underside-only); nudged left vs prior right-heavy crop.
 - KPI cards: horizontal icon | label/value/meta row (sleeker, shorter); tighter ops/intel panel padding and row gaps toward mockup density.

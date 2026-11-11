@@ -492,8 +492,9 @@ button.dp-sidebar__link {
   border-radius: 0 !important;
   overflow: hidden;
   width: 100%;
+  /* Grow with content so CTAs/metrics are not clipped on varied laptop aspect ratios */
   min-height: var(--dp-hero-height, calc(100vw * 211 / 1024));
-  height: var(--dp-hero-height, calc(100vw * 211 / 1024));
+  height: auto;
   margin: 0 !important;
   background-size: var(--dp-hero-photo-size, 100% 100%) !important;
   background-position: var(--dp-hero-photo-position, center center) !important;
@@ -514,10 +515,10 @@ button.dp-sidebar__link {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
-  padding: 1.55rem 1.5rem 1.35rem;
+  gap: var(--tri-space-md, 1.15rem);
+  padding: var(--tri-space-md, 1.25rem) var(--dp-gutter, 1.5rem) var(--tri-space-md, 1.15rem);
   min-height: var(--dp-hero-height, calc(100vw * 211 / 1024));
-  height: 100%;
+  height: auto;
   box-sizing: border-box;
 }
 
@@ -673,13 +674,16 @@ button.dp-sidebar__link {
 
 .dp-body {
   display: grid !important;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.85fr) !important;
+  grid-template-columns: minmax(0, 1.5fr) minmax(min(300px, 100%), 0.85fr) !important;
   grid-template-rows: auto auto !important;
-  column-gap: 1.25rem;
-  row-gap: 1rem;
+  column-gap: var(--tri-space-md, 1.15rem);
+  row-gap: var(--tri-space-sm, 0.85rem);
   align-items: start;
-  padding: 1.15rem 1.25rem 1.5rem;
+  padding: var(--tri-space-md, 1.15rem) var(--dp-gutter, 1.25rem) var(--tri-space-lg, 1.5rem);
   background: #0a192f !important;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* LEFT column — spans both right rows; height hugs content */

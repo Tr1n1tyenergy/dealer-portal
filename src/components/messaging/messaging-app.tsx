@@ -5,6 +5,7 @@ import { shouldSendTyping } from "@/lib/messaging/typing";
 import { settleSentMessage } from "@/lib/messaging/thread";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   CalendarDays,
@@ -245,6 +246,7 @@ export function MessagingApp({
   canOpenUsers?: boolean;
 }) {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const myId = session?.user?.id ?? "";
   /** Dealer portal uses the same full UI as staff; only deep-links differ. */
   const isDealerPortal = variant === "dealer";
@@ -255,6 +257,11 @@ export function MessagingApp({
     normalizeConversations(initialConversations)
   );
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const c = searchParams.get("c")?.trim();
+    if (c) setActiveId(c);
+  }, [searchParams]);
   const [messages, setMessages] = useState<MessageRow[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [draft, setDraft] = useState("");

@@ -131,7 +131,7 @@ export function StaffHomeDashboard(props: StaffHomeProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="sh-hero__img"
-          src="/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=5"
+          src="/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=6"
           alt=""
         />
         <div className="sh-hero__veil" aria-hidden />

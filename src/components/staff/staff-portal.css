@@ -30,7 +30,7 @@
   min-height: 68px;
   height: 68px;
   padding: 0 var(--tri-page-gutter, clamp(1rem, 2.2vw, 1.75rem));
-  max-width: 1600px;
+  max-width: var(--tri-content-max, 1680px);
   margin: 0 auto;
   box-sizing: border-box;
   overflow: hidden;

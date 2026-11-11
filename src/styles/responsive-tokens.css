@@ -1,48 +1,61 @@
 /*
   Trinity site-wide fluid responsive tokens.
   Consume these for type, spacing, gutters — do not invent parallel scales.
+  Do NOT use whole-page transform: scale() — rem + clamp keeps composition intact.
 
   Testing viewports (content-driven MQs still OK):
-  320 / 768 / 1024 / 1280 / 1440 / 1920
+  320 / 768 / 1024 / 1280 / 1440 / 1512 / 1728 / 1920
   Short laptop height: max-height 800px at min-width 1024.
 */
 
 @layer base {
   :root {
+    /*
+      Fluid root — rem (and most type/spacing) tracks laptop width.
+      Anchored near 13–16" laptop designs; grows gently on larger displays.
+    */
+    --tri-root-font: clamp(13.5px, 0.72rem + 0.38vw, 17px);
+
     /* Typography — calibrated to current dealer/access titles */
-    --tri-font-xs: clamp(0.68rem, 0.64rem + 0.15vw, 0.75rem);
-    --tri-font-sm: clamp(0.78rem, 0.72rem + 0.22vw, 0.875rem);
-    --tri-font-body: clamp(0.88rem, 0.82rem + 0.28vw, 1rem);
-    --tri-font-lede: clamp(0.88rem, 0.8rem + 0.35vw, 1.05rem);
-    --tri-font-title: clamp(1.35rem, 1.1rem + 0.9vw, 1.85rem);
-    --tri-font-h3: clamp(1.35rem, 1.05rem + 1.1vw, 1.85rem);
-    --tri-font-h2: clamp(1.55rem, 1.15rem + 1.5vw, 2.15rem);
-    --tri-font-h1: clamp(1.75rem, 1.2rem + 2.2vw, 2.9rem);
-    --tri-font-display: clamp(1.85rem, 1.25rem + 2.6vw, 2.9rem);
+    --tri-font-xs: clamp(0.68rem, 0.64rem + 0.15vw, 0.78rem);
+    --tri-font-sm: clamp(0.78rem, 0.72rem + 0.22vw, 0.9rem);
+    --tri-font-body: clamp(0.88rem, 0.82rem + 0.28vw, 1.05rem);
+    --tri-font-lede: clamp(0.88rem, 0.8rem + 0.35vw, 1.1rem);
+    --tri-font-lg: clamp(1rem, 0.9rem + 0.4vw, 1.2rem);
+    --tri-font-title: clamp(1.3rem, 1.05rem + 0.95vw, 1.95rem);
+    --tri-font-h3: clamp(1.3rem, 1rem + 1.15vw, 1.95rem);
+    --tri-font-h2: clamp(1.45rem, 1.1rem + 1.55vw, 2.25rem);
+    --tri-font-h1: clamp(1.65rem, 1.15rem + 2.2vw, 3rem);
+    --tri-font-display: clamp(1.75rem, 1.2rem + 2.6vw, 3.05rem);
 
     /* Spacing */
-    --tri-space-2xs: clamp(0.25rem, 0.2rem + 0.15vw, 0.35rem);
-    --tri-space-xs: clamp(0.4rem, 0.32rem + 0.25vw, 0.6rem);
-    --tri-space-sm: clamp(0.65rem, 0.5rem + 0.4vw, 0.95rem);
-    --tri-space-md: clamp(0.95rem, 0.7rem + 0.7vw, 1.35rem);
-    --tri-space-lg: clamp(1.25rem, 0.9rem + 1.1vw, 2rem);
-    --tri-space-xl: clamp(1.6rem, 1.1rem + 1.6vw, 2.75rem);
-    --tri-space-2xl: clamp(2rem, 1.35rem + 2.2vw, 3.5rem);
+    --tri-space-2xs: clamp(0.25rem, 0.2rem + 0.15vw, 0.4rem);
+    --tri-space-xs: clamp(0.4rem, 0.32rem + 0.25vw, 0.65rem);
+    --tri-space-sm: clamp(0.65rem, 0.5rem + 0.4vw, 1.05rem);
+    --tri-space-md: clamp(0.95rem, 0.7rem + 0.7vw, 1.5rem);
+    --tri-space-lg: clamp(1.2rem, 0.85rem + 1.15vw, 2.15rem);
+    --tri-space-xl: clamp(1.5rem, 1rem + 1.7vw, 3rem);
+    --tri-space-2xl: clamp(1.9rem, 1.25rem + 2.3vw, 3.75rem);
 
-    --tri-page-gutter: clamp(1rem, 2.2vw, 1.75rem);
-    --tri-content-max: 1440px;
-    --tri-card-radius: 14px;
+    --tri-page-gutter: clamp(0.9rem, 1.6vw + 0.55rem, 2.25rem);
+    /* Wider canvas on large laptops; still fluid down to compact 13" */
+    --tri-content-max: min(1680px, 100%);
+    --tri-card-radius: clamp(12px, 0.55rem + 0.35vw, 16px);
 
     /* Forecourt hero — native plate aspect; capped on short viewports */
     --tri-hero-aspect-w: 1024;
     --tri-hero-aspect-h: 211;
     --tri-hero-height: calc(100vw * var(--tri-hero-aspect-h) / var(--tri-hero-aspect-w));
-    --tri-hero-height-max: 280px;
+    --tri-hero-height-max: clamp(200px, 18vw, 300px);
     --tri-hero-height-capped: min(var(--tri-hero-height), var(--tri-hero-height-max));
 
     /* Brand aliases kept for modules that already use --dp-* */
     --dp-gutter: var(--tri-page-gutter);
     --dp-hero-height: var(--tri-hero-height-capped);
+  }
+
+  html {
+    font-size: var(--tri-root-font);
   }
 
   /* Short laptop / short viewport: tighten vertical chrome without clipping CTAs */
@@ -52,6 +65,7 @@
       --tri-space-lg: clamp(1rem, 0.75rem + 0.8vw, 1.5rem);
       --tri-space-xl: clamp(1.25rem, 0.9rem + 1.1vw, 2rem);
       --tri-space-2xl: clamp(1.5rem, 1rem + 1.4vw, 2.4rem);
+      --tri-root-font: clamp(13px, 0.7rem + 0.28vw, 15.5px);
     }
   }
 
@@ -61,8 +75,25 @@
     }
   }
 
+  /* Compact laptop width (13" ~1280–1366) */
+  @media (min-width: 1024px) and (max-width: 1366px) {
+    :root {
+      --tri-page-gutter: clamp(0.85rem, 1.4vw + 0.4rem, 1.35rem);
+      --tri-root-font: clamp(13px, 0.68rem + 0.32vw, 15px);
+    }
+  }
+
+  /* Large / 16"+ laptop */
+  @media (min-width: 1600px) {
+    :root {
+      --tri-content-max: min(1760px, 100%);
+      --tri-page-gutter: clamp(1.35rem, 2vw, 2.5rem);
+    }
+  }
+
   .tri-container {
     width: min(calc(100% - 2 * var(--tri-page-gutter)), var(--tri-content-max));
     margin-inline: auto;
+    box-sizing: border-box;
   }
 }
