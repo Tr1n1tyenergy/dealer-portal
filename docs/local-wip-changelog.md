@@ -117,6 +117,23 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-11 — Staff Home hero/KPI layout polish
+- Hero crop: `object-position: 42% 30%` + `--tri-hero-height-capped` so the blue Trinity canopy/fascia reads (not underside-only); nudged left vs prior right-heavy crop.
+- KPI cards: horizontal icon | label/value/meta row (sleeker, shorter); tighter ops/intel panel padding and row gaps toward mockup density.
+- Files: `staff-home.css`, `staff-home-dashboard.tsx` (KPI markup).
+
+### 2026-11-11 — Staff Portal Home Dashboard redesign
+- Replaced dark Retail Interface sidebar home with light Staff Portal shell (`StaffPortalShell`) + cinematic home (`StaffHomeDashboard`).
+- `/intelligence/retail` now serves operational home (KPIs, Needs Action, activity, sales/losses, EPRA countdown) from live Neon data.
+- Moved prior analytics dashboard to `/intelligence/retail/analytics`.
+- Nav trimmed to Home / Orders / Analytics / Messages / Support / Settings / Stock Sale Reporting; header forced to a single non-wrapping row (fixes double-bar wrap).
+- Needs Action only lists real outstanding counts; EPRA task only within 7 days of the next 15th.
+- Added staff Support + Stock Sale Reporting list pages under `(home)` (live Prisma data).
+
+### 2026-11-11 — Staff forgot-password split-screen redesign
+- Rebuilt `/intelligence/forgot-password` on the shared `.dl` portal-auth shell (forecourt plate + right card) to match the Staff Password Reset mockup.
+- Preserved reset API, portal-aware back-to-login (`?portal=`), and mailto support. Scoped `.dl--reset` card/CTA styles so login pages are unchanged.
+
 ### 2026-11-09 — Remove redundant PFIs header nav
 - Dropped the top-level **PFIs** link from `DEALER_PRIMARY_NAV` (`src/lib/dealer/nav.ts`); it only opened `/dealer/orders?view=documents` and crowded Stock Sale Reporting.
 - Orders page still has the **PFIs & Documents** sub-tab. Primary highlight for that view stays on **Orders**.

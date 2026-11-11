@@ -28,7 +28,7 @@ function formatDay(d: Date) {
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "Africa/Nairobi" });
 }
 
-export default async function RetailDashboardPage() {
+export default async function RetailAnalyticsPage() {
   const session = await requireInternal();
   if (!canUser(session.user, "analytics", "view")) redirect("/intelligence/dashboard");
   const now = new Date();

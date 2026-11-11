@@ -44,9 +44,11 @@ describe("activePrimaryNav", () => {
   });
 
   it("does not include a top-level PFIs nav item", () => {
-    assert.equal(
-      DEALER_PRIMARY_NAV.some((item) => String(item.key) === "documents" || String(item.label) === "PFIs"),
-      false,
+    assert.deepEqual(
+      DEALER_PRIMARY_NAV.map((item) => item.label),
+      ["Dashboard", "Orders", "Messages", "Support", "Stock Sale Reporting"],
     );
   });
 });
+
+

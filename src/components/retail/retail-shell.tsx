@@ -10,10 +10,17 @@ import "@/app/intelligence/retail/retail-portal.css";
 const nav: { href: string; label: string; icon: typeof BarChart3; module: PermissionModule; match: (p: string) => boolean }[] = [
   {
     href: "/intelligence/retail",
-    label: "Analytics",
+    label: "Home",
     icon: BarChart3,
     module: "analytics",
     match: (p: string) => p === "/intelligence/retail" || p === "/intelligence/retail/",
+  },
+  {
+    href: "/intelligence/retail/analytics",
+    label: "Analytics",
+    icon: BarChart3,
+    module: "analytics",
+    match: (p: string) => p.startsWith("/intelligence/retail/analytics"),
   },
   {
     href: "/intelligence/retail/orders",

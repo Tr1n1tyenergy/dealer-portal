@@ -120,6 +120,10 @@
   color: var(--tri-yellow);
 }
 
+.dl__headline--inline {
+  max-width: none;
+}
+
 .dl__lede {
   margin: var(--tri-space-sm, 0.95rem) 0 0;
   max-width: 40ch;
@@ -394,6 +398,91 @@
   color: var(--tri-blue-deep);
 }
 
+/* Forgot-password: centered send CTA + email-only field */
+.dl__input--single {
+  padding-right: 1rem;
+}
+
+.dl__submit--send {
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0 1.15rem;
+}
+
+.dl__submit--send .dl__submit-label {
+  flex: 0 0 auto;
+  padding-left: 0;
+  text-align: center;
+}
+
+.dl__submit-send-ico {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+}
+
+.dl__success {
+  margin-top: 0.85rem;
+  border: 1px solid #a7f3d0;
+  border-radius: 0.85rem;
+  padding: 0.65rem 0.8rem;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 0.875rem;
+}
+
+.dl__nav-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.05rem;
+  padding: 0.95rem 0;
+  border-top: 1px solid rgba(10, 35, 91, 0.08);
+  border-bottom: 1px solid rgba(10, 35, 91, 0.08);
+}
+
+.dl__nav-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--tri-blue);
+  text-decoration: none;
+}
+
+.dl__nav-back-link:hover {
+  color: var(--tri-blue-deep);
+  text-decoration: underline;
+}
+
+/* Reset page: slightly wider card to match staff mockup */
+.dl--reset .dl__card {
+  max-width: min(580px, 100%);
+  border-radius: 1.75rem;
+  padding: clamp(1.75rem, 3vh, 2.45rem) clamp(1.5rem, 2.8vw, 2.35rem)
+    clamp(1.35rem, 2.4vh, 1.9rem);
+}
+
+.dl--reset .dl__title {
+  font-size: var(--tri-font-h2, clamp(1.55rem, 2.4vw, 1.95rem));
+}
+
+.dl--reset .dl__copy {
+  max-width: 42ch;
+  font-size: var(--tri-font-body, 0.92rem);
+}
+
+.dl--reset .dl__help {
+  margin-top: 1.15rem;
+}
+
+.dl--reset .dl__help-icon {
+  border-radius: 999px;
+  width: 2.35rem;
+  height: 2.35rem;
+}
+
 /* ── Need Help ── */
 .dl__help {
   display: grid;
@@ -526,11 +615,24 @@
   .dl__card {
     max-width: 448px;
   }
+
+  .dl--reset {
+    /* ~54 / 46 split to match staff password-reset mockup */
+    grid-template-columns: minmax(0, 1.17fr) minmax(0, 1fr);
+  }
+
+  .dl--reset .dl__card {
+    max-width: 560px;
+  }
 }
 
 @media (min-width: 1280px) {
   .dl {
     grid-template-columns: minmax(0, 1.28fr) minmax(0, 1fr);
+  }
+
+  .dl--reset {
+    grid-template-columns: minmax(0, 1.17fr) minmax(0, 1fr);
   }
 
   .dl__brand-inner {

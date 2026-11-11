@@ -1,21 +1,73 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Headphones,
+  Mail,
+  Send,
+  UserRound,
+} from "lucide-react";
+import { TrinityLogo } from "@/components/brand/trinity-logo";
+import { SUPPORT_EMAIL } from "@/lib/company/contact";
 import { loginPathFor } from "@/lib/security/login-path";
+import "@/components/access/portal-auth.css";
+
+type PortalKind = "staff" | "dealer" | "depot";
+
+function portalKindFromQuery(raw: string | null): PortalKind {
+  const value = (raw ?? "").toLowerCase();
+  if (value === "dealer") return "dealer";
+  if (value === "depot") return "depot";
+  return "staff";
+}
+
+const PORTAL_COPY: Record<
+  PortalKind,
+  {
+    kicker: string;
+    badge: string;
+    lede: string;
+    support: string;
+  }
+> = {
+  staff: {
+    kicker: "Staff Portal",
+    badge: "Staff Portal",
+    lede: "Recover access to the Trinity Retail Intelligence staff portal.",
+    support: "Contact Trinity Support for any staff portal assistance.",
+  },
+  dealer: {
+    kicker: "Dealer Portal",
+    badge: "Dealer Portal",
+    lede: "Recover access to the Trinity Retail Intelligence dealer portal.",
+    support: "Contact Trinity Support for any dealer portal assistance.",
+  },
+  depot: {
+    kicker: "Depot Portal",
+    badge: "Depot Portal",
+    lede: "Recover access to the Trinity Retail Intelligence depot portal.",
+    support: "Contact Trinity Support for any depot portal assistance.",
+  },
+};
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Dealers and depots arrive with ?portal=…; "Back to Login" returns them to their own portal.
+  // Dealers and depots arrive with ?portal=…; "Back to Sign In" returns them to their own portal.
+  const [portal, setPortal] = useState<PortalKind>("staff");
   const [loginHref, setLoginHref] = useState("/intelligence/login");
+
   useEffect(() => {
-    setLoginHref(loginPathFor(new URLSearchParams(window.location.search).get("portal")));
+    const raw = new URLSearchParams(window.location.search).get("portal");
+    setPortal(portalKindFromQuery(raw));
+    setLoginHref(loginPathFor(raw));
   }, []);
+
+  const copy = useMemo(() => PORTAL_COPY[portal], [portal]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,44 +82,106 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-trinity-bg px-6 py-12">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-md rounded-[28px] border border-white/60 bg-white p-8 shadow-[0_24px_60px_rgba(10,35,91,0.12)]"
-      >
-        <div className="text-xs font-bold uppercase tracking-[0.16em] text-trinity-gold">
-          Password Recovery
-        </div>
-        <h1 className="mt-2 text-3xl font-black text-trinity-navy">Forgot Password</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          Enter your email and we will send a secure reset link.
-        </p>
-
-        <div className="mt-6 space-y-4">
-          <div>
-            <Label>Email</Label>
-            <Input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          {done ? (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-              If an account exists, a reset link has been sent.
+    <div className="dl dl--reset">
+      <aside className="dl__brand" aria-label={copy.kicker}>
+        <div
+          className="dl__brand-bg"
+          role="img"
+          aria-label="TrinityNRG fuel station at sunset"
+        />
+        <div className="dl__brand-veil" aria-hidden />
+        <div className="dl__brand-inner">
+          <div className="dl__brand-top">
+            <TrinityLogo variant="dark" height={46} />
+            <div className="dl__eyebrow">
+              <span className="dl__eyebrow-line" aria-hidden />
+              <span className="dl__eyebrow-text">Trinity Retail Intelligence</span>
             </div>
-          ) : null}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Sending..." : "Send Reset Link"}
-          </Button>
-          <div className="text-center text-sm">
-            <Link href={loginHref} className="font-semibold text-trinity-blue">
-              Back to Login
+          </div>
+
+          <div className="dl__brand-copy">
+            <div className="dl__kicker">
+              <span className="dl__eyebrow-line" aria-hidden />
+              <span className="dl__eyebrow-text">{copy.kicker}</span>
+            </div>
+            <h1 className="dl__headline dl__headline--inline">
+              Reset your <span>password</span>
+            </h1>
+            <p className="dl__lede">{copy.lede}</p>
+          </div>
+        </div>
+      </aside>
+
+      <section className="dl__panel">
+        <div className="dl__card">
+          <div className="dl__card-head">
+            <div className="dl__card-logo">
+              <TrinityLogo variant="dark" height={48} />
+            </div>
+            <div className="dl__badge">
+              <UserRound aria-hidden />
+              {copy.badge}
+            </div>
+            <h2 className="dl__title">Forgot Your Password?</h2>
+            <p className="dl__copy">
+              Enter your email address and we&apos;ll send you a secure link to create a new
+              password.
+            </p>
+          </div>
+
+          <form onSubmit={onSubmit} className="dl__form" noValidate={false}>
+            <div className="dl__field">
+              <label htmlFor="reset-email">Email Address</label>
+              <div className="dl__input-wrap">
+                <Mail className="dl__input-icon" aria-hidden />
+                <input
+                  id="reset-email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your work email address"
+                  className="dl__input dl__input--single"
+                />
+              </div>
+            </div>
+
+            {done ? (
+              <div className="dl__success" role="status">
+                If an account exists, a reset link has been sent.
+              </div>
+            ) : null}
+
+            <button type="submit" className="dl__submit dl__submit--send" disabled={loading}>
+              <Send className="dl__submit-send-ico" aria-hidden />
+              <span className="dl__submit-label">
+                {loading ? "Sending..." : "Send Reset Link"}
+              </span>
+            </button>
+          </form>
+
+          <div className="dl__nav-back">
+            <Link href={loginHref} className="dl__nav-back-link">
+              <ArrowLeft size={15} strokeWidth={2.4} aria-hidden />
+              Back to Sign In
             </Link>
           </div>
+
+          <a className="dl__help" href={`mailto:${SUPPORT_EMAIL}`}>
+            <span className="dl__help-icon" aria-hidden>
+              <Headphones className="h-4 w-4" />
+            </span>
+            <span className="dl__help-copy">
+              <span className="dl__help-title">Need Help?</span>
+              <span className="dl__help-text">{copy.support}</span>
+            </span>
+            <span className="dl__help-go" aria-hidden>
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </a>
         </div>
-      </form>
+      </section>
     </div>
   );
 }
