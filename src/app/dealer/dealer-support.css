@@ -413,6 +413,7 @@
   color: #6d28d9;
   border-color: #ddd6fe;
 }
+.ds__pill--status-RESOLVED,
 .ds__pill--status-CLOSED {
   background: #f1f5f9;
   color: #475569;

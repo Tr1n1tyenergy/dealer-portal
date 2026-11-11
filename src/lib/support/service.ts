@@ -76,6 +76,7 @@ export async function countTicketsForOrg(dealerOrganizationId: string) {
     OPEN: 0,
     IN_PROGRESS: 0,
     AWAITING_RESPONSE: 0,
+    RESOLVED: 0,
     CLOSED: 0,
   };
   let total = 0;
@@ -141,7 +142,10 @@ export async function getTicketForDealer(ticketId: string, dealerOrganizationId:
 }
 
 export async function createTicket(params: {
-  dealerOrganizationId: string;
+  dealerOrganizationId: string | null;
+  /** DEALER (default) for dealer-raised tickets; INTERNAL for staff-originated ones. */
+  origin?: "DEALER" | "INTERNAL";
+  assigneeId?: string | null;
   createdById: string;
   subject: string;
   description: string;
@@ -164,12 +168,17 @@ export async function createTicket(params: {
     throw new Error(`You can attach up to ${MAX_SUPPORT_ATTACHMENTS} files.`);
   }
 
+  if (params.origin !== "INTERNAL" && !params.dealerOrganizationId) {
+    throw new Error("Dealer tickets need a dealer organisation.");
+  }
   if (params.relatedOrderId) {
     const order = await prisma.dealerOrder.findFirst({
-      where: { id: params.relatedOrderId, dealerOrganizationId: params.dealerOrganizationId },
+      where: params.dealerOrganizationId
+        ? { id: params.relatedOrderId, dealerOrganizationId: params.dealerOrganizationId }
+        : { id: params.relatedOrderId },
       select: { id: true },
     });
-    if (!order) throw new Error("Related order was not found for your dealership.");
+    if (!order) throw new Error("Related order was not found.");
   }
 
   const created = await prisma.$transaction(async (tx) => {
@@ -177,8 +186,10 @@ export async function createTicket(params: {
     const ticket = await tx.supportTicket.create({
       data: {
         reference,
+        origin: params.origin ?? "DEALER",
         dealerOrganizationId: params.dealerOrganizationId,
         createdById: params.createdById,
+        assigneeId: params.assigneeId || null,
         subject,
         description,
         department,
@@ -197,6 +208,17 @@ export async function createTicket(params: {
         note: `Routed to ${department}`,
       },
     });
+
+    if (params.assigneeId) {
+      await tx.supportTicketEvent.create({
+        data: {
+          ticketId: ticket.id,
+          type: SupportTicketEventType.ASSIGNED,
+          toValue: params.assigneeId,
+          actorId: params.createdById,
+        },
+      });
+    }
 
     return ticket;
   });
@@ -323,31 +345,134 @@ export async function addDealerReply(params: {
 }
 
 /** Staff foundation: list department queue (permission-gated at API layer). */
-export async function listTicketsForStaff(filters: {
+export function staffTicketWhere(filters: {
   department?: SupportTicketDepartment | "ALL";
   status?: SupportTicketStatus | "ALL";
+  dealerOrganizationId?: string | null;
+  priority?: string | null;
+  createdRange?: { gte: Date; lt: Date } | null;
   q?: string;
-}) {
+}): Prisma.SupportTicketWhereInput {
   const where: Prisma.SupportTicketWhereInput = {};
   if (filters.department && filters.department !== "ALL") where.department = filters.department;
   if (filters.status && filters.status !== "ALL") where.status = filters.status;
+  if (filters.dealerOrganizationId) where.dealerOrganizationId = filters.dealerOrganizationId;
+  if (filters.priority && (SUPPORT_PRIORITIES as readonly string[]).includes(filters.priority)) {
+    where.priority = filters.priority as SupportTicketPriority;
+  }
+  if (filters.createdRange) where.createdAt = { gte: filters.createdRange.gte, lt: filters.createdRange.lt };
   const q = filters.q?.trim();
   if (q) {
     where.OR = [
       { reference: { contains: q, mode: "insensitive" } },
       { subject: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+      { dealerOrganization: { name: { contains: q, mode: "insensitive" } } },
     ];
   }
+  return where;
+}
+
+export async function listTicketsForStaff(filters: {
+  department?: SupportTicketDepartment | "ALL";
+  status?: SupportTicketStatus | "ALL";
+  dealerOrganizationId?: string | null;
+  priority?: string | null;
+  createdRange?: { gte: Date; lt: Date } | null;
+  q?: string;
+  skip?: number;
+  take?: number;
+}) {
+  const where = staffTicketWhere(filters);
   return prisma.supportTicket.findMany({
     where,
-    orderBy: [{ priority: "desc" }, { updatedAt: "desc" }],
+    orderBy: [{ updatedAt: "desc" }],
     include: {
       dealerOrganization: { select: { id: true, name: true, code: true } },
       createdBy: { select: { id: true, firstName: true, lastName: true, email: true } },
       assignee: { select: { id: true, firstName: true, lastName: true } },
     },
-    take: 200,
+    skip: filters.skip ?? 0,
+    take: filters.take ?? 200,
   });
+}
+
+/** KPI totals by status within the filtered scope (without the status filter itself). */
+export async function staffTicketCounts(where: Prisma.SupportTicketWhereInput) {
+  const groups = await prisma.supportTicket.groupBy({ by: ["status"], where, _count: { _all: true } });
+  const byStatus: Record<SupportTicketStatus, number> = {
+    OPEN: 0,
+    IN_PROGRESS: 0,
+    AWAITING_RESPONSE: 0,
+    RESOLVED: 0,
+    CLOSED: 0,
+  };
+  let total = 0;
+  for (const g of groups) {
+    byStatus[g.status] = g._count._all;
+    total += g._count._all;
+  }
+  return { total, byStatus };
+}
+
+/** Assignment, department and priority changes with per-field audit events. */
+export async function staffAssignTicket(params: {
+  ticketId: string;
+  actorId: string;
+  assigneeId?: string | null;
+  department?: SupportTicketDepartment;
+  priority?: SupportTicketPriority;
+}) {
+  const ticket = await prisma.supportTicket.findUnique({ where: { id: params.ticketId } });
+  if (!ticket) throw new Error("Ticket not found.");
+
+  const data: Prisma.SupportTicketUpdateInput = {};
+  const events: Prisma.SupportTicketEventCreateManyInput[] = [];
+  if (params.assigneeId !== undefined && (params.assigneeId || null) !== ticket.assigneeId) {
+    data.assignee = params.assigneeId ? { connect: { id: params.assigneeId } } : { disconnect: true };
+    events.push({
+      ticketId: ticket.id,
+      type: SupportTicketEventType.ASSIGNED,
+      fromValue: ticket.assigneeId,
+      toValue: params.assigneeId || null,
+      actorId: params.actorId,
+    });
+  }
+  if (params.department && params.department !== ticket.department) {
+    data.department = params.department;
+    events.push({
+      ticketId: ticket.id,
+      type: SupportTicketEventType.DEPARTMENT_CHANGED,
+      fromValue: ticket.department,
+      toValue: params.department,
+      actorId: params.actorId,
+    });
+  }
+  if (params.priority && params.priority !== ticket.priority) {
+    data.priority = params.priority;
+    events.push({
+      ticketId: ticket.id,
+      type: SupportTicketEventType.PRIORITY_CHANGED,
+      fromValue: ticket.priority,
+      toValue: params.priority,
+      actorId: params.actorId,
+    });
+  }
+  if (events.length === 0) return ticket;
+
+  const updated = await prisma.$transaction(async (tx) => {
+    const row = await tx.supportTicket.update({ where: { id: ticket.id }, data });
+    await tx.supportTicketEvent.createMany({ data: events });
+    return row;
+  });
+  await logActivity({
+    actorId: params.actorId,
+    action: "support.ticket.assign",
+    entity: "SupportTicket",
+    entityId: ticket.id,
+    meta: { events: events.map((e) => e.type) },
+  });
+  return updated;
 }
 
 export async function staffUpdateTicketStatus(params: {
@@ -365,6 +490,12 @@ export async function staffUpdateTicketStatus(params: {
   if (params.status === SupportTicketStatus.IN_PROGRESS && !ticket.reviewedAt) {
     data.reviewedAt = new Date();
   }
+  if (params.status === SupportTicketStatus.RESOLVED) {
+    const summary = params.resolutionSummary?.trim();
+    if (!summary) throw new Error("A resolution summary is required to resolve a ticket.");
+    data.resolvedAt = new Date();
+    data.resolutionSummary = summary;
+  }
   if (params.status === SupportTicketStatus.CLOSED) {
     data.closedAt = new Date();
     data.resolvedAt = ticket.resolvedAt ?? new Date();
@@ -379,7 +510,11 @@ export async function staffUpdateTicketStatus(params: {
         type:
           params.status === SupportTicketStatus.CLOSED
             ? SupportTicketEventType.CLOSED
-            : SupportTicketEventType.STATUS_CHANGED,
+            : params.status === SupportTicketStatus.RESOLVED
+              ? SupportTicketEventType.RESOLVED
+              : (ticket.status === SupportTicketStatus.RESOLVED || ticket.status === SupportTicketStatus.CLOSED)
+                ? SupportTicketEventType.REOPENED
+                : SupportTicketEventType.STATUS_CHANGED,
         fromValue: ticket.status,
         toValue: params.status,
         actorId: params.actorId,

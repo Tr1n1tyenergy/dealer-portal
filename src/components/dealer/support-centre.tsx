@@ -118,6 +118,7 @@ function statusIcon(status: SupportStatus) {
   if (status === "OPEN") return <FolderOpen size={12} />;
   if (status === "IN_PROGRESS") return <RefreshCw size={12} />;
   if (status === "AWAITING_RESPONSE") return <MessageCircle size={12} />;
+  if (status === "RESOLVED") return <CheckCircle2 size={12} />;
   return <CheckCircle2 size={12} />;
 }
 
@@ -151,7 +152,7 @@ export function SupportCentre({
   const [tickets, setTickets] = useState<TicketRow[]>([]);
   const [counts, setCounts] = useState<Counts>({
     total: 0,
-    byStatus: { OPEN: 0, IN_PROGRESS: 0, AWAITING_RESPONSE: 0, CLOSED: 0 },
+    byStatus: { OPEN: 0, IN_PROGRESS: 0, AWAITING_RESPONSE: 0, RESOLVED: 0, CLOSED: 0 },
   });
   const [loading, setLoading] = useState(true);
   const [statusTab, setStatusTab] = useState<SupportStatus | "ALL">("ALL");

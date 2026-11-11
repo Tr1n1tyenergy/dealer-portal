@@ -4,13 +4,13 @@ import type {
   SupportTicketStatus,
 } from "@prisma/client";
 
-export const SUPPORT_DEPARTMENTS = ["IT", "FINANCE", "SALES", "SUPPLY"] as const;
+export const SUPPORT_DEPARTMENTS = ["IT", "FINANCE", "SALES", "SUPPLY", "OPERATIONS"] as const;
 export type SupportDepartment = (typeof SUPPORT_DEPARTMENTS)[number];
 
 export const SUPPORT_PRIORITIES = ["LOW", "MEDIUM", "HIGH", "CRITICAL"] as const;
 export type SupportPriority = (typeof SUPPORT_PRIORITIES)[number];
 
-export const SUPPORT_STATUSES = ["OPEN", "IN_PROGRESS", "AWAITING_RESPONSE", "CLOSED"] as const;
+export const SUPPORT_STATUSES = ["OPEN", "IN_PROGRESS", "AWAITING_RESPONSE", "RESOLVED", "CLOSED"] as const;
 export type SupportStatus = (typeof SUPPORT_STATUSES)[number];
 
 export const DEPARTMENT_LABELS: Record<SupportTicketDepartment, string> = {
@@ -18,6 +18,7 @@ export const DEPARTMENT_LABELS: Record<SupportTicketDepartment, string> = {
   FINANCE: "Finance",
   SALES: "Sales",
   SUPPLY: "Supply",
+  OPERATIONS: "Operations",
 };
 
 export const PRIORITY_LABELS: Record<SupportTicketPriority, string> = {
@@ -31,6 +32,7 @@ export const STATUS_LABELS: Record<SupportTicketStatus, string> = {
   OPEN: "Open",
   IN_PROGRESS: "In Progress",
   AWAITING_RESPONSE: "Awaiting Response",
+  RESOLVED: "Resolved",
   CLOSED: "Closed",
 };
 
@@ -38,7 +40,8 @@ export const STATUS_GUIDE: { status: SupportTicketStatus; description: string }[
   { status: "OPEN", description: "Ticket received and awaiting review." },
   { status: "IN_PROGRESS", description: "Our team is working on it." },
   { status: "AWAITING_RESPONSE", description: "We need more information from you." },
-  { status: "CLOSED", description: "The issue has been resolved." },
+  { status: "RESOLVED", description: "We've provided a fix — tell us if it works." },
+  { status: "CLOSED", description: "The ticket is completed." },
 ];
 
 export const MAX_SUPPORT_ATTACHMENTS = 5;

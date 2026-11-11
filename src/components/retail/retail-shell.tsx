@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, ClipboardList, MessageSquare, Users } from "lucide-react";
+import { BarChart3, ClipboardList, LifeBuoy, MessageSquare, Users } from "lucide-react";
 import { canUser, type PermissionModule, type StaffUser } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import "@/app/intelligence/retail/retail-portal.css";
@@ -28,6 +28,13 @@ const nav: { href: string; label: string; icon: typeof BarChart3; module: Permis
     icon: ClipboardList,
     module: "orders",
     match: (p: string) => p.startsWith("/intelligence/retail/orders"),
+  },
+  {
+    href: "/intelligence/retail/support",
+    label: "Support",
+    icon: LifeBuoy,
+    module: "support",
+    match: (p: string) => p.startsWith("/intelligence/retail/support"),
   },
   {
     href: "/intelligence/retail/users",
