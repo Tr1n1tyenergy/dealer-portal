@@ -44,6 +44,7 @@ const REQUIRED_DELEGATES = [
   "stockSalePumpReading",
   "stockSaleTankReading",
   "supportTicket",
+  "stationStockIntelligenceConfig",
 ] as const;
 
 /**
