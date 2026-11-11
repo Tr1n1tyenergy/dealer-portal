@@ -30,7 +30,8 @@ export async function applyInternalOrderAction(
   if (action === "retry-sync") await ignoreStaleTransition(() => syncQuotation(orderId, actor.id));
   if (action === "generate-pfi") await ignoreStaleTransition(() => generatePfi(orderId, actor.id));
   if (action === "confirm-payment" || action === "reject-payment") {
-    await ignoreStaleTransition(() => confirmPayment(orderId, actor.id, action === "confirm-payment"));
+    const note = String(formData.get("note") || "").slice(0, 300);
+    await ignoreStaleTransition(() => confirmPayment(orderId, actor.id, action === "confirm-payment", note));
   }
   if (action === "release") {
     const depot = await prisma.depot.findFirst({ orderBy: { name: "asc" } });

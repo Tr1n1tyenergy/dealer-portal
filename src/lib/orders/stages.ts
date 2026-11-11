@@ -1,19 +1,28 @@
 import type { DealerOrderStatus } from "@prisma/client";
 
-/** Tabs on Retail Interface → Orders. Client-safe: only the status type comes from Prisma. */
-export type StageKey = "pending" | "awaiting-payment" | "verification" | "paid" | "depot" | "complete" | "exceptions";
+/** Tabs/KPIs on Retail Interface → Orders. Client-safe: only the status type comes from Prisma. */
+export type StageKey =
+  | "quotation"
+  | "awaiting-payment"
+  | "checking-payment"
+  | "payment-confirmed"
+  | "depot"
+  | "transit"
+  | "complete"
+  | "exceptions";
 
 export const ORDER_STAGES: { key: StageKey; label: string; statuses: DealerOrderStatus[] }[] = [
   {
-    key: "pending",
-    label: "Pending",
+    key: "quotation",
+    label: "Quotation & PFI",
     statuses: ["DRAFT", "SUBMITTED", "ODOO_SYNC_PENDING", "QUOTATION_CREATING", "QUOTATION_READY", "PFI_PENDING"],
   },
-  { key: "awaiting-payment", label: "Awaiting payment", statuses: ["PFI_ISSUED", "AWAITING_PAYMENT"] },
-  { key: "verification", label: "Payment verification", statuses: ["PAYMENT_SUBMITTED", "PAYMENT_VERIFICATION"] },
-  { key: "paid", label: "Payment completed", statuses: ["PAYMENT_CONFIRMED"] },
-  { key: "depot", label: "At depot", statuses: ["RELEASED_TO_DEPOT", "LOADING", "LOADED", "DISPATCHED", "IN_TRANSIT"] },
-  { key: "complete", label: "Order complete", statuses: ["DELIVERED", "CLOSED"] },
+  { key: "awaiting-payment", label: "Awaiting Payment", statuses: ["PFI_ISSUED", "AWAITING_PAYMENT"] },
+  { key: "checking-payment", label: "Checking Payment", statuses: ["PAYMENT_SUBMITTED", "PAYMENT_VERIFICATION"] },
+  { key: "payment-confirmed", label: "Payment Confirmed", statuses: ["PAYMENT_CONFIRMED"] },
+  { key: "depot", label: "At Depot", statuses: ["RELEASED_TO_DEPOT", "LOADING", "LOADED"] },
+  { key: "transit", label: "In Transit", statuses: ["DISPATCHED", "IN_TRANSIT"] },
+  { key: "complete", label: "Completed", statuses: ["DELIVERED", "CLOSED"] },
   {
     key: "exceptions",
     label: "Exceptions",
@@ -33,10 +42,9 @@ export function stageOf(status: DealerOrderStatus): StageKey {
   return ORDER_STAGES.find((stage) => stage.statuses.includes(status))?.key ?? "exceptions";
 }
 
-/** The ?stage= value; with no valid tab, All while searching (so a search finds every order), else Pending. */
-export function parseStage(value: unknown, searching = false): StageKey | "all" {
-  if (value === "all") return "all";
-  return ORDER_STAGES.find((stage) => stage.key === value)?.key ?? (searching ? "all" : "pending");
+/** The ?stage= value; anything that is not a tab shows every order. */
+export function parseStage(value: unknown): StageKey | "all" {
+  return ORDER_STAGES.find((stage) => stage.key === value)?.key ?? "all";
 }
 
 /** PAYMENT_VERIFICATION → "Payment verification"; keeps Odoo and PFI readable. */

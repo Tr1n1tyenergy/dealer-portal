@@ -480,7 +480,7 @@ export async function submitPayment(params: {
   return saved;
 }
 
-export async function confirmPayment(orderId: string, actorId: string, accept: boolean) {
+export async function confirmPayment(orderId: string, actorId: string, accept: boolean, note?: string) {
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Order not found.");
   const to = accept ? "PAYMENT_CONFIRMED" : "PAYMENT_EXCEPTION";
@@ -494,7 +494,7 @@ export async function confirmPayment(orderId: string, actorId: string, accept: b
       from: order.status,
       to,
       actorId,
-      note: accept ? "Payment confirmed" : "Payment needs review",
+      note: [accept ? "Payment confirmed" : "Payment needs review", note?.trim() || null].filter(Boolean).join(" — "),
     });
   });
   await logActivity({
