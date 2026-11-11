@@ -233,10 +233,13 @@ function normalizeConversations(
 
 export function MessagingApp({
   variant = "staff",
+  appearance,
   initialConversations = [],
   canOpenUsers = false,
 }: {
   variant?: "staff" | "dealer";
+  /** "light" renders the white mockup theme (dealer default); staff default is the glassy navy. */
+  appearance?: "glass" | "light";
   initialConversations?: ConversationRow[];
   /** Staff only: whether "View Profile" may link to the Retail Users page (Admins). */
   canOpenUsers?: boolean;
@@ -566,7 +569,7 @@ export function MessagingApp({
 
   return (
     <div
-      className={`msg-app msg-app--${isDealerPortal ? "dealer" : "staff"} msg-app--pane-${mobilePane}`}
+      className={`msg-app msg-app--${isDealerPortal || appearance === "light" ? "dealer" : "staff"} msg-app--pane-${mobilePane}`}
     >
       {/* LEFT — Conversations */}
       <aside className="msg-sidebar">

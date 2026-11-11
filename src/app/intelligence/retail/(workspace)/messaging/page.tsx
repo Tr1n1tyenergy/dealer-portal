@@ -3,7 +3,8 @@ import { listConversationsForUser } from "@/lib/messaging/service";
 import { redirect } from "next/navigation";
 import { canUser } from "@/lib/permissions";
 import { requireInternal } from "@/lib/session";
-import "@/app/intelligence/retail/retail-messaging.css";
+import "@/app/intelligence/retail/staff-orders.css";
+import "@/app/intelligence/retail/staff-messages.css";
 
 export default async function RetailMessagingPage() {
   const session = await requireInternal();
@@ -28,25 +29,18 @@ export default async function RetailMessagingPage() {
   }));
 
   return (
-    <div className="rm" style={{ background: "#0a192f" }}>
-      <div className="rm-hero" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets2/img/retail/dashboard-hero-station.jpg"
-          alt=""
-          className="rm-hero__img"
-        />
-        <div className="rm-hero__fade" />
-      </div>
-
-      <header className="rm-head">
-        <h1>Messaging</h1>
-        <p>Real-time conversations with dealers and internal teams.</p>
+    <div className="so sm">
+      <header className="so-hero">
+        <div className="so-hero__text">
+          <div className="so-hero__eyebrow">Staff Portal</div>
+          <h1>Messages</h1>
+          <p>Real-time conversations with dealers and the Trinity team.</p>
+        </div>
       </header>
-
-      <div className="rm-workspace">
+      <div className="so-wrap sm__workspace">
         <MessagingApp
           variant="staff"
+          appearance="light"
           initialConversations={initialConversations}
           canOpenUsers={canUser(session.user, "retailUsers", "view")}
         />

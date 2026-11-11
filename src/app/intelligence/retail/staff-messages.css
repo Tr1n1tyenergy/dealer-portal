@@ -1,0 +1,18 @@
+/* Staff Messages — light mockup theme; the app itself is themed by .msg-app--dealer. */
+
+.sm__workspace {
+  margin-top: -56px;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+/* The three columns overlap the hero like the other redesigned staff pages. */
+.sm__workspace .msg-app {
+  min-height: 620px;
+}
+
+@media (max-width: 860px) {
+  .sm__workspace {
+    margin-top: -40px;
+  }
+}
