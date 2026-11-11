@@ -1,0 +1,341 @@
+/* Staff Portal shell — light horizontal top nav (Home dashboard redesign) */
+
+.sp {
+  --sp-blue: #3551a5;
+  --sp-navy: #0a235b;
+  --sp-yellow: #ffcc00;
+  --sp-bg: #f4f7fb;
+  --sp-muted: #64748b;
+  --sp-line: rgba(10, 35, 91, 0.08);
+  --sp-card-radius: 1.15rem;
+  min-height: 100dvh;
+  background: var(--sp-bg);
+  color: var(--sp-navy);
+}
+
+.sp-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #fff;
+  border-bottom: 1px solid var(--sp-line);
+  box-shadow: 0 1px 0 rgba(10, 35, 91, 0.02);
+}
+
+.sp-header__inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  min-height: 68px;
+  height: 68px;
+  padding: 0 var(--tri-page-gutter, clamp(1rem, 2.2vw, 1.75rem));
+  max-width: 1600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.sp-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.sp-brand__rule {
+  width: 1px;
+  height: 2.15rem;
+  background: rgba(10, 35, 91, 0.12);
+}
+
+.sp-brand__title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sp-navy);
+  line-height: 1.15;
+}
+
+.sp-brand__sub {
+  margin-top: 0.12rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+
+.sp-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sp-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.sp-nav__link,
+.sp-nav__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  background: transparent;
+  color: var(--sp-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 0.5rem;
+}
+
+.sp-nav__link:hover,
+.sp-nav__btn:hover {
+  color: var(--sp-blue);
+}
+
+.sp-nav__link.is-active {
+  color: var(--sp-navy);
+  font-weight: 800;
+}
+
+.sp-nav__link.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0.7rem;
+  right: 0.7rem;
+  bottom: 0.2rem;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--sp-yellow);
+}
+
+.sp-nav__menu {
+  position: relative;
+}
+
+.sp-nav__dropdown {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  min-width: 11.5rem;
+  padding: 0.4rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid var(--sp-line);
+  box-shadow: 0 16px 40px rgba(10, 35, 91, 0.12);
+  z-index: 50;
+}
+
+.sp-nav__dropdown a {
+  display: block;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.5rem;
+  color: var(--sp-navy);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sp-nav__dropdown a:hover {
+  background: #f1f5fb;
+  color: var(--sp-blue);
+}
+
+.sp-header__right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.sp-search {
+  position: relative;
+  width: min(17.5rem, 28vw);
+}
+
+.sp-search__ico {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--sp-muted);
+  pointer-events: none;
+}
+
+.sp-search__input {
+  width: 100%;
+  height: 2.35rem;
+  border: 1px solid rgba(10, 35, 91, 0.1);
+  border-radius: 999px;
+  padding: 0 0.9rem 0 2.2rem;
+  background: #f3f6fb;
+  color: var(--sp-navy);
+  font-size: 0.8rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.sp-search__input:focus {
+  border-color: rgba(53, 81, 165, 0.35);
+  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.12);
+}
+
+.sp-bell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(53, 81, 165, 0.18);
+  background: #fff;
+  color: var(--sp-blue);
+  text-decoration: none;
+}
+
+.sp-bell__badge {
+  position: absolute;
+  top: -0.2rem;
+  right: -0.2rem;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background: var(--sp-yellow);
+  color: var(--sp-navy);
+  font-size: 0.62rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.sp-user {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 0;
+  background: transparent;
+  padding: 0.15rem 0.2rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.sp-user__avatar {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--sp-blue);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.sp-user__meta {
+  text-align: left;
+  line-height: 1.15;
+}
+
+.sp-user__name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--sp-navy);
+}
+
+.sp-user__role {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--sp-muted);
+}
+
+.sp-user__menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 10.5rem;
+  padding: 0.4rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid var(--sp-line);
+  box-shadow: 0 16px 40px rgba(10, 35, 91, 0.12);
+  z-index: 50;
+}
+
+.sp-user__menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sp-navy);
+  cursor: pointer;
+}
+
+.sp-user__menu button:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.sp-main {
+  width: 100%;
+}
+
+.sp-user-wrap {
+  position: relative;
+}
+
+@media (max-width: 1200px) {
+  .sp-search {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .sp-user__meta {
+    display: none;
+  }
+  .sp-nav__link {
+    padding: 0.5rem 0.55rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Keep a single header row — scroll nav instead of wrapping into a second bar */
+@media (max-width: 860px) {
+  .sp-header__inner {
+    flex-wrap: nowrap;
+    height: 64px;
+    min-height: 64px;
+    gap: 0.65rem;
+  }
+  .sp-brand__sub {
+    display: none;
+  }
+  .sp-nav {
+    justify-content: flex-start;
+  }
+}
