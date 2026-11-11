@@ -1,0 +1,176 @@
+/* Staff Support Centre — builds on the .so tokens from staff-orders.css. */
+
+.sup-kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: -56px;
+  position: relative;
+}
+.sup-kpi-create {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--so-gold);
+  color: #231a00;
+  font-weight: 800;
+  font-size: 0.9rem;
+  gap: 8px;
+}
+.sup-kpi-create:hover { background: #ffd733; }
+
+.sup-cols {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 380px;
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start;
+}
+
+/* left: status nav + filters */
+.sup-nav { display: grid; gap: 4px; padding: 8px; }
+.sup-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--so-navy);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.sup-nav__item:hover { background: #f3f6fd; }
+.sup-nav__item.is-active { background: #fff9e3; border-color: var(--so-gold); }
+.sup-nav__count { margin-left: auto; font-size: 0.76rem; font-weight: 800; color: var(--so-muted); }
+
+.sup-filters { padding: 4px 14px 14px; display: grid; gap: 10px; }
+.sup-filters summary { cursor: pointer; font-weight: 800; font-size: 0.9rem; padding: 10px 0 2px; list-style: none; display: flex; align-items: center; gap: 8px; }
+.sup-filters .so-field select, .sup-filters .so-field input { width: 100%; }
+
+/* center: table */
+.sup-table-head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; padding: 14px 16px 10px; }
+.sup-table-head h2 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+.sup-table-head p { margin: 2px 0 0; font-size: 0.8rem; color: var(--so-muted); }
+.sup-search { margin-left: auto; display: flex; gap: 8px; }
+.sup-search input {
+  border: 1px solid #c9d5ec;
+  border-radius: 9px;
+  padding: 8px 10px;
+  font-size: 0.84rem;
+  min-width: 220px;
+  background: #fff;
+  color: var(--so-navy);
+}
+
+.sup-pill--prio-LOW { background: #e3eefb; color: #1e5b94; }
+.sup-pill--prio-MEDIUM { background: #fff4cc; color: #7a5b00; }
+.sup-pill--prio-HIGH { background: #fbdcdd; color: #a1272d; }
+.sup-pill--prio-CRITICAL { background: #c72430; color: #fff; }
+.sup-pill--st-OPEN { background: #dff3e7; color: #156b3b; }
+.sup-pill--st-IN_PROGRESS { background: #e4e0fa; color: #4c3bb4; }
+.sup-pill--st-AWAITING_RESPONSE { background: #ffe9c7; color: #8a4b00; }
+.sup-pill--st-RESOLVED { background: #d9f2e2; color: #156b3b; }
+.sup-pill--st-CLOSED { background: #e4e9f4; color: #4a5a78; }
+
+/* right: ticket workspace */
+.sup-ticket { position: sticky; top: 12px; display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.sup-ticket select, .sup-ticket textarea, .sup-ticket input[type="text"] { width: 100%; min-width: 0; box-sizing: border-box; }
+.sup .so-table { min-width: 620px; }
+.sup .so-table td:nth-child(2) { min-width: 130px; }
+.sup-ticket__head { display: flex; gap: 10px; padding: 14px 16px 10px; align-items: flex-start; }
+.sup-ticket__ref { font-size: 1.05rem; font-weight: 800; color: var(--so-blue); }
+.sup-ticket__subject { font-weight: 700; font-size: 0.9rem; margin-top: 1px; }
+.sup-ticket__meta { font-size: 0.76rem; color: var(--so-muted); margin-top: 3px; display: grid; gap: 2px; }
+.sup-ticket__status { margin-left: auto; flex: none; }
+
+.sup-tabs { display: flex; gap: 6px; padding: 8px 16px; flex-wrap: wrap; border-bottom: 1px solid var(--so-line); }
+.sup-tab {
+  border-radius: 9px;
+  border: 1px solid #d3ddef;
+  background: #fff;
+  color: var(--so-blue);
+  padding: 6px 11px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sup-tab[aria-current="page"] { background: var(--so-blue); border-color: var(--so-blue); color: #fff; }
+
+.sup-pane { padding: 12px 16px; display: grid; gap: 10px; max-height: 520px; overflow-y: auto; }
+
+.sup-msg { display: grid; gap: 4px; max-width: 92%; }
+.sup-msg__who { font-size: 0.76rem; font-weight: 800; display: flex; gap: 8px; align-items: baseline; }
+.sup-msg__when { font-weight: 600; color: var(--so-muted); }
+.sup-msg__body { border-radius: 12px; padding: 10px 12px; font-size: 0.86rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; background: #eef3fb; }
+.sup-msg--staff { justify-self: end; text-align: left; }
+.sup-msg--staff .sup-msg__body { background: #e2ecfd; border: 1px solid #cfdefa; }
+.sup-msg--internal .sup-msg__body { background: #fff6da; border: 1px dashed #e8cf7a; }
+.sup-msg__files { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.sup-compose { border-top: 1px solid var(--so-line); padding: 12px 16px; display: grid; gap: 8px; }
+.sup-compose textarea {
+  border: 1px solid #c9d5ec;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.86rem;
+  min-height: 74px;
+  resize: vertical;
+  font-family: inherit;
+  background: #fff;
+  color: var(--so-navy);
+}
+.sup-compose__row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sup-compose__row label { font-size: 0.78rem; color: var(--so-muted); display: inline-flex; gap: 6px; align-items: center; }
+.sup-compose__row .so-btn { margin-left: auto; }
+
+.sup-assign { border-top: 1px solid var(--so-line); padding: 12px 16px; display: grid; gap: 8px; }
+.sup-assign__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.sup-assign label { display: grid; gap: 4px; font-size: 0.72rem; font-weight: 700; color: var(--so-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.sup-assign select { border: 1px solid #c9d5ec; border-radius: 9px; padding: 8px 10px; font-size: 0.84rem; background: #fff; color: var(--so-navy); }
+
+/* internal ticket modal (server-rendered via ?new=1) */
+.sup-modal { position: fixed; inset: 0; background: rgba(10, 25, 47, 0.55); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 16px; }
+.sup-modal__card { background: #fff; border-radius: 16px; width: min(560px, 100%); max-height: 90vh; overflow-y: auto; padding: 20px; box-shadow: 0 24px 60px rgba(7, 20, 45, 0.35); }
+.sup-modal__card h2 { margin: 0 0 4px; font-size: 1.2rem; }
+.sup-modal__card form { display: grid; gap: 10px; margin-top: 12px; }
+.sup-modal__card label { display: grid; gap: 4px; font-size: 0.78rem; font-weight: 700; color: var(--so-muted); }
+.sup-modal__card input, .sup-modal__card select, .sup-modal__card textarea {
+  border: 1px solid #c9d5ec; border-radius: 9px; padding: 9px 10px; font-size: 0.86rem; font-family: inherit; background: #fff; color: var(--so-navy);
+}
+.sup-modal__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sup-modal__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+.sup-empty { padding: 36px 16px; display: grid; justify-items: center; gap: 10px; text-align: center; color: var(--so-muted); }
+
+/* details tab */
+.sup-kv > div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--so-line); font-size: 0.84rem; }
+.sup-kv > div:first-child { border-top: 0; }
+.sup-kv dt { color: var(--so-muted); }
+.sup-kv dd { margin: 0; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.sup-kv h3 { margin: 10px 0 2px; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--so-blue); }
+
+@media (max-width: 1180px) {
+  .sup-cols { grid-template-columns: 220px minmax(0, 1fr); }
+  .sup-ticket { grid-column: 1 / -1; position: static; }
+  .sup-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .sup-cols { grid-template-columns: minmax(0, 1fr); }
+  .sup-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sup-pane { max-height: none; }
+  .sup-search input { min-width: 0; flex: 1; }
+}
+
+/* Three-column layouts: narrower side columns and compact cells so Status and Updated stay visible. */
+@media (min-width: 1181px) {
+  .sup-cols { grid-template-columns: 196px minmax(0, 1fr) 330px; }
+  .sup .so-table { min-width: 0; font-size: 0.75rem; }
+  .sup .so-table th, .sup .so-table td { padding-left: 6px; padding-right: 6px; }
+  .sup .so-table th { letter-spacing: 0.02em; font-size: 0.64rem; }
+  .sup .so-table td:nth-child(2) { min-width: 96px; }
+  .sup .so-pill { padding: 3px 8px; font-size: 0.7rem; }
+}

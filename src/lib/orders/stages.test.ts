@@ -12,17 +12,24 @@ describe("order stages", () => {
     }
   });
 
-  it("defaults unknown stage values to pending", () => {
-    for (const value of ["<script>", "ALL", "", undefined, 42]) assert.equal(parseStage(value), "pending", String(value));
-    assert.equal(parseStage("all"), "all");
-    assert.equal(parseStage("verification"), "verification");
+  it("groups statuses the way the Orders workspace shows them", () => {
+    assert.equal(stageOf("QUOTATION_READY"), "quotation");
+    assert.equal(stageOf("PFI_ISSUED"), "awaiting-payment");
+    assert.equal(stageOf("AWAITING_PAYMENT"), "awaiting-payment");
+    assert.equal(stageOf("PAYMENT_SUBMITTED"), "checking-payment");
+    assert.equal(stageOf("PAYMENT_CONFIRMED"), "payment-confirmed");
+    assert.equal(stageOf("LOADING"), "depot");
+    assert.equal(stageOf("IN_TRANSIT"), "transit");
+    assert.equal(stageOf("DISPATCHED"), "transit");
+    assert.equal(stageOf("CLOSED"), "complete");
+    assert.equal(stageOf("CANCELLED"), "exceptions");
   });
 
-  it("searches every stage when no tab was chosen, but keeps a chosen tab", () => {
-    assert.equal(parseStage(undefined, true), "all");
-    assert.equal(parseStage("", true), "all");
-    assert.equal(parseStage("verification", true), "verification");
-    assert.equal(parseStage(undefined, false), "pending");
+  it("defaults unknown stage values to all orders", () => {
+    for (const value of ["<script>", "ALL", "", undefined, 42]) assert.equal(parseStage(value), "all", String(value));
+    assert.equal(parseStage("all"), "all");
+    assert.equal(parseStage("checking-payment"), "checking-payment");
+    assert.equal(parseStage("transit"), "transit");
   });
 
   it("labels statuses for people", () => {

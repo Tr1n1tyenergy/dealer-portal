@@ -189,7 +189,7 @@ export function StaffHomeDashboard(props: StaffHomeProps) {
                   <p className="sh-panel__sub">Key items requiring your attention.</p>
                 </div>
               </div>
-              <Link href="/intelligence/retail/orders?stage=verification" className="sh-panel__link">
+              <Link href="/intelligence/retail/orders?stage=checking-payment" className="sh-panel__link">
                 View all tasks →
               </Link>
             </header>

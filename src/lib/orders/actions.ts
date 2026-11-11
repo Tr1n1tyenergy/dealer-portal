@@ -96,6 +96,7 @@ export async function internalOrderAction(formData: FormData) {
   const session = await requireInternal();
   await applyInternalOrderAction(session.user, formData);
   revalidatePath("/intelligence/retail/orders");
+  revalidatePath(`/intelligence/retail/orders/${String(formData.get("orderId") || "")}`);
 }
 
 export async function depotOrderAction(formData: FormData) {

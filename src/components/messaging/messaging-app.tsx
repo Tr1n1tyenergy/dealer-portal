@@ -233,10 +233,13 @@ function normalizeConversations(
 
 export function MessagingApp({
   variant = "staff",
+  appearance,
   initialConversations = [],
   canOpenUsers = false,
 }: {
   variant?: "staff" | "dealer";
+  /** "light" renders the white mockup theme (dealer default); staff default is the glassy navy. */
+  appearance?: "glass" | "light";
   initialConversations?: ConversationRow[];
   /** Staff only: whether "View Profile" may link to the Retail Users page (Admins). */
   canOpenUsers?: boolean;
@@ -245,6 +248,8 @@ export function MessagingApp({
   const myId = session?.user?.id ?? "";
   /** Dealer portal uses the same full UI as staff; only deep-links differ. */
   const isDealerPortal = variant === "dealer";
+  /** Mockup empty states + Contact Intelligence cards: dealer portal and the light staff page. */
+  const mockupLayout = isDealerPortal || appearance === "light";
 
   const [conversations, setConversations] = useState<ConversationRow[]>(() =>
     normalizeConversations(initialConversations)
@@ -566,7 +571,7 @@ export function MessagingApp({
 
   return (
     <div
-      className={`msg-app msg-app--${isDealerPortal ? "dealer" : "staff"} msg-app--pane-${mobilePane}`}
+      className={`msg-app msg-app--${isDealerPortal || appearance === "light" ? "dealer" : "staff"} msg-app--pane-${mobilePane}`}
     >
       {/* LEFT — Conversations */}
       <aside className="msg-sidebar">
@@ -657,7 +662,7 @@ export function MessagingApp({
         {!activeId ? (
           <div className="msg-thread__empty">
             <div className="msg-thread__empty-card">
-              {isDealerPortal ? (
+              {mockupLayout ? (
                 <div className="msg-thread__empty-ico" aria-hidden>
                   <MessageCircle size={36} strokeWidth={1.75} />
                 </div>
@@ -665,14 +670,16 @@ export function MessagingApp({
                 <MessageSquarePlus size={28} strokeWidth={1.5} />
               )}
               <strong>
-                {isDealerPortal ? "No conversation selected" : "Select a chat or start a new conversation"}
+                {mockupLayout ? "No conversation selected" : "Select a chat or start a new conversation"}
               </strong>
               <span>
                 {isDealerPortal
                   ? "Select a conversation from the left, or start a new chat with the Trinity team."
-                  : "Dealer and internal conversations appear here in real time."}
+                  : mockupLayout
+                    ? "Select a conversation from the left, or start a new chat with a dealer or Trinity team member."
+                    : "Dealer and internal conversations appear here in real time."}
               </span>
-              {isDealerPortal ? (
+              {mockupLayout ? (
                 <button
                   type="button"
                   className="msg-thread__empty-cta"
@@ -885,7 +892,7 @@ export function MessagingApp({
 
       {/* RIGHT — Contact intelligence */}
       <aside className="msg-context">
-        {isDealerPortal ? (
+        {mockupLayout ? (
           <header className="msg-context__head">
             <h2>Contact Intelligence</h2>
             <Info size={16} strokeWidth={2} aria-hidden />
@@ -893,16 +900,18 @@ export function MessagingApp({
         ) : null}
 
         {!activeId ? (
-          isDealerPortal ? (
+          mockupLayout ? (
             <div className="msg-context__idle">
               <p className="msg-context__hint">
-                Select a conversation to see your orders and shared files.
+                {isDealerPortal
+                  ? "Select a conversation to see your orders and shared files."
+                  : "Select a conversation to see dealer details, related orders and shared files."}
               </p>
               <section className="msg-card">
                 <header className="msg-card__head">
                   <span>
                     <CalendarDays size={15} strokeWidth={1.75} />
-                    Recent Orders
+                    {isDealerPortal ? "Recent Orders" : "Related Orders"}
                   </span>
                   <Link href={ordersHref}>View all →</Link>
                 </header>
@@ -916,7 +925,8 @@ export function MessagingApp({
                     <FileText size={15} strokeWidth={1.75} />
                     Shared Files
                   </span>
-                  <Link href={documentsHref}>View all →</Link>
+                  {/* shortcut: staff have no file view until message attachments exist, so no link there yet */}
+                  {isDealerPortal ? <Link href={documentsHref}>View all →</Link> : null}
                 </header>
                 <div className="msg-card__body">
                   <p className="msg-card__empty">No shared documents yet.</p>

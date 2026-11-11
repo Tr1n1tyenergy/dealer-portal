@@ -646,6 +646,7 @@ enum SupportTicketStatus {
   OPEN
   IN_PROGRESS
   AWAITING_RESPONSE
+  RESOLVED
   CLOSED
 }
 
@@ -661,6 +662,12 @@ enum SupportTicketDepartment {
   FINANCE
   SALES
   SUPPLY
+  OPERATIONS
+}
+
+enum SupportTicketOrigin {
+  DEALER
+  INTERNAL
 }
 
 enum SupportMessageVisibility {
@@ -672,6 +679,8 @@ enum SupportTicketEventType {
   CREATED
   STATUS_CHANGED
   ASSIGNED
+  PRIORITY_CHANGED
+  DEPARTMENT_CHANGED
   MESSAGE_ADDED
   ATTACHMENT_ADDED
   RESOLVED
@@ -688,8 +697,10 @@ model SupportTicketSequence {
 model SupportTicket {
   id                   String                   @id @default(cuid())
   reference            String                   @unique
-  dealerOrganizationId String
-  dealerOrganization   DealerOrganization       @relation(fields: [dealerOrganizationId], references: [id], onDelete: Cascade)
+  /** DEALER tickets belong to an organisation; INTERNAL tickets may not. */
+  origin               SupportTicketOrigin      @default(DEALER)
+  dealerOrganizationId String?
+  dealerOrganization   DealerOrganization?      @relation(fields: [dealerOrganizationId], references: [id], onDelete: Cascade)
   createdById          String
   createdBy            User                     @relation("SupportTicketCreator", fields: [createdById], references: [id])
   assigneeId           String?
