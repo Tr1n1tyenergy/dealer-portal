@@ -6,7 +6,7 @@ import { logActivity } from "@/lib/activity";
 import { resolveOdooPartnerId } from "@/lib/dealers/registry";
 import { getOdooClient } from "@/lib/integrations/odoo/client";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
-import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
+import { dealerUnitPriceForStation } from "@/lib/integrations/odoo/dealer-prices";
 import { PFI_SIGNATORIES } from "@/lib/company/pfi-settings";
 import { pfiTotals, PFI_VAT_RATE } from "@/lib/orders/pfi-totals";
 import { assertTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
@@ -206,7 +206,7 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
           id: line.id,
           product,
           quantityLitres: line.quantityLitres,
-          unitPrice: stationCode ? epraUnitPriceForStation(stationCode, product) : null,
+          unitPrice: stationCode ? dealerUnitPriceForStation(stationCode, product) : null,
         };
       });
     const quotation = await client.createQuotation({
@@ -234,7 +234,7 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
       // Freeze the price sent to Odoo on each line; the PFI is worked out from it.
       for (const line of fuelLines) {
         if (line.unitPrice == null) continue;
-        await tx.dealerOrderLine.update({ where: { id: line.id }, data: { unitPriceExVat: line.unitPrice.toFixed(2) } });
+        await tx.dealerOrderLine.update({ where: { id: line.id }, data: { unitPriceExVat: String(line.unitPrice) } });
       }
       return recordTransition(tx, {
         orderId,
@@ -326,8 +326,8 @@ export async function generatePfi(orderId: string, actorId: string | null) {
     .filter((line) => line.product === "PMS" || line.product === "AGO")
     .map((line) => {
       const product = line.product as "PMS" | "AGO";
-      const today = stationCode ? epraUnitPriceForStation(stationCode, product) : null;
-      return { line, product, price: line.unitPriceExVat ?? (today == null ? null : today.toFixed(2)) };
+      const today = stationCode ? dealerUnitPriceForStation(stationCode, product) : null;
+      return { line, product, price: line.unitPriceExVat ?? (today == null ? null : String(today)) };
     });
 
   if (fuelLines.length === 0 || fuelLines.some((l) => l.price == null)) {

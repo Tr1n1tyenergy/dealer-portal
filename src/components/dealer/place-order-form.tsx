@@ -25,7 +25,7 @@ import {
 import { useFormStatus } from "react-dom";
 import { placeOrderAction } from "@/lib/orders/actions";
 import { deliveryWindow, MAX_LITRES, typedLitres } from "@/lib/orders/order-input";
-import { epraUnitPriceForStation } from "@/lib/integrations/odoo/epra-temp-prices";
+import { dealerUnitPriceForStation } from "@/lib/integrations/odoo/dealer-prices";
 import { formatMoney, pfiTotals } from "@/lib/orders/pfi-totals";
 import { DEALER_FORECOURT_SRC, dealerHeroPhotoStyle } from "@/lib/dealer/hero";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
@@ -112,12 +112,12 @@ function estimateTotals(stationCode: string | null | undefined, pms: number, ago
   if (!stationCode) return null;
   const lines: { product: "PMS" | "AGO"; quantityLitres: number; unitPriceExVat: string }[] = [];
   if (pms > 0) {
-    const price = epraUnitPriceForStation(stationCode, "PMS");
+    const price = dealerUnitPriceForStation(stationCode, "PMS");
     if (price == null) return null;
     lines.push({ product: "PMS", quantityLitres: pms, unitPriceExVat: String(price) });
   }
   if (ago > 0) {
-    const price = epraUnitPriceForStation(stationCode, "AGO");
+    const price = dealerUnitPriceForStation(stationCode, "AGO");
     if (price == null) return null;
     lines.push({ product: "AGO", quantityLitres: ago, unitPriceExVat: String(price) });
   }
