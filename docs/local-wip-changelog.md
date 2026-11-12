@@ -3,7 +3,7 @@
 **Purpose:** Document local codebase changes that are **not yet pushed** to GitHub (`Tr1n1tyenergy/dealer-portal`).  
 **Workflow:** Update this file whenever we change local code. Keep everything on the same local feature commit until we explicitly push.
 
-**Branch (intended):** `feature/odoo-external-id-mapping`  
+**Branch (intended):** `feature/dealer-side-hero-plus-users-page-rebuild` (prior WIP also lived on `feature/odoo-external-id-mapping`)  
 **Do not push** until the team approves.
 
 ---
@@ -71,6 +71,18 @@ Move portal → Odoo quotation create from numeric/hardcoded IDs to **Odoo Exter
 | `src/app/api/messaging/files/**` | Authorized order/PFI file download |
 | `src/styles/responsive-tokens.css` | Site-wide `--tri-*` fluid type/space/gutter/hero caps |
 | `.cursor/rules/responsive-tokens.mdc` | Discipline: new UI consumes shared tokens |
+| `src/app/intelligence/retail/(home)/users/page.tsx` | Users Management under Staff Portal shell |
+| `src/components/retail/retail-users-client.tsx` | Premium Users page (invites, tabs, roles) |
+| `src/app/intelligence/retail/retail-users.css` | Light Users design system |
+| `src/components/retail/station-multi-select.tsx` | Searchable multi-station invite dropdown |
+| `src/components/retail/create-role-modal.tsx` | Create Role modal |
+| `src/lib/users/staff-role-templates.ts` | Role catalog + template CRUD |
+| `src/lib/users/system-role-defaults.ts` | System role matrix in SystemSetting + user override apply |
+| `src/lib/permissions/app-modules.ts` | Five app-module → tab registry |
+| `src/components/retail/role-permissions-panel.tsx` | Module selector + access switch + tab matrix |
+| `src/app/api/retail/roles/**` | Roles API |
+| `prisma/migrations/20261112120000_staff_role_templates/` | `StaffRoleTemplate` table |
+| `src/components/dealer/dealer-hero-media.tsx` | Staff-identical dealer hero plate |
 
 ### Mapping captured
 
@@ -117,6 +129,73 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-12 — Invite/role header icons match text height + fluid Users
+- Invite Dealer / Invite Staff / role detail icons stretch to heading+caption height (1:1 tile).
+- Users invites/roles spacing and type consume `--tri-*` tokens; tighter form columns on ≤1366px laptops.
+
+### 2026-11-12 — Invite cards: tiny vertical spacing
+- Invite Dealer / Invite Staff: slightly more form gap and head/inner padding for clearer vertical rhythm.
+
+### 2026-11-12 — Module-based Roles & Permissions (5 app modules)
+- Roles UI: Select Module cards (Dealer / Retail / Depot / Note Taker / Presentations), Module Access switch, contextual Navigation Tab matrix (Attachment 2).
+- Extended `PermissionModule` with `access*` gates + dealer/depot/note/pres tab keys; `canUser` requires parent module access; middleware + note-taker/presentations/depot gates.
+- Persistence still flat PermissionKey lists on `StaffRoleTemplate` / `SystemSetting` / user overrides; `migratePermissionKeys` infers `accessRetail` from legacy tab grants.
+- New: `src/lib/permissions/app-modules.ts`, `role-permissions-panel.tsx`.
+
+### 2026-11-12 — Permissions table denser + mockup line icons
+- Reduced row/header vertical padding; removed vertical column rules; light zebra rows.
+- Module column icons: thin-stroke slate line icons (no filled blue tiles), aligned like Roles & Permissions mockup.
+
+### 2026-11-12 — Roles permissions: equal columns + admin-editable system matrices
+- Permissions table: equal ⅓ columns, premium wrap, header icons (info/eye/pencil), row icons for real Staff/Dealer header tabs (Orders, Analytics, Messages, Support, Users, Settings, Stock Sale Reporting + Admin/Activity).
+- Admins with Users write can edit system-role checkboxes; saves persist to `SystemSetting` (`staff.roleDefaults.*`) and apply Allow/Deny overrides to all INTERNAL users on that role so nav/`canUser` enforce immediately after session refresh.
+- Custom role templates unchanged; Admin system role cannot drop Admin/Users write.
+- Files: `system-role-defaults.ts`, `staff-role-templates.ts`, `permissions.ts`, `api/retail/roles/[id]`, `retail-users-client.tsx`, `retail-users.css`.
+
+### 2026-11-12 — Active Users tab accent: thin top blue bar
+- Selected management tab: yellow bottom dash replaced with a thin full-width blue highlight along the top of the blue pill.
+
+### 2026-11-12 — Station dropdown portal + wider panel
+- Station menu portals to `document.body` (fixed, z-index 9999) so it is never clipped by Invite Dealer card/`overflow`.
+- Wider panel (~1.65× trigger, min 320px); search row forced single-line icon + placeholder with padding.
+
+### 2026-11-12 — Station dropdown match Premium mockup
+- Restyled Invite Dealer station multi-select to Premium Invite Dealer Station Selector: tinted search field, light-blue selected rows, square navy checkboxes, circular blue pin badges, white footer with blue count + Clear all.
+
+### 2026-11-12 — Users tabs bare + station label one line
+- Removed yellow top accent from Active/Pending/Roles tabs bar.
+- Station selector placeholder shortened to “Select station...” and forced single-line ellipsis (no wrap).
+
+### 2026-11-12 — Invite cards fit + bare (no top accent)
+- Invite Dealer / Invite Staff: removed colored top highlight (plain white cards).
+- Staff row overflow fix: equal `minmax(0,1fr)` columns + `min-width:0` on fields so Last Name stays inside the card.
+
+### 2026-11-12 — Invite cards: blue accent + tinted inputs
+- Invite Dealer / Invite Staff: top highlight is Trinity blue (`#3551A5`), not yellow.
+- Input controls: fixed ~2.05rem height, light blue fill `rgba(53,81,165,0.06)`, matching mockup sleek row.
+
+### 2026-11-12 — Users page mockup polish (yellow accents + denser cards)
+- Removed Invite Dealer corner forecourt image (card is all white).
+- Yellow top accent on invite cards, tabs bar, content panels, roles side/main.
+- Tighter vertical spacing: shorter inputs/buttons, denser invite/roles/table padding; tabs in a white bar; square perm checkboxes like mockup.
+
+### 2026-11-12 — Staff Portal hero unified to Messages plate
+- Extracted Messages `.so-hero` into shared `staff-portal-hero.css` (asset `trinitynrg-forecourt-at-sunset.png?v=5`, `background-size:cover`, `background-position:42% 30%`, `min-height:220px`, same padding/gradient).
+- Home / Stock Sale Reporting / Users / Orders / Support / Messages all use that exact plate (no per-page `<img>` 128% crop). Markup aligned to Messages eyebrow/title/sub pattern.
+- Fix: CSS `@import` of the shared hero failed under Turbopack (Home showed navy block + dark text). Import `staff-portal-hero.css` from `staff-portal-shell.tsx` instead so every Staff Portal page loads the plate.
+
+### 2026-11-12 — Fix Users route conflict (home vs workspace)
+- Removed `(workspace)/users` — Next.js cannot have parallel `users` pages under `(home)` and `(workspace)` for the same path. Users lives only under Staff Portal `(home)/users`; header Users nav already points there.
+
+### 2026-11-12 — Staff Portal Users Management redesign
+- Moved `/intelligence/retail/users` under Staff Portal `(home)` shell (hero + horizontal nav).
+- Premium light UI: sunset forecourt hero, Invite Dealer / Invite Staff cards overlapping hero, three tabs (Active Users, Pending Invitations, Roles & Permissions).
+- Invite Dealer: searchable multi-station selector (Upload 4), org identification panel (Upload 5), existing invite API + External ID rules.
+- Invite Staff: department + role dropdown; custom role templates apply as permission allow-ticks on invite.
+- Roles: system roles (Admin / Executive / Staff Member) + `StaffRoleTemplate` CRUD; Create Role modal (Upload 6); permission matrix READ/WRITE; duplicate/edit/delete for custom templates.
+- New: `prisma` model + migration `20261112120000_staff_role_templates`, `src/lib/users/staff-role-templates.ts`, `/api/retail/roles`, `create-role-modal.tsx`; rewritten `retail-users-client.tsx` / `retail-users.css` / `station-multi-select.tsx`.
+- Staff Portal nav: Users link when `retailUsers.view`.
+
 ### 2026-11-11 — Monetary export + site fluid scale
 - Monetary Sales: single **Export Report** dropdown (CSV / Excel / PDF), same pattern as reconciliation.
 - Site-wide fluid root (`--tri-root-font`) + wider `--tri-content-max`; dealer hero grows with content (no CTA clip); staff wraps use content-max token.
@@ -138,6 +217,11 @@ Other product.template candidates kept for reference only.
 
 ### 2026-11-11 — SSR section selector cards
 - Stock Sale section cards restyled like Staff Home KPI cards (top accent borders, softer shadow); removed yellow underline on selected state; kept blue fill when active.
+
+### 2026-11-12 — Dealer heroes use staff-identical <img> crop
+- Background-image crop could not match staff. Dealer portal heroes now render `<DealerHeroMedia />` — same asset and exact CSS as staff `.sh-hero__img` / `.ssr-hero__img` (`width:128%`, `height:100%`, `object-fit:cover`, `object-position:18% 30%`).
+- Wired on dashboard, orders, order tracking, place order, stock reporting/wizard/submitted, messaging, support. Access/login/forgot-password unchanged.
+- Fix: force `max-width:none` + `height:100% !important` so Tailwind/preflight `img { max-width:100%; height:auto }` cannot collapse the plate to a top-sky-only crop (canopy was falling below the hero).
 
 ### 2026-11-11 — Staff hero revert to prior forecourt plate
 - Reverted staff Home/SSR heroes to `trinitynrg-forecourt-at-sunset.png?v=6` with prior `128%` left-pin / `object-position: 18% 30%`. Messaging/Analytics/Dealers back to `dashboard-hero-station.jpg` prior crop.

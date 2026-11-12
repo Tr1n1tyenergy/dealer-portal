@@ -6,7 +6,7 @@ import { canUser, parseOverrides, PERMISSION_KEYS, type PermissionKey, type Staf
 export type PermissionChange = { key: string; value: "allow" | "deny" | "inherit" };
 type Result = { ok: true; permissions: string } | { ok: false; status: 400 | 403 | 404; message: string };
 
-const MAX_CHANGES = 14;
+const MAX_CHANGES = 24;
 
 /**
  * Apply Allow / Deny / inherit ticks to a staff member's permissions. Only people with Act on

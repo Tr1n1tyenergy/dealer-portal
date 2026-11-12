@@ -1,7 +1,7 @@
 import { Check, FileCheck2 } from "lucide-react";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
 import { STOCK_REPORT_WIZARD_STAGES } from "@/lib/stock-reporting/constants";
 import { DealerHeroActions } from "./dealer-hero-actions";
+import { DealerHeroMedia } from "./dealer-hero-media";
 import "@/app/dealer/dealer-stock-wizard.css";
 
 export function StockReportingSubmittedShell({
@@ -15,7 +15,8 @@ export function StockReportingSubmittedShell({
 }) {
   return (
     <div className="ssw ssw--submitted">
-      <section className="ssw__hero" style={dealerHeroPhotoStyle} aria-label="Daily report submitted">
+      <section className="ssw__hero" aria-label="Daily report submitted">
+        <DealerHeroMedia />
         <div className="ssw__hero-veil" aria-hidden />
         <div className="ssw__hero-inner">
           <div className="ssw__hero-copy">

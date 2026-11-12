@@ -243,29 +243,19 @@ export function StaffStockReconciliationDashboard(props: StaffReconViewModel) {
 
   return (
     <div className="ssr" aria-busy={pending}>
-      <section className="ssr-hero" aria-label="Stock Sale Reporting hero">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="ssr-hero__img"
-          src="/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=6"
-          alt=""
-        />
-        <div className="ssr-hero__veil" aria-hidden />
-        <div className="ssr-hero__copy">
-          <span className="ssr-hero__accent" aria-hidden />
-          <div>
-            <p className="ssr-hero__kicker">Stock Sale Reporting</p>
-            <h1 className="ssr-hero__title">Stock Sale Intelligence</h1>
-            <p className="ssr-hero__sub">
-              {props.section === "intelligence"
-                ? "Tank levels, sales targets, stock holding and sales projections for each station."
-                : props.section === "monetary"
-                  ? "Revenue, collections, targets and performance analysis from dealer shift reports."
-                  : "Station stock reconciliation, inventory monitoring and sales performance from dealer shift reports."}
-            </p>
-          </div>
+      <header className="ssr-hero" aria-label="Stock Sale Reporting hero">
+        <div className="ssr-hero__text">
+          <div className="ssr-hero__eyebrow">Stock Sale Reporting</div>
+          <h1>Stock Sale Intelligence</h1>
+          <p>
+            {props.section === "intelligence"
+              ? "Tank levels, sales targets, stock holding and sales projections for each station."
+              : props.section === "monetary"
+                ? "Revenue, collections, targets and performance analysis from dealer shift reports."
+                : "Station stock reconciliation, inventory monitoring and sales performance from dealer shift reports."}
+          </p>
         </div>
-      </section>
+      </header>
 
       <div className="ssr-wrap">
         <nav className="ssr-sections" aria-label="Stock Sale Reporting sections">

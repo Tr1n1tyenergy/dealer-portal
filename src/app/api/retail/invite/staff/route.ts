@@ -13,13 +13,15 @@ import { logActivity } from "@/lib/activity";
 import { mayExposeSensitiveAuthUrls } from "@/lib/security/expose-sensitive-urls";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { STAFF_ROLES } from "@/lib/access";
+import { resolveInviteRole } from "@/lib/users/staff-role-templates";
 
 const schema = z.object({
   email: z.string().max(254).email(),
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
   department: z.string().min(1).max(100).default("Operations"),
-  role: z.enum(STAFF_ROLES).default("STANDARD_USER"),
+  role: z.enum(STAFF_ROLES).optional(),
+  roleTemplateId: z.string().min(1).max(64).optional().nullable(),
 });
 
 export async function POST(req: Request) {
@@ -39,8 +41,14 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
 
+  const resolved = await resolveInviteRole({
+    role: parsed.data.role,
+    roleTemplateId: parsed.data.roleTemplateId,
+  });
+  if (!resolved.ok) return jsonError(resolved.message, resolved.status);
+
   if (
-    parsed.data.role === "SUPER_ADMIN" &&
+    resolved.role === "SUPER_ADMIN" &&
     auth.session.user.role !== "SUPER_ADMIN"
   ) {
     return jsonError("Only Admins can invite Admins.", 403);
@@ -58,10 +66,10 @@ export async function POST(req: Request) {
         lastName: parsed.data.lastName,
         email,
         department: parsed.data.department,
-        role: parsed.data.role,
+        role: resolved.role,
         accountType: "INTERNAL",
         status: "PENDING",
-        permissions: "[]",
+        permissions: resolved.permissions,
       },
     })
     .catch((error: unknown) => {
@@ -101,7 +109,11 @@ export async function POST(req: Request) {
     action: "STAFF_INVITED",
     entity: "User",
     entityId: user.id,
-    meta: { email: user.email },
+    meta: {
+      email: user.email,
+      role: resolved.role,
+      roleTemplate: resolved.templateName ?? null,
+    },
   });
 
   const payload: Record<string, unknown> = {

@@ -18,7 +18,7 @@ import {
   RefreshCw,
   Truck,
 } from "lucide-react";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import {
   continueStockReportAction,
   resetTodaysStockReportAction,
@@ -144,11 +144,8 @@ export function StockReportingDashboard(props: StockReportingDashboardProps) {
 
   return (
     <div className="ssr">
-      <section
-        className="ssr__hero"
-        style={dealerHeroPhotoStyle}
-        aria-label="Stock Sale Reporting"
-      >
+      <section className="ssr__hero" aria-label="Stock Sale Reporting">
+        <DealerHeroMedia />
         <div className="ssr__hero-veil" aria-hidden />
         <div className="ssr__hero-inner">
           <div className="ssr__hero-copy">

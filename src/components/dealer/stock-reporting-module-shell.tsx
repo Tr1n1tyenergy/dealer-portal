@@ -6,7 +6,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ClipboardList, Clock3, Truck } from "lucide-react";
 import { DealerHeroActions } from "./dealer-hero-actions";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "./dealer-hero-media";
 import "@/app/dealer/dealer-stock-reporting.css";
 
 function moduleIcon(key: StockReportingModuleKey) {
@@ -31,7 +31,8 @@ export function StockReportingModuleShell({
 }) {
   return (
     <div className="ssr">
-      <section className="ssr__hero" style={dealerHeroPhotoStyle} aria-label={title}>
+      <section className="ssr__hero" aria-label={title}>
+        <DealerHeroMedia />
         <div className="ssr__hero-veil" aria-hidden />
         <div className="ssr__hero-inner">
           <div className="ssr__hero-copy">

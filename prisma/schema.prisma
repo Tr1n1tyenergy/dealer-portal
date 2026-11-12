@@ -993,3 +993,23 @@ model StationStockIntelligenceConfig {
   @@index([stationId, effectiveFrom])
   @@index([createdById])
 }
+
+/**
+ * Named permission templates for internal staff invites (Create Role).
+ * System Role enum stays fixed; templates apply as User.permissions allow-ticks
+ * on STANDARD_USER (or another baseRole) at invite time.
+ */
+model StaffRoleTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  /** JSON array of PermissionKey strings (e.g. ["orders.view","orders.act"]) */
+  permissions String   @default("[]")
+  /** Prisma Role enum value applied when inviting with this template */
+  baseRole    Role     @default(STANDARD_USER)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+}

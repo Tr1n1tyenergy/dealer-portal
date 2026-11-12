@@ -1,0 +1,127 @@
+/*
+  Canonical Staff Portal hero plate.
+  Source of truth: Messages tab (.so-hero) — do not diverge per page.
+  All staff (home) pages must share this exact image, crop, size, and padding.
+*/
+
+.sp-hero,
+.so-hero,
+.sh-hero,
+.ssr-hero,
+.ru-hero {
+  position: relative;
+  min-height: 220px;
+  background-color: #071833;
+  background-image:
+    linear-gradient(90deg, rgba(7, 24, 51, 0.72) 0%, rgba(7, 24, 51, 0.35) 45%, rgba(7, 24, 51, 0.05) 75%),
+    url("/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=5");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 42% 30%;
+  display: flex;
+  align-items: flex-start;
+  padding: 34px clamp(16px, 4vw, 48px) 86px;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Copy block — same gold bar + type as Messages */
+.sp-hero__text,
+.so-hero__text,
+.sh-hero__text,
+.ssr-hero__text,
+.ru-hero__text,
+.sh-hero__copy,
+.ssr-hero__copy,
+.ru-hero__copy {
+  border-left: 4px solid #ffcc00;
+  padding-left: 16px;
+  color: #fff !important;
+  max-width: 48rem;
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: 0;
+  transform: none;
+  top: auto;
+  left: auto;
+  right: auto;
+  width: auto;
+}
+
+.sp-hero__eyebrow,
+.so-hero__eyebrow,
+.sh-hero__eyebrow,
+.ssr-hero__eyebrow,
+.ru-hero__eyebrow,
+.sh-hero__kicker,
+.ssr-hero__kicker,
+.ru-hero__kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffe071;
+}
+
+.sp-hero__text h1,
+.so-hero__text h1,
+.sh-hero__text h1,
+.ssr-hero__text h1,
+.ru-hero__text h1,
+.sh-hero__title,
+.ssr-hero__title,
+.ru-hero__title {
+  margin: 4px 0 6px;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff !important;
+  line-height: 1.15;
+}
+
+.sp-hero__text p,
+.so-hero__text p,
+.sh-hero__text p,
+.ssr-hero__text p,
+.ru-hero__text p,
+.sh-hero__sub,
+.ssr-hero__sub,
+.ru-hero__sub {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88) !important;
+  max-width: 48rem;
+}
+
+/* Legacy img/veil/accent from older hero implementations — hide so they cannot fight the plate */
+.sp-hero__img,
+.so-hero__img,
+.sh-hero__img,
+.ssr-hero__img,
+.ru-hero__img,
+.sp-hero__veil,
+.so-hero__veil,
+.sh-hero__veil,
+.ssr-hero__veil,
+.ru-hero__veil,
+.sp-hero__accent,
+.sh-hero__accent,
+.ssr-hero__accent,
+.ru-hero__accent {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .sp-hero,
+  .so-hero,
+  .sh-hero,
+  .ssr-hero,
+  .ru-hero {
+    padding: 22px 16px 74px;
+    min-height: 180px;
+  }
+}

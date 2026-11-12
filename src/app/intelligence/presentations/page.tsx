@@ -1,11 +1,16 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { canUser } from "@/lib/permissions";
 import { AppShell } from "@/components/layout/app-shell";
 import { PresentationsClient } from "./presentations-client";
 
 export default async function PresentationsPage() {
   const session = await requireSession();
+  if (!canUser(session.user, "presDecks", "view")) {
+    redirect("/intelligence/dashboard");
+  }
   const isAdmin = session.user.role === "SUPER_ADMIN";
 
   const [noteSessions, presentations] = await Promise.all([

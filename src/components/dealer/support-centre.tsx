@@ -70,7 +70,7 @@ import {
 } from "@/lib/support/faq-data";
 import { SUPPORT_CONTACT } from "@/components/dealer/support-card";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "@/app/dealer/dealer-support.css";
 
 export type SupportSection = "tickets" | "new" | "faq" | "contact";
@@ -215,7 +215,8 @@ export function SupportCentre({
 
   return (
     <div className="ds">
-      <section className="ds__hero" style={dealerHeroPhotoStyle}>
+      <section className="ds__hero">
+        <DealerHeroMedia />
         <div className="ds__hero-veil" aria-hidden />
         <div className="ds__hero-inner">
           <div className="ds__hero-copy">

@@ -1,4 +1,5 @@
 /* Staff Stock Sale Reporting — Stock Reconciliation */
+/* Hero plate: imported via staff-portal-shell.tsx (staff-portal-hero.css) */
 
 .ssr {
   --ssr-blue: #3551a5;
@@ -12,94 +13,7 @@
   padding-bottom: clamp(1.5rem, 3vh, 2.5rem);
 }
 
-.ssr-hero {
-  position: relative;
-  height: var(--tri-hero-height-capped, clamp(180px, 22vw, 220px));
-  overflow: hidden;
-  background: #071833;
-}
-
-.ssr-hero__img {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  /*
-   * Wide laptop heroes are often width-locked under cover (object-position X no-ops).
-   * Oversize + pin left crops the right of the plate so the canopy sits further right.
-   */
-  left: 0;
-  right: auto;
-  width: 128%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 18% 30%;
-}
-
-.ssr-hero__veil {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(
-    90deg,
-    rgba(7, 24, 51, 0.74) 0%,
-    rgba(7, 24, 51, 0.45) 36%,
-    rgba(7, 24, 51, 0.12) 66%,
-    transparent 100%
-  );
-}
-
-.ssr-hero__copy {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 54%;
-  z-index: 2;
-  display: flex;
-  gap: 0.85rem;
-  align-items: flex-start;
-  width: 100%;
-  max-width: var(--tri-content-max, 1680px);
-  margin: 0 auto;
-  transform: translateY(-50%);
-  padding: 0 calc(var(--tri-page-gutter, 1.5rem) + 1.25rem) 0
-    calc(var(--tri-page-gutter, 1.5rem) + 2.75rem);
-  box-sizing: border-box;
-}
-
-.ssr-hero__accent {
-  width: 4px;
-  align-self: stretch;
-  min-height: 4.25rem;
-  border-radius: 999px;
-  background: var(--ssr-yellow);
-  flex-shrink: 0;
-}
-
-.ssr-hero__kicker {
-  margin: 0 0 0.3rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.ssr-hero__title {
-  margin: 0;
-  font-size: clamp(1.45rem, 2.2vw, 1.95rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #fff;
-  line-height: 1.15;
-}
-
-.ssr-hero__sub {
-  margin: 0.4rem 0 0;
-  max-width: 48ch;
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.88);
-}
+/* Hero plate: staff-portal-hero.css (Messages source of truth) */
 
 .ssr-wrap {
   max-width: var(--tri-content-max, 1680px);

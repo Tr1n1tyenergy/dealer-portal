@@ -27,7 +27,8 @@ import { placeOrderAction } from "@/lib/orders/actions";
 import { deliveryWindow, MAX_LITRES, typedLitres } from "@/lib/orders/order-input";
 import { dealerUnitPriceForStation } from "@/lib/integrations/odoo/dealer-prices";
 import { formatMoney, pfiTotals } from "@/lib/orders/pfi-totals";
-import { DEALER_FORECOURT_SRC, dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DEALER_FORECOURT_SRC } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 
 type Station = { id: string; name: string; code: string | null };
@@ -165,7 +166,8 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
 
   return (
     <div className="po">
-      <section className="po__hero" style={dealerHeroPhotoStyle}>
+      <section className="po__hero">
+        <DealerHeroMedia />
         <div className="po__hero-veil" aria-hidden />
         <div className="po__hero-inner">
           <nav className="po__crumbs" aria-label="Breadcrumb">

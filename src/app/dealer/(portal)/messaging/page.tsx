@@ -1,7 +1,7 @@
 import { MessagingApp } from "@/components/messaging/messaging-app";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { listConversationsForUser } from "@/lib/messaging/service";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { requireDealer } from "@/lib/session";
 import "../../dealer-messaging.css";
 
@@ -28,7 +28,8 @@ export default async function DealerMessagingPage() {
 
   return (
     <div className="dm">
-      <section className="dm__hero" style={dealerHeroPhotoStyle}>
+      <section className="dm__hero">
+        <DealerHeroMedia />
         <div className="dm__hero-veil" aria-hidden />
         <div className="dm__hero-inner">
           <div className="dm__hero-copy">
