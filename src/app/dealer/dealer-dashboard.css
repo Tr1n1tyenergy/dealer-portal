@@ -27,9 +27,7 @@
   border-radius: 0 0 18px 18px;
   overflow: hidden;
   background-color: #071833;
-  background-position: var(--dp-hero-photo-position, center center) !important;
-  background-size: var(--dp-hero-photo-size, cover) !important;
-  background-repeat: no-repeat;
+  background-image: none !important;
   color: #fff;
 }
 

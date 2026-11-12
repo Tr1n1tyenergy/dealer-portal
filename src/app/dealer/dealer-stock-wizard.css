@@ -24,8 +24,7 @@
   overflow: hidden;
   color: #fff;
   background-color: #071833;
-  background-position: var(--dp-hero-photo-position, center center) !important;
-  background-size: var(--dp-hero-photo-size, 100% 100%) !important;
+  background-image: none !important;
   background-repeat: no-repeat;
 }
 

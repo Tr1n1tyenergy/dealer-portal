@@ -1,7 +1,7 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import { homeForAccount, isPublicPath, loginPathFor } from "@/lib/access";
-import { canUser } from "@/lib/permissions";
+import { canAccessAppModule, canUser } from "@/lib/permissions";
 
 export default withAuth(
   function middleware(req) {
@@ -33,6 +33,12 @@ export default withAuth(
       if (adminArea && !canUser(token, adminArea, "view")) {
         return NextResponse.redirect(new URL("/intelligence/dashboard", req.url));
       }
+      if (path.startsWith("/intelligence/note-taker") && !canUser(token, "noteSessions", "view")) {
+        return NextResponse.redirect(new URL("/intelligence/dashboard", req.url));
+      }
+      if (path.startsWith("/intelligence/presentations") && !canUser(token, "presDecks", "view")) {
+        return NextResponse.redirect(new URL("/intelligence/dashboard", req.url));
+      }
     }
 
     if (path.startsWith("/dealer")) {
@@ -42,7 +48,13 @@ export default withAuth(
     }
 
     if (path.startsWith("/depot")) {
-      if (accountType !== "DEPOT" && role !== "SUPER_ADMIN") {
+      if (accountType === "DEPOT") {
+        // Depot logins keep operational access (account-type portal).
+      } else if (accountType === "INTERNAL" && role === "SUPER_ADMIN") {
+        if (!canAccessAppModule(token, "depot") || !canUser(token, "depotDashboard", "view")) {
+          return NextResponse.redirect(new URL("/intelligence/dashboard", req.url));
+        }
+      } else {
         return NextResponse.redirect(new URL(home, req.url));
       }
     }

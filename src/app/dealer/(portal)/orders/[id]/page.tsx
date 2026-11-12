@@ -24,7 +24,7 @@ import {
 } from "@/lib/orders/state-machine";
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "@/components/dealer/order-tracking.css";
 
 function formatLitres(n: number) {
@@ -279,7 +279,8 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
 
   return (
     <div className="ot">
-      <section className="ot__hero" style={dealerHeroPhotoStyle}>
+      <section className="ot__hero">
+        <DealerHeroMedia />
         <div className="ot__hero-veil" aria-hidden />
         <div className="ot__hero-inner">
           <nav className="ot__crumbs" aria-label="Breadcrumb">

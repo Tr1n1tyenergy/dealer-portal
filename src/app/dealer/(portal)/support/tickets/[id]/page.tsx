@@ -1,7 +1,7 @@
 import { requireDealer } from "@/lib/session";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { SupportTicketDetail } from "@/components/dealer/support-ticket-detail";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "../../../../dealer-support.css";
 
 export default async function DealerSupportTicketPage({
@@ -14,7 +14,8 @@ export default async function DealerSupportTicketPage({
 
   return (
     <div className="ds">
-      <section className="ds__hero" style={dealerHeroPhotoStyle}>
+      <section className="ds__hero">
+        <DealerHeroMedia />
         <div className="ds__hero-veil" aria-hidden />
         <div className="ds__hero-inner">
           <div className="ds__hero-copy">

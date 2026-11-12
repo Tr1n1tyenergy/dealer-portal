@@ -28,7 +28,7 @@ import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contrac
 import { FuelOrderedPanel } from "@/components/dealer/fuel-ordered-panel";
 import { PayPfiPanel } from "@/components/dealer/pay-pfi-panel";
 import { cn } from "@/lib/utils";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { DEALER_PAYABLE_STATUSES, toPayPfiProps } from "@/lib/dealer/pay-pfi";
 import "../../dealer-dashboard.css";
 
@@ -279,7 +279,8 @@ export default async function DealerDashboardPage() {
 
   return (
     <div className="dd">
-      <section className="dd__hero" style={dealerHeroPhotoStyle}>
+      <section className="dd__hero">
+        <DealerHeroMedia />
         <div className="dd__hero-veil" aria-hidden />
         <div className="dd__hero-inner">
           <div className="dd__eyebrow">

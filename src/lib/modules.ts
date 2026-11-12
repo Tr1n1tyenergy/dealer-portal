@@ -7,7 +7,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { canAccessRetail, canUser, type StaffUser } from "@/lib/permissions";
+import { canAccessAppModule, canAccessRetail, canUser, type StaffUser } from "@/lib/permissions";
 
 export type TriModule = {
   id: string;
@@ -46,6 +46,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "note-taker",
+    allowed: (user) => canAccessAppModule(user, "noteTaker") && canUser(user, "noteSessions", "view"),
     title: "AI Note Taker",
     shortLabel: "Notes",
     tagline: "Capture · Structure · Action",
@@ -63,6 +64,7 @@ export const TRI_MODULES: TriModule[] = [
   },
   {
     id: "presentations",
+    allowed: (user) => canAccessAppModule(user, "presentations") && canUser(user, "presDecks", "view"),
     title: "Presentations",
     shortLabel: "Decks",
     tagline: "Brief · Present · Decide",

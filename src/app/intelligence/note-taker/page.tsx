@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { canUser } from "@/lib/permissions";
 import { AppShell } from "@/components/layout/app-shell";
 import {
   NoteTakerDashboard,
@@ -8,6 +10,9 @@ import {
 
 export default async function NoteTakerPage() {
   const session = await requireSession();
+  if (!canUser(session.user, "noteSessions", "view")) {
+    redirect("/intelligence/dashboard");
+  }
   const isAdmin = session.user.role === "SUPER_ADMIN";
 
   const sessions = await prisma.noteSession.findMany({

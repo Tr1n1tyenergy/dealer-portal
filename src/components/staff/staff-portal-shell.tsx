@@ -9,6 +9,7 @@ import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { canUser, type StaffUser } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import "./staff-portal.css";
+import "@/app/intelligence/retail/staff-portal-hero.css";
 
 export type StaffPortalNavKey =
   | "home"
@@ -16,6 +17,7 @@ export type StaffPortalNavKey =
   | "analytics"
   | "messages"
   | "support"
+  | "users"
   | "settings"
   | "stock-reporting";
 
@@ -24,6 +26,7 @@ function activeKey(pathname: string): StaffPortalNavKey {
   if (pathname.startsWith("/intelligence/retail/analytics")) return "analytics";
   if (pathname.startsWith("/intelligence/retail/messaging")) return "messages";
   if (pathname.startsWith("/intelligence/retail/support")) return "support";
+  if (pathname.startsWith("/intelligence/retail/users")) return "users";
   if (pathname.startsWith("/intelligence/admin/settings")) return "settings";
   if (pathname.startsWith("/intelligence/retail/stock-reporting")) return "stock-reporting";
   if (pathname === "/intelligence/retail" || pathname === "/intelligence/retail/") return "home";
@@ -69,9 +72,10 @@ export function StaffPortalShell({
   const showAnalytics = canUser(user, "analytics", "view");
   const showMessages = canUser(user, "messaging", "view");
   const showSupport = canUser(user, "support", "view");
+  const showUsers = canUser(user, "retailUsers", "view");
   const showSettings = canUser(user, "settings", "view");
-  // Stock sale reporting overview is available to anyone who can see retail analytics or orders.
-  const showStockReporting = showAnalytics || showOrders;
+  const showStockReporting =
+    canUser(user, "stockReporting", "view") || showAnalytics || showOrders;
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -134,6 +138,14 @@ export function StaffPortalShell({
                 className={cn("sp-nav__link", active === "support" && "is-active")}
               >
                 Support
+              </Link>
+            ) : null}
+            {showUsers ? (
+              <Link
+                href="/intelligence/retail/users"
+                className={cn("sp-nav__link", active === "users" && "is-active")}
+              >
+                Users
               </Link>
             ) : null}
             {showSettings ? (

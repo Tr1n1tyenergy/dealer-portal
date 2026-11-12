@@ -22,11 +22,31 @@
   --dp-gutter: var(--tri-page-gutter, clamp(1rem, 2.2vw, 1.75rem));
   --dp-font: Inter, system-ui, -apple-system, sans-serif;
   --dp-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
-  /* Shared forecourt hero — keep in sync with hero.ts (full plate, no cover zoom) */
-  --dp-hero-aspect: 1024 / 211;
-  --dp-hero-height: var(--tri-hero-height-capped, calc(100vw * 211 / 1024));
-  --dp-hero-photo-size: 100% 100%;
-  --dp-hero-photo-position: center center;
+  /* Shared forecourt hero height — plate is painted by .dp-hero-media (staff-identical) */
+  --dp-hero-aspect: 1585 / 992;
+  --dp-hero-height: var(--tri-hero-height-capped, clamp(180px, 22vw, 220px));
+}
+
+/*
+ * Exact match for staff `.sh-hero__img` / `.ssr-hero__img`.
+ * !important beats Tailwind/preflight `img { max-width:100%; height:auto }`
+ * which otherwise shows only the top sky slice and hides the canopy.
+ */
+.dp-hero-media {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  width: 128% !important;
+  max-width: none !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  object-fit: cover !important;
+  object-position: 18% 30% !important;
+  pointer-events: none;
+  z-index: 0;
+  display: block;
 }
 
 /* ---------- Shell ---------- */
@@ -493,12 +513,11 @@ button.dp-sidebar__link {
   overflow: hidden;
   width: 100%;
   /* Grow with content so CTAs/metrics are not clipped on varied laptop aspect ratios */
-  min-height: var(--dp-hero-height, calc(100vw * 211 / 1024));
+  min-height: var(--dp-hero-height, clamp(180px, 22vw, 220px));
   height: auto;
   margin: 0 !important;
-  background-size: var(--dp-hero-photo-size, 100% 100%) !important;
-  background-position: var(--dp-hero-photo-position, center center) !important;
-  background-repeat: no-repeat;
+  background-color: #071833;
+  background-image: none !important;
   color: #fff;
   box-shadow: none !important;
 }
@@ -517,7 +536,7 @@ button.dp-sidebar__link {
   flex-direction: column;
   gap: var(--tri-space-md, 1.15rem);
   padding: var(--tri-space-md, 1.25rem) var(--dp-gutter, 1.5rem) var(--tri-space-md, 1.15rem);
-  min-height: var(--dp-hero-height, calc(100vw * 211 / 1024));
+  min-height: var(--dp-hero-height, clamp(180px, 22vw, 220px));
   height: auto;
   box-sizing: border-box;
 }

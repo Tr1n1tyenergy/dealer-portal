@@ -8,7 +8,7 @@ import {
 } from "@/lib/orders/dealer-views";
 import { OrdersManagement } from "@/components/dealer/orders-management";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "../../dealer-orders.css";
 
 /**
@@ -42,7 +42,8 @@ export default async function MyOrdersPage({
 
   return (
     <div className="do">
-      <section className="do__hero" style={dealerHeroPhotoStyle}>
+      <section className="do__hero">
+        <DealerHeroMedia />
         <div className="do__hero-veil" aria-hidden />
         <div className="do__hero-inner">
           <div className="do__eyebrow">

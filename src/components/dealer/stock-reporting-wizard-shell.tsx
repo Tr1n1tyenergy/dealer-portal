@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Check, Save } from "lucide-react";
-import { dealerHeroPhotoStyle } from "@/lib/dealer/hero";
+import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { STOCK_REPORT_WIZARD_STAGES, type StockReportStageId } from "@/lib/stock-reporting/constants";
 import { isStageCompleted, nextIncompleteStage } from "@/lib/stock-reporting/progress";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,8 @@ export function StockReportingWizardShell({
 
   return (
     <div className="ssw">
-      <section className="ssw__hero" style={dealerHeroPhotoStyle} aria-label="Daily stock report">
+      <section className="ssw__hero" aria-label="Daily stock report">
+        <DealerHeroMedia />
         <div className="ssw__hero-veil" aria-hidden />
         <div className="ssw__hero-inner">
           <div className="ssw__hero-copy">

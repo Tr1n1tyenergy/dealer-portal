@@ -127,27 +127,15 @@ function Countdown({ targetMs, hasUpcoming }: { targetMs: number; hasUpcoming: b
 export function StaffHomeDashboard(props: StaffHomeProps) {
   return (
     <div className="sh">
-      <section className="sh-hero" aria-label="Staff Portal hero">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="sh-hero__img"
-          src="/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=6"
-          alt=""
-        />
-        <div className="sh-hero__veil" aria-hidden />
-        <div className="sh-hero__copy">
-          <span className="sh-hero__accent" aria-hidden />
-          <div>
-            <p className="sh-hero__kicker">Staff Portal</p>
-            <h1 className="sh-hero__title">
-              {props.greeting}, {props.displayName}
-            </h1>
-            <p className="sh-hero__sub">
-              Here&apos;s what&apos;s happening across the retail network today.
-            </p>
-          </div>
+      <header className="sh-hero" aria-label="Staff Portal hero">
+        <div className="sh-hero__text">
+          <div className="sh-hero__eyebrow">Staff Portal</div>
+          <h1>
+            {props.greeting}, {props.displayName}
+          </h1>
+          <p>Here&apos;s what&apos;s happening across the retail network today.</p>
         </div>
-      </section>
+      </header>
 
       <div className="sh-wrap">
         <section className="sh-kpis" aria-label="Operational KPIs">
