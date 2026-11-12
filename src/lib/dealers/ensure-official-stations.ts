@@ -5,8 +5,12 @@ import { listStationInviteCatalog } from "@/lib/dealers/station-invite-catalog";
  * Ensure every official-catalog station exists in the DB (with its dealer org).
  * Staff Stock Sale Reporting lists all mapped stations; local/staging DBs often
  * only have a handful of activated stations until seed/sync runs.
+ *
+ * Local development only: in production (Vercel staging + prod) a page view must never
+ * create placeholder dealers or overwrite trading names, so it returns null untouched.
  */
-export async function ensureOfficialStationsInDb(): Promise<number> {
+export async function ensureOfficialStationsInDb(): Promise<number | null> {
+  if (process.env.NODE_ENV === "production") return null;
   const catalog = listStationInviteCatalog();
   const existingCount = await prisma.station.count();
   if (existingCount >= catalog.length) return existingCount;
