@@ -130,6 +130,11 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-13 — Dealer hero copy sits lower + nowrap removed
+- Reduced dealer hero bottom padding so the text block sits a little lower (closer to overlapping cards) on every dealer page.
+- Dashboard hero `h1` no longer `white-space: nowrap` (long org names looked oversized on wide production screens).
+- Note: hero type reduction/alignment ships in `main` (#70 via `dealer-portal-hero.css`); if production still shows the old large type, redeploy / hard-refresh — local already matches `origin/main`.
+
 ### 2026-11-13 — Hero text block type bump (staff → dealer)
 - Staff hero copy nudged up slightly (eyebrow ~0.875rem, title `clamp(1.85rem, 2.85vw, 2.55rem)`, sub ~1.12rem) in `staff-portal-hero.css`.
 - Dealer `dealer-portal-hero.css` locked to the same final sizes on every portal page.
