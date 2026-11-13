@@ -24,11 +24,13 @@
   background-size: cover !important;
   background-position: 42% 30% !important;
   display: flex !important;
+  /* Copy sits lower in the plate (closer to overlapping cards) */
   align-items: flex-end !important;
   padding:
     var(--tri-space-md, 1.25rem)
     var(--tri-page-gutter, clamp(1rem, 4vw, 3rem))
-    clamp(5.35rem, 6.75vw, 6.85rem) !important;
+    /* Slightly less bottom pad than staff so dealer copy sits a little lower */
+    clamp(3.85rem, 5.1vw, 5.15rem) !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
   width: 100% !important;
@@ -168,7 +170,7 @@
   .ssr__hero,
   .ssw__hero,
   .dm__hero {
-    padding: 1.1rem 1rem 5rem !important;
+    padding: 1.1rem 1rem 3.85rem !important;
     min-height: 11.25rem !important;
     align-items: flex-end !important;
   }
