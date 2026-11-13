@@ -229,7 +229,7 @@ export default async function StaffHomePage() {
         ? `Longest wait: ${longest.name} (${formatWaitDuration(now.getTime() - longest.since.getTime())})`
         : "No dealers awaiting payment",
       href: "/intelligence/retail/orders?stage=awaiting-payment",
-      tone: "purple",
+      tone: "gold",
       icon: "users",
     },
   ];

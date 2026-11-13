@@ -122,7 +122,6 @@ export const DEALER_TRACKER_STEPS = [
   { key: "quotation", label: "Quotation & PFI" },
   { key: "payment", label: "Payment" },
   { key: "release", label: "Released to Depot" },
-  { key: "loading", label: "Loading" },
   { key: "transit", label: "On the Way" },
   { key: "delivered", label: "Delivered" },
 ] as const;
@@ -136,7 +135,7 @@ export type DealerTrackerStep = {
   note: string | null;
 };
 
-/** Where an order sits on the dealer's tracker: the step it waits on (7 = all done). */
+/** Where an order sits on the tracker: the step it waits on (length = all done). No separate Loading step. */
 function trackerPosition(status: DealerOrderStatus): {
   current: number;
   attention?: boolean;
@@ -165,19 +164,18 @@ function trackerPosition(status: DealerOrderStatus): {
     case "PAYMENT_EXCEPTION":
       return { current: 2, attention: true, note: "Needs attention" };
     case "PAYMENT_CONFIRMED":
-      return { current: 3 };
+      return { current: 3, note: "Awaiting release" };
     case "RELEASED_TO_DEPOT":
     case "LOADING":
-      return { current: 4 };
     case "LOADED":
-      return { current: 4, note: "Loaded" };
+      return { current: 3, note: "At depot" };
     case "STOCK_EXCEPTION":
-      return { current: 4, attention: true, note: "Delayed" };
+      return { current: 3, attention: true, note: "Delayed" };
     case "DISPATCHED":
     case "IN_TRANSIT":
-      return { current: 5 };
+      return { current: 4 };
     case "DELIVERY_EXCEPTION":
-      return { current: 5, attention: true, note: "Needs attention" };
+      return { current: 4, attention: true, note: "Needs attention" };
     case "DELIVERED":
     case "CLOSED":
       return { current: DEALER_TRACKER_STEPS.length };
@@ -207,4 +205,12 @@ export function dealerTrackerSteps(status: DealerOrderStatus): {
     return { key: step.key, label: step.label, state, note: isCurrent ? position.note ?? null : null };
   });
   return { steps, stopped: position.stopped ?? null };
+}
+
+/** Secondary line under a tracker step — same Done / Pending / note language on dealer + staff. */
+export function trackerStepSecondary(step: DealerTrackerStep): string {
+  if (step.state === "done") return "Done";
+  if (step.state === "pending") return "Pending";
+  if (step.state === "stopped") return "—";
+  return step.note ?? (step.state === "attention" ? "Needs attention" : "In progress");
 }

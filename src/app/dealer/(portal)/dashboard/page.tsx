@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { DEALER_PAYABLE_STATUSES, toPayPfiProps } from "@/lib/dealer/pay-pfi";
 import "../../dealer-dashboard.css";
+import "../../dealer-portal-hero.css";
 
 const PAYABLE: DealerOrderStatus[] = DEALER_PAYABLE_STATUSES;
 const ON_THE_WAY: DealerOrderStatus[] = [
@@ -122,15 +123,11 @@ function trackerHeadline(status: DealerOrderStatus) {
         detail: "Trinity finance couldn't verify your payment. Open the order to resubmit details.",
       };
     case "RELEASED_TO_DEPOT":
-      return {
-        title: "Released to depot",
-        detail: "Your order has been released to the depot and is waiting to enter loading.",
-      };
     case "LOADING":
     case "LOADED":
       return {
-        title: "Loading in progress",
-        detail: "Your order has been released to the depot and is currently in the loading stage.",
+        title: "Released to depot",
+        detail: "Your order has been released to the depot and will move to transit when dispatch begins.",
       };
     case "DISPATCHED":
     case "IN_TRANSIT":

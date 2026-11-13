@@ -54,7 +54,7 @@
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.28);
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #f87171;
@@ -82,7 +82,7 @@
 .rlive__title {
   margin: 0.5rem 0 0;
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   color: #ffffff;
   line-height: 1.15;
@@ -109,7 +109,7 @@
 
 .rlive__timer {
   font-size: 2.25rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #ffffff;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -127,7 +127,7 @@
   border: 1px solid rgba(16, 185, 129, 0.32);
   color: #34d399;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .rlive__wave-area {
@@ -259,7 +259,7 @@
 
 .rlive__strip-title {
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #ffffff;
   line-height: 1.25;
   white-space: nowrap;
@@ -323,7 +323,7 @@
   align-items: center;
   gap: 0.35rem;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(186, 205, 235, 0.55);
@@ -338,7 +338,7 @@
   align-items: center;
   gap: 0.4rem;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(186, 205, 235, 0.45);
@@ -402,7 +402,7 @@
   padding: 0.65rem 1.25rem;
   border-radius: 0.85rem;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 650;
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;

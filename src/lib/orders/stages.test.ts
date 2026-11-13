@@ -30,6 +30,7 @@ describe("order stages", () => {
     assert.equal(parseStage("all"), "all");
     assert.equal(parseStage("checking-payment"), "checking-payment");
     assert.equal(parseStage("transit"), "transit");
+    assert.equal(parseStage("pfi-issued"), "pfi-issued");
   });
 
   it("labels statuses for people", () => {

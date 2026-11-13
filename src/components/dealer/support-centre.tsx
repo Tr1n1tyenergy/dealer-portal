@@ -72,6 +72,7 @@ import { SUPPORT_CONTACT } from "@/components/dealer/support-card";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "@/app/dealer/dealer-support.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 export type SupportSection = "tickets" | "new" | "faq" | "contact";
 

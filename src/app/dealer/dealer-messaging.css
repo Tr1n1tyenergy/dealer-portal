@@ -16,70 +16,7 @@
   min-height: calc(100vh - 68px);
 }
 
-.dm__hero {
-  position: relative;
-  min-height: var(--dp-hero-height, 260px);
-  height: var(--dp-hero-height, 260px);
-  overflow: hidden;
-  color: #fff;
-  background-color: #071833;
-  background-image: none !important;
-  background-repeat: no-repeat;
-}
-
-.dm__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-.dm__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  min-height: var(--dp-hero-height, 260px);
-  height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 0;
-  padding: 1.55rem var(--dp-gutter, 1.5rem) 3.85rem;
-}
-
-.dm__hero-copy {
-  display: flex;
-  align-items: stretch;
-  gap: 0.85rem;
-}
-
-.dm__hero-accent {
-  width: 4px;
-  border-radius: 999px;
-  background: var(--dm-yellow);
-  flex-shrink: 0;
-  align-self: stretch;
-  min-height: 2.75rem;
-}
-
-.dm__hero-copy h1 {
-  margin: 0;
-  font-size: var(--tri-font-h2, clamp(1.55rem, 2.4vw, 2rem));
-  font-weight: 850;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-}
-
-.dm__hero-copy p {
-  margin: 0.35rem 0 0;
-  font-size: 0.92rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 42ch;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 .dm__workspace {
   position: relative;
@@ -100,10 +37,6 @@
 }
 
 @media (max-width: 760px) {
-  .dm__hero-inner {
-    padding-bottom: 3.25rem;
-  }
-
   .dm__workspace {
     margin-top: -1.35rem;
     min-height: 520px;

@@ -1,19 +1,25 @@
 /* Staff Messages — light mockup theme; the app itself is themed by .msg-app--dealer. */
 
+/* Beat `.so-wrap { margin: 0 auto }` so the workspace overlaps the hero like other staff pages */
+.so-wrap.sm__workspace,
 .sm__workspace {
-  margin-top: -56px;
+  margin-top: -3.5rem;
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
-  padding-bottom: 8px;
+  z-index: 2;
+  padding-bottom: 0.5rem;
 }
 
 /* The three columns overlap the hero like the other redesigned staff pages. */
 .sm__workspace .msg-app {
-  min-height: 620px;
+  min-height: 38.75rem;
 }
 
 @media (max-width: 860px) {
+  .so-wrap.sm__workspace,
   .sm__workspace {
-    margin-top: -40px;
+    margin-top: -2.5rem;
   }
 }
 

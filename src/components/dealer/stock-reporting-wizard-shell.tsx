@@ -8,6 +8,7 @@ import { isStageCompleted, nextIncompleteStage } from "@/lib/stock-reporting/pro
 import { cn } from "@/lib/utils";
 import { DealerHeroActions } from "./dealer-hero-actions";
 import "@/app/dealer/dealer-stock-wizard.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 type ProgressFields = {
   status: "DRAFT" | "CLOSED";

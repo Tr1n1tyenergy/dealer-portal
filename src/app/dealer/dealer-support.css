@@ -16,69 +16,7 @@
   min-height: calc(100vh - 68px);
 }
 
-.ds__hero {
-  position: relative;
-  min-height: var(--dp-hero-height, 260px);
-  height: var(--dp-hero-height, 260px);
-  overflow: hidden;
-  color: #fff;
-  background-color: #071833;
-  background-image: none !important;
-  background-repeat: no-repeat;
-}
-
-.ds__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-.ds__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  min-height: var(--dp-hero-height, 260px);
-  height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 0;
-  padding: 1.55rem var(--dp-gutter, 1.5rem) 3.85rem;
-}
-
-.ds__hero-copy {
-  display: flex;
-  align-items: stretch;
-  gap: 0.85rem;
-}
-
-.ds__hero-accent {
-  width: 4px;
-  border-radius: 999px;
-  background: var(--ds-yellow);
-  flex-shrink: 0;
-  min-height: 2.75rem;
-}
-
-.ds__hero-copy h1 {
-  margin: 0;
-  font-size: var(--tri-font-h2, clamp(1.55rem, 2.4vw, 2rem));
-  font-weight: 850;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-}
-
-.ds__hero-copy p {
-  margin: 0.35rem 0 0;
-  font-size: 0.92rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 48ch;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 .ds__workspace {
   position: relative;
@@ -124,7 +62,7 @@
   color: var(--ds-ink);
   font: inherit;
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 650;
   padding: 0.75rem 0.8rem;
   border-radius: 12px;
   cursor: pointer;
@@ -167,7 +105,7 @@
   background: #0a235b;
   color: #fff;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   display: inline-grid;
   place-items: center;
 }
@@ -213,7 +151,7 @@
   color: #0a235b;
   font: inherit;
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
   text-decoration: none;
   box-shadow: 0 8px 18px rgba(255, 204, 0, 0.28);
@@ -248,7 +186,7 @@
   color: #3551a5;
   font: inherit;
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -319,7 +257,7 @@
   text-align: left;
   padding: 0.75rem 0.85rem;
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ds-muted);
@@ -353,7 +291,7 @@
   align-items: center;
   gap: 0.4rem;
   color: #3551a5;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ds__dept {
@@ -371,7 +309,7 @@
   padding: 0.28rem 0.55rem;
   border-radius: 999px;
   font-size: 0.7rem;
-  font-weight: 750;
+  font-weight: 700;
   white-space: nowrap;
   border: 1px solid transparent;
 }
@@ -535,7 +473,7 @@
 
 .ds__field label {
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #475569;
 }
 
@@ -643,7 +581,7 @@
   background: transparent;
   color: #b42318;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ds__error {
@@ -678,12 +616,12 @@
 .ds__success dt {
   font-size: 0.72rem;
   color: var(--ds-muted);
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ds__success dd {
   margin: 0 0 0.35rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ds__faq-cat {
@@ -706,7 +644,7 @@
 .ds__faq-item summary {
   cursor: pointer;
   padding: 0.8rem 0.95rem;
-  font-weight: 750;
+  font-weight: 700;
   font-size: 0.88rem;
   list-style: none;
 }
@@ -736,7 +674,7 @@
   align-items: center;
   gap: 0.55rem;
   color: #3551a5;
-  font-weight: 750;
+  font-weight: 700;
   text-decoration: none;
   padding: 0.75rem 0.9rem;
   border-radius: 12px;
@@ -861,7 +799,7 @@
   gap: 0.35rem;
   margin-bottom: 0.75rem;
   color: #3551a5;
-  font-weight: 750;
+  font-weight: 700;
   font-size: 0.84rem;
   text-decoration: none;
 }
@@ -904,7 +842,7 @@
 .ds__faq-kicker {
   margin: 0 0 0.2rem;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #64748b;
@@ -971,7 +909,7 @@
   color: #0a235b;
   font: inherit;
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -1033,7 +971,7 @@
   flex: 1;
   min-width: 0;
   font-size: 0.9rem;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.35;
 }
 
@@ -1068,7 +1006,7 @@
   color: #3551a5;
   font: inherit;
   font-size: 0.84rem;
-  font-weight: 750;
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   padding: 0;
@@ -1145,7 +1083,7 @@
   color: #0a235b;
   font: inherit;
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: none;
   cursor: pointer;
   text-align: left;
@@ -1199,7 +1137,7 @@
   align-items: center;
   gap: 0.5rem;
   color: #3551a5;
-  font-weight: 750;
+  font-weight: 700;
   font-size: 0.86rem;
   text-decoration: none;
   padding: 0.55rem 0.7rem;
@@ -1230,7 +1168,7 @@
 .ds__contact-kicker {
   margin: 0 0 0.2rem;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #64748b;
@@ -1255,7 +1193,7 @@
 .ds__contact-section-title {
   margin: 0.15rem 0 0;
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
 }
 
@@ -1310,7 +1248,7 @@
 .ds__reach-card h4 {
   margin: 0;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
 }
 
@@ -1334,7 +1272,7 @@
   border-radius: 10px;
   font: inherit;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
   cursor: pointer;
   box-sizing: border-box;
@@ -1443,7 +1381,7 @@
 
 .ds__dept-card-copy strong {
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ds__dept-card-copy span {
@@ -1490,7 +1428,7 @@
 .ds__info-list a {
   color: #3551a5;
   font-size: 0.84rem;
-  font-weight: 750;
+  font-weight: 700;
   text-decoration: none;
   line-height: 1.35;
   word-break: break-word;
@@ -1503,7 +1441,7 @@
 .ds__info-list strong {
   display: block;
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
 }
 
@@ -1556,7 +1494,7 @@
 }
 
 .ds__hours-list strong {
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
   text-align: right;
   white-space: nowrap;
@@ -1601,7 +1539,7 @@
   color: #fff;
   font: inherit;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
   box-shadow: 0 8px 18px rgba(220, 38, 38, 0.22);
 }
@@ -1634,7 +1572,7 @@
   color: #3551a5;
   font: inherit;
   font-size: 0.82rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
   padding: 0;
 }
@@ -1737,7 +1675,7 @@
 .ds__identity-card span {
   display: block;
   font-size: 0.68rem;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.02em;
   color: #64748b;
   margin-bottom: 0.18rem;
@@ -1746,7 +1684,7 @@
 .ds__identity-card strong {
   display: block;
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
   line-height: 1.3;
   word-break: break-word;
@@ -1820,7 +1758,7 @@
   padding: 0.42rem 0.85rem;
   font: inherit;
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
   background: #f1f5f9;
   color: #475569;
@@ -1947,7 +1885,7 @@
 .ds__dropzone strong {
   color: #0a235b;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ds__dropzone > span {
@@ -1964,7 +1902,7 @@
   padding: 0.4rem 0.95rem;
   font: inherit;
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -2001,7 +1939,7 @@
   color: #0a235b;
   font: inherit;
   font-size: 0.86rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -2065,7 +2003,7 @@
 .ds__dept-guide-row strong {
   display: block;
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
 }
 
@@ -2129,7 +2067,7 @@
 .ds__priority-legend-row strong {
   display: block;
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
 }
 

@@ -220,7 +220,7 @@ export default async function StaffSupportPage({ searchParams }: { searchParams:
             </nav>
             <form className="sup-filters" action="/intelligence/retail/support" method="get">
               {filters.status !== "ALL" ? <input type="hidden" name="status" value={filters.status} /> : null}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 800, fontSize: "0.9rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 750, fontSize: "0.9rem" }}>
                 <Filter size={15} /> Filters
               </div>
               <label className="so-field">

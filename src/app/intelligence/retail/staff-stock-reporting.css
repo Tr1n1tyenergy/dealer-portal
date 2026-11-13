@@ -39,8 +39,8 @@
   border-radius: var(--ssr-radius);
   background: #fff;
   border: 1px solid rgba(10, 35, 91, 0.06);
-  border-top: 3px solid var(--ssr-yellow);
-  box-shadow: 0 12px 28px rgba(10, 35, 91, 0.08);
+  border-top: 0.1875rem solid var(--ssr-yellow);
+  box-shadow: 0 0.75rem 1.75rem rgba(10, 35, 91, 0.08);
   text-decoration: none;
   color: inherit;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease,
@@ -50,14 +50,14 @@
 
 .ssr-section:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(10, 35, 91, 0.12);
+  box-shadow: 0 1rem 2.125rem rgba(10, 35, 91, 0.12);
 }
 
 .ssr-section.is-active {
   background: var(--ssr-blue);
   border-color: var(--ssr-blue);
   border-top-color: var(--ssr-yellow);
-  box-shadow: 0 14px 32px rgba(53, 81, 165, 0.28);
+  box-shadow: 0 0.875rem 2rem rgba(53, 81, 165, 0.28);
   color: #fff;
 }
 
@@ -85,8 +85,8 @@
 
 .ssr-section__title {
   margin: 0;
-  font-size: 0.98rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.98rem);
+  font-weight: 750;
   color: var(--ssr-navy);
 }
 
@@ -96,7 +96,7 @@
 
 .ssr-section__sub {
   margin: 0.25rem 0 0;
-  font-size: 0.74rem;
+  font-size: var(--tri-font-xs, 0.74rem);
   line-height: 1.35;
   color: var(--ssr-muted);
 }
@@ -117,7 +117,7 @@
   background: #fff;
   border-radius: var(--ssr-radius);
   border: 1px solid rgba(10, 35, 91, 0.06);
-  box-shadow: 0 10px 26px rgba(10, 35, 91, 0.06);
+  box-shadow: 0 0.625rem 1.625rem rgba(10, 35, 91, 0.06);
   padding: 0.85rem 0.8rem 0.75rem;
   /* Match right-pane height without expanding the grid row (list scrolls inside). */
   height: 0;
@@ -138,8 +138,8 @@
 
 .ssr-stations__head h2 {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.95rem);
+  font-weight: 750;
 }
 
 .ssr-stations__count {
@@ -150,8 +150,8 @@
   border-radius: 999px;
   background: #eef3fb;
   color: var(--ssr-blue);
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 750;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -178,7 +178,7 @@
   border: 1px solid rgba(10, 35, 91, 0.1);
   background: #f8fafc;
   padding: 0 0.7rem 0 2.15rem;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   color: var(--ssr-navy);
   outline: none;
   box-sizing: border-box;
@@ -217,10 +217,10 @@
   padding: 0.7rem 0.65rem;
   border-radius: 0.65rem;
   border: 1px solid transparent;
-  border-left: 3px solid transparent;
+  border-left: 0.1875rem solid transparent;
   background: transparent;
   color: var(--ssr-navy);
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   cursor: pointer;
   line-height: 1.3;
 }
@@ -244,9 +244,9 @@
 }
 
 .ssr-station__name {
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssr-navy);
-  font-size: 0.84rem;
+  font-size: var(--tri-font-sm, 0.84rem);
 }
 
 .ssr-station__dealer {
@@ -258,8 +258,8 @@
   border-radius: 0.4rem;
   background: #eef3fb;
   color: #3551a5;
-  font-weight: 700;
-  font-size: 0.66rem;
+  font-weight: 650;
+  font-size: var(--tri-font-xs, 0.66rem);
   line-height: 1.25;
   letter-spacing: 0.01em;
 }
@@ -269,8 +269,8 @@
   padding: 0.05rem 0.3rem;
   border-radius: 0.28rem;
   background: rgba(53, 81, 165, 0.12);
-  font-size: 0.58rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.58rem);
+  font-weight: 750;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -290,14 +290,14 @@
   height: 0.5rem;
   border-radius: 999px;
   background: var(--ssr-yellow);
-  box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 0 0 0.125rem rgba(255, 204, 0, 0.28);
   flex-shrink: 0;
   margin-top: 0.4rem;
 }
 
 .ssr-empty-inline {
   margin: 0.75rem 0.25rem;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   color: var(--ssr-muted);
 }
 
@@ -305,7 +305,7 @@
   background: #fff;
   border-radius: var(--ssr-radius);
   border: 1px solid rgba(10, 35, 91, 0.06);
-  box-shadow: 0 10px 26px rgba(10, 35, 91, 0.06);
+  box-shadow: 0 0.625rem 1.625rem rgba(10, 35, 91, 0.06);
   padding: 1rem 1.15rem 1rem;
   min-width: 0;
   height: 100%;
@@ -330,14 +330,14 @@
 .ssr-main__title {
   margin: 0;
   font-size: clamp(1.08rem, 1.55vw, 1.28rem);
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssr-navy);
   letter-spacing: -0.015em;
 }
 
 .ssr-main__sub {
   margin: 0 0 0.95rem;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   line-height: 1.35;
   color: var(--ssr-muted);
   white-space: nowrap;
@@ -351,8 +351,8 @@
   align-items: center;
   padding: 0.22rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 750;
 }
 
 .ssr-status--complete {
@@ -391,7 +391,7 @@
   border-radius: 0.75rem;
   background: #fff;
   border: 1px solid rgba(10, 35, 91, 0.1);
-  box-shadow: 0 16px 36px rgba(10, 35, 91, 0.16);
+  box-shadow: 0 1rem 2.25rem rgba(10, 35, 91, 0.16);
 }
 
 .ssr-export__item {
@@ -402,8 +402,8 @@
   border-radius: 0.5rem;
   color: var(--ssr-navy);
   text-decoration: none;
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.78rem);
+  font-weight: 650;
 }
 
 .ssr-export__item:hover {
@@ -418,8 +418,8 @@
   height: 2.25rem;
   padding: 0 0.95rem;
   border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.78rem);
+  font-weight: 750;
   text-decoration: none;
   white-space: nowrap;
   border: 0;
@@ -429,7 +429,7 @@
 .ssr-btn--outline {
   background: #fff;
   color: var(--ssr-blue);
-  border: 1.5px solid rgba(53, 81, 165, 0.4);
+  border: 0.0938rem solid rgba(53, 81, 165, 0.4);
 }
 
 .ssr-btn--outline:hover {
@@ -439,7 +439,7 @@
 .ssr-btn--yellow {
   background: var(--ssr-yellow);
   color: var(--ssr-navy);
-  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 0.375rem 0.875rem rgba(255, 204, 0, 0.28);
 }
 
 .ssr-btn--yellow:hover {
@@ -468,8 +468,8 @@
 .ssr-date label {
   display: block;
   margin-bottom: 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: var(--tri-font-xs, 0.72rem);
+  font-weight: 650;
   color: var(--ssr-muted);
 }
 
@@ -486,8 +486,8 @@
   border: 0;
   background: #eef3fb;
   color: var(--ssr-blue);
-  font-size: 0.74rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.74rem);
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
@@ -509,7 +509,7 @@
   border-radius: 0.55rem;
   border: 1px solid rgba(10, 35, 91, 0.12);
   padding: 0 2rem 0 0.7rem;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   font-weight: 650;
   color: var(--ssr-navy);
   background: #fff;
@@ -547,7 +547,7 @@
   padding: 0.55rem 0.65rem;
   border-radius: 0.8rem;
   border: 1px solid transparent;
-  box-shadow: 0 4px 12px rgba(10, 35, 91, 0.04);
+  box-shadow: 0 0.25rem 0.75rem rgba(10, 35, 91, 0.04);
 }
 
 .ssr-kpi--blue {
@@ -580,14 +580,14 @@
 .ssr-kpi__value {
   margin: 0;
   font-size: clamp(0.82rem, 1.05vw, 0.95rem);
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.1;
   white-space: nowrap;
 }
 
 .ssr-kpi__label {
   margin: 0.12rem 0 0;
-  font-size: 0.68rem;
+  font-size: var(--tri-font-xs, 0.68rem);
   font-weight: 650;
   color: var(--ssr-muted);
   white-space: nowrap;
@@ -603,21 +603,21 @@
 
 .ssr-table-caption {
   margin: 0 0 0.55rem;
-  font-size: 0.9rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.9rem);
+  font-weight: 750;
 }
 
 .ssr-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 920px;
-  font-size: 0.78rem;
+  min-width: 57.5rem;
+  font-size: var(--tri-font-sm, 0.78rem);
 }
 
 .ssr-table th {
   background: #e8eef8;
   color: var(--ssr-navy);
-  font-weight: 750;
+  font-weight: 700;
   text-align: left;
   padding: 0.65rem 0.7rem;
   white-space: nowrap;
@@ -642,7 +642,7 @@
 }
 
 .ssr-table tr.is-total td {
-  font-weight: 800;
+  font-weight: 750;
   border-bottom: 0;
 }
 
@@ -651,8 +651,8 @@
   align-items: center;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.7rem);
+  font-weight: 750;
 }
 
 .ssr-pill--pms {
@@ -678,7 +678,7 @@
 
 .ssr-note {
   margin: 0.55rem 0 0;
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   color: var(--ssr-muted);
   line-height: 1.4;
 }
@@ -708,8 +708,8 @@
 
 .ssr-panel__head h3 {
   margin: 0;
-  font-size: 0.86rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.86rem);
+  font-weight: 750;
 }
 
 .ssr-insight {
@@ -718,7 +718,7 @@
   gap: 0.55rem;
   padding: 0.7rem 0.85rem;
   border-bottom: 1px solid rgba(10, 35, 91, 0.07);
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   line-height: 1.4;
   font-weight: 650;
 }
@@ -766,21 +766,21 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.76rem;
+  font-size: var(--tri-font-xs, 0.76rem);
   font-weight: 650;
   color: var(--ssr-muted);
 }
 
 .ssr-detail__value {
-  font-size: 0.8rem;
-  font-weight: 750;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 700;
   color: var(--ssr-navy);
   text-align: right;
 }
 
 .ssr-detail__value a {
   color: var(--ssr-blue);
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
 }
 
@@ -792,7 +792,7 @@
   padding: 2rem 1rem;
   text-align: center;
   color: var(--ssr-muted);
-  font-size: 0.9rem;
+  font-size: var(--tri-font-body, 0.9rem);
 }
 
 .ssr-shifts {
@@ -800,7 +800,7 @@
 }
 
 .ssr-shifts .ssr-table {
-  min-width: 760px;
+  min-width: 47.5rem;
 }
 
 /* —— Stock Intelligence —— */
@@ -847,14 +847,14 @@
 
 .ssi-kpi__value {
   margin: 0;
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.92rem);
+  font-weight: 750;
   line-height: 1.1;
 }
 
 .ssi-kpi__label {
   margin: 0.1rem 0 0;
-  font-size: 0.64rem;
+  font-size: var(--tri-font-xs, 0.64rem);
   font-weight: 650;
   color: var(--ssr-muted);
 }
@@ -915,15 +915,15 @@
 
 .ssi-card__head h3 {
   margin: 0;
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.92rem);
+  font-weight: 750;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
 }
 
 .ssi-card__meta {
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   font-weight: 650;
   color: var(--ssr-muted);
 }
@@ -934,7 +934,7 @@
   border-radius: 0.55rem;
   background: #fff6d6;
   color: #92400e;
-  font-size: 0.74rem;
+  font-size: var(--tri-font-xs, 0.74rem);
   font-weight: 650;
 }
 
@@ -956,8 +956,8 @@
   align-items: center;
   gap: 0.2rem;
   margin-bottom: 0.45rem;
-  font-size: 0.72rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.72rem);
+  font-weight: 700;
   color: var(--ssr-navy);
 }
 
@@ -966,8 +966,8 @@
   align-items: center;
   padding: 0.12rem 0.45rem;
   border-radius: 999px;
-  font-size: 0.62rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.62rem);
+  font-weight: 750;
   letter-spacing: 0.04em;
 }
 
@@ -1003,14 +1003,14 @@
   height: 7.8rem;
   width: 3.55rem;
   border-radius: 0.35rem 0.35rem 0.45rem 0.45rem;
-  border: 2px solid rgba(10, 35, 91, 0.2);
+  border: 0.125rem solid rgba(10, 35, 91, 0.2);
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.55) 0%, transparent 28%, transparent 72%, rgba(10, 35, 91, 0.06) 100%),
     #eef3f9;
   overflow: hidden;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.35),
-    0 8px 16px rgba(10, 35, 91, 0.08);
+    0 0.5rem 1rem rgba(10, 35, 91, 0.08);
 }
 
 .ssi-tank__fill {
@@ -1034,7 +1034,7 @@
   left: 0;
   right: 0;
   top: -3px;
-  height: 6px;
+  height: 0.375rem;
   border-radius: 50%;
   background: inherit;
   filter: brightness(1.08);
@@ -1056,8 +1056,8 @@
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.78rem);
+  font-weight: 750;
   color: #0a235b;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
   z-index: 2;
@@ -1077,7 +1077,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.05rem;
-  font-size: 0.66rem;
+  font-size: var(--tri-font-xs, 0.66rem);
   font-weight: 650;
   color: var(--ssr-muted);
   line-height: 1.25;
@@ -1085,14 +1085,14 @@
 
 .ssi-tank__vol strong {
   color: var(--ssr-navy);
-  font-weight: 800;
-  font-size: 0.72rem;
+  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.72rem);
 }
 
 .ssi-tank__warn {
   margin-top: 0.25rem;
-  font-size: 0.62rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.62rem);
+  font-weight: 700;
   color: #b91c1c;
 }
 
@@ -1118,8 +1118,8 @@
   min-width: 4.6rem;
   padding: 0.42rem 0.7rem;
   border-radius: 999px;
-  font-size: 0.76rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.76rem);
+  font-weight: 750;
   letter-spacing: 0.02em;
 }
 
@@ -1146,14 +1146,14 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.78rem);
+  font-weight: 750;
   color: var(--ssr-navy);
 }
 
 .ssi-perf__pct {
-  font-size: 0.76rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.76rem);
+  font-weight: 750;
   color: var(--ssr-navy);
   flex-shrink: 0;
 }
@@ -1182,8 +1182,8 @@
   align-items: center;
   padding: 0.18rem 0.5rem;
   border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 750;
 }
 .ssi-badge--ok {
   background: #dcfce7;
@@ -1208,7 +1208,7 @@
   border-radius: 0.65rem;
   background: #fff8d6;
   border: 1px solid rgba(255, 204, 0, 0.45);
-  font-size: 0.76rem;
+  font-size: var(--tri-font-xs, 0.76rem);
   font-weight: 650;
   color: #78350f;
   line-height: 1.4;
@@ -1243,7 +1243,7 @@
 
 .ssi-forecast__block p {
   margin: 0 0 0.35rem;
-  font-size: 0.76rem;
+  font-size: var(--tri-font-xs, 0.76rem);
   color: var(--ssr-muted);
   line-height: 1.4;
 }
@@ -1251,8 +1251,8 @@
 .ssi-forecast__block ul {
   margin: 0;
   padding-left: 1.1rem;
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.78rem);
+  font-weight: 650;
 }
 
 .ssi-forecast__block li.is-yes {
@@ -1273,13 +1273,13 @@
 }
 
 .ssi-modal__card {
-  width: min(94vw, 1100px);
+  width: min(94vw, 68.75rem);
   max-width: 100%;
-  max-height: min(96vh, 860px);
+  max-height: min(96vh, 53.75rem);
   overflow: auto;
   background: #fff;
   border-radius: 0.95rem;
-  box-shadow: 0 28px 70px rgba(7, 24, 51, 0.32);
+  box-shadow: 0 1.75rem 4.375rem rgba(7, 24, 51, 0.32);
   padding: 0.85rem 1rem 0.75rem;
   color: #0a235b;
   display: flex;
@@ -1314,14 +1314,14 @@
 .ssi-modal__head h2 {
   margin: 0;
   font-size: clamp(0.95rem, 1.35vw, 1.08rem);
-  font-weight: 800;
+  font-weight: 750;
   color: #3551a5;
   letter-spacing: -0.01em;
 }
 
 .ssi-modal__head p {
   margin: 0.18rem 0 0;
-  font-size: 0.7rem;
+  font-size: var(--tri-font-xs, 0.7rem);
   line-height: 1.35;
   color: #64748b;
   max-width: 46rem;
@@ -1360,8 +1360,8 @@
   border-radius: 0.6rem;
   background: #f3f6fb;
   color: #3551a5;
-  font-size: 0.78rem;
-  font-weight: 750;
+  font-size: var(--tri-font-sm, 0.78rem);
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -1385,8 +1385,8 @@
 .ssi-modal__field {
   display: grid;
   gap: 0.28rem;
-  font-size: 0.68rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 700;
   color: #3551a5;
   min-width: 0;
 }
@@ -1401,11 +1401,11 @@
   gap: 0.4rem;
   min-height: 2.05rem;
   padding: 0 0.65rem;
-  border: 1.5px solid rgba(53, 81, 165, 0.32);
+  border: 0.0938rem solid rgba(53, 81, 165, 0.32);
   border-radius: 0.55rem;
   background: #fff;
   color: #3551a5;
-  box-shadow: 0 1px 2px rgba(10, 35, 91, 0.04);
+  box-shadow: 0 1px 0.125rem rgba(10, 35, 91, 0.04);
 }
 
 .ssi-modal__select-wrap select {
@@ -1414,8 +1414,8 @@
   border: 0;
   background: transparent;
   color: #0a235b;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 650;
   outline: none;
   cursor: pointer;
 }
@@ -1425,10 +1425,10 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.2rem;
   padding: 0.18rem;
-  border: 1.5px solid rgba(53, 81, 165, 0.22);
+  border: 0.0938rem solid rgba(53, 81, 165, 0.22);
   border-radius: 0.55rem;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(10, 35, 91, 0.04);
+  box-shadow: 0 1px 0.125rem rgba(10, 35, 91, 0.04);
 }
 
 .ssi-modal__period button {
@@ -1437,8 +1437,8 @@
   border-radius: 0.4rem;
   background: transparent;
   color: #3551a5;
-  font-size: 0.72rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.72rem);
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -1480,8 +1480,8 @@
 
 .ssi-modal__panel-head h3 {
   margin: 0 0 0.18rem;
-  font-size: 0.8rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 750;
   color: #3551a5;
   display: inline-flex;
   align-items: center;
@@ -1490,7 +1490,7 @@
 
 .ssi-modal__panel-head p {
   margin: 0;
-  font-size: 0.65rem;
+  font-size: var(--tri-font-xs, 0.65rem);
   line-height: 1.35;
   color: #64748b;
 }
@@ -1506,7 +1506,7 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  font-size: 0.68rem;
+  font-size: var(--tri-font-xs, 0.68rem);
 }
 
 .ssi-modal__table--holdings {
@@ -1522,8 +1522,8 @@
 
 .ssi-modal__table th {
   text-align: left;
-  font-size: 0.6rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.6rem);
+  font-weight: 700;
   color: #64748b;
   white-space: normal;
   line-height: 1.25;
@@ -1546,7 +1546,7 @@
   border-radius: 0.4rem;
   border: 1px solid rgba(53, 81, 165, 0.28);
   padding: 0 0.28rem;
-  font-size: 0.7rem;
+  font-size: var(--tri-font-xs, 0.7rem);
   font-weight: 650;
   text-align: right;
   color: #0a235b;
@@ -1561,7 +1561,7 @@
 .ssi-modal__table input[type="number"].is-period-focus,
 .ssi-modal__table input[type="number"]:focus {
   border-color: #3551a5;
-  box-shadow: 0 0 0 2px rgba(53, 81, 165, 0.16);
+  box-shadow: 0 0 0 0.125rem rgba(53, 81, 165, 0.16);
   outline: none;
 }
 
@@ -1571,8 +1571,8 @@
   gap: 0.25rem;
   padding: 0.16rem 0.45rem;
   border-radius: 999px;
-  font-size: 0.66rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.66rem);
+  font-weight: 750;
   letter-spacing: 0.02em;
 }
 
@@ -1592,8 +1592,8 @@
   min-height: 1.55rem;
   padding: 0.12rem 0.55rem;
   border-radius: 0.4rem;
-  font-size: 0.66rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.66rem);
+  font-weight: 750;
   border: 1px solid transparent;
   white-space: nowrap;
 }
@@ -1633,8 +1633,8 @@
 
 .ssi-modal__info strong {
   display: block;
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 750;
   color: #3551a5;
   margin-bottom: 0.1rem;
 }
@@ -1642,7 +1642,7 @@
 .ssi-modal__info p,
 .ssi-modal__info li {
   margin: 0;
-  font-size: 0.62rem;
+  font-size: var(--tri-font-xs, 0.62rem);
   line-height: 1.35;
   color: #475569;
 }
@@ -1667,7 +1667,7 @@
 .ssi-modal__error {
   margin: 0.45rem 0 0;
   color: #b91c1c;
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   font-weight: 650;
   flex-shrink: 0;
 }
@@ -1691,8 +1691,8 @@
   min-height: 2.05rem;
   padding: 0 0.9rem;
   border-radius: 999px;
-  font-size: 0.76rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.76rem);
+  font-weight: 750;
   cursor: pointer;
 }
 
@@ -1704,19 +1704,19 @@
 .ssi-modal__btn--cancel {
   background: #fff;
   color: #3551a5;
-  border: 1.5px solid #3551a5;
+  border: 0.0938rem solid #3551a5;
 }
 
 .ssi-modal__btn--save {
   background: #ffcc00;
   color: #0a235b;
-  border: 1.5px solid #ffcc00;
+  border: 0.0938rem solid #ffcc00;
 }
 
 .ssi-modal__station-hint {
   margin: 0.3rem 0 0;
   text-align: right;
-  font-size: 0.62rem;
+  font-size: var(--tri-font-xs, 0.62rem);
   color: #64748b;
 }
 
@@ -1746,7 +1746,7 @@
     grid-template-columns: 1fr;
   }
   .ssi-modal__card {
-    width: min(96vw, 1100px);
+    width: min(96vw, 68.75rem);
   }
   .ssi-modal__selectors {
     grid-template-columns: 1fr;
@@ -1783,8 +1783,8 @@
 .sms-toolbar__period label,
 .sms-toolbar__date label {
   margin: 0;
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.72rem);
+  font-weight: 750;
   color: var(--ssr-blue);
 }
 
@@ -1795,7 +1795,7 @@
   border-radius: 0.7rem;
   border: 1px solid rgba(53, 81, 165, 0.22);
   background: #fff;
-  box-shadow: 0 1px 2px rgba(10, 35, 91, 0.04);
+  box-shadow: 0 1px 0.125rem rgba(10, 35, 91, 0.04);
 }
 
 .sms-seg button {
@@ -1805,8 +1805,8 @@
   border-radius: 0.5rem;
   background: transparent;
   color: var(--ssr-blue);
-  font-size: 0.76rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.76rem);
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -1814,7 +1814,7 @@
 .sms-seg button.is-active {
   background: var(--ssr-blue);
   color: #fff;
-  box-shadow: 0 4px 10px rgba(53, 81, 165, 0.22);
+  box-shadow: 0 0.25rem 0.625rem rgba(53, 81, 165, 0.22);
 }
 
 .sms-seg button:not(.is-active):hover {
@@ -1831,15 +1831,15 @@
   border: 1px solid rgba(53, 81, 165, 0.28);
   background: #fff;
   color: var(--ssr-blue);
-  box-shadow: 0 1px 2px rgba(10, 35, 91, 0.04);
+  box-shadow: 0 1px 0.125rem rgba(10, 35, 91, 0.04);
 }
 
 .sms-date-pill input[type="date"] {
   border: 0;
   background: transparent;
   color: var(--ssr-navy);
-  font-size: 0.82rem;
-  font-weight: 750;
+  font-size: var(--tri-font-sm, 0.82rem);
+  font-weight: 700;
   outline: none;
   min-width: 9.5rem;
 }
@@ -1907,14 +1907,14 @@
 
 .sms-kpi__value {
   margin: 0;
-  font-size: 0.82rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.82rem);
+  font-weight: 750;
   line-height: 1.1;
 }
 
 .sms-kpi__label {
   margin: 0.1rem 0 0;
-  font-size: 0.6rem;
+  font-size: var(--tri-font-xs, 0.6rem);
   font-weight: 650;
   color: var(--ssr-muted);
 }
@@ -1945,8 +1945,8 @@
 
 .sms-donut {
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: 9.375rem;
+  height: 9.375rem;
   flex-shrink: 0;
   align-self: center;
 }
@@ -1961,13 +1961,13 @@
 }
 
 .sms-donut__center strong {
-  font-size: 0.82rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.82rem);
+  font-weight: 750;
   color: var(--ssr-navy);
 }
 
 .sms-donut__center span {
-  font-size: 0.64rem;
+  font-size: var(--tri-font-xs, 0.64rem);
   color: var(--ssr-muted);
   font-weight: 650;
 }
@@ -1994,8 +1994,8 @@
   border-radius: 0.75rem;
   border: 1px solid rgba(53, 81, 165, 0.16);
   background: #f7f9fd;
-  font-size: 0.8rem;
-  font-weight: 750;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 700;
 }
 
 .sms-pay__swatch {
@@ -2007,12 +2007,12 @@
 
 .sms-pay__name {
   color: var(--ssr-navy);
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .sms-pay__amt {
   color: var(--ssr-navy);
-  font-weight: 800;
+  font-weight: 750;
   white-space: nowrap;
 }
 
@@ -2020,7 +2020,7 @@
   color: var(--ssr-muted);
   min-width: 3.25rem;
   text-align: right;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .sms-ach {
@@ -2053,7 +2053,7 @@
 .sms-trend__legend {
   display: flex;
   gap: 0.75rem;
-  font-size: 0.7rem;
+  font-size: var(--tri-font-xs, 0.7rem);
   font-weight: 650;
   color: var(--ssr-muted);
 }
@@ -2062,7 +2062,7 @@
   display: inline-block;
   width: 0.55rem;
   height: 0.55rem;
-  border-radius: 2px;
+  border-radius: 0.125rem;
   margin-right: 0.25rem;
   vertical-align: middle;
 }

@@ -3,12 +3,12 @@
 import type { DealerOrderStatus, PaymentState } from "@prisma/client";
 import { NAIROBI_OFFSET_MS, nairobiMonthStart, nairobiParts } from "@/lib/time/nairobi";
 import { dealerTrackerSteps, DEALER_TRACKER_STEPS } from "@/lib/orders/state-machine";
-import { parseStage, type StageKey } from "@/lib/orders/stages";
+import { parseStage, type StaffStageFilter } from "@/lib/orders/stages";
 
 export type PeriodKey = "all" | "today" | "yesterday" | "7d" | "month" | "prev-month" | "custom";
 
 export type StaffOrderFilters = {
-  stage: StageKey | "all";
+  stage: StaffStageFilter;
   q: string;
   page: number;
   stationId: string | null;
@@ -110,7 +110,7 @@ export function paymentSummary(
   return { paid: asText(paid), due: total == null ? null : asText(Math.max(0, total - paid)) };
 }
 
-/** Where a status sits on the 7-step tracker: 0–6 the step it waits on, 7 all done, null stopped. */
+/** Where a status sits on the tracker: step index it waits on, length = all done, null = stopped. */
 function stepIndex(status: DealerOrderStatus): number | null {
   const position = dealerTrackerSteps(status) as ReturnType<typeof dealerTrackerSteps> | undefined;
   if (!position) return null; // history rows are text; an unknown status must not crash the page
@@ -120,7 +120,7 @@ function stepIndex(status: DealerOrderStatus): number | null {
   return active === -1 ? steps.length : active;
 }
 
-/** For each of the 7 tracker steps, when the order first moved past it (null = not yet). */
+/** For each tracker step, when the order first moved past it (null = not yet). */
 export function stepCompletionTimes(
   history: { toStatus: string; createdAt: Date }[]
 ): (Date | null)[] {

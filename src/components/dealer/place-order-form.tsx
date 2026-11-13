@@ -1,6 +1,7 @@
 "use client";
 
 import "@/app/dealer/dealer-place-order.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
 import Link from "next/link";

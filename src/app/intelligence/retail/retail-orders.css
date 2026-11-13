@@ -7,18 +7,18 @@
   --ro-gold: #ffcc00;
   --ro-blue: #3b82f6;
   width: 100%;
-  min-height: calc(100vh - 72px);
-  padding: 1.15rem 24px 28px;
+  min-height: calc(100vh - 4.5rem);
+  padding: 1.15rem 1.5rem 1.75rem;
   box-sizing: border-box;
   color: #f8fafc;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #0a192f;
 }
 
 .ro-head h1 {
   margin: 0;
   font-size: var(--tri-font-h2, clamp(1.85rem, 2.4vw, 2.25rem));
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.03em;
   color: #fff;
 }
@@ -26,17 +26,17 @@
 .ro-head p {
   margin: 0.4rem 0 1.15rem;
   max-width: 42rem;
-  font-size: 0.92rem;
+  font-size: var(--tri-font-body, 0.92rem);
   line-height: 1.5;
   color: var(--ro-muted);
 }
 
 .ro-price-alert {
-  margin: 0 0 16px;
-  padding: 12px 14px;
-  border-radius: 10px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.625rem;
   border: 1px solid;
-  font-size: 0.9rem;
+  font-size: var(--tri-font-body, 0.9rem);
   line-height: 1.4;
 }
 
@@ -68,7 +68,7 @@
   border: 1px solid var(--ro-border);
   background: var(--ro-card);
   color: #cbd5e1;
-  font-size: 0.82rem;
+  font-size: var(--tri-font-sm, 0.82rem);
   font-weight: 650;
   text-decoration: none;
 }
@@ -88,7 +88,7 @@
   padding: 0 0.35rem;
   border-radius: 999px;
   background: rgba(10, 25, 47, 0.55);
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   text-align: center;
 }
 
@@ -103,25 +103,25 @@
   flex: 1;
   min-width: 0;
   padding: 0.55rem 0.75rem;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   border: 1px solid var(--ro-border);
   background: #0a192f;
   color: #f8fafc;
-  font-size: 0.88rem;
+  font-size: var(--tri-font-body, 0.88rem);
 }
 
 .ro-search button {
   padding: 0.55rem 0.9rem;
   border: 0;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   background: var(--ro-gold);
   color: #0a192f;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
 }
 
 .ro-panel {
-  border-radius: 12px;
+  border-radius: 0.75rem;
   background: var(--ro-card);
   border: 1px solid var(--ro-border);
   overflow: hidden;
@@ -134,14 +134,14 @@
 .ro-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-size: var(--tri-font-sm, 0.82rem);
 }
 
 .ro-table th {
   text-align: left;
   padding: 0.7rem 0.65rem;
-  font-size: 0.66rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.66rem);
+  font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: rgba(159, 181, 215, 0.85);
@@ -162,15 +162,15 @@
 }
 
 .ro-ref {
-  font-weight: 750;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .ro-pfi-link {
   color: #93c5fd;
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 0.125rem;
   white-space: nowrap;
 }
 
@@ -180,7 +180,7 @@
 
 .ro-paid {
   margin-top: 0.25rem;
-  font-size: 0.74rem;
+  font-size: var(--tri-font-xs, 0.74rem);
   color: #4ade80;
 }
 
@@ -192,7 +192,7 @@
 .ro-note {
   margin-top: 0.25rem;
   max-width: 18rem;
-  font-size: 0.74rem;
+  font-size: var(--tri-font-xs, 0.74rem);
   color: #fbbf24;
 }
 
@@ -205,9 +205,9 @@
 .ro-btn {
   padding: 0.35rem 0.6rem;
   border: 0;
-  border-radius: 8px;
-  font-size: 0.74rem;
-  font-weight: 700;
+  border-radius: 0.5rem;
+  font-size: var(--tri-font-xs, 0.74rem);
+  font-weight: 650;
   color: #fff;
   background: #1e3a5f;
   cursor: pointer;
@@ -228,11 +228,11 @@
 
 .ro-select {
   padding: 0.3rem 0.4rem;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   border: 1px solid var(--ro-border);
   background: #0a192f;
   color: #f8fafc;
-  font-size: 0.74rem;
+  font-size: var(--tri-font-xs, 0.74rem);
 }
 
 .ro-empty {
@@ -242,6 +242,6 @@
 
 @media (max-width: 640px) {
   .ro {
-    padding: 1rem 16px 24px;
+    padding: 1rem 1rem 1.5rem;
   }
 }

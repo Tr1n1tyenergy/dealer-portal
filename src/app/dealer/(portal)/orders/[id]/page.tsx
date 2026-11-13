@@ -26,6 +26,7 @@ import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "@/components/dealer/order-tracking.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 function formatLitres(n: number) {
   return `${n.toLocaleString()} L`;
@@ -115,19 +116,11 @@ function trackerHeadline(status: DealerOrderStatus, steps: DealerTrackerStep[]) 
         detail: "Payment is confirmed. Trinity will release this order to the depot shortly.",
       };
     case "RELEASED_TO_DEPOT":
-      return {
-        title: "Released to depot",
-        detail: "Your order has been released to the depot and is waiting to enter the loading stage.",
-      };
     case "LOADING":
-      return {
-        title: "Loading in progress",
-        detail: "Your order has been released to the depot and is currently in the loading stage.",
-      };
     case "LOADED":
       return {
-        title: "Loaded",
-        detail: "Fuel has been loaded and is preparing for dispatch to your station.",
+        title: "Released to depot",
+        detail: "Your order has been released to the depot and will move to transit when dispatch begins.",
       };
     case "DISPATCHED":
     case "IN_TRANSIT":

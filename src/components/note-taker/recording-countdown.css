@@ -59,7 +59,7 @@
   background: rgba(6, 24, 62, 0.88);
   color: rgba(210, 225, 248, 0.92);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   font-family: inherit;
   letter-spacing: 0.01em;
   cursor: pointer;
@@ -115,7 +115,7 @@
 .rcd__title {
   margin: 0;
   font-size: 1.65rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   color: #ffffff;
   line-height: 1.2;
@@ -181,7 +181,7 @@
 
 .rcd__count {
   font-size: 3.6rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.04em;
   color: #ffffff;
   line-height: 1;
@@ -304,7 +304,7 @@
 
 .rcd__feature-title {
   font-size: 0.72rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #ffffff !important;
   line-height: 1.2 !important;
   white-space: nowrap !important;
@@ -379,7 +379,7 @@
   align-items: center !important;
   gap: 0.4rem !important;
   font-size: 0.86rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #ffffff !important;
   min-width: 0 !important;
 }
@@ -410,7 +410,7 @@
   background: rgba(6, 24, 62, 0.72);
   color: #ffffff;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 650;
   font-family: inherit;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;

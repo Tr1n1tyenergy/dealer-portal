@@ -10,7 +10,7 @@
 .ssr-hero,
 .ru-hero {
   position: relative;
-  min-height: 220px;
+  min-height: var(--tri-hero-height-capped, 13.75rem);
   background-color: #071833;
   background-image:
     linear-gradient(90deg, rgba(7, 24, 51, 0.72) 0%, rgba(7, 24, 51, 0.35) 45%, rgba(7, 24, 51, 0.05) 75%),
@@ -19,8 +19,13 @@
   background-size: cover;
   background-position: 42% 30%;
   display: flex;
-  align-items: flex-start;
-  padding: 34px clamp(16px, 4vw, 48px) 86px;
+  /* Copy sits low, just above overlapping content cards */
+  align-items: flex-end;
+  padding:
+    var(--tri-space-md, 1.25rem)
+    var(--tri-page-gutter, clamp(1rem, 4vw, 3rem))
+    /* Clear card overlap (~3.5rem) + a little air under the copy */
+    clamp(5.35rem, 6.75vw, 6.85rem);
   overflow: hidden;
   box-sizing: border-box;
   width: 100%;
@@ -35,14 +40,14 @@
 .sh-hero__copy,
 .ssr-hero__copy,
 .ru-hero__copy {
-  border-left: 4px solid #ffcc00;
-  padding-left: 16px;
+  border-left: 0.25rem solid #ffcc00;
+  padding-left: var(--tri-space-sm, 1rem);
   color: #fff !important;
   max-width: 48rem;
   position: relative;
   z-index: 1;
   display: block;
-  margin: 0;
+  margin: 0 0 0 clamp(0.85rem, 2.2vw, 1.75rem);
   transform: none;
   top: auto;
   left: auto;
@@ -59,9 +64,9 @@
 .ssr-hero__kicker,
 .ru-hero__kicker {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 0.875rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #ffe071;
 }
@@ -74,9 +79,9 @@
 .sh-hero__title,
 .ssr-hero__title,
 .ru-hero__title {
-  margin: 4px 0 6px;
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
-  font-weight: 800;
+  margin: 0.2rem 0 0.3rem;
+  font-size: clamp(1.85rem, 2.85vw, 2.55rem);
+  font-weight: 750;
   letter-spacing: -0.02em;
   color: #fff !important;
   line-height: 1.15;
@@ -91,8 +96,8 @@
 .ssr-hero__sub,
 .ru-hero__sub {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: 1.12rem;
+  line-height: 1.4;
   color: rgba(255, 255, 255, 0.88) !important;
   max-width: 48rem;
 }
@@ -121,7 +126,8 @@
   .sh-hero,
   .ssr-hero,
   .ru-hero {
-    padding: 22px 16px 74px;
-    min-height: 180px;
+    padding: 1.1rem 1rem 5rem;
+    min-height: 11.25rem;
+    align-items: flex-end;
   }
 }

@@ -17,6 +17,7 @@ import {
   type SupportStatus,
 } from "@/lib/support/constants";
 import "@/app/dealer/dealer-support.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 type DetailTicket = {
   id: string;

@@ -1,0 +1,7 @@
+TeX Gyre Adventor (URW Gothic L–based), used here as a web-embeddable
+Century Gothic–compatible face when the proprietary Century Gothic is not
+installed on the device.
+
+License: GUST Font License (compatible with OFL).
+Source: https://www.gust.org.pl/projects/e-foundry/tex-gyre
+CTAN: fonts/tex-gyre

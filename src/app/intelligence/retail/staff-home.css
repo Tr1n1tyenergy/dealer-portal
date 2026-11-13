@@ -40,27 +40,25 @@
   border-radius: var(--sh-radius);
   background: #fff;
   border: 1px solid rgba(10, 35, 91, 0.06);
-  border-top: 3px solid var(--sh-blue);
-  box-shadow: 0 12px 28px rgba(10, 35, 91, 0.08);
+  border-top: 0.1875rem solid var(--sh-blue);
+  box-shadow: 0 0.75rem 1.75rem rgba(10, 35, 91, 0.08);
   text-decoration: none;
   color: inherit;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   min-height: 0;
 }
 
-.sh-kpi:nth-child(2) {
+.sh-kpi:nth-child(2),
+.sh-kpi:nth-child(4) {
   border-top-color: var(--sh-yellow);
 }
 .sh-kpi:nth-child(3) {
-  border-top-color: #64748b;
-}
-.sh-kpi:nth-child(4) {
-  border-top-color: #6d28d9;
+  border-top-color: var(--sh-blue);
 }
 
 .sh-kpi:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(10, 35, 91, 0.12);
+  box-shadow: 0 1rem 2.125rem rgba(10, 35, 91, 0.12);
 }
 
 .sh-kpi__body {
@@ -91,13 +89,10 @@
   background: #e8eefb;
   color: var(--sh-blue);
 }
-.sh-kpi__icon--gold {
-  background: #fff6d6;
-  color: #b45309;
-}
+.sh-kpi__icon--gold,
 .sh-kpi__icon--purple {
-  background: #f0e9ff;
-  color: #6d28d9;
+  background: #fff6d6;
+  color: #8a6a00;
 }
 
 .sh-kpi__go {
@@ -105,21 +100,21 @@
 }
 
 .sh-kpi__label {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.78rem);
+  font-weight: 650;
   color: var(--sh-muted);
 }
 
 .sh-kpi__value {
   font-size: clamp(1.1rem, 1.55vw, 1.4rem);
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   color: var(--sh-navy);
   line-height: 1.15;
 }
 
 .sh-kpi__meta {
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   font-weight: 600;
   color: var(--sh-muted);
   line-height: 1.3;
@@ -140,14 +135,14 @@
   background: #fff;
   border-radius: var(--sh-radius);
   border: 1px solid rgba(10, 35, 91, 0.06);
-  border-top: 3px solid var(--sh-blue);
-  box-shadow: 0 10px 26px rgba(10, 35, 91, 0.07);
+  border-top: 0.1875rem solid var(--sh-yellow);
+  box-shadow: 0 0.625rem 1.625rem rgba(10, 35, 91, 0.07);
   padding: 0.85rem 0.95rem 0.75rem;
   min-height: 0;
 }
 
 .sh-panel:nth-child(2) {
-  border-top-color: var(--sh-yellow);
+  border-top-color: var(--sh-blue);
 }
 
 .sh-panel__head {
@@ -177,7 +172,7 @@
 
 .sh-panel__ico--warn {
   background: #fff6d6;
-  color: #b45309;
+  color: #8a6a00;
 }
 .sh-panel__ico--live {
   background: #e8eefb;
@@ -186,20 +181,20 @@
 
 .sh-panel__title {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: var(--tri-font-lg, 1.05rem);
+  font-weight: 750;
   color: var(--sh-navy);
 }
 
 .sh-panel__sub {
   margin: 0.2rem 0 0;
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   color: var(--sh-muted);
 }
 
 .sh-panel__link {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 650;
   color: var(--sh-blue);
   text-decoration: none;
   white-space: nowrap;
@@ -234,14 +229,14 @@
 
 .sh-task__title {
   margin: 0;
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.92rem);
+  font-weight: 750;
   color: var(--sh-navy);
 }
 
 .sh-task__desc {
   margin: 0.2rem 0 0;
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   line-height: 1.4;
   color: var(--sh-muted);
 }
@@ -258,13 +253,13 @@
   align-items: center;
   padding: 0.22rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 750;
 }
 
 .sh-badge--pending {
   background: #fff6d6;
-  color: #92400e;
+  color: #8a6a00;
 }
 .sh-badge--overdue {
   background: #fee2e2;
@@ -282,8 +277,8 @@
   height: 2rem;
   padding: 0 0.85rem;
   border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.75rem);
+  font-weight: 750;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -292,7 +287,7 @@
   background: var(--sh-yellow);
   color: var(--sh-navy);
   border: 0;
-  box-shadow: 0 6px 14px rgba(255, 204, 0, 0.28);
+  box-shadow: 0 0.375rem 0.875rem rgba(255, 204, 0, 0.28);
 }
 
 .sh-btn--outline {
@@ -305,7 +300,7 @@
   padding: 1.5rem 0.5rem;
   text-align: center;
   color: var(--sh-muted);
-  font-size: 0.85rem;
+  font-size: var(--tri-font-sm, 0.85rem);
 }
 
 .sh-feed {
@@ -367,14 +362,14 @@
 
 .sh-feed__text {
   margin: 0;
-  font-size: 0.84rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.84rem);
+  font-weight: 650;
   line-height: 1.4;
   color: var(--sh-navy);
 }
 
 .sh-feed__time {
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   font-weight: 600;
   color: var(--sh-muted);
   white-space: nowrap;
@@ -392,14 +387,17 @@
   background: #fff;
   border-radius: var(--sh-radius);
   border: 1px solid rgba(10, 35, 91, 0.06);
-  border-top: 3px solid var(--sh-blue);
-  box-shadow: 0 10px 26px rgba(10, 35, 91, 0.07);
+  border-top: 0.1875rem solid var(--sh-blue);
+  box-shadow: 0 0.625rem 1.625rem rgba(10, 35, 91, 0.07);
   padding: 0.9rem 1rem 1rem;
   min-height: 0;
 }
 
 .sh-card:nth-child(2) {
-  border-top-color: #64748b;
+  border-top-color: var(--sh-yellow);
+}
+.sh-card:nth-child(3) {
+  border-top-color: var(--sh-blue);
 }
 
 .sh-card--epra {
@@ -423,13 +421,13 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.98rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.98rem);
+  font-weight: 750;
   color: var(--sh-navy);
 }
 
 .sh-card__period {
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   font-weight: 600;
   color: var(--sh-muted);
 }
@@ -458,8 +456,8 @@
   border-radius: 999px;
   background: var(--sh-blue);
   color: #fff;
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.72rem);
+  font-weight: 750;
 }
 
 .sh-rank__top {
@@ -470,14 +468,14 @@
 }
 
 .sh-rank__name {
-  font-size: 0.86rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.86rem);
+  font-weight: 750;
   color: var(--sh-navy);
 }
 
 .sh-rank__val {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 650;
   color: var(--sh-navy);
   white-space: nowrap;
 }
@@ -508,14 +506,14 @@
 
 .sh-epra__title {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: var(--tri-font-lg, 1.05rem);
+  font-weight: 750;
   color: var(--sh-navy);
 }
 
 .sh-epra__desc {
   margin: 0.35rem 0 1rem;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   line-height: 1.45;
   color: var(--sh-muted);
 }
@@ -538,8 +536,8 @@
 
 .sh-countdown__n {
   display: block;
-  font-size: 1.55rem;
-  font-weight: 800;
+  font-size: var(--tri-font-title, 1.55rem);
+  font-weight: 750;
   color: var(--sh-navy);
   line-height: 1;
 }
@@ -547,8 +545,8 @@
 .sh-countdown__l {
   display: block;
   margin-top: 0.35rem;
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 650;
   color: var(--sh-navy);
 }
 
