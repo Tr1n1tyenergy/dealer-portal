@@ -1,19 +1,19 @@
 /**
  * Shared forecourt hero banner (Dealer Portal pages — not access/login/forgot-password).
  *
- * Matches internal staff Home / Stock Sale heroes exactly:
- *   asset: trinitynrg-forecourt-at-sunset.png?v=6
- *   media: absolute <img> 128% wide, height 100%, object-fit cover, object-position 18% 30%
+ * Pin-point match of Staff Portal hero (`staff-portal-hero.css`):
+ *   asset: trinitynrg-forecourt-at-sunset.png?v=5
+ *   plate: CSS background cover @ 42% 30%
+ *   haze: linear-gradient(90deg, rgba(7,24,51,0.72) → 0.35 → 0.05)
+ *   height: --tri-hero-height-capped
  *
- * Use <DealerHeroMedia /> inside each portal hero (see dealer-hero-media.tsx).
- * Do not paint the plate via background-image — that cannot match the staff crop.
- *
+ * Painted by `dealer-portal-hero.css`. `<DealerHeroMedia />` is legacy and hidden.
  * Access / dealer login left panels keep their own framing in portal-auth.css.
  */
 export const DEALER_FORECOURT_SRC =
-  "/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=7";
+  "/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=5";
 
-/** @deprecated Prefer <DealerHeroMedia />; kept for non-hero thumbnails only. */
+/** @deprecated Prefer the CSS plate in dealer-portal-hero.css. */
 export const dealerHeroPhotoStyle = {
   backgroundImage: "none",
   backgroundColor: "#071833",

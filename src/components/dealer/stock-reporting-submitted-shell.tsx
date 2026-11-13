@@ -3,6 +3,7 @@ import { STOCK_REPORT_WIZARD_STAGES } from "@/lib/stock-reporting/constants";
 import { DealerHeroActions } from "./dealer-hero-actions";
 import { DealerHeroMedia } from "./dealer-hero-media";
 import "@/app/dealer/dealer-stock-wizard.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 export function StockReportingSubmittedShell({
   stationName,

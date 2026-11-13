@@ -1,21 +1,21 @@
 /* Retail Analytics — mockup-accurate hero + side-icon KPI cards */
 
 .rad {
-  --rad-gap: 20px;
+  --rad-gap: 1.25rem;
   --rad-canvas: #0a192f;
   --rad-card: #122a4a;
   --rad-card-border: rgba(148, 163, 184, 0.14);
   --rad-ink: #f8fafc;
   --rad-muted: #94a3b8;
-  --rad-radius: 12px;
-  --rad-gutter: 24px;
+  --rad-radius: 0.75rem;
+  --rad-gutter: 1.5rem;
   /* Fixed hero photo plane — never scales with page height */
-  --rad-hero-h: 228px;
-  --rad-hero-w: min(52%, 780px);
+  --rad-hero-h: 14.25rem;
+  --rad-hero-w: min(52%, 48.75rem);
   width: 100%;
   max-width: none;
   color: var(--rad-ink);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   display: flex;
   flex-direction: column;
   gap: var(--rad-gap);
@@ -94,8 +94,8 @@
 
 .rad-hero__title {
   margin: 0;
-  font-size: var(--tri-font-h2, clamp(1.85rem, 2.35vw, 2.2rem));
-  font-weight: 800;
+  font-size: var(--tri-font-title, clamp(1.4rem, 2.15vw, 1.9rem));
+  font-weight: 750;
   letter-spacing: -0.03em;
   line-height: 1.12;
   color: #fff;
@@ -104,7 +104,7 @@
 .rad-hero__sub {
   margin: 0.45rem 0 0;
   max-width: 28rem;
-  font-size: 0.93rem;
+  font-size: var(--tri-font-body, 0.93rem);
   line-height: 1.45;
   color: #b0bfd4;
 }
@@ -117,15 +117,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  height: 36px;
+  height: 2.25rem;
   padding: 0 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(10, 25, 47, 0.82);
   color: #e2e8f0;
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   font-weight: 600;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(0.625rem);
   cursor: default;
   white-space: nowrap;
 }
@@ -163,18 +163,18 @@
   flex-direction: row;
   align-items: center;
   gap: 0.85rem;
-  padding: 14px 16px;
+  padding: 0.875rem 1rem;
   border-radius: var(--rad-radius);
   background: var(--rad-card);
   border: 1px solid var(--rad-card-border);
   min-width: 0;
-  min-height: 104px;
+  min-height: 6.5rem;
 }
 
 .rad-kpi__icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.75rem;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -195,7 +195,7 @@
 }
 
 .rad-kpi__label {
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   font-weight: 600;
   color: #94a3b8;
   line-height: 1.2;
@@ -210,16 +210,16 @@
 }
 
 .rad-kpi__value {
-  font-size: 1.85rem;
-  font-weight: 800;
+  font-size: var(--tri-font-h2, 1.85rem);
+  font-weight: 750;
   letter-spacing: -0.03em;
   line-height: 1;
   color: #fff;
 }
 
 .rad-kpi__spark {
-  width: 72px;
-  height: 28px;
+  width: 4.5rem;
+  height: 1.75rem;
   flex-shrink: 0;
 }
 
@@ -229,7 +229,7 @@
 .rad-kpi--green .rad-kpi__spark path { stroke: #4ade80; }
 
 .rad-kpi__delta {
-  font-size: 0.68rem;
+  font-size: var(--tri-font-xs, 0.68rem);
   font-weight: 650;
   white-space: nowrap;
   margin-top: 0.15rem;
@@ -250,7 +250,7 @@
   flex-direction: column;
   width: 100%;
   min-width: 0;
-  padding: 18px 20px 18px;
+  padding: 1.125rem 1.25rem 1.125rem;
   border-radius: var(--rad-radius);
   background: var(--rad-card);
   border: 1px solid var(--rad-card-border);
@@ -258,12 +258,12 @@
 }
 
 .rad-trend {
-  min-height: 300px;
+  min-height: 18.75rem;
   flex: 0 0 auto;
 }
 
 .rad-status {
-  min-height: 260px;
+  min-height: 16.25rem;
   flex: 0 0 auto;
 }
 
@@ -320,8 +320,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.95rem;
-  font-weight: 750;
+  font-size: var(--tri-font-body, 0.95rem);
+  font-weight: 700;
   color: #fff;
 }
 
@@ -333,20 +333,20 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  height: 30px;
+  height: 1.875rem;
   padding: 0 0.7rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
   color: #cbd5e1;
-  font-size: 0.74rem;
+  font-size: var(--tri-font-xs, 0.74rem);
   font-weight: 600;
   cursor: default;
 }
 
 .rad-link {
   color: #93c5fd;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   font-weight: 650;
   text-decoration: none;
 }
@@ -358,7 +358,7 @@
 .rad-trend__svg {
   width: 100%;
   flex: 1;
-  min-height: 200px;
+  min-height: 12.5rem;
   display: block;
 }
 
@@ -381,7 +381,7 @@
 
 .rad-trend__xlabel {
   fill: #94a3b8;
-  font-size: 11px;
+  font-size: var(--tri-font-xs, 0.6875rem);
   font-weight: 600;
 }
 
@@ -389,7 +389,7 @@
   display: flex;
   gap: 1.1rem;
   margin-top: 0.4rem;
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   color: #cbd5e1;
   font-weight: 600;
   flex-shrink: 0;
@@ -397,8 +397,8 @@
 
 .rad-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 999px;
   margin-right: 0.35rem;
   vertical-align: middle;
@@ -415,8 +415,8 @@
 
 .rad-donut {
   position: relative;
-  width: 152px;
-  height: 152px;
+  width: 9.5rem;
+  height: 9.5rem;
   flex-shrink: 0;
 }
 
@@ -435,15 +435,15 @@
 }
 
 .rad-donut__center strong {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: var(--tri-font-title, 1.5rem);
+  font-weight: 750;
   color: #fff;
   line-height: 1;
 }
 
 .rad-donut__center span {
   margin-top: 0.22rem;
-  font-size: 0.66rem;
+  font-size: var(--tri-font-xs, 0.66rem);
   font-weight: 650;
   color: #94a3b8;
 }
@@ -460,15 +460,15 @@
 
 .rad-status__legend li {
   display: grid;
-  grid-template-columns: 8px 1fr auto;
+  grid-template-columns: 0.5rem 1fr auto;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.76rem;
+  font-size: var(--tri-font-xs, 0.76rem);
 }
 
 .rad-status__swatch {
-  width: 8px;
-  height: 8px;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 999px;
 }
 
@@ -479,7 +479,7 @@
 
 .rad-status__pct {
   color: #94a3b8;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .rad-table-wrap {
@@ -491,17 +491,17 @@
 .rad-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
 }
 
 .rad-table th {
   text-align: left;
   padding: 0.5rem 0.4rem;
   color: #94a3b8;
-  font-size: 0.66rem;
+  font-size: var(--tri-font-xs, 0.66rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-weight: 750;
+  font-weight: 700;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   white-space: nowrap;
 }
@@ -515,7 +515,7 @@
 
 .rad-mono {
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: 650;
   color: #fff;
 }
 
@@ -531,8 +531,8 @@
   align-items: center;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.7rem);
+  font-weight: 700;
 }
 
 .rad-pill--blue { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
@@ -560,13 +560,13 @@
 }
 
 .rad-rank__n {
-  width: 22px;
-  height: 22px;
+  width: 1.375rem;
+  height: 1.375rem;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.7rem);
+  font-weight: 750;
   background: rgba(59, 130, 246, 0.16);
   color: #93c5fd;
   flex-shrink: 0;
@@ -586,21 +586,21 @@
 }
 
 .rad-rank__row strong {
-  font-size: 0.84rem;
-  font-weight: 750;
+  font-size: var(--tri-font-sm, 0.84rem);
+  font-weight: 700;
   color: #fff;
 }
 
 .rad-rank__row em {
   font-style: normal;
-  font-size: 0.7rem;
+  font-size: var(--tri-font-xs, 0.7rem);
   font-weight: 650;
   color: #94a3b8;
   white-space: nowrap;
 }
 
 .rad-rank__bar {
-  height: 7px;
+  height: 0.4375rem;
   border-radius: 999px;
   background: rgba(148, 163, 184, 0.12);
   overflow: hidden;
@@ -628,7 +628,7 @@
 
 @media (max-width: 760px) {
   .rad {
-    --rad-hero-h: 160px;
+    --rad-hero-h: 10rem;
     --rad-hero-w: 100%;
   }
   .rad-hero__media {

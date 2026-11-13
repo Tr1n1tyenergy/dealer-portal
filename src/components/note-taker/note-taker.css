@@ -130,7 +130,7 @@
   margin: 0 !important;
   padding: 0 !important;
   font-size: 0.68rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   letter-spacing: 0.16em !important;
   text-transform: uppercase !important;
   color: #ffcc00 !important;
@@ -141,7 +141,7 @@
   margin: 0.32rem 0 0 !important;
   padding: 0 !important;
   font-size: 1.75rem !important;
-  font-weight: 900 !important;
+  font-weight: 800 !important;
   line-height: 1.15 !important;
   letter-spacing: -0.02em !important;
   color: #ffffff !important;
@@ -217,7 +217,7 @@
 
 .nt-stat__value {
   font-size: 1.45rem !important;
-  font-weight: 900 !important;
+  font-weight: 800 !important;
   letter-spacing: -0.03em !important;
   color: #0a235b !important;
   line-height: 1 !important;
@@ -225,7 +225,7 @@
 
 .nt-stat__label {
   font-size: 0.72rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #0a235b !important;
   line-height: 1.2 !important;
 }
@@ -243,7 +243,7 @@
 
 .nt-stat__trend {
   font-size: 0.62rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #16a34a !important;
 }
 
@@ -265,13 +265,13 @@
   align-items: center !important;
   gap: 0.4rem !important;
   font-size: 0.86rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #0a235b !important;
 }
 
 .nt-insights__link {
   font-size: 0.74rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #173d8f !important;
   text-decoration: none !important;
 }
@@ -331,7 +331,7 @@
 
 .nt-insight__value {
   font-size: 0.72rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #0a235b !important;
   line-height: 1.15 !important;
   white-space: nowrap !important;
@@ -563,7 +563,7 @@
 .nt-action__label {
   display: block !important;
   font-size: 0.95rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   line-height: 1.2 !important;
 }
 
@@ -630,7 +630,7 @@
   align-items: center !important;
   gap: 0.5rem !important;
   font-size: 0.92rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #ffffff !important;
 }
 
@@ -642,7 +642,7 @@
 
 .nt-col__link {
   font-size: 0.72rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: rgba(186, 205, 235, 0.82) !important;
   text-decoration: none !important;
   white-space: nowrap !important;
@@ -683,7 +683,7 @@
   align-items: center !important;
   gap: 0.35rem !important;
   font-size: 0.74rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #173d8f !important;
   text-decoration: none !important;
 }
@@ -731,7 +731,7 @@
 
 .nt-meet__month {
   font-size: 0.55rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   letter-spacing: 0.06em !important;
   text-transform: uppercase !important;
   opacity: 0.9 !important;
@@ -739,7 +739,7 @@
 
 .nt-meet__day {
   font-size: 1rem !important;
-  font-weight: 900 !important;
+  font-weight: 800 !important;
 }
 
 .nt-meet__copy {
@@ -749,7 +749,7 @@
 
 .nt-meet__name {
   font-size: 0.84rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #0a235b !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -777,7 +777,7 @@
   align-items: center !important;
   gap: 0.35rem !important;
   font-size: 0.66rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #16a34a !important;
   white-space: nowrap !important;
 }
@@ -828,7 +828,7 @@
 
 .nt-rec__name {
   font-size: 0.84rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #0a235b !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -855,7 +855,7 @@
   padding: 0.2rem 0.5rem !important;
   border-radius: 999px !important;
   font-size: 0.62rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
 }
 
 .nt-badge--ok {
@@ -897,7 +897,7 @@
 
 .nt-note__name {
   font-size: 0.84rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #0a235b !important;
 }
 
@@ -925,7 +925,7 @@
   padding: 0.25rem 0.5rem !important;
   border-radius: 999px !important;
   font-size: 0.62rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   white-space: nowrap !important;
 }
 
@@ -952,7 +952,7 @@
   background: #fff !important;
   color: #173d8f !important;
   font-size: 0.8rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   text-decoration: none !important;
 }
 
@@ -987,7 +987,7 @@
 
 .nt-secure__left strong {
   color: #0a235b !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
 }
 
 .nt-secure__icon {
@@ -998,7 +998,7 @@
 }
 
 .nt-secure__right {
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #0a235b !important;
 }
 
@@ -1036,7 +1036,7 @@
 .nt-modal__title {
   margin: 0 !important;
   font-size: 1.15rem !important;
-  font-weight: 900 !important;
+  font-weight: 800 !important;
   color: #0a235b !important;
 }
 
@@ -1055,7 +1055,7 @@
 
 .nt-field label {
   font-size: 0.78rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #0a235b !important;
 }
 
@@ -1102,7 +1102,7 @@
   border-radius: 0.75rem !important;
   border: 1px solid transparent !important;
   font-size: 0.85rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   font-family: inherit !important;
   cursor: pointer !important;
 }

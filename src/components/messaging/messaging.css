@@ -25,7 +25,7 @@
   height: 100%;
   min-height: 520px;
   color: var(--msg-ink);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   /* Transparent so column gaps reveal the station hero (not a solid navy strip) */
   background: transparent;
 }
@@ -122,7 +122,7 @@
 .msg-sidebar__head h2 {
   margin: 0;
   font-size: var(--tri-font-lede, 1.05rem);
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   color: #fff;
 }
@@ -140,7 +140,7 @@
   border-radius: 9px;
   padding: 0.42rem 0.7rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
   background: #3b82f6;
   color: #fff;
@@ -209,7 +209,7 @@
   border-radius: 7px;
   padding: 0.28rem 0.35rem;
   font-size: 0.64rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.01em;
   white-space: nowrap;
   text-align: center;
@@ -293,7 +293,7 @@
   place-items: center;
   flex-shrink: 0;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
   background: linear-gradient(145deg, #1a4a9c, #0a2b61);
   color: #fff;
   overflow: hidden;
@@ -340,7 +340,7 @@
 }
 
 .msg-list__name {
-  font-weight: 750;
+  font-weight: 700;
   font-size: 0.88rem;
   white-space: nowrap;
   overflow: hidden;
@@ -389,7 +389,7 @@
   background: #126bff;
   color: #fff;
   font-size: 0.65rem;
-  font-weight: 800;
+  font-weight: 750;
   display: grid;
   place-items: center;
   box-shadow: 0 2px 8px rgba(18, 107, 255, 0.45);
@@ -446,7 +446,7 @@
 .msg-thread__identity strong {
   display: block;
   font-size: 0.95rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
@@ -781,7 +781,7 @@
   border-radius: 999px;
   background: #3551a5;
   color: #fff;
-  font-weight: 800;
+  font-weight: 750;
   box-shadow: 0 8px 16px rgba(53, 81, 165, 0.28);
 }
 
@@ -834,7 +834,7 @@
 .msg-profile__body strong {
   margin-top: 0.35rem;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #fff;
 }
 
@@ -874,7 +874,7 @@
   background: #0a192f;
   color: #fff;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: none;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
@@ -914,7 +914,7 @@
   align-items: center;
   gap: 0.4rem;
   font-size: 0.82rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #fff;
 }
 
@@ -970,7 +970,7 @@
   flex: 1;
   min-width: 0;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #eef4ff;
   white-space: nowrap;
   overflow: hidden;
@@ -982,7 +982,7 @@
   padding: 0.22rem 0.5rem;
   border-radius: 999px;
   font-size: 0.62rem;
-  font-weight: 750;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -1041,7 +1041,7 @@
   display: grid;
   place-items: center;
   font-size: 0.58rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.02em;
   color: #fff;
   background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
@@ -1057,7 +1057,7 @@
 .msg-file__meta strong {
   display: block;
   font-size: 0.76rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #eef4ff;
   white-space: nowrap;
   overflow: hidden;
@@ -1142,7 +1142,7 @@
 .msg-directory__panel h3 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #fff;
 }
 
@@ -1165,7 +1165,7 @@
   border-radius: 8px;
   padding: 0.35rem 0.65rem;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
 }
 
@@ -1338,7 +1338,7 @@
   background: #fff;
   color: #3551a5;
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   padding: 0.35rem 0.7rem;
 }
 
@@ -1359,7 +1359,7 @@
   background: #0a235b;
   color: #fff;
   font-size: 0.62rem;
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1;
 }
 
@@ -1455,7 +1455,7 @@
   color: #0a235b;
   font: inherit;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
   box-shadow: 0 10px 22px rgba(255, 204, 0, 0.3);
 }
@@ -1496,7 +1496,7 @@
   background: #eef3fb;
   border: none;
   color: #64748b;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .msg-app--dealer .msg-composer {

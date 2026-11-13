@@ -5,6 +5,7 @@ import {
   type StockReportStageId,
 } from "@/lib/stock-reporting/constants";
 import "@/app/dealer/dealer-stock-reporting.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 export function StockReportingStageStub({ stage }: { stage: StockReportStageId }) {
   const meta = STOCK_REPORT_STAGE_META[stage];

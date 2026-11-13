@@ -33,7 +33,7 @@
   color: #0a235b;
   font: inherit;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(255, 204, 0, 0.35);
   animation: pay-cta-pulse 1.8s ease-in-out infinite;
@@ -186,7 +186,7 @@
 }
 
 .pay-modal__ids strong {
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .pay-modal__meta {
@@ -218,7 +218,7 @@
 .pay-modal__amount-label {
   display: block;
   font-size: 0.64rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #64748b;
@@ -228,7 +228,7 @@
 .pay-modal__amount-value {
   display: block;
   font-size: clamp(1.15rem, 2vw, 1.4rem);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.03em;
   color: #0a235b;
   line-height: 1.1;
@@ -264,7 +264,7 @@
   color: #3551a5;
   font: inherit;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
   padding: 0;
   float: right;
@@ -314,7 +314,7 @@
 
 .pay-modal__breakdown dd {
   margin: 0;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
 }
 
@@ -326,7 +326,7 @@
 .pay-modal__breakdown .is-total dt,
 .pay-modal__breakdown .is-total dd {
   color: #fff;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 /* Methods */
@@ -404,7 +404,7 @@
 
 .pay-modal__method-copy strong {
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .pay-modal__method-copy em {
@@ -469,7 +469,7 @@
 .pay-modal__field-label {
   margin: 0 0 0.35rem;
   font-size: 0.7rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #475569;
 }
 
@@ -520,7 +520,7 @@
   padding: 0 0.35rem;
   border-radius: 5px;
   font-size: 0.62rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.04em;
 }
 
@@ -553,14 +553,14 @@
 
 .pay-modal__bank-copy strong {
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.25;
 }
 
 .pay-modal__bank-copy em {
   font-style: normal;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #3551a5;
   font-variant-numeric: tabular-nums;
 }
@@ -579,7 +579,7 @@
   display: grid;
   gap: 0.28rem;
   font-size: 0.7rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #475569;
 }
 
@@ -675,7 +675,7 @@
 
 .pay-modal__trust strong {
   color: #0a235b;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .pay-modal__trust a {
@@ -684,7 +684,7 @@
   gap: 0.3rem;
   margin-top: 0.15rem;
   color: #3551a5;
-  font-weight: 750;
+  font-weight: 700;
   text-decoration: none;
   width: fit-content;
 }
@@ -708,7 +708,7 @@
   padding: 0.55rem 0.85rem;
   font: inherit;
   font-size: 0.82rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
   min-height: 2.3rem;
 }

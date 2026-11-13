@@ -21,38 +21,7 @@
   padding: 0 var(--dp-gutter, 1.5rem);
 }
 
-/* ——— Hero ——— */
-.ot__hero {
-  position: relative;
-  min-height: var(--dp-hero-height, 260px);
-  height: var(--dp-hero-height, 260px);
-  overflow: hidden;
-  color: #fff;
-  background-color: #071833;
-  background-image: none !important;
-  background-repeat: no-repeat;
-}
-
-.ot__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-.ot__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 1.15rem var(--dp-gutter, 1.5rem) 4.75rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 /* Yellow breadcrumb trail for nested Orders pages */
 .ot__crumbs {
@@ -65,7 +34,7 @@
 
 .ot__crumb {
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ot-yellow);
@@ -84,7 +53,7 @@ a.ot__crumb:hover {
 .ot__crumb.is-leaf {
   letter-spacing: 0.04em;
   text-transform: none;
-  font-weight: 700;
+  font-weight: 650;
   color: rgba(255, 255, 255, 0.92);
   font-size: 0.8rem;
 }
@@ -97,7 +66,7 @@ a.ot__crumb:hover {
 .ot__hero h1 {
   margin: 0;
   font-size: var(--tri-font-h2, clamp(1.7rem, 2.8vw, 2.35rem));
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   line-height: 1.12;
   color: #fff;
@@ -128,7 +97,7 @@ a.ot__crumb:hover {
   border: 1px solid rgba(74, 222, 128, 0.55);
   color: #bbf7d0;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ot__status-pill.is-warn {
@@ -204,7 +173,7 @@ a.ot__crumb:hover {
 
 .ot__tracker-kicker {
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ot-blue);
@@ -214,7 +183,7 @@ a.ot__crumb:hover {
 .ot__tracker-lead h2 {
   margin: 0;
   font-size: clamp(1.15rem, 2vw, 1.45rem);
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ot-blue);
   letter-spacing: -0.01em;
   line-height: 1.2;
@@ -238,14 +207,14 @@ a.ot__crumb:hover {
   border: 1px solid #f5e08a;
   color: #8a6d00;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 750;
   white-space: nowrap;
 }
 
 .ot__stopped {
   margin: 0 0 0.85rem;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #b42318;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -300,7 +269,7 @@ a.ot__crumb:hover {
   justify-content: center;
   flex-shrink: 0;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 750;
   background: #eef2f7;
   color: #64748b;
   border: 2px solid #d7e0ec;
@@ -314,6 +283,8 @@ a.ot__crumb:hover {
   height: 3px;
   min-width: 8px;
   margin-top: 15.5px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
   background: #d7e0ec;
   border-radius: 999px;
   z-index: 1;
@@ -351,7 +322,7 @@ a.ot__crumb:hover {
 .ot__progress-node em {
   font-style: normal;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #94a3b8;
   line-height: 1.25;
   max-width: 94px;
@@ -374,7 +345,7 @@ a.ot__crumb:hover {
 
 .ot__progress-step.is-active .ot__progress-node small {
   color: #b8860b;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ot__progress-step.is-done .ot__progress-node small {
@@ -438,7 +409,7 @@ a.ot__crumb:hover {
 .ot__card-title h2 {
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ot-ink);
 }
 
@@ -451,7 +422,7 @@ a.ot__crumb:hover {
   border: 1px solid #d7e0f4;
   color: var(--ot-blue);
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 /* Summary tiles */
@@ -517,7 +488,7 @@ a.ot__crumb:hover {
 .ot__tile-label {
   display: block;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ot-muted);
@@ -527,7 +498,7 @@ a.ot__crumb:hover {
 .ot__tile-copy strong {
   display: block;
   font-size: 1.35rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--ot-ink);
   line-height: 1.15;
@@ -572,7 +543,7 @@ a.ot__crumb:hover {
   border-radius: 10px;
   border: 1px solid var(--ot-line);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ot__product-chip.is-pms {
@@ -588,7 +559,7 @@ a.ot__crumb:hover {
 }
 
 .ot__product-chip strong {
-  font-weight: 900;
+  font-weight: 800;
   color: var(--ot-ink);
 }
 
@@ -632,7 +603,7 @@ a.ot__crumb:hover {
 
 .ot__facts strong {
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ot-ink);
   text-align: right;
   max-width: 28ch;
@@ -674,7 +645,7 @@ a.ot__crumb:hover {
 .ot__doc-copy strong {
   display: block;
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--ot-ink);
   margin-bottom: 0.2rem;
 }
@@ -685,7 +656,7 @@ a.ot__crumb:hover {
   padding: 0.16rem 0.5rem;
   border-radius: 999px;
   font-size: 0.66rem;
-  font-weight: 800;
+  font-weight: 750;
   font-style: normal;
 }
 
@@ -712,7 +683,7 @@ a.ot__crumb:hover {
   background: transparent;
   color: var(--ot-blue);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   font-family: inherit;
   text-decoration: none;
   white-space: nowrap;
@@ -747,7 +718,7 @@ a.ot__crumb:hover {
 .ot__pay h3 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ot-ink);
 }
 
@@ -756,7 +727,7 @@ a.ot__crumb:hover {
   display: grid;
   gap: 0.3rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--ot-muted);
 }
 
@@ -780,7 +751,7 @@ a.ot__crumb:hover {
   border-radius: 12px;
   background: var(--ot-yellow);
   color: var(--ot-ink);
-  font-weight: 800;
+  font-weight: 750;
   padding: 0.8rem 1rem;
   cursor: pointer;
   font-family: inherit;
@@ -873,15 +844,6 @@ a.ot__crumb:hover {
 }
 
 @media (max-width: 720px) {
-  .ot__hero {
-    height: auto;
-    min-height: 220px;
-  }
-
-  .ot__hero-inner {
-    padding-bottom: 3.5rem;
-  }
-
   .ot__summary-tiles,
   .ot__product-split {
     grid-template-columns: 1fr;

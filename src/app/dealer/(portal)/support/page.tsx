@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { SupportCentre, type SupportSection } from "@/components/dealer/support-centre";
 import { SUPPORT_DEPARTMENTS, type SupportDepartment } from "@/lib/support/constants";
 import "../../dealer-support.css";
+import "../../dealer-portal-hero.css";
 
 export default async function DealerSupportPage({
   searchParams,

@@ -1,0 +1,175 @@
+/*
+  Canonical Dealer Portal hero plate — pin-point match of Staff
+  `staff-portal-hero.css` (first staff upload / Messages source of truth).
+  Same image, crop, size, haze, padding. Do not diverge per page.
+*/
+
+.dp-hero,
+.dd__hero,
+.do__hero,
+.ot__hero,
+.po__hero,
+.ds__hero,
+.ssr__hero,
+.ssw__hero,
+.dm__hero {
+  position: relative !important;
+  min-height: var(--tri-hero-height-capped, 13.75rem) !important;
+  height: auto !important;
+  background-color: #071833 !important;
+  background-image:
+    linear-gradient(90deg, rgba(7, 24, 51, 0.72) 0%, rgba(7, 24, 51, 0.35) 45%, rgba(7, 24, 51, 0.05) 75%),
+    url("/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=5") !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: 42% 30% !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  padding:
+    var(--tri-space-md, 1.25rem)
+    var(--tri-page-gutter, clamp(1rem, 4vw, 3rem))
+    clamp(5.35rem, 6.75vw, 6.85rem) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+}
+
+/* Inner wraps sit in the plate; plate owns padding + crop */
+.dp-hero__inner,
+.dd__hero-inner,
+.do__hero-inner,
+.ot__hero-inner,
+.po__hero-inner,
+.ds__hero-inner,
+.ssr__hero-inner,
+.ssw__hero-inner,
+.dm__hero-inner {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+
+/* Gold bar + copy block — same as staff `.sp-hero__text` */
+.dp-hero__copy,
+.dd__hero-inner,
+.do__hero-inner,
+.ot__hero-inner,
+.po__hero-inner,
+.ds__hero-inner,
+.ssr__hero-inner,
+.ssw__hero-inner,
+.dm__hero-inner {
+  border-left: 0.25rem solid #ffcc00;
+  padding-left: var(--tri-space-sm, 1rem) !important;
+  color: #fff !important;
+  max-width: 48rem;
+  margin: 0 0 0 clamp(0.85rem, 2.2vw, 1.75rem) !important;
+}
+
+/* Nested copy wrappers — no second bar / no extra indent */
+.ds__hero-copy,
+.ssr__hero-copy,
+.ssw__hero-copy,
+.dm__hero-copy {
+  display: block !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none;
+}
+
+.dp-hero__kicker,
+.dd__eyebrow-text,
+.do__eyebrow-text,
+.ot__eyebrow-text,
+.po__eyebrow-text,
+.ssr__hero-kicker,
+.ssw__hero-kicker {
+  margin: 0;
+  font-size: 0.875rem !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  color: #ffe071 !important;
+}
+
+.dp-hero__copy h1,
+.dd__hero h1,
+.do__hero h1,
+.ot__hero h1,
+.po__hero h1,
+.ds__hero-copy h1,
+.ssr__hero-copy h1,
+.ssw__hero-copy h1,
+.dm__hero-copy h1 {
+  margin: 0.2rem 0 0.3rem !important;
+  font-size: clamp(1.85rem, 2.85vw, 2.55rem) !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.02em !important;
+  color: #fff !important;
+  line-height: 1.15 !important;
+}
+
+.dp-hero__copy p,
+.dd__hero-summary,
+.do__hero p,
+.ot__hero p,
+.ot__sub,
+.po__hero p,
+.ds__hero-copy p,
+.ssr__hero-copy p,
+.ssw__hero-copy p,
+.dm__hero-copy p {
+  margin: 0 !important;
+  font-size: 1.12rem !important;
+  line-height: 1.4 !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  max-width: 48rem;
+}
+
+/* Legacy img / veil / accent bars — hide so they cannot fight the plate */
+.dp-hero-media,
+.dp-hero__veil,
+.dd__hero-veil,
+.do__hero-veil,
+.ot__hero-veil,
+.po__hero-veil,
+.ds__hero-veil,
+.ssr__hero-veil,
+.ssw__hero-veil,
+.dm__hero-veil,
+.ds__hero-accent,
+.ssr__hero-accent,
+.ssw__hero-accent,
+.dm__hero-accent,
+.dd__eyebrow-line,
+.do__eyebrow-line,
+.ot__eyebrow-line,
+.po__eyebrow-line {
+  display: none !important;
+}
+
+@media (max-width: 720px) {
+  .dp-hero,
+  .dd__hero,
+  .do__hero,
+  .ot__hero,
+  .po__hero,
+  .ds__hero,
+  .ssr__hero,
+  .ssw__hero,
+  .dm__hero {
+    padding: 1.1rem 1rem 5rem !important;
+    min-height: 11.25rem !important;
+    align-items: flex-end !important;
+  }
+}

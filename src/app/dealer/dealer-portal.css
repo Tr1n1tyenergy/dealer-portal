@@ -20,33 +20,11 @@
   --dp-topbar-h: 64px;
   /* Gutters + hero height come from src/styles/responsive-tokens.css */
   --dp-gutter: var(--tri-page-gutter, clamp(1rem, 2.2vw, 1.75rem));
-  --dp-font: Inter, system-ui, -apple-system, sans-serif;
+  --dp-font: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --dp-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
-  /* Shared forecourt hero height — plate is painted by .dp-hero-media (staff-identical) */
-  --dp-hero-aspect: 1585 / 992;
-  --dp-hero-height: var(--tri-hero-height-capped, clamp(180px, 22vw, 220px));
-}
-
-/*
- * Exact match for staff `.sh-hero__img` / `.ssr-hero__img`.
- * !important beats Tailwind/preflight `img { max-width:100%; height:auto }`
- * which otherwise shows only the top sky slice and hides the canopy.
- */
-.dp-hero-media {
-  position: absolute !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: auto !important;
-  width: 128% !important;
-  max-width: none !important;
-  height: 100% !important;
-  min-height: 100% !important;
-  object-fit: cover !important;
-  object-position: 18% 30% !important;
-  pointer-events: none;
-  z-index: 0;
-  display: block;
+  /* Shared forecourt hero height — plate painted by dealer-portal-hero.css (staff pin-point) */
+  --dp-hero-aspect: 1024 / 211;
+  --dp-hero-height: var(--tri-hero-height-capped, 13.75rem);
 }
 
 /* ---------- Shell ---------- */
@@ -66,7 +44,7 @@
   height: var(--dp-topbar-h);
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem 1rem;
   padding: 0 var(--dp-gutter);
@@ -106,7 +84,7 @@
 
 .dp-topbar__kicker {
   font-size: var(--tri-font-xs, 0.72rem);
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--dp-navy-2);
@@ -154,7 +132,7 @@
 }
 
 .dp-topnav__link.is-active {
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dp-navy-2);
 }
 
@@ -167,34 +145,6 @@
   height: 3px;
   border-radius: 999px;
   background: var(--dp-gold);
-}
-
-.dp-search {
-  display: none;
-  align-items: center;
-  gap: 0.55rem;
-  height: 38px;
-  padding: 0 0.85rem;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: #94a3b8;
-  width: min(180px, 22vw);
-  flex-shrink: 0;
-}
-
-.dp-search input {
-  border: 0;
-  outline: 0;
-  background: transparent;
-  width: 100%;
-  font-size: 0.86rem;
-  color: var(--dp-ink);
-  font-family: inherit;
-}
-
-.dp-search input::placeholder {
-  color: #94a3b8;
 }
 
 .dp-topbar__actions {
@@ -229,7 +179,7 @@
   background: var(--dp-gold);
   color: #111;
   font-size: 0.62rem;
-  font-weight: 800;
+  font-weight: 750;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -258,7 +208,7 @@
   align-items: center;
   justify-content: center;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.02em;
   flex-shrink: 0;
 }
@@ -273,7 +223,7 @@
 
 .dp-user__meta strong {
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--dp-ink);
 }
 
@@ -444,14 +394,10 @@ button.dp-sidebar__link {
 
 @media (min-width: 1100px) {
   .dp-topbar {
-    grid-template-columns: auto minmax(0, 1.35fr) auto auto;
+    grid-template-columns: auto minmax(0, 1.35fr) auto;
   }
 
   .dp-topnav {
-    display: flex;
-  }
-
-  .dp-search {
     display: flex;
   }
 
@@ -474,10 +420,6 @@ button.dp-sidebar__link {
     left: 0.65rem;
     right: 0.65rem;
   }
-
-  .dp-search {
-    width: 200px;
-  }
 }
 
 @media (min-width: 1440px) {
@@ -488,10 +430,6 @@ button.dp-sidebar__link {
   .dp-topnav__link.is-active::after {
     left: 0.8rem;
     right: 0.8rem;
-  }
-
-  .dp-search {
-    width: 220px;
   }
 }
 
@@ -507,73 +445,14 @@ button.dp-sidebar__link {
   background: #0a192f !important;
 }
 
+/* Hero plate: dealer-portal-hero.css (staff pin-point). Keep metrics/actions only here. */
 .dp-hero {
-  position: relative;
-  border-radius: 0 !important;
-  overflow: hidden;
-  width: 100%;
-  /* Grow with content so CTAs/metrics are not clipped on varied laptop aspect ratios */
-  min-height: var(--dp-hero-height, clamp(180px, 22vw, 220px));
-  height: auto;
   margin: 0 !important;
-  background-color: #071833;
-  background-image: none !important;
-  color: #fff;
   box-shadow: none !important;
-}
-
-.dp-hero__veil {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-.dp-hero__inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--tri-space-md, 1.15rem);
-  padding: var(--tri-space-md, 1.25rem) var(--dp-gutter, 1.5rem) var(--tri-space-md, 1.15rem);
-  min-height: var(--dp-hero-height, clamp(180px, 22vw, 220px));
-  height: auto;
-  box-sizing: border-box;
-}
-
-.dp-hero__copy {
-  max-width: 640px;
-}
-
-.dp-hero__kicker {
-  display: inline-block;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dp-gold);
-  margin-bottom: 0.45rem;
-}
-
-.dp-hero__copy h1 {
-  margin: 0;
-  font-size: var(--tri-font-h2, clamp(1.55rem, 2.4vw, 2.05rem));
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: #fff;
 }
 
 .dp-hero__copy h1 span {
   color: var(--dp-gold);
-}
-
-.dp-hero__copy p {
-  margin: 0.55rem 0 0;
-  max-width: 520px;
-  font-size: 0.92rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.88);
 }
 
 .dp-hero__metrics {
@@ -610,7 +489,7 @@ button.dp-sidebar__link {
 
 .dp-metric strong {
   font-size: 1.55rem;
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1;
   color: #fff;
 }
@@ -668,7 +547,7 @@ button.dp-sidebar__link {
 
 .dp-order-cta__text {
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.2;
   color: var(--dp-navy);
 }
@@ -881,7 +760,7 @@ button.dp-sidebar__link {
   align-items: center;
   gap: 0.45rem;
   font-size: 0.98rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dp-ink);
 }
 
@@ -926,7 +805,7 @@ button.dp-sidebar__link {
 .dp-table th {
   text-align: left;
   font-size: 0.66rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #94a3b8;
@@ -986,7 +865,7 @@ button.dp-sidebar__link {
   padding: 0.28rem 0.58rem;
   border-radius: 999px;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 650;
   white-space: nowrap;
 }
 
@@ -1068,7 +947,7 @@ button.dp-sidebar__link {
 
 .dp-action strong {
   font-size: 0.84rem;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.2;
   white-space: nowrap !important;
 }
@@ -1119,7 +998,7 @@ button.dp-sidebar__link {
 
 .dp-stations strong {
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--dp-ink);
 }
 
@@ -1163,7 +1042,7 @@ button.dp-sidebar__link {
 .dp-support__row strong {
   display: block;
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dp-ink);
 }
 
@@ -1185,7 +1064,7 @@ button.dp-sidebar__link {
   color: var(--dp-navy-2);
   text-decoration: none;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 650;
   white-space: nowrap;
   background: #fff;
   flex-shrink: 0;
@@ -1246,7 +1125,7 @@ button.dp-sidebar__link {
 
 .portal-kicker {
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #b88600;
@@ -1255,7 +1134,7 @@ button.dp-sidebar__link {
 .portal h1 {
   margin: 0.3rem 0 0;
   font-size: 1.55rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .portal p {
@@ -1270,7 +1149,7 @@ button.dp-sidebar__link {
   border-radius: 0.85rem;
   background: var(--dp-gold-2);
   color: var(--dp-ink);
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
   padding: 0.75rem 1rem;
   border: 0;
@@ -1326,7 +1205,7 @@ button.dp-sidebar__link {
   display: block;
   margin-top: 0.8rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .portal-form input,
@@ -1417,15 +1296,6 @@ button.dp-sidebar__link {
     padding: 0.65rem var(--dp-gutter);
     row-gap: 0.55rem;
   }
-
-  .dp-search {
-    display: flex;
-    grid-column: 1 / -1;
-    justify-self: stretch;
-    width: 100%;
-    max-width: none;
-    order: 3;
-  }
 }
 
 @media (max-width: 960px) {
@@ -1483,15 +1353,7 @@ button.dp-sidebar__link {
 
 /* ---------- Shared page crumbs / compact hero (orders) ---------- */
 
-.dp-hero--compact {
-  min-height: var(--dp-hero-height, 280px) !important;
-  height: var(--dp-hero-height, 280px) !important;
-}
-
-.dp-hero--compact .dp-hero__inner {
-  min-height: var(--dp-hero-height, 280px);
-  gap: 1rem;
-}
+/* .dp-hero--compact: plate height comes from dealer-portal-hero.css */
 
 .dp-dash .dp-po-crumb {
   display: flex;
@@ -1605,7 +1467,7 @@ button.dp-sidebar__link {
   display: inline-flex;
   margin-top: 0.85rem;
   color: #0a235b;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .dp-orders-list {
@@ -1644,7 +1506,7 @@ button.dp-sidebar__link {
 
 .dp-track__ref {
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.04em;
   color: #ffcc00;
   margin-bottom: 0.25rem;
@@ -1653,7 +1515,7 @@ button.dp-sidebar__link {
 .dp-track__meta h2 {
   margin: 0;
   font-size: 1.45rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #93c5fd;
   line-height: 1.2;
 }
@@ -1667,7 +1529,7 @@ button.dp-sidebar__link {
 .dp-track__open {
   color: #93c5fd;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -1683,7 +1545,7 @@ button.dp-sidebar__link {
   margin-bottom: 1rem;
   color: #93c5fd;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: none;
 }
 
@@ -1703,7 +1565,7 @@ button.dp-sidebar__link {
   background: #fff;
   color: #0a235b;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -1721,14 +1583,14 @@ button.dp-sidebar__link {
   box-shadow: 0 12px 32px rgba(5, 16, 36, 0.2);
   color: #0a235b;
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 650;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
 .dp-track__card strong {
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .dp-track__note {
@@ -1759,7 +1621,7 @@ button.dp-sidebar__link {
   display: grid;
   gap: 0.3rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #64748b;
 }
 
@@ -1779,7 +1641,7 @@ button.dp-sidebar__link {
   border-radius: 12px;
   background: #ffcc00;
   color: #0a235b;
-  font-weight: 800;
+  font-weight: 750;
   padding: 0.8rem 1rem;
   cursor: pointer;
   font-family: inherit;
@@ -1818,7 +1680,7 @@ button.dp-sidebar__link {
 .dp-support__head h2 {
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .dp-support__head button {
@@ -1851,7 +1713,7 @@ button.dp-sidebar__link {
 
 .dp-support a {
   color: #2563eb;
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: none;
 }
 

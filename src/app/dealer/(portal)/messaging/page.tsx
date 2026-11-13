@@ -4,6 +4,7 @@ import { listConversationsForUser } from "@/lib/messaging/service";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { requireDealer } from "@/lib/session";
 import "../../dealer-messaging.css";
+import "../../dealer-portal-hero.css";
 
 export default async function DealerMessagingPage() {
   const session = await requireDealer();

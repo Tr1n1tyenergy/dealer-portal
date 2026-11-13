@@ -27,6 +27,7 @@ import type { PumpReadingRowDto } from "@/lib/stock-reporting/pumps";
 import { cn } from "@/lib/utils";
 import { StockReportingWizardShell } from "./stock-reporting-wizard-shell";
 import "@/app/dealer/dealer-stock-wizard.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 type DraftRow = {
   pumpKey: string;
@@ -315,7 +316,7 @@ export function PumpMetersForm({
               style={{
                 margin: 0,
                 fontSize: 16,
-                fontWeight: 800,
+                fontWeight: 750,
                 lineHeight: 1.25,
                 color: "#3551A5",
               }}

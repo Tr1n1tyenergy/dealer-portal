@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Bell, ChevronDown, Search } from "lucide-react";
+import { Bell, ChevronDown, KeyRound, LogOut, Search } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { canUser, type StaffUser } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
@@ -41,6 +41,8 @@ export function StaffPortalShell({
   user: StaffUser & {
     firstName?: string | null;
     lastName?: string | null;
+    name?: string | null;
+    email?: string | null;
     role?: string | null;
   };
   notificationCount?: number;
@@ -62,11 +64,17 @@ export function StaffPortalShell({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  const initials =
-    `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase() || "SA";
   const displayName =
-    [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+    [user.firstName, user.lastName].filter(Boolean).join(" ").trim() ||
+    user.name?.trim() ||
     (user.role === "SUPER_ADMIN" ? "Super Admin" : "Staff");
+  const initials = (() => {
+    const fromParts = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase();
+    if (fromParts) return fromParts;
+    const bits = displayName.split(/\s+/).filter(Boolean);
+    if (bits.length >= 2) return `${bits[0][0]}${bits[1][0]}`.toUpperCase();
+    return (bits[0]?.[0] ?? "S").toUpperCase();
+  })();
 
   const showOrders = canUser(user, "orders", "view");
   const showAnalytics = canUser(user, "analytics", "view");
@@ -202,6 +210,8 @@ export function StaffPortalShell({
               <button
                 type="button"
                 className="sp-user"
+                aria-label="Account menu"
+                aria-haspopup="menu"
                 aria-expanded={userOpen}
                 onClick={() => setUserOpen((v) => !v)}
               >
@@ -210,14 +220,28 @@ export function StaffPortalShell({
                   <span className="sp-user__name">{displayName}</span>
                   <span className="sp-user__role">Staff Account</span>
                 </span>
-                <ChevronDown size={14} strokeWidth={2.4} aria-hidden />
+                <ChevronDown size={16} strokeWidth={2} aria-hidden />
               </button>
               {userOpen ? (
-                <div className="sp-user__menu" role="menu">
+                <div className="sp-user__menu" role="menu" aria-label="Account">
+                  <div className="sp-user__who">
+                    <strong>{displayName}</strong>
+                    {user.email ? <span>{user.email}</span> : null}
+                  </div>
+                  <Link
+                    href="/intelligence/forgot-password?portal=staff"
+                    role="menuitem"
+                    onClick={() => setUserOpen(false)}
+                  >
+                    <KeyRound size={15} aria-hidden />
+                    Change password
+                  </Link>
                   <button
                     type="button"
+                    role="menuitem"
                     onClick={() => signOut({ callbackUrl: "/access" })}
                   >
+                    <LogOut size={15} aria-hidden />
                     Sign out
                   </button>
                 </div>

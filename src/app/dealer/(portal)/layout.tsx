@@ -4,6 +4,7 @@ import { DealerShell } from "@/components/dealer/dealer-shell";
 import { unreadMessageCount } from "@/lib/messaging/service";
 import { DEALER_PAYABLE_STATUSES, toPayPfiProps } from "@/lib/dealer/pay-pfi";
 import "../dealer-portal.css";
+import "../dealer-portal-hero.css";
 
 export default async function DealerPortalLayout({
   children,

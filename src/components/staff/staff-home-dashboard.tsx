@@ -28,7 +28,7 @@ export type StaffHomeKpi = {
   meta: string;
   metaTone?: "up" | "muted";
   href: string;
-  tone: "blue" | "gold" | "purple";
+  tone: "blue" | "gold";
   icon: "layers" | "wallet" | "truck" | "users";
 };
 

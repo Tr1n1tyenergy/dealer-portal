@@ -18,34 +18,7 @@
   padding: 0 var(--dp-gutter, 1.5rem);
 }
 
-/* Hero — shared height/crop tokens */
-.po__hero {
-  position: relative;
-  min-height: var(--dp-hero-height, 280px);
-  height: var(--dp-hero-height, 280px);
-  overflow: hidden;
-  color: #fff;
-  background-color: #071833;
-  background-image: none !important;
-  background-repeat: no-repeat;
-}
-
-.po__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-.po__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 1.55rem var(--dp-gutter, 1.5rem) 4.25rem;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 .po__crumbs {
   display: flex;
@@ -57,7 +30,7 @@
 
 .po__crumb {
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--po-yellow);
@@ -81,7 +54,7 @@ a.po__crumb:hover {
 .po__hero h1 {
   margin: 0;
   font-size: var(--tri-font-h2, clamp(1.55rem, 2.5vw, 2.1rem));
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
@@ -159,7 +132,7 @@ a.po__crumb:hover {
   border-radius: 999px;
   flex-shrink: 0;
   font-size: 0.85rem;
-  font-weight: 800;
+  font-weight: 750;
   background: #eef3fb;
   color: var(--po-blue);
 }
@@ -185,7 +158,7 @@ a.po__crumb:hover {
 .po__wizard-copy strong {
   display: block;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -268,7 +241,7 @@ a.po__crumb:hover {
 .po__card-head h3 {
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -290,7 +263,7 @@ a.po__crumb:hover {
   display: block;
   margin-bottom: 0.4rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--po-muted);
 }
 
@@ -325,7 +298,7 @@ a.po__crumb:hover {
 .po__date__body strong {
   display: block;
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -335,7 +308,7 @@ a.po__crumb:hover {
   gap: 0.3rem;
   margin-top: 0.2rem;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #059669;
 }
 
@@ -421,7 +394,7 @@ a.po__crumb:hover {
 .po__product-head strong {
   display: block;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -466,7 +439,7 @@ a.po__crumb:hover {
   text-align: center;
   font: inherit;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
   outline: none;
 }
@@ -478,7 +451,7 @@ a.po__crumb:hover {
 
 .po__qty-unit {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--po-muted);
   min-width: 1.1rem;
 }
@@ -487,7 +460,7 @@ a.po__crumb:hover {
   display: block;
   margin-bottom: 0.4rem;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--po-muted);
 }
 
@@ -506,7 +479,7 @@ a.po__crumb:hover {
   color: var(--po-blue);
   font: inherit;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -544,7 +517,7 @@ a.po__crumb:hover {
   align-items: center;
   gap: 0.55rem;
   font-size: 0.88rem;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .po__total-bar-left em {
@@ -558,7 +531,7 @@ a.po__crumb:hover {
 
 .po__total-bar strong {
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-blue);
 }
 
@@ -577,7 +550,7 @@ a.po__crumb:hover {
   background: #ecfdf5;
   color: #047857;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -615,7 +588,7 @@ a.po__crumb:hover {
 .po__review-tile strong {
   display: block;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -625,7 +598,7 @@ a.po__crumb:hover {
   gap: 0.3rem;
   margin-bottom: 0.25rem !important;
   font-size: 0.68rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--po-blue) !important;
@@ -638,7 +611,7 @@ a.po__crumb:hover {
   margin-top: 0.25rem;
   font-style: normal;
   font-size: 0.74rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #059669;
 }
 
@@ -731,7 +704,7 @@ a.po__crumb:hover {
   display: block;
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.15;
   letter-spacing: -0.01em;
   color: var(--po-ink);
@@ -753,7 +726,7 @@ a.po__crumb:hover {
   margin: 0;
   padding-right: 4.5rem;
   font-size: var(--tri-font-h2, clamp(1.65rem, 2.4vw, 1.95rem));
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
   color: var(--po-ink);
@@ -794,7 +767,7 @@ a.po__crumb:hover {
   color: var(--po-blue);
   font: inherit;
   font-size: 0.86rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -839,7 +812,7 @@ a.po__crumb:hover {
 .po__summary-head h3 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -863,7 +836,7 @@ a.po__crumb:hover {
 
 .po__summary dd {
   margin: 0;
-  font-weight: 750;
+  font-weight: 700;
   color: var(--po-ink);
   text-align: right;
 }
@@ -874,7 +847,7 @@ a.po__crumb:hover {
   gap: 0.75rem;
   padding: 0.7rem 0 0.2rem;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -887,14 +860,14 @@ a.po__crumb:hover {
 
 .po__price-label {
   font-size: 0.74rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--po-muted);
 }
 
 .po__price-amount {
   margin-top: 0.25rem;
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-blue);
   letter-spacing: -0.02em;
 }
@@ -926,7 +899,7 @@ a.po__crumb:hover {
   color: var(--po-ink);
   font: inherit;
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(255, 204, 0, 0.28);
 }
@@ -963,7 +936,7 @@ a.po__crumb:hover {
 .po__next-head h3 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 
@@ -1016,7 +989,7 @@ a.po__crumb:hover {
 .po__timeline strong {
   display: block;
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--po-ink);
 }
 

@@ -15,7 +15,7 @@
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
   padding: 1.05rem 1.15rem 1.05rem !important;
   color: #0a235b;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: hidden;
 }
 
@@ -33,7 +33,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b !important;
 }
 
@@ -50,7 +50,7 @@
 
 .dp-ro__all {
   font-size: 0.84rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #2563eb !important;
   text-decoration: none !important;
   white-space: nowrap;
@@ -166,7 +166,7 @@
   text-align: left;
   padding: 0.65rem 0.95rem !important;
   font-size: 0.68rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #94a3b8 !important;
@@ -199,7 +199,7 @@
 
 .dp-ro__order strong {
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b !important;
   white-space: nowrap;
 }
@@ -230,7 +230,7 @@
 .dp-ro__station strong {
   display: block;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b !important;
   white-space: nowrap;
 }
@@ -277,13 +277,13 @@
 }
 
 .dp-ro__products span {
-  font-weight: 700;
+  font-weight: 650;
   color: #0a235b !important;
   min-width: 2.2rem;
 }
 
 .dp-ro__products b {
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b !important;
 }
 
@@ -294,7 +294,7 @@
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   white-space: nowrap;
   max-width: none;
 }
@@ -355,7 +355,7 @@
 
 .dp-ro__updated strong {
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #0a235b !important;
   white-space: nowrap;
 }
@@ -384,7 +384,7 @@
   background: #fff !important;
   color: #2563eb !important;
   font-size: 0.8rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   text-decoration: none !important;
   white-space: nowrap;
 }
@@ -395,7 +395,7 @@
 
 .dp-ro__pfi {
   font-size: 0.8rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #0f766e !important;
   text-decoration: none !important;
   white-space: nowrap;
@@ -420,7 +420,7 @@
   background: #fff;
   color: #475569 !important;
   font-size: 0.82rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   text-decoration: none !important;
 }
 

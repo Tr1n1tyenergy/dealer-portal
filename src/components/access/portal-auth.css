@@ -89,7 +89,7 @@
 
 .dl__eyebrow-text {
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--tri-yellow);
@@ -110,7 +110,7 @@
   margin: 0;
   max-width: 22ch;
   font-size: var(--tri-font-display, clamp(1.9rem, 3.5vw, 2.9rem));
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.12;
   letter-spacing: -0.025em;
   color: #fff;
@@ -176,7 +176,7 @@
   background: #eef3fb;
   color: var(--tri-blue);
   font-size: 0.66rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -195,7 +195,7 @@
 .dl__title {
   margin: var(--tri-space-sm, 0.95rem) 0 0;
   font-size: var(--tri-font-title, clamp(1.45rem, 2.3vw, 1.75rem));
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   line-height: 1.2;
   color: var(--tri-blue-deep);
@@ -237,7 +237,7 @@
   display: block;
   margin-bottom: 0.4rem;
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--tri-blue-deep);
 }
 
@@ -364,7 +364,7 @@
   background: var(--tri-yellow);
   color: var(--tri-blue-deep);
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 750;
   box-shadow: 0 12px 28px rgba(255, 204, 0, 0.32);
   cursor: pointer;
   transition: filter 0.15s ease, box-shadow 0.15s ease;
@@ -446,7 +446,7 @@
   align-items: center;
   gap: 0.4rem;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--tri-blue);
   text-decoration: none;
 }
@@ -524,7 +524,7 @@
 
 .dl__help-title {
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--tri-blue-deep);
 }
 
@@ -583,7 +583,7 @@
 
 .dl__trust-title {
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   line-height: 1.25;
   color: var(--tri-blue-deep);
 }

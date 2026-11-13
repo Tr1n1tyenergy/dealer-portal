@@ -19,34 +19,7 @@
   padding: 0 var(--dp-gutter, 1.5rem);
 }
 
-/* Hero — height + photo crop locked to shared dealer portal tokens */
-.dd__hero {
-  position: relative;
-  min-height: var(--dp-hero-height, 280px);
-  height: var(--dp-hero-height, 280px);
-  border-radius: 0 0 18px 18px;
-  overflow: hidden;
-  background-color: #071833;
-  background-image: none !important;
-  color: #fff;
-}
-
-.dd__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-.dd__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 1.55rem var(--dp-gutter, 1.5rem) 4.75rem;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 .dd__eyebrow {
   display: flex;
@@ -64,7 +37,7 @@
 
 .dd__eyebrow-text {
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--dd-yellow);
@@ -75,7 +48,7 @@
   max-width: none;
   white-space: nowrap;
   font-size: var(--tri-font-h2, clamp(1.35rem, 2.4vw, 2.15rem));
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.15;
   letter-spacing: -0.02em;
 }
@@ -115,7 +88,7 @@
   padding: 0 1.15rem;
   border-radius: 0.7rem;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
   border: 1.5px solid transparent;
   cursor: pointer;
@@ -198,14 +171,14 @@
 
 .dd__kpi-label {
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--dd-muted);
 }
 
 .dd__kpi-value {
   margin-top: 0.2rem;
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dd-ink);
   line-height: 1.2;
   word-break: break-word;
@@ -253,7 +226,7 @@
 .dd__kpi-mix em {
   font-style: normal;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--dd-blue);
   white-space: nowrap;
 }
@@ -268,7 +241,7 @@
   background: #eef3fb;
   color: var(--dd-blue);
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .dd__badge-live::before {
@@ -321,7 +294,7 @@
 
 .dd .dd__tracker-kicker {
   font-size: 0.66rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--dd-blue);
@@ -368,13 +341,13 @@
   border: 1px solid #f5e08a;
   color: #8a6d00;
   font-size: 0.76rem;
-  font-weight: 800;
+  font-weight: 750;
   white-space: nowrap;
 }
 
 .dd .dd__tracker-open {
   font-size: 0.82rem;
-  font-weight: 750;
+  font-weight: 700;
   color: var(--dd-blue);
   text-decoration: none;
   white-space: nowrap;
@@ -436,7 +409,7 @@
   justify-content: center !important;
   flex-shrink: 0 !important;
   font-size: 0.75rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   background: #eef2f7 !important;
   color: #64748b !important;
   border: 2px solid #d7e0ec !important;
@@ -451,6 +424,8 @@
   height: 3px !important;
   min-width: 8px !important;
   margin-top: 15.5px !important;
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
   background: #d7e0ec !important;
   border-radius: 999px !important;
   z-index: 1 !important;
@@ -489,7 +464,7 @@
   display: block !important;
   font-style: normal !important;
   font-size: 0.7rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #94a3b8 !important;
   line-height: 1.25 !important;
   max-width: 94px !important;
@@ -514,7 +489,7 @@
 
 .dd .dd__progress-step.is-active .dd__progress-note {
   color: #b8860b !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
 }
 
 .dd .dd__progress-step.is-done .dd__progress-note {
@@ -560,7 +535,7 @@
   align-items: center;
   gap: 0.55rem;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dd-ink);
 }
 
@@ -582,7 +557,7 @@
 
 .dd__card-link {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--dd-blue);
   text-decoration: none;
   background: none;
@@ -718,7 +693,7 @@
 }
 
 .dd__price-row strong {
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dd-ink);
 }
 
@@ -757,7 +732,7 @@
 
 .dd__order-ref {
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dd-ink);
 }
 
@@ -768,7 +743,7 @@
 }
 
 .dd__order-amount {
-  font-weight: 700;
+  font-weight: 650;
   color: var(--dd-ink);
   white-space: nowrap;
 }
@@ -779,7 +754,7 @@
   padding: 0.22rem 0.55rem;
   border-radius: 999px;
   font-size: 0.68rem;
-  font-weight: 750;
+  font-weight: 700;
   white-space: nowrap;
   background: #eef3fb;
   color: var(--dd-blue);
@@ -825,12 +800,12 @@
   background: var(--dd-blue);
   color: #fff;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .dd__msg-name {
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--dd-ink);
 }
 
@@ -868,12 +843,6 @@
 }
 
 @media (max-width: 720px) {
-  .dd__hero {
-    min-height: var(--dp-hero-height, 280px);
-    height: var(--dp-hero-height, 280px);
-    border-radius: 0;
-  }
-
   .dd__hero h1 {
     white-space: normal;
   }
@@ -889,9 +858,3 @@
   }
 }
 
-@media (min-width: 1024px) and (max-height: 800px) {
-  .dd__hero-inner {
-    padding-top: var(--tri-space-md, 1rem);
-    padding-bottom: var(--tri-space-xl, 2rem);
-  }
-}

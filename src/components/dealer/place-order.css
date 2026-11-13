@@ -209,7 +209,7 @@
   flex-shrink: 0 !important;
   margin-top: 0.05rem !important;
   font-size: 0.72rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   line-height: 1 !important;
   color: rgba(255, 255, 255, 0.75) !important;
   background: rgba(255, 255, 255, 0.12) !important;
@@ -228,7 +228,7 @@
 .dp-dash .dp-po-prog__title {
   display: block !important;
   font-size: 0.92rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   line-height: 1.25 !important;
   color: #ffffff !important;
   white-space: normal !important;
@@ -359,7 +359,7 @@
   background: #2563eb;
   color: #fff;
   font-size: 0.76rem;
-  font-weight: 800;
+  font-weight: 750;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -369,7 +369,7 @@
 .dp-po-body .dp-po-card__head h2 {
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b !important;
   line-height: 1.2;
 }
@@ -397,7 +397,7 @@
 .dp-po-body .dp-po-field > label {
   display: block;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #64748b;
   margin-bottom: 0.45rem;
 }
@@ -499,7 +499,7 @@
 .dp-po-body .dp-po-date__body strong {
   display: block;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
   line-height: 1.2;
 }
@@ -667,7 +667,7 @@
   min-width: 0;
   text-align: center;
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -691,14 +691,14 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #64748b;
 }
 
 .dp-po-body .dp-po-quick > span {
   display: block;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #64748b;
   margin-bottom: 0.4rem;
   text-transform: uppercase;
@@ -717,7 +717,7 @@
   border-radius: 999px;
   padding: 0.35rem 0.65rem;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #0a235b;
   cursor: pointer;
   font-family: inherit;
@@ -749,13 +749,13 @@
 
 .dp-po-body .dp-po-total-bar span {
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #0a235b;
 }
 
 .dp-po-body .dp-po-total-bar strong {
   font-size: 1.35rem;
-  font-weight: 900;
+  font-weight: 800;
   color: #0a235b;
   letter-spacing: -0.02em;
 }
@@ -789,7 +789,7 @@
 .dp-po-body .dp-po-total-bar__left span {
   display: block;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #0a235b;
@@ -851,7 +851,7 @@
 }
 
 .dp-po-body .dp-po-info.is-review p b {
-  font-weight: 800;
+  font-weight: 750;
   color: #1e3a8a;
 }
 
@@ -883,7 +883,7 @@
 .dp-po-body .dp-po-summary__head h3 {
   margin: 0;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #fff !important;
 }
 
@@ -908,7 +908,7 @@
 
 .dp-po-body .dp-po-summary dd {
   margin: 0;
-  font-weight: 700;
+  font-weight: 650;
   color: #fff;
   text-align: right;
 }
@@ -929,7 +929,7 @@
 
 .dp-po-body .dp-po-summary__total strong {
   font-size: 1.65rem;
-  font-weight: 900;
+  font-weight: 800;
   color: #ffcc00 !important;
   letter-spacing: -0.02em;
 }
@@ -947,7 +947,7 @@
   background: #ffcc00;
   color: #0a235b;
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
   font-family: inherit;
   box-shadow: 0 8px 24px rgba(255, 204, 0, 0.35);
@@ -979,7 +979,7 @@
 .dp-po-body .dp-po-next h3 {
   margin: 0 0 0.85rem;
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b !important;
 }
 
@@ -1001,7 +1001,7 @@
 
 .dp-po-body .dp-po-next li .dp-po-next__num {
   font-size: 0.65rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #2563eb;
   padding-top: 0.15rem;
 }
@@ -1053,7 +1053,7 @@
 .dp-po-body .dp-po-review__title h2 {
   margin: 0;
   font-size: 1.08rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b !important;
 }
 
@@ -1073,7 +1073,7 @@
   background: #dcfce7;
   color: #15803d;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -1146,7 +1146,7 @@
 .dp-po-body .dp-po-review__label {
   display: block;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #94a3b8;
@@ -1157,7 +1157,7 @@
 .dp-po-body .dp-po-review__delivery strong {
   display: block;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
   line-height: 1.2;
 }
@@ -1265,7 +1265,7 @@
 .dp-po-body .dp-po-review__fuel-copy strong {
   display: block;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #0a235b;
 }
 
@@ -1281,7 +1281,7 @@
   display: block;
   margin-top: 0.7rem;
   font-size: 1.55rem;
-  font-weight: 900;
+  font-weight: 800;
   color: #0a235b;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -1301,7 +1301,7 @@
   background: transparent;
   color: #2563eb;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
   font-family: inherit;
   padding: 0.35rem 0 0;

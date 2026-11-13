@@ -91,7 +91,7 @@ describe("step completion times", () => {
     assert.equal(times[0]?.toISOString(), "2026-11-06T15:29:00.000Z"); // submitted done
     assert.equal(times[1]?.toISOString(), "2026-11-06T15:35:00.000Z"); // quotation & PFI done
     assert.equal(times[2], null); // payment still open
-    assert.deepEqual(times.slice(3), [null, null, null, null]);
+    assert.deepEqual(times.slice(3), [null, null, null]);
   });
 
   it("a delivered order completes every step, and junk history is ignored", () => {
@@ -100,7 +100,7 @@ describe("step completion times", () => {
       { toStatus: "CANCELLED", createdAt: new Date("2026-11-01T09:00:00Z") }, // stopped rows don't advance
       { toStatus: "DELIVERED", createdAt: new Date("2026-11-03T10:00:00Z") },
     ]);
-    assert.equal(times[6]?.toISOString(), "2026-11-03T10:00:00.000Z");
+    assert.equal(times[5]?.toISOString(), "2026-11-03T10:00:00.000Z");
     assert.equal(times[2]?.toISOString(), "2026-11-03T10:00:00.000Z");
   });
 });

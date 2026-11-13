@@ -11,8 +11,8 @@
   --ru-border: #e2e8f0;
   --ru-tint: #eef3fb;
   --ru-radius: 0.9rem;
-  --ru-shadow: 0 8px 22px rgba(10, 35, 91, 0.07);
-  --ru-accent: 3px solid var(--ru-yellow);
+  --ru-shadow: 0 0.5rem 1.375rem rgba(10, 35, 91, 0.07);
+  --ru-accent: 0.1875rem solid var(--ru-yellow);
   background: var(--ru-bg);
   color: var(--ru-navy);
   padding-bottom: clamp(1.25rem, 2.5vh, 2.25rem);
@@ -102,7 +102,7 @@
 .ru-card__head h2 {
   margin: 0;
   font-size: var(--tri-font-lg, 1.02rem);
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ru-navy);
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -157,8 +157,8 @@
 .ru-field label {
   display: block;
   margin-bottom: 0.22rem;
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: var(--tri-font-xs, 0.72rem);
+  font-weight: 650;
   color: var(--ru-navy);
   line-height: 1.2;
 }
@@ -191,7 +191,7 @@
 .ru-field__control.is-focus {
   border-color: var(--ru-blue);
   background: rgba(53, 81, 165, 0.09);
-  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.12);
+  box-shadow: 0 0 0 0.1875rem rgba(53, 81, 165, 0.12);
   color: var(--ru-blue);
 }
 
@@ -205,7 +205,7 @@
   outline: 0;
   background: transparent;
   font: inherit;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   line-height: 1.2;
   color: var(--ru-navy);
   height: 100%;
@@ -234,8 +234,8 @@
   border-radius: 0.5rem;
   border: 1px solid transparent;
   font: inherit;
-  font-size: 0.8rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 750;
   cursor: pointer;
   transition: filter 0.12s ease, transform 0.12s ease;
 }
@@ -280,7 +280,7 @@
   border-radius: 0.5rem;
   background: rgba(53, 81, 165, 0.07);
   color: var(--ru-muted);
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   line-height: 1.35;
 }
 
@@ -305,7 +305,7 @@
   background: #fff1f2;
   border-color: #fecdd3;
   color: #9f1239;
-  font-size: 0.84rem;
+  font-size: var(--tri-font-sm, 0.84rem);
   line-height: 1.4;
 }
 
@@ -336,8 +336,8 @@
 }
 
 .ru-selection__meta strong {
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.92rem);
+  font-weight: 750;
 }
 
 .ru-selection__pill {
@@ -347,15 +347,15 @@
   border-radius: 999px;
   background: #c9d8f7;
   color: var(--ru-navy);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: var(--tri-font-xs, 0.75rem);
+  font-weight: 650;
 }
 
 .ru-flash {
   margin: 0.85rem 0 0;
   padding: 0.7rem 0.9rem;
   border-radius: 0.7rem;
-  font-size: 0.88rem;
+  font-size: var(--tri-font-body, 0.88rem);
   font-weight: 600;
 }
 
@@ -389,7 +389,7 @@
   background: transparent;
   text-align: left;
   font: inherit;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
   line-height: 1.2;
   color: var(--ru-multi-navy);
   cursor: pointer;
@@ -413,8 +413,8 @@
 .ru-multi__chev {
   width: 0.4rem;
   height: 0.4rem;
-  border-right: 1.75px solid #94a3b8;
-  border-bottom: 1.75px solid #94a3b8;
+  border-right: 0.1094rem solid #94a3b8;
+  border-bottom: 0.1094rem solid #94a3b8;
   transform: rotate(45deg);
   margin-top: -0.2rem;
   flex-shrink: 0;
@@ -426,7 +426,7 @@
   background: #ffffff;
   border: 1px solid #e4ebf5;
   border-radius: 0.9rem;
-  box-shadow: 0 18px 42px rgba(10, 35, 91, 0.2);
+  box-shadow: 0 1.125rem 2.625rem rgba(10, 35, 91, 0.2);
   overflow: hidden;
 }
 
@@ -462,7 +462,7 @@
   outline: 0;
   background: transparent;
   font: inherit;
-  font-size: 0.86rem;
+  font-size: var(--tri-font-sm, 0.86rem);
   line-height: 1.2;
   color: var(--ru-multi-navy);
   height: 100%;
@@ -483,7 +483,7 @@
   padding: 0.85rem;
   text-align: center;
   color: var(--ru-multi-muted);
-  font-size: 0.82rem;
+  font-size: var(--tri-font-sm, 0.82rem);
 }
 
 .ru-multi__option {
@@ -518,7 +518,7 @@
   width: 1.05rem;
   height: 1.05rem;
   border-radius: 0.22rem;
-  border: 1.5px solid #c5d0e0;
+  border: 0.0938rem solid #c5d0e0;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -538,8 +538,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.05rem;
-  font-size: 0.84rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.84rem);
+  font-weight: 650;
   line-height: 1.25;
   color: var(--ru-multi-navy);
 }
@@ -548,7 +548,7 @@
   font-style: normal;
   font-weight: 500;
   color: var(--ru-multi-muted);
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   line-height: 1.2;
 }
 
@@ -579,8 +579,8 @@
 }
 
 .ru-multi__foot strong {
-  font-size: 0.8rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 750;
   color: var(--ru-multi-blue);
 }
 
@@ -589,8 +589,8 @@
   background: transparent;
   color: var(--ru-multi-blue);
   font: inherit;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 650;
   cursor: pointer;
   padding: 0;
 }
@@ -628,8 +628,8 @@
   background: transparent;
   color: var(--ru-navy);
   font: inherit;
-  font-size: 0.84rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.84rem);
+  font-weight: 650;
   cursor: pointer;
   position: relative;
 }
@@ -641,9 +641,9 @@
 .ru-tab.is-active {
   background: var(--ru-blue);
   border: 1px solid var(--ru-blue);
-  border-top: 2px solid var(--ru-yellow);
+  border-top: 0.125rem solid var(--ru-yellow);
   color: #fff;
-  box-shadow: 0 6px 14px rgba(53, 81, 165, 0.2);
+  box-shadow: 0 0.375rem 0.875rem rgba(53, 81, 165, 0.2);
 }
 
 .ru-tab.is-active::after {
@@ -699,15 +699,15 @@
 
 .ru-panel__title h2 {
   margin: 0;
-  font-size: 0.98rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.98rem);
+  font-weight: 750;
   color: var(--ru-navy);
   line-height: 1.2;
 }
 
 .ru-panel__title p {
   margin: 0.1rem 0 0;
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
   color: var(--ru-muted);
 }
 
@@ -737,7 +737,7 @@
   outline: 0;
   background: transparent;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: var(--tri-font-sm, 0.82rem);
   color: var(--ru-navy);
   min-width: 8.5rem;
 }
@@ -751,14 +751,14 @@
 .ru-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 860px;
+  min-width: 53.75rem;
 }
 
 .ru-table th,
 .ru-table td {
   padding: 0.6rem 0.75rem;
   text-align: left;
-  font-size: 0.82rem;
+  font-size: var(--tri-font-sm, 0.82rem);
   border-bottom: 1px solid #eef2f7;
   vertical-align: middle;
 }
@@ -766,8 +766,8 @@
 .ru-table th {
   background: #eef3fb;
   color: var(--ru-navy);
-  font-weight: 800;
-  font-size: 0.7rem;
+  font-weight: 750;
+  font-size: var(--tri-font-xs, 0.7rem);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -785,7 +785,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--ru-navy);
 }
 
@@ -797,8 +797,8 @@
   place-items: center;
   background: #e8eefc;
   color: var(--ru-blue);
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 750;
   flex-shrink: 0;
 }
 
@@ -807,8 +807,8 @@
   align-items: center;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.72rem);
+  font-weight: 750;
 }
 
 .ru-type--dealer {
@@ -825,8 +825,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-weight: 700;
-  font-size: 0.82rem;
+  font-weight: 650;
+  font-size: var(--tri-font-sm, 0.82rem);
 }
 
 .ru-status__dot {
@@ -884,7 +884,7 @@
   background: #fff;
   border: 1px solid var(--ru-border);
   border-radius: 0.7rem;
-  box-shadow: 0 12px 28px rgba(10, 35, 91, 0.12);
+  box-shadow: 0 0.75rem 1.75rem rgba(10, 35, 91, 0.12);
   padding: 0.35rem;
 }
 
@@ -898,7 +898,7 @@
   padding: 0.55rem 0.65rem;
   border-radius: 0.5rem;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: var(--tri-font-sm, 0.84rem);
   font-weight: 600;
   color: var(--ru-navy);
   cursor: pointer;
@@ -930,12 +930,12 @@
   display: block;
   margin-top: 0.65rem;
   color: var(--ru-navy);
-  font-size: 0.95rem;
+  font-size: var(--tri-font-body, 0.95rem);
 }
 
 .ru-empty p {
   margin: 0.35rem 0 0;
-  font-size: 0.84rem;
+  font-size: var(--tri-font-sm, 0.84rem);
   max-width: 36ch;
 }
 
@@ -956,7 +956,7 @@
   justify-content: flex-end;
   gap: 0.55rem;
   margin-top: 0.85rem;
-  font-size: 0.82rem;
+  font-size: var(--tri-font-sm, 0.82rem);
   color: var(--ru-muted);
 }
 
@@ -968,7 +968,7 @@
   background: #fff;
   color: var(--ru-navy);
   font: inherit;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
 }
 
@@ -1005,14 +1005,14 @@
 
 .ru-roles__side-head h3 {
   margin: 0;
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.92rem);
+  font-weight: 750;
   line-height: 1.2;
 }
 
 .ru-roles__side-head p {
   margin: 0.1rem 0 0;
-  font-size: 0.74rem;
+  font-size: var(--tri-font-xs, 0.74rem);
   color: var(--ru-muted);
 }
 
@@ -1020,7 +1020,7 @@
   white-space: nowrap;
   min-height: 2rem;
   padding: 0 0.7rem;
-  font-size: 0.78rem;
+  font-size: var(--tri-font-sm, 0.78rem);
 }
 
 .ru-roles__list {
@@ -1045,7 +1045,7 @@
   color: var(--ru-navy);
   font: inherit;
   position: relative;
-  box-shadow: 0 1px 2px rgba(10, 35, 91, 0.04);
+  box-shadow: 0 1px 0.125rem rgba(10, 35, 91, 0.04);
 }
 
 .ru-role-item:hover {
@@ -1064,7 +1064,7 @@
   left: 0;
   top: 0.4rem;
   bottom: 0.4rem;
-  width: 3px;
+  width: 0.1875rem;
   border-radius: 999px;
   background: var(--ru-yellow);
 }
@@ -1092,15 +1092,15 @@
 
 .ru-role-item__body strong {
   display: block;
-  font-size: 0.84rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.84rem);
+  font-weight: 750;
   line-height: 1.2;
 }
 
 .ru-role-item__body span {
   display: block;
   margin-top: 0.08rem;
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   color: var(--ru-muted);
 }
 
@@ -1159,15 +1159,15 @@
 
 .ru-modsel__head strong {
   display: block;
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: var(--tri-font-body, 0.88rem);
+  font-weight: 750;
   color: var(--ru-navy);
 }
 
 .ru-modsel__head span {
   display: block;
   margin-top: 0.1rem;
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   color: #7b8ba5;
 }
 
@@ -1185,7 +1185,7 @@
   gap: 0.35rem;
   min-height: 4.4rem;
   padding: 0.55rem 0.35rem;
-  border: 1.5px solid #d7e0ef;
+  border: 0.0938rem solid #d7e0ef;
   border-radius: 0.7rem;
   background: #fff;
   color: var(--ru-navy);
@@ -1199,13 +1199,13 @@
 }
 
 .ru-modcard:focus-visible {
-  outline: 2px solid var(--ru-blue);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--ru-blue);
+  outline-offset: 0.125rem;
 }
 
 .ru-modcard.is-selected {
   border-color: var(--ru-yellow);
-  border-width: 2px;
+  border-width: 0.125rem;
   background: #fffdf3;
   box-shadow: 0 0 0 1px rgba(255, 204, 0, 0.35);
 }
@@ -1221,8 +1221,8 @@
 }
 
 .ru-modcard__label {
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 650;
   text-align: center;
   line-height: 1.2;
   color: var(--ru-navy);
@@ -1261,15 +1261,15 @@
 
 .ru-modaccess__left strong {
   display: block;
-  font-size: 0.86rem;
-  font-weight: 800;
+  font-size: var(--tri-font-sm, 0.86rem);
+  font-weight: 750;
   color: var(--ru-navy);
 }
 
 .ru-modaccess__left span {
   display: block;
   margin-top: 0.08rem;
-  font-size: 0.7rem;
+  font-size: var(--tri-font-xs, 0.7rem);
   color: #7b8ba5;
   max-width: 28rem;
 }
@@ -1283,8 +1283,8 @@
 }
 
 .ru-switch__text {
-  font-size: 0.74rem;
-  font-weight: 700;
+  font-size: var(--tri-font-xs, 0.74rem);
+  font-weight: 650;
   color: var(--ru-navy);
   white-space: nowrap;
 }
@@ -1315,7 +1315,7 @@
   height: 0.95rem;
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 35, 70, 0.2);
+  box-shadow: 0 1px 0.125rem rgba(15, 35, 70, 0.2);
   transition: transform 0.15s ease;
 }
 
@@ -1328,8 +1328,8 @@
 }
 
 .ru-switch input:focus-visible + .ru-switch__track {
-  outline: 2px solid var(--ru-blue);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--ru-blue);
+  outline-offset: 0.125rem;
 }
 
 .ru-switch input:disabled + .ru-switch__track {
@@ -1346,7 +1346,7 @@
   border-radius: 0.55rem;
   background: #f1f5f9;
   color: #64748b;
-  font-size: 0.72rem;
+  font-size: var(--tri-font-xs, 0.72rem);
   font-weight: 600;
 }
 
@@ -1394,7 +1394,7 @@
 .ru-roles__main-title h3 {
   margin: 0;
   font-size: var(--tri-font-lg, 0.98rem);
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.2;
 }
 
@@ -1405,8 +1405,8 @@
   border-radius: 999px;
   background: #dcfce7;
   color: #15803d;
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-size: var(--tri-font-xs, 0.68rem);
+  font-weight: 750;
 }
 
 .ru-roles__actions {
@@ -1420,7 +1420,7 @@
   border-radius: 0.75rem;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 35, 70, 0.03);
+  box-shadow: 0 1px 0.125rem rgba(15, 35, 70, 0.03);
 }
 
 .ru-perm-table {
@@ -1442,7 +1442,7 @@
   text-align: left;
   border-bottom: 1px solid #e8eef5;
   border-right: 0;
-  font-size: 0.82rem;
+  font-size: var(--tri-font-sm, 0.82rem);
   vertical-align: middle;
   box-sizing: border-box;
 }
@@ -1450,10 +1450,10 @@
 .ru-perm-table th {
   padding: 0.48rem 0.85rem;
   background: #eef3fb;
-  font-size: 0.64rem;
+  font-size: var(--tri-font-xs, 0.64rem);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ru-navy);
 }
 
@@ -1514,8 +1514,8 @@
 
 .ru-perm-module strong {
   display: block;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.82rem);
+  font-weight: 650;
   color: var(--ru-navy);
   line-height: 1.15;
 }
@@ -1523,7 +1523,7 @@
 .ru-perm-module span {
   display: block;
   margin-top: 0.05rem;
-  font-size: 0.62rem;
+  font-size: var(--tri-font-xs, 0.62rem);
   font-weight: 600;
   color: #8b9bb8;
   letter-spacing: 0.02em;
@@ -1534,7 +1534,7 @@
   width: 1.05rem;
   height: 1.05rem;
   border-radius: 0.22rem;
-  border: 1.5px solid #c5d0e0;
+  border: 0.0938rem solid #c5d0e0;
   display: inline-grid;
   place-items: center;
   background: #fff;
@@ -1546,7 +1546,7 @@
 
 .ru-perm-check:hover:not(:disabled) {
   border-color: var(--ru-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 0.1875rem rgba(37, 99, 235, 0.12);
 }
 
 .ru-perm-check.is-on {
@@ -1574,7 +1574,7 @@
 
 .ru-perm-na {
   color: #94a3b8;
-  font-size: 0.8rem;
+  font-size: var(--tri-font-sm, 0.8rem);
 }
 
 /* Modal */
@@ -1599,7 +1599,7 @@
   width: min(100%, 28rem);
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 24px 60px rgba(7, 24, 51, 0.28);
+  box-shadow: 0 1.5rem 3.75rem rgba(7, 24, 51, 0.28);
   padding: 1.25rem 1.25rem 1.1rem;
 }
 
@@ -1644,14 +1644,14 @@
 
 .ru-modal__head h2 {
   margin: 0;
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: var(--tri-font-lg, 1.2rem);
+  font-weight: 750;
   color: var(--ru-navy);
 }
 
 .ru-modal__head p {
   margin: 0.25rem 0 0;
-  font-size: 0.84rem;
+  font-size: var(--tri-font-sm, 0.84rem);
   color: var(--ru-muted);
   line-height: 1.4;
 }
@@ -1663,8 +1663,8 @@
 .ru-modal__field label {
   display: block;
   margin-bottom: 0.35rem;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--tri-font-sm, 0.8rem);
+  font-weight: 650;
   color: var(--ru-navy);
 }
 
@@ -1686,7 +1686,7 @@
 
 .ru-modal__control:focus-within {
   border-color: var(--ru-blue);
-  box-shadow: 0 0 0 3px rgba(53, 81, 165, 0.12);
+  box-shadow: 0 0 0 0.1875rem rgba(53, 81, 165, 0.12);
 }
 
 .ru-modal__control input,
@@ -1696,7 +1696,7 @@
   outline: 0;
   background: transparent;
   font: inherit;
-  font-size: 0.9rem;
+  font-size: var(--tri-font-body, 0.9rem);
   color: var(--ru-navy);
   resize: vertical;
   min-width: 0;
@@ -1716,7 +1716,7 @@
 .ru-modal__error {
   margin-top: 0.55rem;
   color: #9f1239;
-  font-size: 0.84rem;
+  font-size: var(--tri-font-sm, 0.84rem);
   font-weight: 600;
 }
 
@@ -1742,14 +1742,14 @@
   width: min(100%, 26rem);
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 20px 48px rgba(7, 24, 51, 0.22);
+  box-shadow: 0 1.25rem 3rem rgba(7, 24, 51, 0.22);
   padding: 1.15rem;
 }
 
 .ru-edit__panel h2 {
   margin: 0 0 0.85rem;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: var(--tri-font-lg, 1.05rem);
+  font-weight: 750;
 }
 
 /* Compact / mid laptops — keep two invite cards, tighten form columns */

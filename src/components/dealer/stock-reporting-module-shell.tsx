@@ -8,6 +8,7 @@ import { ClipboardList, Clock3, Truck } from "lucide-react";
 import { DealerHeroActions } from "./dealer-hero-actions";
 import { DealerHeroMedia } from "./dealer-hero-media";
 import "@/app/dealer/dealer-stock-reporting.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 function moduleIcon(key: StockReportingModuleKey) {
   if (key === "records") return <Clock3 size={18} strokeWidth={2} aria-hidden />;

@@ -82,7 +82,8 @@ Move portal → Odoo quotation create from numeric/hardcoded IDs to **Odoo Exter
 | `src/components/retail/role-permissions-panel.tsx` | Module selector + access switch + tab matrix |
 | `src/app/api/retail/roles/**` | Roles API |
 | `prisma/migrations/20261112120000_staff_role_templates/` | `StaffRoleTemplate` table |
-| `src/components/dealer/dealer-hero-media.tsx` | Staff-identical dealer hero plate |
+| `src/components/dealer/dealer-hero-media.tsx` | Legacy no-op (plate is CSS) |
+| `src/app/dealer/dealer-portal-hero.css` | Dealer hero plate = staff pin-point copy |
 
 ### Mapping captured
 
@@ -128,6 +129,166 @@ Other product.template candidates kept for reference only.
 ---
 
 ## Entry log
+
+### 2026-11-13 — Hero text block type bump (staff → dealer)
+- Staff hero copy nudged up slightly (eyebrow ~0.875rem, title `clamp(1.85rem, 2.85vw, 2.55rem)`, sub ~1.12rem) in `staff-portal-hero.css`.
+- Dealer `dealer-portal-hero.css` locked to the same final sizes on every portal page.
+
+### 2026-11-13 — Restore Inter (drop Century Gothic)
+- Site-wide font back to **Inter** (Google Fonts link in root layout + `--font-sans` / portal stacks). Removed `century-gothic.css` import; Adventor/@font-face no longer used.
+
+### 2026-11-13 — Remove dealer header search
+- Dropped the topbar “Search orders…” input from `DealerShell` (page-level order search / shortcut still available where present).
+
+### 2026-11-13 — Dealer hero = staff pin-point plate
+- Copied staff `staff-portal-hero.css` plate onto every dealer portal page: same asset (`trinitynrg-forecourt-at-sunset.png?v=5`), cover @ `42% 30%`, left haze gradient, `--tri-hero-height-capped`, padding, gold bar copy.
+- New `src/app/dealer/dealer-portal-hero.css`; imported from portal layout + each page CSS entry so it wins over legacy per-page crops.
+- Removed divergent dealer img/veil crops (`DealerHeroMedia` now no-op / hidden).
+
+### 2026-11-13 — Staff home accents: blue/yellow only
+- KPI/panel/card top highlights + matching icons use Trinity blue or yellow only (no purple/slate/amber accents).
+
+### 2026-11-13 — Staff account menu above hero
+- Header overflow visible + higher z-index so Sign out dropdown isn’t clipped behind the hero.
+
+### 2026-11-13 — Orders preview meta type smaller
+- Order Tracking preview detail lines (dealer/station/date/products/value) stepped down to `--tri-font-sm`.
+
+### 2026-11-13 — Staff header: name + account menu like dealer
+- Keep First Name Last Name visible beside avatar (was hidden under 1500px); Sign out / Change password menu on chevron.
+
+### 2026-11-13 — Century Gothic actually loads in-browser
+- Self-hosted TeX Gyre Adventor OTFs as `@font-face "Century Gothic"` (`public/fonts/century-gothic/`, `src/styles/century-gothic.css`) so the face renders even when the proprietary font isn’t installed.
+- Prefer `local(Century Gothic)` when present; otherwise Adventor (GUST/OFL).
+
+### 2026-11-13 — Staff heroes: copy nudged right
+- Shared hero text block `margin-left` nudged right a little on every staff page.
+
+### 2026-11-13 — Staff heroes: type bump (more than a tad)
+- Shared hero eyebrow / title / sub stepped up again (`staff-portal-hero.css`).
+
+### 2026-11-13 — System font → Lexend Deca
+- Replaced Inter with **Lexend Deca** site-wide (Google Fonts variable `wght@100..900`, `--font-sans`, CSS stacks).
+
+### 2026-11-13 — System font note + softer bold weights
+- Softened bold one step everywhere in CSS: 700→650, 750→700, 800→750, 900→800; Tailwind `font-bold`/`extrabold`/`black` + `b`/`strong` match.
+
+### 2026-11-13 — Staff heroes: slight type bump again
+- Eyebrow / title / sub nudged up another small step in `staff-portal-hero.css`.
+
+### 2026-11-13 — Staff heroes: lift copy + slight type bump
+- Increased hero bottom padding so copy sits a bit higher above cards; eyebrow/title/sub nudged up one step.
+
+### 2026-11-13 — Staff heroes: lower copy + Messages overlap
+- Hero copy `align-items: flex-end` so text sits just above overlapping cards on all staff pages.
+- Messages workspace: stronger negative margin (beats `.so-wrap`) so columns tuck into the hero like other tabs.
+
+### 2026-11-13 — Staff heroes: slightly smaller type
+- Shared `staff-portal-hero.css`: eyebrow / title / sub stepped down a notch on every staff page.
+
+### 2026-11-13 — Payment Summary columns even width
+- Amount Paid / Due / Order Total use equal `1fr` columns across the card.
+
+### 2026-11-13 — Fluid laptop scale across staff UI
+- Widened `--tri-root-font` (tighter on ~13–14" / short height; larger on 16"+ / 1800+).
+- Staff Orders + portal shell/hero + remaining staff retail CSS: major type → `--tri-font-*`, chrome `px` → `rem`, card radius/gutters on `--tri-*` (no page zoom).
+- Files: `responsive-tokens.css`, `staff-orders.css`, `staff-portal.css`, `staff-portal-hero.css`, `staff-home.css`, `staff-stock-reporting.css`, `retail-users.css`, `staff-support.css`, `retail-analytics.css`, `retail-messaging.css`, `retail-portal.css`, `retail-orders.css`.
+
+### 2026-11-13 — Order Activity under Documents, base = Payment base
+- Activity top sits under Documents; right column height matches left (Payment base); timeline scrolls inside.
+- `StaffOrderDetailGrid` measures left column height onto the side column.
+
+### 2026-11-13 — Documents: PFI title/issued stay one line
+- Doc name + sub use nowrap/ellipsis so Pro Forma Invoice (PFI) and issued line don’t wrap taller.
+
+### 2026-11-13 — Order detail cards: trim Order Details, roomy dealer rows
+- Dropped dealer reference, notes, and line prices from Order Details.
+- Dealer & Station rows get more vertical padding; both cards stretch to equal height.
+
+### 2026-11-13 — Progress connectors: gap before circles
+- Staff detail + shared rails leave a clear gap between connector lines and stage dots (premium look).
+
+### 2026-11-13 — Order detail progress: larger + centered across width
+- Detail rail nodes sit centered in equal columns with span lines; bigger dots/labels (fixes left bias).
+
+### 2026-11-13 — Order detail top cards: compact equal row
+- Harder compact pass: smaller progress nodes, denser heads, horizontal action rows (icon|copy|go).
+- Both top cards stretch to the same short height; progress centered in the track card.
+
+### 2026-11-13 — Order detail top cards: sleeker height
+- Tracking + Staff Actions tighter heads/padding; progress rail vertically centered; compact action rows.
+
+### 2026-11-13 — Order detail: Staff Actions height + mockup colors
+- Tracking + Staff Actions share a stretched top row (equal height).
+- Confirm Payment yellow/ready; Release to Depot locked gray with lock icon.
+
+### 2026-11-13 — Order detail hero: shared plate, no hero CTAs
+- Detail (+ list) use canonical `so-hero` crop/height; removed Back to Orders / Download PFI from hero.
+
+### 2026-11-13 — Orders table viewport: 6 rows
+- Table scroll area height shows six order rows (was four).
+
+### 2026-11-13 — Tracker: drop Loading step system-wide
+- Shared `DEALER_TRACKER_STEPS` is now 6 steps; RELEASED/LOADING/LOADED stay on Released to Depot until transit.
+- Dealer dashboard/order headlines updated; staff + dealer rails inherit via `dealerTrackerSteps`.
+
+### 2026-11-13 — Orders status tabs: drop PFI Issued & Exceptions
+- Filter strip tabs are All / Awaiting / Checking / At Depot / In Transit / Completed only.
+
+### 2026-11-13 — Orders tracking preview: meta type dialed back
+- Preview detail lines slightly smaller (~0.95rem) with matching icon tiles.
+
+### 2026-11-13 — Orders tracking preview: larger meta + View PFI blue
+- Order detail lines ~1.5× type; premium icon tiles; meta grows to fill vertical space.
+- View PFI: blue border/text; hover blue fill + white text.
+
+### 2026-11-13 — Orders tracking preview: dealer-style rail + matched height
+- Right Order Tracking card stretches with left workspace; more vertical padding; actions sit at bottom.
+- Progress rail matches dealer dashboard (blue done / gold active / Done·Pending notes).
+- Shared `trackerStepSecondary`; staff list + detail use same stage labels as dealer tracker.
+
+### 2026-11-13 — Orders product badges side-by-side
+- PMS/AGO pills stay on one row (no wrap) and are slightly smaller.
+
+### 2026-11-13 — Orders table: padding, arrow-only actions, 4-row viewport
+- Padded table shell; fixed height for 4 rows with internal scroll (empty space when fewer).
+- Actions: eye removed; circular arrow only. Sticky thead inside scroll area.
+
+### 2026-11-13 — Orders period dropdown above table
+- Workspace card / filters no longer clip the period menu; raised stacking so it paints over the table header.
+
+### 2026-11-13 — Orders filter widths/spacing
+- Clearer gap after Reporting Period; slightly narrower Dealer + Search so period gets more room.
+
+### 2026-11-13 — Orders reporting period: single-field custom range
+- Period control: All time default, dark preset menu, Custom range shows `dd MMM yyyy – dd MMM yyyy` in the same field (no From/To inputs).
+- Custom calendar: first click start (green), second click end (red); hidden `period`/`from`/`to` for Apply.
+- File: `staff-orders-period-filter.tsx` + `staff-orders.css`.
+
+### 2026-11-13 — Orders filters: drop Station, mockup spacing
+- Toolbar is Reporting Period + Dealer + Search + Apply/Clear only; Station control removed.
+- Wider gaps, calendar-prefixed period select, unlabeled search field (aria label kept).
+
+### 2026-11-13 — Orders status tabs slightly taller/larger type
+- Status filter pills: a bit more height and font size.
+
+### 2026-11-13 — Orders KPI icons/text larger
+- Bumped KPI icon tile, glyph, label, and value sizes for readability.
+
+### 2026-11-13 — Orders KPI cards taller (~1.75×)
+- Increased KPI card min-height/padding and icon size after icon-left layout.
+
+### 2026-11-13 — Orders KPI cards: icon-left compact layout
+- Stat cards: icon left, label + number stacked on the right (mockup), shorter vertical height.
+
+### 2026-11-13 — Staff Orders page visual correction (Attachment 3)
+- 7 KPI cards (Total, Awaiting Payment, Checking Payment, PFI Issued inclusive, At Depot, In Transit, Completed); removed EPRA banner from Orders list (home EPRA card retained).
+- Compact status tabs + single-row filter toolbar; denser table; premium pager; tracking panel heading/status row + 3-button actions (View Order / View PFI / Track Delivery).
+- Hero crop nudge via `.so-hero--orders`; completed tracker steps green; `stage=pfi-issued` filters orders with proforma.
+- Files: `orders/page.tsx`, `staff-orders.css`, `stages.ts`, `staff-views.ts`, order detail `#tracking` anchor.
+
+### 2026-11-13 — Fix NextAuth CLIENT_FETCH_ERROR locally
+- Killed stale multi-port Next.js listeners; AuthProvider pins relative `basePath="/api/auth"` so session fetch stays same-origin.
 
 ### 2026-11-12 — Invite/role header icons match text height + fluid Users
 - Invite Dealer / Invite Staff / role detail icons stretch to heading+caption height (1:1 tile).

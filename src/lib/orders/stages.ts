@@ -42,8 +42,12 @@ export function stageOf(status: DealerOrderStatus): StageKey {
   return ORDER_STAGES.find((stage) => stage.statuses.includes(status))?.key ?? "exceptions";
 }
 
+/** Workspace filter keys — includes inclusive PFI Issued (has proforma), not a stageOf bucket. */
+export type StaffStageFilter = StageKey | "all" | "pfi-issued";
+
 /** The ?stage= value; anything that is not a tab shows every order. */
-export function parseStage(value: unknown): StageKey | "all" {
+export function parseStage(value: unknown): StaffStageFilter {
+  if (value === "pfi-issued") return "pfi-issued";
   return ORDER_STAGES.find((stage) => stage.key === value)?.key ?? "all";
 }
 

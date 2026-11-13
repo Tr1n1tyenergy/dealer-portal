@@ -82,7 +82,7 @@
 .mod-card__title {
   margin: 0 !important;
   font-size: 1.12rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #0a235b !important;
   line-height: 1.2 !important;
 }
@@ -90,7 +90,7 @@
 .mod-card__tag {
   margin-top: 0.18rem !important;
   font-size: 0.76rem !important;
-  font-weight: 700 !important;
+  font-weight: 650 !important;
   color: #173d8f !important;
 }
 
@@ -152,7 +152,7 @@
   background: #0a235b !important;
   color: #fff !important;
   font-size: 0.86rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   box-shadow: 0 12px 24px rgba(10, 35, 91, 0.22);
 }
 
@@ -220,7 +220,7 @@
 
 .mod-footer__title {
   font-size: 0.88rem !important;
-  font-weight: 800 !important;
+  font-weight: 750 !important;
   color: #ffffff !important;
 }
 

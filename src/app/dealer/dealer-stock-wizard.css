@@ -16,85 +16,7 @@
   min-height: calc(100vh - 68px);
 }
 
-.ssw__hero {
-  position: relative;
-  width: 100%;
-  min-height: var(--ssw-hero-h);
-  height: var(--ssw-hero-h);
-  overflow: hidden;
-  color: #fff;
-  background-color: #071833;
-  background-image: none !important;
-  background-repeat: no-repeat;
-}
-
-.ssw__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(7, 24, 51, 0.42) 0%,
-    rgba(7, 24, 51, 0.16) 45%,
-    transparent 78%
-  );
-  pointer-events: none;
-}
-
-.ssw__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  min-height: var(--ssw-hero-h);
-  height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 0;
-  padding: 1.55rem var(--dp-gutter, 1.5rem) 3.85rem;
-}
-
-.ssw__hero-copy {
-  display: flex;
-  align-items: stretch;
-  gap: 0.85rem;
-}
-
-.ssw__hero-accent {
-  width: 4px;
-  border-radius: 999px;
-  background: var(--ssw-yellow);
-  flex-shrink: 0;
-  min-height: 4.2rem;
-}
-
-.ssw__hero-kicker {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ssw-yellow);
-}
-
-.ssw__hero-copy h1 {
-  margin: 0.2rem 0 0;
-  font-size: var(--tri-font-h2, clamp(1.45rem, 2.3vw, 1.95rem));
-  font-weight: 850;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
-  color: #fff;
-}
-
-.ssw__hero-copy p {
-  margin: 0.4rem 0 0;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.92);
-  max-width: 38rem;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 .ssw__body {
   position: relative;
@@ -188,7 +110,7 @@
 
 .ssw__step-label {
   font-size: 0.86rem;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.25;
   color: var(--ssw-ink);
 }
@@ -226,7 +148,7 @@
   background: #fff;
   color: var(--ssw-ink);
   font-size: 0.88rem;
-  font-weight: 750;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
 }
@@ -282,14 +204,14 @@
 .ssw__meta-label {
   margin: 0;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #7b8aa5;
 }
 
 .ssw__meta-value {
   margin: 0.12rem 0 0;
   font-size: 0.92rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssw-ink);
   line-height: 1.2;
 }
@@ -365,7 +287,7 @@
   background: #fff;
   color: var(--ssw-blue);
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
@@ -418,7 +340,7 @@
   background: #eaf1fb;
   color: var(--ssw-ink);
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 750;
   text-align: left;
   padding: 0.75rem 0.7rem;
   border-bottom: 1px solid #d7e3f2;
@@ -435,7 +357,7 @@
 
 .ssw__req {
   color: #dc2626;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ssw__table tbody td {
@@ -458,7 +380,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssw-ink);
 }
 
@@ -474,7 +396,7 @@
   padding: 0.22rem 0.55rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ssw__badge--pms {
@@ -496,7 +418,7 @@
   border: 1px solid #d7dee9;
   background: #f1f5f9;
   color: var(--ssw-ink);
-  font-weight: 700;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
   box-sizing: border-box;
 }
@@ -510,7 +432,7 @@
   background: #fff;
   color: var(--ssw-ink);
   font: inherit;
-  font-weight: 700;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
   box-sizing: border-box;
 }
@@ -576,7 +498,7 @@
 .ssw__init-note-title {
   margin: 0;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 750;
   line-height: 1.25;
   color: #3551a5;
 }
@@ -636,7 +558,7 @@
   background: #fff0a8;
   color: #3551a5;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.01em;
   white-space: nowrap;
   line-height: 1.2;
@@ -713,7 +635,7 @@
 .ssw__total-label {
   margin: 0;
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #5b6b86;
 }
 
@@ -766,7 +688,7 @@
   background: #e8f8ef;
   color: #15803d;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .ssw__footer-actions {
@@ -784,7 +706,7 @@
   padding: 0 1.15rem;
   border-radius: 11px;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   font-family: inherit;
   border: 1px solid transparent;
   cursor: pointer;
@@ -897,7 +819,7 @@
 
 .ssw__mini th {
   color: #7b8aa5;
-  font-weight: 750;
+  font-weight: 700;
   font-size: 0.72rem;
 }
 
@@ -905,7 +827,7 @@
 .ssw__mini th:last-child {
   text-align: right;
   font-variant-numeric: tabular-nums;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .ssw__mini tr:last-child td {
@@ -1095,7 +1017,7 @@
   background: #e8f8ef;
   color: #166534;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ssw__price-note {
@@ -1141,7 +1063,7 @@
 
 .ssw__money-table th {
   color: #7b8aa5;
-  font-weight: 750;
+  font-weight: 700;
   font-size: 0.72rem;
 }
 
@@ -1213,7 +1135,7 @@
   margin: 0;
   font-size: 0.74rem;
   color: var(--ssw-muted);
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ssw__vs-value {
@@ -1318,7 +1240,7 @@
 
 .ssw__collect-prefix {
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 750;
   color: #7b8aa5;
 }
 
@@ -1329,7 +1251,7 @@
   outline: none;
   background: transparent;
   font: inherit;
-  font-weight: 750;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ssw-ink);
   padding: 0.25rem 0;
@@ -1341,7 +1263,7 @@
 
 .ssw__collect-total {
   font-size: 1.15rem;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--ssw-ink);
   font-variant-numeric: tabular-nums;
   margin-top: 0.35rem;
@@ -1423,7 +1345,7 @@
   margin: 0 0 0.85rem;
   font-size: 1.15rem;
   color: var(--ssw-ink);
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .ssw__modal-summary {
@@ -1436,7 +1358,7 @@
 .ssw__modal-summary dt {
   margin: 0;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #7b8aa5;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -1445,7 +1367,7 @@
 .ssw__modal-summary dd {
   margin: 0.15rem 0 0;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssw-ink);
 }
 
@@ -1538,7 +1460,7 @@
 .ssw__success-main h2 {
   margin: 0;
   font-size: 1.2rem;
-  font-weight: 900;
+  font-weight: 800;
   color: #14532d;
 }
 
@@ -1571,7 +1493,7 @@
 .ssw__success-ref-code {
   margin: 0.1rem 0 0;
   font-size: 0.92rem;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--ssw-ink);
   letter-spacing: 0.01em;
 }
@@ -1633,7 +1555,7 @@
   margin: 0;
   font-size: 0.78rem;
   color: var(--ssw-muted);
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ssw__submit-rows dd {
@@ -1654,7 +1576,7 @@
   border-radius: 10px;
   background: #eaf1fb;
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssw-ink);
 }
 
@@ -1693,7 +1615,7 @@
   margin: 0.25rem 0 0.15rem;
   font-size: 0.7rem;
   color: var(--ssw-muted);
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .ssw__collect-cols strong {
@@ -1749,13 +1671,13 @@
 .ssw__money-result strong {
   font-size: 1.15rem;
   color: #14532d;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .ssw__money-result p:last-child {
   margin: 0;
   font-size: 0.88rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #166534;
 }
 

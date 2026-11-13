@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Menu, Search, X } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { cn } from "@/lib/utils";
 import { activePrimaryNav, DEALER_PRIMARY_NAV } from "@/lib/dealer/nav";
@@ -32,18 +32,11 @@ export function DealerShell({
   /** Oldest payable PFI — heroes render the glowing Pay CTA via context. */
   payPfi?: PayPfiPanelProps | null;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const view = useSearchParams().get("view");
   const active = activePrimaryNav(pathname, view);
   const [menuOpen, setMenuOpen] = useState(false);
   useQuickSearchShortcut();
-
-  function onSearch(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const q = String(new FormData(e.currentTarget).get("q") ?? "").trim();
-    if (q) router.push(`/dealer/orders?q=${encodeURIComponent(q)}`);
-  }
 
   return (
     <PayPfiProvider value={payPfi ?? null}>
@@ -75,18 +68,6 @@ export function DealerShell({
               );
             })}
           </nav>
-
-          <form className="dp-search" role="search" onSubmit={onSearch}>
-            <Search size={16} strokeWidth={2} aria-hidden />
-            <input
-              type="search"
-              name="q"
-              placeholder="Search orders..."
-              aria-label="Search orders"
-              data-quick-search="top"
-              maxLength={100}
-            />
-          </form>
 
           <div className="dp-topbar__actions">
             <UnreadBell initial={unread} />

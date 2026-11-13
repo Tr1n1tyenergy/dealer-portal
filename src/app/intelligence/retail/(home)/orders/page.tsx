@@ -5,39 +5,68 @@ import {
   ArrowRight,
   Banknote,
   Building2,
-  Calendar,
+  CalendarDays,
+  Check,
   CheckCircle2,
-  ClipboardList,
-  Eye,
+  Clock3,
+  CreditCard,
   FileText,
   Fuel,
-  MapPin,
+  Layers,
+  MapPinned,
+  Search,
   Truck,
-  Warehouse,
 } from "lucide-react";
 import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { likeLiteral } from "@/lib/search";
 import { requireInternal } from "@/lib/session";
 import { formatKes } from "@/lib/orders/money";
-import { ORDER_STAGES, stageOf, statusLabel, type StageKey } from "@/lib/orders/stages";
+import { ORDER_STAGES, stageOf, statusLabel, type StaffStageFilter } from "@/lib/orders/stages";
 import { staffOrderFilters, type StaffOrderFilters } from "@/lib/orders/staff-views";
-import { dealerTrackerSteps } from "@/lib/orders/state-machine";
-import { priceListStatus } from "@/lib/integrations/odoo/price-list-status";
+import { dealerTrackerSteps, trackerStepSecondary } from "@/lib/orders/state-machine";
+import { StaffOrdersPeriodFilter } from "@/components/staff/staff-orders-period-filter";
 import "@/app/intelligence/retail/staff-orders.css";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 const PAGE_SIZE = 10;
 
-const KPI_ICONS: Partial<Record<StageKey, typeof Banknote>> = {
-  "awaiting-payment": Banknote,
-  "checking-payment": Eye,
-  "payment-confirmed": CheckCircle2,
-  depot: Warehouse,
-  transit: Truck,
-  complete: CheckCircle2,
-};
+const TRACKABLE_STATUSES = new Set([
+  "RELEASED_TO_DEPOT",
+  "LOADING",
+  "LOADED",
+  "DISPATCHED",
+  "IN_TRANSIT",
+  "DELIVERED",
+  "CLOSED",
+]);
+
+/** KPI row from Attachment 3 — Quotation & Payment Confirmed stay in workflow, not as summary cards. */
+const KPI_CARDS: {
+  key: StaffStageFilter;
+  label: string;
+  icon: typeof Layers;
+  tone: "blue" | "gold" | "card" | "doc" | "depot" | "transit" | "done";
+}[] = [
+  { key: "all", label: "Total Orders", icon: Layers, tone: "blue" },
+  { key: "awaiting-payment", label: "Awaiting Payment", icon: Clock3, tone: "gold" },
+  { key: "checking-payment", label: "Checking Payment", icon: CreditCard, tone: "card" },
+  { key: "pfi-issued", label: "PFI Issued", icon: FileText, tone: "doc" },
+  { key: "depot", label: "At Depot", icon: Truck, tone: "depot" },
+  { key: "transit", label: "In Transit", icon: Truck, tone: "transit" },
+  { key: "complete", label: "Completed", icon: CheckCircle2, tone: "done" },
+];
+
+/** Status tabs — PFI Issued & Exceptions omitted from the filter strip. */
+const VISIBLE_TABS: { key: StaffStageFilter; label: string }[] = [
+  { key: "all", label: "All Orders" },
+  { key: "awaiting-payment", label: "Awaiting Payment" },
+  { key: "checking-payment", label: "Checking Payment" },
+  { key: "depot", label: "At Depot" },
+  { key: "transit", label: "In Transit" },
+  { key: "complete", label: "Completed" },
+];
 
 function query(filters: StaffOrderFilters, overrides: Record<string, string | null>): string {
   const params = new URLSearchParams();
@@ -47,7 +76,6 @@ function query(filters: StaffOrderFilters, overrides: Record<string, string | nu
     period: filters.period === "all" ? null : filters.period,
     from: filters.from,
     to: filters.to,
-    station: filters.stationId,
     dealer: filters.dealerId,
     page: filters.page > 1 ? String(filters.page) : null,
     sel: filters.sel,
@@ -59,7 +87,21 @@ function query(filters: StaffOrderFilters, overrides: Record<string, string | nu
 }
 
 function whenLabel(at: Date): string {
-  return at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" });
+  return at.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Africa/Nairobi",
+  });
+}
+
+function stageWhere(stage: StaffStageFilter): Prisma.DealerOrderWhereInput | null {
+  if (stage === "all") return null;
+  if (stage === "pfi-issued") return { proforma: { isNot: null } };
+  const statuses = ORDER_STAGES.find((s) => s.key === stage)?.statuses;
+  return statuses ? { status: { in: statuses } } : null;
 }
 
 export const maxDuration = 60;
@@ -67,7 +109,6 @@ export const maxDuration = 60;
 export default async function RetailOrdersPage({ searchParams }: { searchParams: SearchParams }) {
   const session = await requireInternal();
   if (!canUser(session.user, "orders", "view")) redirect("/intelligence/retail");
-  const priceList = priceListStatus(new Date());
 
   const filters = staffOrderFilters(await searchParams);
   const term = likeLiteral(filters.q);
@@ -82,14 +123,13 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
           ],
         }
       : {}),
-    ...(filters.stationId ? { stationId: filters.stationId } : {}),
     ...(filters.dealerId ? { dealerOrganizationId: filters.dealerId } : {}),
     ...(filters.range ? { createdAt: { gte: filters.range.gte, lt: filters.range.lt } } : {}),
   };
-  const stageStatuses = filters.stage === "all" ? null : ORDER_STAGES.find((s) => s.key === filters.stage)!.statuses;
-  const where: Prisma.DealerOrderWhereInput = stageStatuses ? { ...baseWhere, status: { in: stageStatuses } } : baseWhere;
+  const stageClause = stageWhere(filters.stage);
+  const where: Prisma.DealerOrderWhereInput = stageClause ? { ...baseWhere, ...stageClause } : baseWhere;
 
-  const [grouped, totalFiltered, orders, stations, dealers, prevCount] = await Promise.all([
+  const [grouped, totalFiltered, orders, dealers, prevCount, pfiIssuedCount] = await Promise.all([
     prisma.dealerOrder.groupBy({ by: ["status"], where: baseWhere, _count: { _all: true } }),
     prisma.dealerOrder.count({ where }),
     prisma.dealerOrder.findMany({
@@ -103,7 +143,6 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
       skip: (filters.page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
-    prisma.station.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.dealerOrganization.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     filters.range
       ? prisma.dealerOrder.count({
@@ -116,17 +155,25 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
           },
         })
       : Promise.resolve(null),
+    prisma.dealerOrder.count({ where: { ...baseWhere, proforma: { isNot: null } } }),
   ]);
 
-  const counts = new Map<StageKey | "all", number>();
+  const counts = new Map<StaffStageFilter, number>();
   for (const row of grouped) {
     const key = stageOf(row.status);
     counts.set(key, (counts.get(key) ?? 0) + row._count._all);
     counts.set("all", (counts.get("all") ?? 0) + row._count._all);
   }
+  counts.set("pfi-issued", pfiIssuedCount);
   const totalAll = counts.get("all") ?? 0;
   const delta =
     prevCount != null && prevCount > 0 ? Math.round(((totalAll - prevCount) / prevCount) * 100) : null;
+  const deltaLabel =
+    filters.period === "7d"
+      ? "vs last 7 days"
+      : filters.period === "month"
+        ? "vs previous month"
+        : "vs previous period";
 
   const selectedId = filters.sel && orders.some((o) => o.id === filters.sel) ? filters.sel : orders[0]?.id ?? null;
   const selected = selectedId
@@ -141,35 +188,17 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
       })
     : null;
   const tracker = selected ? dealerTrackerSteps(selected.status) : null;
-  /* Preview shows 6 steps: Released + Loading fold into "At Depot". */
-  const miniSteps = tracker
-    ? [0, 1, 2, [3, 4], 5, 6].map((pick) => {
-        const group = (Array.isArray(pick) ? pick : [pick]).map((i) => tracker.steps[i]);
-        const state = group.some((s) => s.state === "attention")
-          ? "attention"
-          : group.some((s) => s.state === "active")
-            ? "active"
-            : group.every((s) => s.state === "done")
-              ? "done"
-              : "pending";
-        const label = Array.isArray(pick) ? "At Depot" : group[0].label;
-        return { label, state };
-      })
-    : [];
 
   const pages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
   const page = Math.min(filters.page, pages);
-  const kpis: { key: StageKey; label: string }[] = ORDER_STAGES.filter((s) => s.key !== "quotation" && s.key !== "exceptions").map(
-    (s) => ({ key: s.key, label: s.label })
-  );
-  const tabs: { key: StageKey | "all"; label: string }[] = [{ key: "all", label: "All Orders" }, ...ORDER_STAGES];
   const pageNumbers = Array.from({ length: pages }, (_, i) => i + 1).filter(
-    (n) => n === 1 || n === pages || Math.abs(n - page) <= 1
+    (n) => n === 1 || n === pages || Math.abs(n - page) <= 1,
   );
+  const canTrack = Boolean(selected && TRACKABLE_STATUSES.has(selected.status));
 
   return (
     <div className="so">
-      <header className="so-hero">
+      <header className="so-hero" aria-label="Orders management hero">
         <div className="so-hero__text">
           <div className="so-hero__eyebrow">Orders Management</div>
           <h1>Orders</h1>
@@ -179,223 +208,313 @@ export default async function RetailOrdersPage({ searchParams }: { searchParams:
 
       <div className="so-wrap">
         <section className="so-kpis" aria-label="Order totals">
-          <Link href={query(filters, { stage: null, page: null, sel: null })} className={`so-kpi${filters.stage === "all" ? " is-active" : ""}`}>
-            <span className="so-ico"><ClipboardList size={16} /></span>
-            <span className="so-kpi__value">{totalAll}</span>
-            <span className="so-kpi__label">Total Orders</span>
-            {delta != null ? (
-              <span className={`so-kpi__delta${delta < 0 ? " so-kpi__delta--down" : ""}`}>
-                {delta >= 0 ? "↑" : "↓"} {Math.abs(delta)}% vs previous period
-              </span>
-            ) : null}
-          </Link>
-          {kpis.map((kpi) => {
-            const Icon = KPI_ICONS[kpi.key] ?? FileText;
+          {KPI_CARDS.map((kpi) => {
+            const Icon = kpi.icon;
+            const active = filters.stage === kpi.key;
+            const href = query(filters, {
+              stage: kpi.key === "all" ? null : kpi.key,
+              page: null,
+              sel: null,
+            });
             return (
-              <Link
-                key={kpi.key}
-                href={query(filters, { stage: kpi.key, page: null, sel: null })}
-                className={`so-kpi${filters.stage === kpi.key ? " is-active" : ""}`}
-              >
-                <span className="so-ico"><Icon size={16} /></span>
-                <span className="so-kpi__value">{counts.get(kpi.key) ?? 0}</span>
-                <span className="so-kpi__label">{kpi.label}</span>
+              <Link key={kpi.key} href={href} className={`so-kpi${active ? " is-active" : ""}`}>
+                <span className={`so-ico so-ico--${kpi.tone}`}>
+                  <Icon size={20} strokeWidth={1.75} />
+                </span>
+                <span className="so-kpi__text">
+                  <span className="so-kpi__label">{kpi.label}</span>
+                  <span className="so-kpi__value">{counts.get(kpi.key) ?? 0}</span>
+                  {kpi.key === "all" && delta != null ? (
+                    <span className={`so-kpi__delta${delta < 0 ? " so-kpi__delta--down" : ""}`}>
+                      {delta >= 0 ? "↑" : "↓"} {delta >= 0 ? "+" : ""}
+                      {Math.abs(delta)}% {deltaLabel}
+                    </span>
+                  ) : null}
+                </span>
               </Link>
             );
           })}
-          <Link href={query(filters, { stage: "quotation", page: null, sel: null })} className={`so-kpi${filters.stage === "quotation" ? " is-active" : ""}`}>
-            <span className="so-ico"><FileText size={16} /></span>
-            <span className="so-kpi__value">{counts.get("quotation") ?? 0}</span>
-            <span className="so-kpi__label">Quotation &amp; PFI</span>
-          </Link>
         </section>
 
-        {priceList.message ? (
-          <p className="so-card" style={{ marginTop: 16, padding: "12px 16px", fontSize: "0.88rem" }} role={priceList.state === "expired" ? "alert" : "status"}>
-            {priceList.message}
-          </p>
-        ) : null}
-
         <div className="so-cols">
-          <section className="so-card">
+          <section className="so-card so-card--workspace">
             <nav className="so-tabs" aria-label="Order stages">
-              {tabs.map((tab) => (
+              {VISIBLE_TABS.map((tab) => (
                 <Link
                   key={tab.key}
                   href={query(filters, { stage: tab.key === "all" ? null : tab.key, page: null, sel: null })}
                   className="so-tab"
                   aria-current={tab.key === filters.stage ? "page" : undefined}
                 >
-                  {tab.label}
-                  <span className="so-tab__count">{counts.get(tab.key) ?? 0}</span>
+                  {tab.label} ({counts.get(tab.key) ?? 0})
                 </Link>
               ))}
             </nav>
 
             <form className="so-filters" action="/intelligence/retail/orders" method="get">
               {filters.stage !== "all" ? <input type="hidden" name="stage" value={filters.stage} /> : null}
-              <label className="so-field">
-                <span>Reporting period</span>
-                <select name="period" defaultValue={filters.period}>
-                  <option value="all">All time</option>
-                  <option value="today">Today</option>
-                  <option value="yesterday">Yesterday</option>
-                  <option value="7d">Last 7 days</option>
-                  <option value="month">This month</option>
-                  <option value="prev-month">Previous month</option>
-                  <option value="custom">Custom range</option>
-                </select>
-              </label>
-              <div className="so-dates" style={filters.period === "custom" ? { display: "flex" } : undefined}>
-                <label className="so-field">
-                  <span>From</span>
-                  <input type="date" name="from" defaultValue={filters.from ?? ""} />
-                </label>
-                <label className="so-field">
-                  <span>To</span>
-                  <input type="date" name="to" defaultValue={filters.to ?? ""} />
-                </label>
-              </div>
-              <label className="so-field">
-                <span>Station</span>
-                <select name="station" defaultValue={filters.stationId ?? ""}>
-                  <option value="">All Stations</option>
-                  {stations.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="so-field">
+              <StaffOrdersPeriodFilter period={filters.period} from={filters.from} to={filters.to} />
+              <label className="so-field so-field--dealer">
                 <span>Dealer</span>
                 <select name="dealer" defaultValue={filters.dealerId ?? ""}>
                   <option value="">All Dealers</option>
                   {dealers.map((d) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
                   ))}
                 </select>
               </label>
-              <label className="so-field so-field--grow">
-                <span>Search</span>
-                <input name="q" defaultValue={filters.q} maxLength={100} placeholder="Search order, PFI or dealer..." />
+              <label className="so-field so-field--grow so-field--search">
+                <span className="so-field__label-sr">Search</span>
+                <span className="so-search">
+                  <Search size={15} strokeWidth={1.75} aria-hidden />
+                  <input
+                    name="q"
+                    defaultValue={filters.q}
+                    maxLength={100}
+                    placeholder="Search order, PFI or dealer..."
+                    aria-label="Search order, PFI or dealer"
+                  />
+                </span>
               </label>
-              <button type="submit" className="so-btn so-btn--gold">Apply</button>
-              <Link href="/intelligence/retail/orders" className="so-btn so-btn--line">Clear</Link>
+              <div className="so-filters__actions">
+                <button type="submit" className="so-btn so-btn--gold">
+                  Apply
+                </button>
+                <Link href="/intelligence/retail/orders" className="so-btn so-btn--line">
+                  Clear
+                </Link>
+              </div>
             </form>
 
-            <div className="so-table-wrap">
-              <table className="so-table">
-                <thead>
-                  <tr>
-                    <th>Order Ref</th>
-                    <th>Dealer</th>
-                    <th>Station</th>
-                    <th>Products</th>
-                    <th>Amount (KES)</th>
-                    <th>Status</th>
-                    <th>Updated</th>
-                    <th aria-label="Actions" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => {
-                    const products = [...new Set(order.lines.map((l) => l.product))];
-                    return (
-                      <tr key={order.id} className={order.id === selectedId ? "is-selected" : undefined}>
-                        <td><Link className="so-ref" href={`/intelligence/retail/orders/${order.id}`}>{order.reference}</Link></td>
-                        <td>{order.dealerOrganization.name}</td>
-                        <td>{order.station.name}</td>
-                        <td>
-                          <span style={{ display: "inline-flex", gap: 4 }}>
-                            {products.map((p) => (
-                              <span key={p} className={`so-badge so-badge--${p.toLowerCase()}`}>{p}</span>
-                            ))}
-                          </span>
-                        </td>
-                        <td className="so-amount">{formatKes(order.amountDue)}</td>
-                        <td><span className={`so-pill so-pill--${stageOf(order.status)}`}>{statusLabel(order.status)}</span></td>
-                        <td className="so-updated">{whenLabel(order.updatedAt)}</td>
-                        <td>
-                          <span className="so-row-actions">
-                            <Link href={`${query(filters, { sel: order.id })}#preview`} className="so-icon-link" aria-label={`Preview ${order.reference}`}>
-                              <Eye size={15} />
+            <div className="so-table-shell">
+              <div className="so-table-scroll">
+                <table className="so-table">
+                  <thead>
+                    <tr>
+                      <th>Order Ref</th>
+                      <th>Dealer</th>
+                      <th>Station</th>
+                      <th>Products</th>
+                      <th>Amount (KES)</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((order) => {
+                      const products = [...new Set(order.lines.map((l) => l.product))];
+                      return (
+                        <tr key={order.id} className={order.id === selectedId ? "is-selected" : undefined}>
+                          <td>
+                            <Link className="so-ref" href={`/intelligence/retail/orders/${order.id}`}>
+                              {order.reference}
                             </Link>
-                            <Link href={`/intelligence/retail/orders/${order.id}`} className="so-icon-link so-icon-link--go" aria-label={`Open ${order.reference}`}>
-                              <ArrowRight size={15} />
+                          </td>
+                          <td>{order.dealerOrganization.name}</td>
+                          <td>{order.station.name}</td>
+                          <td>
+                            <span className="so-products">
+                              {products.map((p) => (
+                                <span key={p} className={`so-badge so-badge--${p.toLowerCase()}`}>
+                                  {p}
+                                </span>
+                              ))}
+                            </span>
+                          </td>
+                          <td className="so-amount">{formatKes(order.amountDue)}</td>
+                          <td>
+                            <span className={`so-pill so-pill--${stageOf(order.status)}`}>
+                              {statusLabel(order.status)}
+                            </span>
+                          </td>
+                          <td className="so-updated">{whenLabel(order.updatedAt)}</td>
+                          <td>
+                            <Link
+                              href={`/intelligence/retail/orders/${order.id}`}
+                              className="so-icon-link so-icon-link--go"
+                              aria-label={`Open ${order.reference}`}
+                            >
+                              <ArrowRight size={15} strokeWidth={2} />
                             </Link>
-                          </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {orders.length === 0 ? (
+                      <tr>
+                        <td className="so-empty" colSpan={8}>
+                          {filters.q ? `No orders match "${filters.q}".` : "No orders match these filters."}
                         </td>
                       </tr>
-                    );
-                  })}
-                  {orders.length === 0 ? (
-                    <tr>
-                      <td className="so-empty" colSpan={8}>
-                        {filters.q ? `No orders match "${filters.q}".` : "No orders match these filters."}
-                      </td>
-                    </tr>
-                  ) : null}
-                </tbody>
-              </table>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <div className="so-pager">
               <span className="so-pager__info">
-                Showing {totalFiltered === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalFiltered)} of {totalFiltered} orders
+                Showing {totalFiltered === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–
+                {Math.min(page * PAGE_SIZE, totalFiltered)} of {totalFiltered} orders
               </span>
-              <Link href={query(filters, { page: page > 1 ? String(page - 1) : null, sel: null })} className={`so-page${page <= 1 ? " is-disabled" : ""}`} aria-label="Previous page">‹</Link>
-              {pageNumbers.map((n, i) => (
-                <span key={n} style={{ display: "inline-flex", gap: 8 }}>
-                  {i > 0 && pageNumbers[i - 1] !== n - 1 ? <span className="so-page is-disabled">…</span> : null}
-                  <Link href={query(filters, { page: n > 1 ? String(n) : null, sel: null })} className="so-page" aria-current={n === page ? "page" : undefined}>
-                    {n}
-                  </Link>
-                </span>
-              ))}
-              <Link href={query(filters, { page: page < pages ? String(page + 1) : null, sel: null })} className={`so-page${page >= pages ? " is-disabled" : ""}`} aria-label="Next page">›</Link>
+              <div className="so-pager__pages">
+                <Link
+                  href={query(filters, { page: page > 1 ? String(page - 1) : null, sel: null })}
+                  className={`so-page${page <= 1 ? " is-disabled" : ""}`}
+                  aria-label="Previous page"
+                >
+                  ‹
+                </Link>
+                {pageNumbers.map((n, i) => (
+                  <span key={n} className="so-pager__chunk">
+                    {i > 0 && pageNumbers[i - 1] !== n - 1 ? <span className="so-page is-disabled">…</span> : null}
+                    <Link
+                      href={query(filters, { page: n > 1 ? String(n) : null, sel: null })}
+                      className="so-page"
+                      aria-current={n === page ? "page" : undefined}
+                    >
+                      {n}
+                    </Link>
+                  </span>
+                ))}
+                <Link
+                  href={query(filters, { page: page < pages ? String(page + 1) : null, sel: null })}
+                  className={`so-page${page >= pages ? " is-disabled" : ""}`}
+                  aria-label="Next page"
+                >
+                  ›
+                </Link>
+              </div>
             </div>
           </section>
 
           <aside id="preview" className="so-preview so-card" aria-label="Order tracking preview">
             <div className="so-card__head">
-              <span className="so-ico"><Truck size={15} /></span>
-              Order Tracking
+              <span className="so-ico so-ico--transit">
+                <Truck size={15} strokeWidth={1.75} />
+              </span>
+              <span className="so-card__title">Order Tracking</span>
               {selected ? (
-                <Link className="so-spacer" href={`/intelligence/retail/orders/${selected.id}`} style={{ color: "#3551a5" }}>
+                <Link className="so-spacer" href={`/intelligence/retail/orders/${selected.id}`}>
                   View Full Details ↗
                 </Link>
               ) : null}
             </div>
-            {selected ? (
+            {selected && tracker ? (
               <div className="so-preview__body">
-                <div className="so-preview__ref">{selected.reference}</div>
-                <span className={`so-pill so-pill--${stageOf(selected.status)}`}>{statusLabel(selected.status)}</span>
-                <div className="so-preview__meta">
-                  <span><Building2 size={14} /> {selected.dealerOrganization.name}</span>
-                  <span><MapPin size={14} /> {selected.station.name}</span>
-                  <span><Calendar size={14} /> Order Date: {whenLabel(selected.createdAt)}</span>
-                  <span><Fuel size={14} /> Products: {[...new Set(selected.lines.map((l) => l.product))].join(", ") || "—"}</span>
-                  <span><Banknote size={14} /> Order Value: {formatKes(selected.amountDue)}</span>
+                <div className="so-preview__heading">
+                  <div className="so-preview__ref">{selected.reference}</div>
+                  <span className={`so-pill so-pill--${stageOf(selected.status)}`}>
+                    {statusLabel(selected.status)}
+                  </span>
                 </div>
-                {tracker?.stopped ? (
-                  <div className="so-track__stopped" style={{ margin: "10px 0 0" }}>{tracker.stopped}</div>
-                ) : (
-                  <div className="so-track" aria-label="Order progress">
-                    {miniSteps.map((step, index) => (
-                      <span key={step.label} className={`so-track__step is-${step.state}`}>
-                        <span className="so-track__dot">{step.state === "done" ? "✓" : index + 1}</span>
-                        <span className="so-track__label">{step.label}</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div className="so-preview__meta">
+                  <span>
+                    <span className="so-preview__ico" aria-hidden>
+                      <Building2 size={17} strokeWidth={1.75} />
+                    </span>
+                    {selected.dealerOrganization.name}
+                  </span>
+                  <span>
+                    <span className="so-preview__ico" aria-hidden>
+                      <MapPinned size={17} strokeWidth={1.75} />
+                    </span>
+                    {selected.station.name}
+                  </span>
+                  <span>
+                    <span className="so-preview__ico" aria-hidden>
+                      <CalendarDays size={17} strokeWidth={1.75} />
+                    </span>
+                    Order Date: {whenLabel(selected.createdAt)}
+                  </span>
+                  <span>
+                    <span className="so-preview__ico" aria-hidden>
+                      <Fuel size={17} strokeWidth={1.75} />
+                    </span>
+                    Products: {[...new Set(selected.lines.map((l) => l.product))].join(", ") || "—"}
+                  </span>
+                  <span>
+                    <span className="so-preview__ico" aria-hidden>
+                      <Banknote size={17} strokeWidth={1.75} />
+                    </span>
+                    Order Value: {formatKes(selected.amountDue)}
+                  </span>
+                </div>
+                {tracker.stopped ? <div className="so-track__stopped">{tracker.stopped}</div> : null}
+                <ol
+                  className={`so-progress${tracker.stopped ? " is-stopped" : ""}`}
+                  aria-label="Order progress"
+                >
+                  {tracker.steps.map((step, index) => {
+                    const next = tracker.steps[index + 1];
+                    const connectorClass =
+                      step.state === "done"
+                        ? next && next.state !== "done"
+                          ? "is-active"
+                          : "is-done"
+                        : "";
+                    const isCurrent = step.state === "active" || step.state === "attention";
+                    return (
+                      <li
+                        key={step.key}
+                        className={`so-progress__step is-${step.state}`}
+                        aria-current={isCurrent ? "step" : undefined}
+                      >
+                        <div className="so-progress__rail">
+                          <div className="so-progress__node">
+                            <span className="so-progress__dot">
+                              {step.state === "done" ? (
+                                <Check size={14} strokeWidth={3} />
+                              ) : step.state === "attention" ? (
+                                "!"
+                              ) : (
+                                index + 1
+                              )}
+                            </span>
+                            <span className="so-progress__label">{step.label}</span>
+                            <small className="so-progress__note">{trackerStepSecondary(step)}</small>
+                          </div>
+                          {index < tracker.steps.length - 1 ? (
+                            <span className={`so-progress__line ${connectorClass}`} aria-hidden />
+                          ) : null}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
                 <div className="so-preview__actions">
-                  <Link href={`/intelligence/retail/orders/${selected.id}`} className="so-btn so-btn--gold"><FileText size={15} /> View Order</Link>
+                  <Link href={`/intelligence/retail/orders/${selected.id}`} className="so-btn so-btn--gold">
+                    <FileText size={14} strokeWidth={1.75} /> View Order
+                  </Link>
                   {selected.proforma ? (
-                    <a href={`/api/orders/${selected.id}/pfi`} target="_blank" rel="noopener" className="so-btn so-btn--line">
-                      <FileText size={15} /> View PFI {selected.proforma.number}
+                    <a
+                      href={`/api/orders/${selected.id}/pfi`}
+                      target="_blank"
+                      rel="noopener"
+                      className="so-btn so-btn--pfi"
+                    >
+                      <FileText size={14} strokeWidth={1.75} /> View PFI
                     </a>
                   ) : (
-                    <span className="so-preview__hint">No PFI has been issued for this order yet.</span>
+                    <span className="so-btn so-btn--pfi is-disabled" aria-disabled="true" title="No PFI issued yet">
+                      <FileText size={14} strokeWidth={1.75} /> View PFI
+                    </span>
+                  )}
+                  {canTrack ? (
+                    <Link href={`/intelligence/retail/orders/${selected.id}#tracking`} className="so-btn so-btn--line">
+                      <Truck size={14} strokeWidth={1.75} /> Track Delivery
+                    </Link>
+                  ) : (
+                    <span
+                      className="so-btn so-btn--line is-disabled"
+                      aria-disabled="true"
+                      title="Delivery tracking unlocks after release to depot"
+                    >
+                      <Truck size={14} strokeWidth={1.75} /> Track Delivery
+                    </span>
                   )}
                 </div>
               </div>

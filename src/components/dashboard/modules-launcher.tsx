@@ -131,7 +131,7 @@ export function ModulesLauncher({
                   alignItems: "center",
                   gap: "0.55rem",
                   fontSize: "1.05rem",
-                  fontWeight: 800,
+                  fontWeight: 750,
                   letterSpacing: "0.02em",
                   color: "#fff",
                 }}
@@ -238,7 +238,7 @@ export function ModulesLauncher({
               <Link
                 href="/intelligence/dashboard"
                 onClick={onClose}
-                style={{ color: "#ffcc00", fontWeight: 700, textDecoration: "none" }}
+                style={{ color: "#ffcc00", fontWeight: 650, textDecoration: "none" }}
               >
                 Intelligence Suite
               </Link>

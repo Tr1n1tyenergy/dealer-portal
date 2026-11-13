@@ -38,86 +38,7 @@
   min-height: calc(100vh - 68px);
 }
 
-.ssr__hero {
-  position: relative;
-  width: 100%;
-  min-height: var(--ssr-hero-h);
-  height: var(--ssr-hero-h);
-  overflow: hidden;
-  color: #fff;
-  background-color: #071833;
-  background-image: none !important;
-  background-repeat: no-repeat;
-}
-
-.ssr__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(7, 24, 51, 0.42) 0%,
-    rgba(7, 24, 51, 0.18) 42%,
-    rgba(7, 24, 51, 0.05) 72%,
-    transparent 100%
-  );
-  pointer-events: none;
-}
-
-.ssr__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  min-height: var(--ssr-hero-h);
-  height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 0;
-  padding: 1.55rem var(--dp-gutter, 1.5rem) 3.85rem;
-}
-
-.ssr__hero-copy {
-  display: flex;
-  align-items: stretch;
-  gap: 0.85rem;
-}
-
-.ssr__hero-accent {
-  width: 4px;
-  border-radius: 999px;
-  background: var(--ssr-yellow);
-  flex-shrink: 0;
-  min-height: 4.2rem;
-}
-
-.ssr__hero-kicker {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ssr-yellow);
-}
-
-.ssr__hero-copy h1 {
-  margin: 0.2rem 0 0;
-  font-size: var(--tri-font-h2, clamp(1.55rem, 2.4vw, 2rem));
-  font-weight: 850;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-  color: #fff;
-}
-
-.ssr__hero-copy p {
-  margin: 0.4rem 0 0;
-  font-size: 0.92rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.92);
-  max-width: 36rem;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 .ssr__body {
   position: relative;
@@ -187,7 +108,7 @@
   background: #fff4b8;
   border-left-color: var(--ssr-yellow);
   color: var(--ssr-ink);
-  font-weight: 800;
+  font-weight: 750;
   box-shadow: inset 0 0 0 1px rgba(255, 204, 0, 0.35);
 }
 
@@ -242,7 +163,7 @@
 .ssr__summary-label {
   margin: 0;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #7b8aa5;
   letter-spacing: 0.01em;
 }
@@ -250,7 +171,7 @@
 .ssr__summary-value {
   margin: 0.15rem 0 0;
   font-size: 0.98rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssr-ink);
   line-height: 1.2;
 }
@@ -302,7 +223,7 @@
 .ssr__card-title {
   margin: 0;
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssr-ink);
   letter-spacing: -0.01em;
 }
@@ -321,7 +242,7 @@
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -386,7 +307,7 @@
   justify-content: center;
   flex-shrink: 0;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 750;
   background: #eef2f7;
   color: #64748b;
   border: 2px solid #d7e0ec;
@@ -436,7 +357,7 @@
 .ssr__progress-node em {
   font-style: normal;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #94a3b8;
   line-height: 1.25;
   max-width: 94px;
@@ -458,7 +379,7 @@
 
 .ssr__progress-step.is-active .ssr__progress-node small {
   color: #b8860b;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ssr__progress-step.is-done .ssr__progress-node small {
@@ -493,7 +414,7 @@
   padding: 0 1.15rem;
   border-radius: 11px;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
   border: 1px solid transparent;
   cursor: pointer;
@@ -623,7 +544,7 @@
   gap: 0.25rem;
   color: var(--ssr-blue);
   font-size: 0.84rem;
-  font-weight: 750;
+  font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -646,7 +567,7 @@
 .ssr__table th {
   text-align: left;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #7b8aa5;
   padding: 0.55rem 0.65rem 0.7rem;
   border-bottom: 1px solid #e8edf5;
@@ -669,7 +590,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-weight: 750;
+  font-weight: 700;
   color: var(--ssr-ink);
   white-space: nowrap;
 }
@@ -686,7 +607,7 @@
   padding: 0.28rem 0.65rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .ssr__pill--closed {
@@ -732,7 +653,7 @@
   color: var(--ssr-blue);
   font: inherit;
   font-size: 0.88rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -807,7 +728,7 @@
 
 .ssr-records__field > span {
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #7b8aa5;
 }
 
@@ -821,7 +742,7 @@
   border-radius: 8px;
   padding: 0 0.7rem;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--ssr-ink);
   background: #fff;
   appearance: auto;
@@ -857,7 +778,7 @@
   flex: 1;
   min-width: 0;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 650;
   color: var(--ssr-ink);
   white-space: nowrap;
   overflow: hidden;
@@ -897,7 +818,7 @@
   color: var(--ssr-ink);
   font: inherit;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
   box-shadow: 0 10px 22px rgba(255, 204, 0, 0.28);
 }
@@ -918,7 +839,7 @@
   background: #fff;
   color: var(--ssr-ink);
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
   box-sizing: border-box;
 }
@@ -979,7 +900,7 @@
   color: var(--ssr-blue);
   text-decoration: none;
   font-size: 0.82rem;
-  font-weight: 750;
+  font-weight: 700;
   background: #fff;
 }
 
@@ -1042,7 +963,7 @@
   border-radius: 999px;
   padding: 0.55rem 0.95rem;
   font-size: 0.86rem;
-  font-weight: 750;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -1102,7 +1023,7 @@
   width: 100%;
   min-width: 0;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #64748b;
 }
 
@@ -1189,7 +1110,7 @@
 }
 
 .ssr-rtt__map-line strong {
-  font-weight: 800;
+  font-weight: 750;
   color: var(--ssr-blue);
 }
 
@@ -1232,7 +1153,7 @@
 
 .ssr-rtt__upload-copy strong {
   font-size: 0.88rem;
-  font-weight: 750;
+  font-weight: 700;
   color: var(--ssr-ink);
 }
 
@@ -1248,7 +1169,7 @@
   background: #fff;
   color: var(--ssr-blue);
   font-size: 0.82rem;
-  font-weight: 750;
+  font-weight: 700;
   padding: 0.5rem 0.85rem;
   cursor: pointer;
   flex-shrink: 0;
@@ -1372,7 +1293,7 @@
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.02em;
 }
 
@@ -1390,7 +1311,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ssr-rtt__pump svg {
@@ -1415,7 +1336,7 @@
 .ssr-rtt__total p {
   margin: 0;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 650;
   color: #64748b;
 }
 
@@ -1486,7 +1407,7 @@
 
 .ssr-rtt__detail dt {
   color: #7b8aa5;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .ssr-rtt__detail dd {
@@ -1524,7 +1445,7 @@
 
 .ssr-rtt__footnote a {
   color: var(--ssr-blue);
-  font-weight: 700;
+  font-weight: 650;
 }
 
 @media (max-width: 1100px) {
@@ -1552,7 +1473,7 @@
   align-items: center;
   gap: 0.35rem;
   color: var(--ssr-blue);
-  font-weight: 750;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -1706,17 +1627,9 @@
     min-width: 96px;
   }
 
-  .ssr__hero-inner {
-    padding-bottom: 3.2rem;
-  }
 }
 
 @media (min-width: 1024px) and (max-height: 800px) {
-  .ssr__hero-inner {
-    padding-top: var(--tri-space-md, 1rem);
-    padding-bottom: var(--tri-space-xl, 2rem);
-  }
-
   .ssr__body {
     margin-top: -1.5rem;
     gap: var(--tri-space-md, 0.95rem);

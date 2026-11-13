@@ -3,6 +3,7 @@ import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { SupportTicketDetail } from "@/components/dealer/support-ticket-detail";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "../../../../dealer-support.css";
+import "../../../../dealer-portal-hero.css";
 
 export default async function DealerSupportTicketPage({
   params,

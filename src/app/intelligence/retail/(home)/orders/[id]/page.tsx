@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
+  ArrowRight,
   Building2,
   Calendar,
+  Check,
   ClipboardList,
   FileText,
   Fuel,
   Landmark,
   Layers,
+  Lock,
   MapPin,
   RefreshCw,
   Truck,
@@ -21,7 +24,8 @@ import { internalOrderAction } from "@/lib/orders/actions";
 import { formatKes, sameAmount } from "@/lib/orders/money";
 import { stageOf, statusLabel } from "@/lib/orders/stages";
 import { paymentSummary, stepCompletionTimes } from "@/lib/orders/staff-views";
-import { dealerTrackerSteps } from "@/lib/orders/state-machine";
+import { dealerTrackerSteps, trackerStepSecondary } from "@/lib/orders/state-machine";
+import { StaffOrderDetailGrid } from "@/components/staff/staff-order-bottom-row";
 import "@/app/intelligence/retail/staff-orders.css";
 
 export const maxDuration = 60;
@@ -37,7 +41,7 @@ const when = (at: Date | null | undefined, withTime = true) =>
       })
     : null;
 
-/** "2 Nov, 15:01" — short enough for seven tracker columns. */
+/** "2 Nov, 15:01" — short enough for tracker columns. */
 const shortWhen = (at: Date | null | undefined) =>
   at
     ? at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" })
@@ -76,18 +80,16 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
   const depots = mayAct && order.status === "PAYMENT_CONFIRMED" ? await prisma.depot.findMany({ orderBy: { name: "asc" } }) : [];
   const actorName = (actor: { firstName: string | null; lastName: string | null } | null) =>
     actor ? [actor.firstName, actor.lastName].filter(Boolean).join(" ") || "Staff" : "System";
-  const recent = order.history.slice(0, 6);
-  const older = order.history.slice(6);
 
   return (
     <div className="so">
-      <header className="so-hero">
+      <header className="so-hero" aria-label="Order details hero">
         <div className="so-hero__text">
           <div className="so-hero__crumbs">
             <Link href="/intelligence/retail/orders">Orders</Link> › Order Details
           </div>
           <div className="so-hero__title-row">
-            <h1 style={{ margin: 0 }}>{order.reference}</h1>
+            <h1>{order.reference}</h1>
             <span className={`so-pill so-pill--${stageOf(order.status)}`}>{statusLabel(order.status)}</span>
           </div>
           <div className="so-hero__meta">
@@ -96,117 +98,68 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
             <span><Calendar size={14} /> Order date: {when(order.createdAt)}</span>
           </div>
         </div>
-        <div className="so-hero__actions">
-          <Link href="/intelligence/retail/orders" className="so-btn so-btn--line">← Back to Orders</Link>
-          {order.proforma ? (
-            <a href={`/api/orders/${order.id}/pfi`} target="_blank" rel="noopener" className="so-btn so-btn--gold">
-              <FileText size={15} /> Download PFI
-            </a>
-          ) : null}
-        </div>
       </header>
 
       <div className="so-wrap">
-        <div className="sod-grid">
-          <div className="sod-col">
+        <div className="sod-layout">
+          <div className="sod-top">
             <section className="so-card sod-track-card">
               <div className="so-card__head">
                 <span className="so-ico"><Truck size={15} /></span>
-                Order Tracking
+                <span id="tracking">Order Tracking</span>
                 <span className="so-spacer sod-stagebadge">
                   {tracker.stopped ? "Stopped" : `Stage ${Math.min(stageNumber, tracker.steps.length)} of ${tracker.steps.length}`}
                 </span>
               </div>
               {tracker.stopped ? <div className="so-track__stopped">{tracker.stopped}</div> : null}
-              <div className="so-track so-track--big" style={{ padding: "0 12px" }} aria-label="Order progress">
-                {tracker.steps.map((step, index) => (
-                  <span key={step.key} className={`so-track__step is-${step.state}`}>
-                    <span className="so-track__dot">{step.state === "done" ? "✓" : index + 1}</span>
-                    <span className="so-track__label">{step.label}</span>
-                    <span className="so-track__sub">
-                      {step.state === "done"
-                        ? shortWhen(stepTimes[index]) ?? ""
-                        : step.state === "active" || step.state === "attention"
-                          ? step.note ?? statusLabel(order.status)
-                          : ""}
-                    </span>
-                  </span>
-                ))}
-              </div>
+              <ol
+                className={`so-progress so-progress--detail${tracker.stopped ? " is-stopped" : ""}`}
+                aria-label="Order progress"
+              >
+                {tracker.steps.map((step, index) => {
+                  const next = tracker.steps[index + 1];
+                  const connectorClass =
+                    step.state === "done"
+                      ? next && next.state !== "done"
+                        ? "is-active"
+                        : "is-done"
+                      : "";
+                  const isCurrent = step.state === "active" || step.state === "attention";
+                  const note =
+                    step.state === "done"
+                      ? shortWhen(stepTimes[index]) ?? "Done"
+                      : trackerStepSecondary(step);
+                  return (
+                    <li
+                      key={step.key}
+                      className={`so-progress__step is-${step.state}`}
+                      aria-current={isCurrent ? "step" : undefined}
+                    >
+                      <div className="so-progress__rail">
+                        <div className="so-progress__node">
+                          <span className="so-progress__dot">
+                            {step.state === "done" ? (
+                              <Check size={14} strokeWidth={3} />
+                            ) : step.state === "attention" ? (
+                              "!"
+                            ) : (
+                              index + 1
+                            )}
+                          </span>
+                          <span className="so-progress__label">{step.label}</span>
+                          <small className="so-progress__note">{note}</small>
+                        </div>
+                        {index < tracker.steps.length - 1 ? (
+                          <span className={`so-progress__line ${connectorClass}`} aria-hidden />
+                        ) : null}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
             </section>
 
-            <div className="sod-row2">
-              <section className="so-card">
-                <div className="so-card__head"><span className="so-ico"><ClipboardList size={15} /></span> Order Details</div>
-                <div className="sod-fuel">
-                  <span className="so-ico" style={{ width: 40, height: 40 }}><Fuel size={20} /></span>
-                  <div>
-                    <div className="so-cell-sub">Fuel Ordered</div>
-                    <div className="sod-fuel__litres">{litres.toLocaleString("en-US")} L</div>
-                    <div className="sod-fuel__split">{byProduct || "No fuel lines"}</div>
-                  </div>
-                </div>
-                <dl className="sod-kv">
-                  <div><dt>Order date</dt><dd>{when(order.createdAt)}</dd></div>
-                  <div><dt>Requested delivery</dt><dd>{when(order.requestedDeliveryDate, false) ?? "Not provided"}</dd></div>
-                  <div><dt>Dealer&apos;s reference</dt><dd>{order.dealerReference || "Not provided"}</dd></div>
-                  <div><dt>Notes</dt><dd>{order.notes || "None"}</dd></div>
-                </dl>
-                {order.lines.length > 0 ? (
-                  <details className="sod-lines">
-                    <summary>Line prices &amp; totals</summary>
-                    <table>
-                      <thead>
-                        <tr><th>Product</th><th>Litres</th><th>Unit (ex VAT)</th></tr>
-                      </thead>
-                      <tbody>
-                        {order.lines.map((line) => (
-                          <tr key={line.id}>
-                            <td>{line.product}</td>
-                            <td>{line.quantityLitres.toLocaleString("en-US")}</td>
-                            <td>{line.unitPriceExVat ? Number(line.unitPriceExVat).toFixed(2) : "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </details>
-                ) : null}
-              </section>
-
-              <section className="so-card">
-                <div className="so-card__head"><span className="so-ico"><Building2 size={15} /></span> Dealer &amp; Station Details</div>
-                <dl className="sod-kv">
-                  <div><dt>Dealer</dt><dd>{order.dealerOrganization.name}</dd></div>
-                  <div><dt>Station</dt><dd>{order.station.tradingName || order.station.name}</dd></div>
-                  <div><dt>Email</dt><dd>{contact?.email || "Not provided"}</dd></div>
-                  <div><dt>Depot</dt><dd>{order.depot?.name ?? "Not assigned"}</dd></div>
-                  {order.truckRegistration ? <div><dt>Truck</dt><dd>{order.truckRegistration}</dd></div> : null}
-                  {order.driverName ? <div><dt>Driver</dt><dd>{order.driverName}</dd></div> : null}
-                </dl>
-              </section>
-            </div>
-
-            <section className="so-card">
-              <div className="so-card__head"><span className="so-ico"><Layers size={15} /></span> Payment Summary</div>
-              <div className="sod-summary">
-                <div className="sod-summary__cell">
-                  <div className="sod-summary__label">Amount Paid</div>
-                  <div className="sod-summary__value">{formatKes(pay.paid)}</div>
-                </div>
-                <div className="sod-summary__cell">
-                  <div className="sod-summary__label">Amount Due</div>
-                  <div className="sod-summary__value">{pay.due == null ? "—" : formatKes(pay.due)}</div>
-                </div>
-                <div className="sod-summary__cell">
-                  <div className="sod-summary__label">Order Total</div>
-                  <div className="sod-summary__value">{formatKes(order.proforma?.amount ?? order.amountDue)}</div>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <div className="sod-col">
-            <section className="so-card">
+            <section className="so-card sod-actions-card">
               <div className="so-card__head"><span className="so-ico"><Zap size={15} /></span> Staff Actions</div>
               <div className="sod-actions">
                 {!mayAct ? <p className="so-preview__hint" style={{ margin: 0 }}>Your role can view this order but not act on it.</p> : null}
@@ -237,7 +190,10 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
 
                 {mayAct && (order.status === "PAYMENT_SUBMITTED" || order.status === "PAYMENT_VERIFICATION") ? (
                   <div className="sod-action sod-action--ready">
-                    <div className="sod-action__title"><Landmark size={15} /> Confirm Payment</div>
+                    <div className="sod-action__title">
+                      <Landmark size={15} /> Confirm Payment
+                      <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>
+                    </div>
                     <div className="sod-action__sub">Verify the dealer&apos;s payment against the PFI before confirming.</div>
                     {openPayments.length === 0 ? <div className="sod-action__sub">No payment record was submitted.</div> : null}
                     {openPayments.map((payment) => (
@@ -271,7 +227,10 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
 
                 {mayAct && order.status === "PAYMENT_CONFIRMED" ? (
                   <div className="sod-action sod-action--ready">
-                    <div className="sod-action__title"><Warehouse size={15} /> Release to Depot</div>
+                    <div className="sod-action__title">
+                      <Warehouse size={15} /> Release to Depot
+                      <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>
+                    </div>
                     <div className="sod-action__sub">Payment confirmed — choose the depot that will load this order.</div>
                     <form action={internalOrderAction}>
                       <input type="hidden" name="orderId" value={order.id} />
@@ -286,15 +245,23 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                 ) : null}
 
                 {mayAct && !tracker.stopped && stageNumber <= 3 && order.status !== "PAYMENT_CONFIRMED" && !(order.status === "PAYMENT_SUBMITTED" || order.status === "PAYMENT_VERIFICATION") ? (
-                  <div className="sod-action sod-action--locked">
-                    <div className="sod-action__title"><Landmark size={15} /> Confirm Payment</div>
-                    <div className="sod-action__sub">Available once the dealer submits payment details.</div>
+                  <div className="sod-action sod-action--ready">
+                    <span className="sod-action__ico" aria-hidden><Landmark size={16} strokeWidth={1.9} /></span>
+                    <div className="sod-action__copy">
+                      <div className="sod-action__title">Confirm Payment</div>
+                      <div className="sod-action__sub">Available once the dealer submits payment details.</div>
+                    </div>
+                    <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>
                   </div>
                 ) : null}
                 {mayAct && !tracker.stopped && stageNumber <= 3 ? (
                   <div className="sod-action sod-action--locked">
-                    <div className="sod-action__title"><Warehouse size={15} /> Release to Depot</div>
-                    <div className="sod-action__sub">Available after payment confirmation.</div>
+                    <span className="sod-action__ico" aria-hidden><Warehouse size={16} strokeWidth={1.9} /></span>
+                    <div className="sod-action__copy">
+                      <div className="sod-action__title">Release to Depot</div>
+                      <div className="sod-action__sub">Available after payment confirmation.</div>
+                    </div>
+                    <span className="sod-action__go" aria-hidden><Lock size={13} strokeWidth={2.2} /></span>
                   </div>
                 ) : null}
                 {mayAct && stageNumber > 3 && !tracker.stopped ? (
@@ -304,85 +271,126 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                 ) : null}
               </div>
             </section>
+          </div>
 
-            <section className="so-card">
-              <div className="so-card__head"><span className="so-ico"><FileText size={15} /></span> Documents</div>
-              <div className="sod-docs">
-                <div className="sod-doc">
-                  <span className="so-ico"><FileText size={14} /></span>
-                  <div>
-                    <div className="sod-doc__name">Sales quotation</div>
-                    <div className="sod-doc__sub">{order.odooQuotationNumber ? `${order.odooQuotationNumber} · in Odoo` : "Not created yet"}</div>
-                  </div>
-                  {order.odooQuotationNumber ? <span className="so-pill so-pill--complete" style={{ marginLeft: "auto" }}>Ready</span> : null}
-                </div>
-                <div className="sod-doc">
-                  <span className="so-ico"><FileText size={14} /></span>
-                  <div>
-                    <div className="sod-doc__name">Pro Forma Invoice (PFI)</div>
-                    <div className="sod-doc__sub">{order.proforma ? `${order.proforma.number} · issued ${when(order.proforma.issuedAt, false)}` : "Not issued yet"}</div>
-                  </div>
-                  {order.proforma ? (
-                    <a className="sod-doc__act" href={`/api/orders/${order.id}/pfi`} target="_blank" rel="noopener">View PFI ↗</a>
-                  ) : null}
-                </div>
-                {order.payments.map((payment) => (
-                  <div className="sod-doc" key={payment.id}>
-                    <span className="so-ico"><Landmark size={14} /></span>
-                    <div>
-                      <div className="sod-doc__name">Payment record · {formatKes(payment.amount)}</div>
-                      <div className="sod-doc__sub">
-                        {statusLabel(payment.status)} · {when(payment.createdAt)}
+          <StaffOrderDetailGrid
+            main={
+              <>
+                <div className="sod-row2">
+                  <section className="so-card sod-details-card">
+                    <div className="so-card__head"><span className="so-ico"><ClipboardList size={15} /></span> Order Details</div>
+                    <div className="sod-fuel">
+                      <span className="so-ico" style={{ width: 40, height: 40 }}><Fuel size={20} /></span>
+                      <div>
+                        <div className="so-cell-sub">Fuel Ordered</div>
+                        <div className="sod-fuel__litres">{litres.toLocaleString("en-US")} L</div>
+                        <div className="sod-fuel__split">{byProduct || "No fuel lines"}</div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                {order.documents.map((doc) => (
-                  <div className="sod-doc" key={doc.id}>
-                    <span className="so-ico"><FileText size={14} /></span>
-                    <div>
-                      <div className="sod-doc__name">{doc.fileName}</div>
-                      <div className="sod-doc__sub">{doc.kind} · {when(doc.createdAt)}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+                    <dl className="sod-kv">
+                      <div><dt>Order date</dt><dd>{when(order.createdAt)}</dd></div>
+                      <div><dt>Requested delivery</dt><dd>{when(order.requestedDeliveryDate, false) ?? "Not provided"}</dd></div>
+                    </dl>
+                  </section>
 
-            <section className="so-card">
-              <div className="so-card__head"><span className="so-ico"><Calendar size={15} /></span> Order Activity</div>
-              <div className="sod-activity">
-                {recent.map((event) => (
-                  <div className="sod-event" key={event.id}>
-                    <span className={`sod-event__dot${event.actorId ? "" : " sod-event__dot--note"}`} />
-                    <div>
-                      <div className="sod-event__title">{event.note || `${statusLabel(event.toStatus)}`}</div>
-                      <div className="sod-event__meta">
-                        {statusLabel(event.toStatus)} · {when(event.createdAt)} · by {actorName(event.actor)}
-                      </div>
+                  <section className="so-card sod-party-card">
+                    <div className="so-card__head"><span className="so-ico"><Building2 size={15} /></span> Dealer &amp; Station Details</div>
+                    <dl className="sod-kv sod-kv--roomy">
+                      <div><dt>Dealer</dt><dd>{order.dealerOrganization.name}</dd></div>
+                      <div><dt>Station</dt><dd>{order.station.tradingName || order.station.name}</dd></div>
+                      <div><dt>Email</dt><dd>{contact?.email || "Not provided"}</dd></div>
+                      <div><dt>Depot</dt><dd>{order.depot?.name ?? "Not assigned"}</dd></div>
+                      {order.truckRegistration ? <div><dt>Truck</dt><dd>{order.truckRegistration}</dd></div> : null}
+                      {order.driverName ? <div><dt>Driver</dt><dd>{order.driverName}</dd></div> : null}
+                    </dl>
+                  </section>
+                </div>
+
+                <section className="so-card sod-pay-card">
+                  <div className="so-card__head"><span className="so-ico"><Layers size={15} /></span> Payment Summary</div>
+                  <div className="sod-summary">
+                    <div className="sod-summary__cell">
+                      <div className="sod-summary__label">Amount Paid</div>
+                      <div className="sod-summary__value">{formatKes(pay.paid)}</div>
+                    </div>
+                    <div className="sod-summary__cell">
+                      <div className="sod-summary__label">Amount Due</div>
+                      <div className="sod-summary__value">{pay.due == null ? "—" : formatKes(pay.due)}</div>
+                    </div>
+                    <div className="sod-summary__cell">
+                      <div className="sod-summary__label">Order Total</div>
+                      <div className="sod-summary__value">{formatKes(order.proforma?.amount ?? order.amountDue)}</div>
                     </div>
                   </div>
-                ))}
-                {order.history.length === 0 ? <p className="so-preview__hint">No activity recorded yet.</p> : null}
-                {older.length > 0 ? (
-                  <details>
-                    <summary>View all ({order.history.length} events)</summary>
-                    {older.map((event) => (
+                </section>
+              </>
+            }
+            side={
+              <>
+                <section className="so-card sod-docs-card">
+                  <div className="so-card__head"><span className="so-ico"><FileText size={15} /></span> Documents</div>
+                  <div className="sod-docs">
+                    <div className="sod-doc">
+                      <span className="so-ico"><FileText size={14} /></span>
+                      <div>
+                        <div className="sod-doc__name">Sales quotation</div>
+                        <div className="sod-doc__sub">{order.odooQuotationNumber ? `${order.odooQuotationNumber} · in Odoo` : "Not created yet"}</div>
+                      </div>
+                      {order.odooQuotationNumber ? <span className="so-pill so-pill--complete" style={{ marginLeft: "auto" }}>Ready</span> : null}
+                    </div>
+                    <div className="sod-doc">
+                      <span className="so-ico"><FileText size={14} /></span>
+                      <div>
+                        <div className="sod-doc__name">Pro Forma Invoice (PFI)</div>
+                        <div className="sod-doc__sub">{order.proforma ? `${order.proforma.number} · issued ${when(order.proforma.issuedAt, false)}` : "Not issued yet"}</div>
+                      </div>
+                      {order.proforma ? (
+                        <a className="sod-doc__act" href={`/api/orders/${order.id}/pfi`} target="_blank" rel="noopener">View PFI ↗</a>
+                      ) : null}
+                    </div>
+                    {order.payments.map((payment) => (
+                      <div className="sod-doc" key={payment.id}>
+                        <span className="so-ico"><Landmark size={14} /></span>
+                        <div>
+                          <div className="sod-doc__name">Payment record · {formatKes(payment.amount)}</div>
+                          <div className="sod-doc__sub">
+                            {statusLabel(payment.status)} · {when(payment.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {order.documents.map((doc) => (
+                      <div className="sod-doc" key={doc.id}>
+                        <span className="so-ico"><FileText size={14} /></span>
+                        <div>
+                          <div className="sod-doc__name">{doc.fileName}</div>
+                          <div className="sod-doc__sub">{doc.kind} · {when(doc.createdAt)}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="so-card sod-activity-card">
+                  <div className="so-card__head"><span className="so-ico"><Calendar size={15} /></span> Order Activity</div>
+                  <div className="sod-activity">
+                    {order.history.map((event) => (
                       <div className="sod-event" key={event.id}>
                         <span className={`sod-event__dot${event.actorId ? "" : " sod-event__dot--note"}`} />
                         <div>
-                          <div className="sod-event__title">{event.note || statusLabel(event.toStatus)}</div>
+                          <div className="sod-event__title">{event.note || `${statusLabel(event.toStatus)}`}</div>
                           <div className="sod-event__meta">
                             {statusLabel(event.toStatus)} · {when(event.createdAt)} · by {actorName(event.actor)}
                           </div>
                         </div>
                       </div>
                     ))}
-                  </details>
-                ) : null}
-              </div>
-            </section>
-          </div>
+                    {order.history.length === 0 ? <p className="so-preview__hint">No activity recorded yet.</p> : null}
+                  </div>
+                </section>
+              </>
+            }
+          />
         </div>
       </div>
     </div>

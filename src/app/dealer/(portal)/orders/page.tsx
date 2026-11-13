@@ -10,6 +10,7 @@ import { OrdersManagement } from "@/components/dealer/orders-management";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "../../dealer-orders.css";
+import "../../dealer-portal-hero.css";
 
 /**
  * My Orders: every order of the dealer, newest first, with tabs for orders needing payment,

@@ -20,40 +20,7 @@
   padding: 0 var(--dp-gutter, 1.5rem);
 }
 
-/* Hero — same height + forecourt crop as Dashboard */
-.do__hero {
-  position: relative;
-  min-height: var(--dp-hero-height, 280px);
-  height: var(--dp-hero-height, 280px);
-  overflow: hidden;
-  color: #fff;
-  background-color: #071833;
-  background-image: none !important;
-  background-repeat: no-repeat;
-}
-
-.do__hero-veil {
-  position: absolute;
-  inset: 0;
-  background: none;
-  pointer-events: none;
-}
-
-.do__hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  gap: 0;
-  padding: 1.55rem var(--dp-gutter, 1.5rem) 3.85rem;
-  min-height: var(--dp-hero-height, 280px);
-  height: 100%;
-  box-sizing: border-box;
-}
+/* Hero plate: dealer-portal-hero.css (staff pin-point) */
 
 .do__eyebrow {
   display: flex;
@@ -71,7 +38,7 @@
 
 .do__eyebrow-text {
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 650;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--do-yellow);
@@ -80,7 +47,7 @@
 .do__hero h1 {
   margin: 0;
   font-size: var(--tri-font-h2, clamp(1.55rem, 2.5vw, 2.1rem));
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
@@ -122,7 +89,7 @@
   background: #f3f6fb;
   color: var(--do-blue);
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 650;
   text-decoration: none;
   transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -219,7 +186,7 @@
   background: #eef3fb;
   color: var(--do-ink);
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.02em;
   text-align: left;
   white-space: nowrap;
@@ -290,7 +257,7 @@
 
 .do__order-ref {
   display: block;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--do-ink);
   text-decoration: none;
 }
@@ -319,7 +286,7 @@
   padding: 0.28rem 0.65rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 700;
   white-space: nowrap;
   background: #eef3fb;
   color: var(--do-blue);
@@ -358,7 +325,7 @@
   background: #fff;
   color: var(--do-blue);
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -392,7 +359,7 @@
 .do__empty h2 {
   margin: 0;
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 750;
   color: var(--do-ink);
 }
 
@@ -416,7 +383,7 @@
   background: var(--do-yellow);
   color: var(--do-ink);
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 750;
   text-decoration: none;
   border: 0;
   cursor: pointer;
@@ -430,7 +397,7 @@
   color: var(--do-blue);
   font: inherit;
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 650;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -446,12 +413,6 @@
 
   .do__select {
     min-width: 0;
-  }
-
-  .do__hero-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding-bottom: 3.5rem;
   }
 
   .do__place {

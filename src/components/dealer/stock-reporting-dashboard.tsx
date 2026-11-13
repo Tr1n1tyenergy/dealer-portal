@@ -34,6 +34,7 @@ import { DealerHeroActions } from "./dealer-hero-actions";
 import "@/app/dealer/dealer-stock-reporting.css";
 /** Reuse the proven Order Progress tracker styles (same as Dealer Dashboard). */
 import "@/app/dealer/dealer-dashboard.css";
+import "@/app/dealer/dealer-portal-hero.css";
 
 export type StockRecentReportRow = {
   id: string;

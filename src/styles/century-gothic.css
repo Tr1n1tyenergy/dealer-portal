@@ -1,0 +1,116 @@
+/*
+  Century Gothic — system face when installed; otherwise TeX Gyre Adventor
+  (web-embeddable, Century Gothic–compatible) from /public/fonts/century-gothic.
+*/
+
+/* Regular / medium */
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic"),
+    local("CenturyGothic"),
+    url("/fonts/century-gothic/texgyreadventor-regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic"),
+    local("CenturyGothic"),
+    url("/fonts/century-gothic/texgyreadventor-regular.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic"),
+    local("CenturyGothic"),
+    url("/fonts/century-gothic/texgyreadventor-regular.otf") format("opentype");
+  font-weight: 550;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic Italic"),
+    local("CenturyGothic-Italic"),
+    url("/fonts/century-gothic/texgyreadventor-italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Bold ladder (softened 650+ maps to bold cut) */
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic Bold"),
+    local("CenturyGothic-Bold"),
+    url("/fonts/century-gothic/texgyreadventor-bold.otf") format("opentype");
+  font-weight: 650;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic Bold"),
+    local("CenturyGothic-Bold"),
+    url("/fonts/century-gothic/texgyreadventor-bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic Bold"),
+    local("CenturyGothic-Bold"),
+    url("/fonts/century-gothic/texgyreadventor-bold.otf") format("opentype");
+  font-weight: 750;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic Bold"),
+    local("CenturyGothic-Bold"),
+    url("/fonts/century-gothic/texgyreadventor-bold.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic Bold Italic"),
+    local("CenturyGothic-BoldItalic"),
+    url("/fonts/century-gothic/texgyreadventor-bolditalic.otf") format("opentype");
+  font-weight: 650;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Century Gothic";
+  src:
+    local("Century Gothic Bold Italic"),
+    local("CenturyGothic-BoldItalic"),
+    url("/fonts/century-gothic/texgyreadventor-bolditalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
