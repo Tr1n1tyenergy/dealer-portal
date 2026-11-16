@@ -130,8 +130,10 @@ describe("dashboard modules", () => {
     assert.deepEqual(ids("SUPER_ADMIN"), TRI_MODULES.map((m) => m.id));
   });
 
-  it("follows a person's ticks: a Staff Member allowed Retail Analytics sees the Retail Interface", () => {
-    assert.equal(ids("STANDARD_USER", '{"analytics.view":"allow"}').includes("reports"), true);
+  it("follows a person's ticks: a Staff Member allowed Retail access + Analytics sees the Retail Interface", () => {
+    // Since #69 a tab also needs its module's access tick.
+    assert.equal(ids("STANDARD_USER", '{"analytics.view":"allow"}').includes("reports"), false);
+    assert.equal(ids("STANDARD_USER", '{"accessRetail.view":"allow","analytics.view":"allow"}').includes("reports"), true);
     assert.equal(ids("SUPER_ADMIN", '{"settings.view":"deny"}').includes("settings"), false);
   });
 });
