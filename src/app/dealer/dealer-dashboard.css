@@ -5,7 +5,7 @@
   --dd-ink: #0a235b;
   --dd-yellow: #ffcc00;
   --dd-turquoise: rgb(0, 198, 214);
-  --dd-muted: #64748b;
+  --dd-muted: var(--tri-text-faint, #64748b);
   --dd-line: #e6edf7;
   --dd-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
   padding: 0 0 1.75rem;
@@ -339,7 +339,7 @@
   border-radius: 999px;
   background: #fff6cc;
   border: 1px solid #f5e08a;
-  color: #8a6d00;
+  color: var(--tri-text-faint-gold, #8a6d00);
   font-size: 0.76rem;
   font-weight: 750;
   white-space: nowrap;
@@ -411,7 +411,7 @@
   font-size: 0.75rem !important;
   font-weight: 750 !important;
   background: #eef2f7 !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
   border: 2px solid #d7e0ec !important;
   position: relative !important;
   z-index: 2 !important;
@@ -493,7 +493,7 @@
 }
 
 .dd .dd__progress-step.is-done .dd__progress-note {
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .dd .dd__progress-step.is-attention .dd__progress-note {

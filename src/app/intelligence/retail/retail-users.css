@@ -5,7 +5,7 @@
   --ru-blue: #3551a5;
   --ru-navy: #0a235b;
   --ru-yellow: #ffcc00;
-  --ru-muted: #64748b;
+  --ru-muted: var(--tri-text-faint, #64748b);
   --ru-bg: #f4f7fb;
   --ru-card: #ffffff;
   --ru-border: #e2e8f0;
@@ -1196,7 +1196,7 @@
 
 .ru-roles__main-sub {
   margin: 0.12rem 0 0;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   font-size: var(--tri-font-xs, 0.78rem);
   line-height: 1.35;
 }
@@ -1401,7 +1401,7 @@
   padding: 0.5rem 0.7rem;
   border-radius: 0.55rem;
   background: #f1f5f9;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   font-size: var(--tri-font-xs, 0.72rem);
   font-weight: 600;
 }
@@ -1555,7 +1555,7 @@
   height: 1.55rem;
   border-radius: 0;
   background: transparent;
-  color: #647892;
+  color: var(--tri-text-faint, #647892);
   display: grid;
   place-items: center;
   flex-shrink: 0;

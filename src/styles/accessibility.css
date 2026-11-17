@@ -12,6 +12,11 @@ html[data-a11y-text="xlarge"] {
   font-size: calc(var(--tri-root-font, 15px) * 1.3);
 }
 
+/* Bigger text can overflow the centred staff nav; start-aligned keeps every item reachable by scrolling. */
+html[data-a11y-text] .sp-nav {
+  justify-content: flex-start;
+}
+
 /* Reduce motion: on request, and whenever the device asks for it. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -51,6 +56,12 @@ html[data-a11y-contrast] {
 html[data-a11y-contrast] .dl,
 html[data-a11y-contrast] .tri-access {
   --tri-muted-soft: #475569;
+  --tri-yellow-text: #8a6100;
+}
+/* Tailwind grey text utilities used on light pages. */
+html[data-a11y-contrast] .text-slate-400,
+html[data-a11y-contrast] .text-slate-500 {
+  color: #475569;
 }
 html[data-a11y-contrast] .ro {
   --ro-muted: #475569;

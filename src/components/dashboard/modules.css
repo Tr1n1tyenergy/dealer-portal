@@ -98,7 +98,7 @@
   margin: 0.3rem 0 0 !important;
   font-size: 0.8rem !important;
   line-height: 1.4 !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 /* Divider between description and feature list */

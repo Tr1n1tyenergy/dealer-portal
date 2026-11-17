@@ -763,7 +763,7 @@
   gap: 0.4rem 0.65rem !important;
   margin-top: 0.25rem !important;
   font-size: 0.7rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-meet__meta span {
@@ -838,7 +838,7 @@
 .nt-rec__meta {
   margin-top: 0.2rem !important;
   font-size: 0.7rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-rec__right {
@@ -904,7 +904,7 @@
 .nt-note__when {
   margin-top: 0.2rem !important;
   font-size: 0.7rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-note__pills {
@@ -1043,7 +1043,7 @@
 .nt-modal__desc {
   margin: 0.35rem 0 1.1rem !important;
   font-size: 0.85rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-field {

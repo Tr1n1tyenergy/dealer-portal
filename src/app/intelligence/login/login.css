@@ -281,7 +281,7 @@
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
   line-height: 1.55;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .login-field {
@@ -623,7 +623,7 @@
   font-size: 0.78rem;
   font-weight: 500;
   line-height: 1.35;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .access-card__caps {
@@ -714,7 +714,7 @@
 .login-support span {
   display: block;
   margin-top: 0.15rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   font-size: 0.75rem;
 }
 

@@ -4,7 +4,7 @@
   --ssw-blue: #3551a5;
   --ssw-ink: #0a235b;
   --ssw-yellow: #ffcc00;
-  --ssw-muted: #64748b;
+  --ssw-muted: var(--tri-text-faint, #64748b);
   --ssw-line: #e2e8f0;
   --ssw-canvas: #eef2f7;
   --ssw-panel: #eef4fb;

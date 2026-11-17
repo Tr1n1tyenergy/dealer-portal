@@ -626,6 +626,12 @@
   background: #fff;
   -webkit-overflow-scrolling: touch;
 }
+/* Wide tables scroll inside their card, never the page. */
+.so-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 .so-table {
   width: 100%;
   border-collapse: separate;
@@ -913,7 +919,7 @@
   font-size: var(--tri-font-xs, 0.7rem);
   font-weight: 750;
   background: #eef2f7;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   border: 0.125rem solid #d7e0ec;
   position: relative;
   z-index: 2;
@@ -980,7 +986,7 @@
   color: var(--tri-text-faint-gold, #b8860b);
   font-weight: 650;
 }
-.so-progress__step.is-done .so-progress__note { color: #64748b; }
+.so-progress__step.is-done .so-progress__note { color: var(--tri-text-faint, #64748b); }
 .so-progress__step.is-attention .so-progress__note { color: #c2410c; }
 
 /* Legacy / detail-page tracker (kept for older markup; prefer .so-progress) */
@@ -1109,7 +1115,7 @@
 .sod-stagebadge {
   background: #fff6cc !important;
   border: 1px solid #f5e08a;
-  color: #8a6d00 !important;
+  color: var(--tri-text-faint-gold, #8a6d00) !important;
   border-radius: 999px;
   font-size: var(--tri-font-xs, 0.68rem) !important;
   font-weight: 750;
@@ -1141,7 +1147,7 @@
 .sod-action--locked {
   border-color: #e2e8f0;
   background: #eef2f7;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 .sod-action__ico {
   width: 1.7rem;
@@ -1166,7 +1172,7 @@
   color: var(--so-navy);
   line-height: 1.2;
 }
-.sod-action--locked .sod-action__title { color: #64748b; }
+.sod-action--locked .sod-action__title { color: var(--tri-text-faint, #64748b); }
 .sod-action__go {
   margin-left: 0;
   flex: none;

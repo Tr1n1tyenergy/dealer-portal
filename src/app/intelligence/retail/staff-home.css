@@ -5,7 +5,7 @@
   --sh-blue: #3551a5;
   --sh-navy: #0a235b;
   --sh-yellow: #ffcc00;
-  --sh-muted: #64748b;
+  --sh-muted: var(--tri-text-faint, #64748b);
   --sh-bg: #f4f7fb;
   --sh-radius: 1.1rem;
   background: var(--sh-bg);
@@ -500,7 +500,7 @@
   height: 2.15rem;
   border-radius: 0.7rem;
   background: #fff3bf;
-  color: #a16207;
+  color: var(--tri-text-faint-gold, #a16207);
   margin-bottom: 0.7rem;
 }
 

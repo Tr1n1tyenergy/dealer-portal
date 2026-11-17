@@ -35,7 +35,6 @@ export function AccessibilityMenu({ variant }: { variant: "header" | "floating" 
 
   useEffect(() => {
     if (!open) return;
-    setPrefs(readPrefs());
     const close = (returnFocus: boolean) => {
       setOpen(false);
       if (returnFocus) triggerRef.current?.focus();
@@ -70,7 +69,11 @@ export function AccessibilityMenu({ variant }: { variant: "header" | "floating" 
         title="Accessibility"
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          // Read before opening so the panel never shows the defaults first.
+          if (!open) setPrefs(readPrefs());
+          setOpen(!open);
+        }}
       >
         <PersonStanding size={variant === "header" ? 18 : 22} strokeWidth={2} aria-hidden />
       </button>
