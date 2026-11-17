@@ -69,6 +69,10 @@ html[data-a11y-contrast] .ro {
 html[data-a11y-contrast] .ru-multi {
   --ru-multi-muted: #475569;
 }
+/* Staff Support priority pill: orange on peach is 4.4:1 at its small size. */
+html[data-a11y-contrast] .sup-pill--prio-HIGH {
+  color: #9a3412;
+}
 html[data-a11y-contrast] :focus-visible {
   outline: 3px solid #1e3a8a !important;
   outline-offset: 2px;
