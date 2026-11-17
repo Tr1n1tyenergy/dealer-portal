@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { activePrimaryNav, DEALER_PRIMARY_NAV } from "@/lib/dealer/nav";
 import { AccountMenu } from "./account-menu";
 import { UnreadBell } from "./unread-bell";
+import { AccessibilityMenu } from "@/components/a11y/accessibility-menu";
 import { useQuickSearchShortcut } from "./quick-search";
 import type { PayPfiPanelProps } from "./pay-pfi-panel";
 import { PayPfiProvider } from "./pay-pfi-context";
@@ -70,6 +71,7 @@ export function DealerShell({
           </nav>
 
           <div className="dp-topbar__actions">
+            <AccessibilityMenu variant="header" />
             <UnreadBell initial={unread} />
             <AccountMenu orgName={orgName} initials={initials} name={name} email={email} />
             <button
