@@ -2,9 +2,9 @@
  * Temporary EPRA regional unit prices (KES/L) for portal → Odoo quotations.
  *
  * Source: EPRA maximum retail petroleum prices (press release, Annex I)
- * Period: 15 Oct 2026 – 14 Nov 2026. The list changes on the 15th of every month.
- * https://www.epra.go.ke/sites/default/files/2026-10/EPRA%20Press%20Release%20-Oct%20Fuel%20Prices.pdf
- * (The EPRA website price ticker still showed the Sep–Oct figures on 15 Oct; the press release is authoritative.)
+ * Period: 15 Nov 2026 – 14 Dec 2026 (press release signed 14 Nov 2026). The list changes on the 15th of every month.
+ * EPRA left PMS, AGO and kerosene unchanged for this period, so the four towns below carry the same
+ * prices as 15 Oct – 14 Nov (Nairobi 226.96/227.76, Nakuru 225.73/226.93, Eldoret and Kisumu 226.51/227.71).
  *
  * Warehouse region → EPRA town:
  * - LAKE_OIL_NRB  → Nairobi
@@ -37,32 +37,32 @@ export const EPRA_TEMP_PRICES_BY_WAREHOUSE: Record<LoadingWarehouseKey, EpraRegi
     epraTown: "Nairobi",
     pms: 226.96,
     ago: 227.76,
-    periodFrom: "2026-10-15",
-    periodTo: "2026-11-14",
+    periodFrom: "2026-11-15",
+    periodTo: "2026-12-14",
   },
   KPC_NAKURU: {
     region: "KPC_NAKURU",
     epraTown: "Nakuru",
     pms: 225.73,
     ago: 226.93,
-    periodFrom: "2026-10-15",
-    periodTo: "2026-11-14",
+    periodFrom: "2026-11-15",
+    periodTo: "2026-12-14",
   },
   KPC_ELDORET: {
     region: "KPC_ELDORET",
     epraTown: "Eldoret",
     pms: 226.51,
     ago: 227.71,
-    periodFrom: "2026-10-15",
-    periodTo: "2026-11-14",
+    periodFrom: "2026-11-15",
+    periodTo: "2026-12-14",
   },
   KPC_KISUMU: {
     region: "KPC_KISUMU",
     epraTown: "Kisumu",
     pms: 226.51,
     ago: 227.71,
-    periodFrom: "2026-10-15",
-    periodTo: "2026-11-14",
+    periodFrom: "2026-11-15",
+    periodTo: "2026-12-14",
   },
 };
 
