@@ -179,7 +179,7 @@ export async function updateStationPricingAction(
     }
 
     const epra = station.code ? epraUnitPriceForStation(station.code, fuel) : null;
-    let basePriceKes = baseRaw as number;
+    const basePriceKes = baseRaw as number;
     // Treat value matching EPRA as “use EPRA” so monthly EPRA updates still flow through.
     const storeBase =
       epra != null && Math.abs(basePriceKes - epra) < 0.0005 ? null : basePriceKes;

@@ -370,7 +370,7 @@ function toRow(
   station: { stationId: string | null; stationName: string | null }
 ): ActivityLogRow {
   const meta = parseMeta(log.metaJson);
-  const module = classifyModule(log.action, log.entity);
+  const settingsModule = classifyModule(log.action, log.entity);
   const actionKind = classifyActionKind(log.action);
   const outcome = classifyOutcome(log.action, meta);
   return {
@@ -379,8 +379,8 @@ function toRow(
     action: log.action,
     entity: log.entity,
     entityId: log.entityId,
-    module,
-    moduleLabel: moduleLabel(module),
+    module: settingsModule,
+    moduleLabel: moduleLabel(settingsModule),
     actionKind,
     outcome,
     details: describeActivity(log.action, log.entity, meta),
