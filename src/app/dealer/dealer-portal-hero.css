@@ -18,8 +18,8 @@
   height: auto !important;
   background-color: #071833 !important;
   background-image:
-    linear-gradient(90deg, rgba(7, 24, 51, 0.72) 0%, rgba(7, 24, 51, 0.35) 45%, rgba(7, 24, 51, 0.05) 75%),
-    url("/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=5") !important;
+    linear-gradient(90deg, rgba(7, 24, 51, 0.55) 0%, rgba(7, 24, 51, 0.28) 42%, rgba(7, 24, 51, 0.05) 72%),
+    url("/assets2/img/access/trinitynrg-forecourt-at-sunset.png?v=6") !important;
   background-repeat: no-repeat !important;
   background-size: cover !important;
   background-position: 42% 30% !important;
@@ -95,7 +95,8 @@
 .ot__eyebrow-text,
 .po__eyebrow-text,
 .ssr__hero-kicker,
-.ssw__hero-kicker {
+.ssw__hero-kicker,
+.ds__hero-kicker {
   margin: 0;
   font-size: 0.875rem !important;
   font-weight: 650 !important;

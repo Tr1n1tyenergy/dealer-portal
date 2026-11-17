@@ -45,8 +45,8 @@
 }
 
 .dp-dash .dp-po-hero__badge {
-  width: 44px;
-  height: 44px;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 11px;
   border: 1px solid rgba(255, 204, 0, 0.55);
   background: rgba(255, 204, 0, 0.12);
@@ -169,8 +169,8 @@
 }
 
 .dp-dash .dp-po-prog__icon {
-  width: 46px !important;
-  height: 46px !important;
+  width: 2.875rem !important;
+  height: 2.875rem !important;
   border-radius: 999px !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -200,8 +200,8 @@
 }
 
 .dp-dash .dp-po-prog__num {
-  width: 24px !important;
-  height: 24px !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
   border-radius: 999px !important;
   display: inline-flex !important;
   align-items: center !important;

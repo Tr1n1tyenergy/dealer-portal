@@ -21,9 +21,9 @@
   display: grid;
   /* Conversations | Chat (primary) | Contact intelligence (compact) */
   grid-template-columns: minmax(220px, 24%) minmax(0, 1fr) minmax(200px, 22%);
-  gap: 12px;
+  gap: 0.75rem;
   height: 100%;
-  min-height: 520px;
+  min-height: 32.5rem;
   color: var(--msg-ink);
   font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   /* Transparent so column gaps reveal the station hero (not a solid navy strip) */
@@ -49,9 +49,9 @@
   --msg-green: #16a34a;
   display: grid;
   grid-template-columns: minmax(240px, 29%) minmax(0, 43%) minmax(220px, 28%);
-  gap: 14px;
+  gap: 0.875rem;
   height: 100%;
-  min-height: 560px;
+  min-height: 35rem;
   border-radius: 0;
   overflow: visible;
   border: none;
@@ -171,7 +171,7 @@
   gap: 0.5rem;
   margin: 0 0.85rem 0.65rem;
   padding: 0 0.75rem;
-  height: 38px;
+  height: 2.375rem;
   border-radius: 10px;
   border: 1px solid rgba(148, 163, 184, 0.14);
   background: #0a192f;
@@ -286,8 +286,8 @@
 }
 
 .msg-avatar {
-  width: 42px;
-  height: 42px;
+  width: 2.625rem;
+  height: 2.625rem;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -301,14 +301,14 @@
 }
 
 .msg-avatar--sm {
-  width: 28px;
-  height: 28px;
+  width: 1.75rem;
+  height: 1.75rem;
   font-size: 0.6rem;
 }
 
 .msg-avatar--lg {
-  width: 64px;
-  height: 64px;
+  width: 4rem;
+  height: 4rem;
   font-size: 1rem;
   margin-top: 0 !important;
   border: 2px solid rgba(22, 135, 255, 0.45);
@@ -668,8 +668,8 @@
 
 .msg-composer textarea {
   flex: 1;
-  min-height: 42px;
-  max-height: 120px;
+  min-height: 2.625rem;
+  max-height: 7.5rem;
   resize: none;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.14);
@@ -697,8 +697,8 @@
 }
 
 .msg-composer__icon {
-  width: 38px;
-  height: 38px;
+  width: 2.375rem;
+  height: 2.375rem;
   border: none;
   border-radius: 999px;
   background: transparent;
@@ -1234,7 +1234,7 @@
   .msg-app--staff .msg-thread,
   .msg-app--staff .msg-context {
     display: none;
-    min-height: 560px;
+    min-height: 35rem;
   }
 
   .msg-app--staff.msg-app--pane-list .msg-sidebar,
@@ -1255,7 +1255,7 @@
 @media (max-width: 1100px) {
   .msg-app--dealer {
     grid-template-columns: minmax(220px, 32%) minmax(0, 1fr) minmax(200px, 30%);
-    gap: 12px;
+    gap: 0.75rem;
   }
 }
 
@@ -1268,7 +1268,7 @@
   .msg-app--dealer .msg-thread,
   .msg-app--dealer .msg-context {
     display: none;
-    min-height: 560px;
+    min-height: 35rem;
   }
 
   .msg-app--dealer.msg-app--pane-list .msg-sidebar,

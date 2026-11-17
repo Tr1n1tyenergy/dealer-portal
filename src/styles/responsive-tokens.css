@@ -6,15 +6,19 @@
   Testing viewports (content-driven MQs still OK):
   320 / 768 / 1024 / 1280 / 1440 / 1512 / 1728 / 1920
   Short laptop height: max-height 800px at min-width 1024.
+
+  Calibration baseline: ~1512px browser width ≈ 15.2px root (MacBook Pro 14" scaled).
+  Prefer px + vw in --tri-root-font (never rem) to avoid circular html font-size.
 */
 
 @layer base {
   :root {
     /*
       Fluid root — rem (and most type/spacing) tracks laptop width.
-      Wider band so ~13–14" reads smaller and ~16"+ larger (no page zoom).
+      Mid-band anchored so ~1512px matches approved density;
+      compact 13–14" denser; 16"+ roomier (no page zoom).
     */
-    --tri-root-font: clamp(13px, 0.62rem + 0.48vw, 18px);
+    --tri-root-font: clamp(13px, 7.5px + 0.51vw, 18px);
 
     /* Typography — calibrated to current dealer/access titles */
     --tri-font-xs: clamp(0.68rem, 0.64rem + 0.15vw, 0.78rem);
@@ -72,7 +76,7 @@
       --tri-space-lg: clamp(1rem, 0.75rem + 0.8vw, 1.5rem);
       --tri-space-xl: clamp(1.25rem, 0.9rem + 1.1vw, 2rem);
       --tri-space-2xl: clamp(1.5rem, 1rem + 1.4vw, 2.4rem);
-      --tri-root-font: clamp(12.5px, 0.62rem + 0.3vw, 15px);
+      --tri-root-font: clamp(12.5px, 7px + 0.4vw, 15px);
     }
   }
 
@@ -82,11 +86,18 @@
     }
   }
 
-  /* Compact laptop width (13" ~1280–1366) */
+  /* Compact laptop width (13" ~1280–1366) — denser so UI isn’t oversized */
   @media (min-width: 1024px) and (max-width: 1366px) {
     :root {
       --tri-page-gutter: clamp(0.8rem, 1.3vw + 0.35rem, 1.25rem);
-      --tri-root-font: clamp(12.5px, 0.6rem + 0.35vw, 14.75px);
+      --tri-root-font: clamp(12.5px, 7px + 0.45vw, 14.5px);
+    }
+  }
+
+  /* Mid-large (just above baseline) */
+  @media (min-width: 1512px) and (max-width: 1599px) {
+    :root {
+      --tri-root-font: clamp(15px, 7.75px + 0.5vw, 16px);
     }
   }
 
@@ -95,14 +106,14 @@
     :root {
       --tri-content-max: min(1760px, 100%);
       --tri-page-gutter: clamp(1.35rem, 2vw, 2.5rem);
-      --tri-root-font: clamp(15.5px, 0.7rem + 0.42vw, 18.5px);
+      --tri-root-font: clamp(15.5px, 8px + 0.48vw, 18.5px);
     }
   }
 
   @media (min-width: 1800px) {
     :root {
       --tri-content-max: min(1840px, 100%);
-      --tri-root-font: clamp(16px, 0.72rem + 0.4vw, 19px);
+      --tri-root-font: clamp(16px, 8.5px + 0.45vw, 19px);
     }
   }
 
