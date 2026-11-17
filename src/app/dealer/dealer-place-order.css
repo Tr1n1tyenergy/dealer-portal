@@ -340,6 +340,9 @@ a.po__crumb:hover {
 .po__chev {
   color: var(--po-blue);
   flex-shrink: 0;
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* Fuel products */

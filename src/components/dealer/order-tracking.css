@@ -159,8 +159,8 @@ a.ot__crumb:hover {
 }
 
 .ot__tracker-icon {
-  width: 48px;
-  height: 48px;
+  width: 3rem;
+  height: 3rem;
   border-radius: 14px;
   background: #fff8db;
   border: 1px solid #fde68a;
@@ -439,7 +439,7 @@ a.ot__crumb:hover {
   display: flex;
   gap: 0.75rem;
   align-items: flex-start;
-  min-height: 118px;
+  min-height: 7.375rem;
   padding: 1rem 1.05rem;
   border-radius: 14px;
   border: 1px solid var(--ot-line);
@@ -458,8 +458,8 @@ a.ot__crumb:hover {
 }
 
 .ot__tile-icon {
-  width: 36px;
-  height: 36px;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 10px;
   display: inline-flex;
   align-items: center;

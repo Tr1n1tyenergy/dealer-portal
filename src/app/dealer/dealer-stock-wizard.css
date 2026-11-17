@@ -39,7 +39,7 @@
   box-shadow: var(--ssw-shadow);
   padding: 1rem 0.85rem 5.25rem;
   overflow: hidden;
-  min-height: 520px;
+  min-height: 32.5rem;
 }
 
 .ssw__steps {
@@ -462,8 +462,8 @@
   box-sizing: border-box;
   width: 100%;
   margin: 0 0 0.9rem;
-  padding: 12px 20px;
-  min-height: 70px;
+  padding: 0.75rem 1.25rem;
+  min-height: 4.375rem;
   max-height: none;
   border-radius: 12px;
   border: 1px solid #c5d6ff;
@@ -475,8 +475,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
   color: #3551a5;
 }
 
@@ -497,7 +497,7 @@
 
 .ssw__init-note-title {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--tri-font-lg, 1rem);
   font-weight: 750;
   line-height: 1.25;
   color: #3551a5;
@@ -505,7 +505,7 @@
 
 .ssw__init-note-text {
   margin: 0;
-  font-size: 13.5px;
+  font-size: var(--tri-font-sm, 0.84rem);
   font-weight: 450;
   line-height: 1.4;
   color: #5b6f8f;
@@ -516,7 +516,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  min-height: 38px;
+  min-height: 2.375rem;
   border-radius: 9px;
   border: 1.5px solid #9eb4dc;
   background: #fff;
@@ -538,7 +538,7 @@
   background: transparent !important;
   outline: none !important;
   box-shadow: none !important;
-  min-height: 34px;
+  min-height: 2.125rem;
   padding-right: 6.6rem;
   flex: 1;
   min-width: 0;
@@ -557,7 +557,7 @@
   border-radius: 999px;
   background: #fff0a8;
   color: #3551a5;
-  font-size: 11px;
+  font-size: var(--tri-font-xs, 0.68rem);
   font-weight: 650;
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -568,7 +568,7 @@
 @media (max-width: 640px) {
   .ssw__init-note {
     align-items: flex-start;
-    padding: 12px 14px;
+    padding: 0.75rem 0.875rem;
   }
 
   .ssw__init-note-divider {
@@ -580,7 +580,7 @@
   }
 
   .ssw__setup-badge {
-    font-size: 10.5px;
+    font-size: var(--tri-font-xs, 0.65rem);
     padding: 0.15rem 0.42rem;
   }
 }

@@ -11,15 +11,17 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   CircleHelp,
+  Clock3,
   CloudUpload,
   Coins,
   CreditCard,
   Download,
+  Eye,
   FileText,
   Flag,
-  FolderOpen,
   Handshake,
   Headphones,
   Info,
@@ -30,6 +32,7 @@ import {
   MapPin,
   MessageCircle,
   Monitor,
+  MoreVertical,
   Paperclip,
   Pencil,
   Phone,
@@ -54,7 +57,6 @@ import {
   MAX_SUPPORT_DESCRIPTION,
   MAX_SUPPORT_SUBJECT,
   PRIORITY_LABELS,
-  STATUS_GUIDE,
   STATUS_LABELS,
   SUPPORT_DEPARTMENTS,
   SUPPORT_PRIORITIES,
@@ -69,7 +71,6 @@ import {
   type FaqIconId,
 } from "@/lib/support/faq-data";
 import { SUPPORT_CONTACT } from "@/components/dealer/support-card";
-import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import "@/app/dealer/dealer-support.css";
 import "@/app/dealer/dealer-portal-hero.css";
@@ -115,19 +116,12 @@ function formatUpdated(iso: string) {
   }
 }
 
-function statusIcon(status: SupportStatus) {
-  if (status === "OPEN") return <FolderOpen size={12} />;
-  if (status === "IN_PROGRESS") return <RefreshCw size={12} />;
-  if (status === "AWAITING_RESPONSE") return <MessageCircle size={12} />;
-  if (status === "RESOLVED") return <CheckCircle2 size={12} />;
-  return <CheckCircle2 size={12} />;
-}
-
 function deptIcon(dept: SupportDepartment) {
-  if (dept === "IT") return <CircleHelp size={14} />;
-  if (dept === "FINANCE") return <Ticket size={14} />;
-  if (dept === "SALES") return <Phone size={14} />;
-  return <FolderOpen size={14} />;
+  if (dept === "IT") return <Monitor size={14} />;
+  if (dept === "FINANCE") return <Wallet size={14} />;
+  if (dept === "SALES") return <Handshake size={14} />;
+  if (dept === "SUPPLY") return <Truck size={14} />;
+  return <Settings size={14} />;
 }
 
 export function SupportCentre({
@@ -146,28 +140,51 @@ export function SupportCentre({
   const [raiseDepartment, setRaiseDepartment] = useState<SupportDepartment | "">(
     initialDepartment ?? "",
   );
-  const heroSubtitle =
-    section === "faq" || section === "contact"
-      ? "Get help, find answers and keep your business moving."
-      : "Raise a ticket, track its progress and get help from the Trinity team.";
+  const hero =
+    section === "tickets"
+      ? {
+          kicker: "SUPPORT CENTRE",
+          title: "My Tickets",
+          subtitle: "Track, manage and communicate on all your support requests.",
+        }
+      : section === "new"
+        ? {
+            kicker: "SUPPORT CENTRE",
+            title: "Raise a Ticket",
+            subtitle: "Tell us what you need — our team will follow up on your request.",
+          }
+        : section === "faq"
+          ? {
+              kicker: "SUPPORT CENTRE",
+              title: "FAQs",
+              subtitle: "Get help, find answers and keep your business moving.",
+            }
+          : {
+              kicker: "SUPPORT CENTRE",
+              title: "Contact Trinity",
+              subtitle: "Get help, find answers and keep your business moving.",
+            };
   const [tickets, setTickets] = useState<TicketRow[]>([]);
   const [counts, setCounts] = useState<Counts>({
     total: 0,
     byStatus: { OPEN: 0, IN_PROGRESS: 0, AWAITING_RESPONSE: 0, RESOLVED: 0, CLOSED: 0 },
   });
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
   const [statusTab, setStatusTab] = useState<SupportStatus | "ALL">("ALL");
-  const [department, setDepartment] = useState<SupportDepartment | "ALL">("ALL");
-  const [dateRange, setDateRange] = useState<"ALL" | "7d" | "30d" | "90d">("ALL");
   const [q, setQ] = useState("");
+  const [flash, setFlash] = useState<{ reference: string } | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setListError(false);
     try {
       const params = new URLSearchParams({
         status: statusTab,
-        department,
-        dateRange,
+        department: "ALL",
+        dateRange: "ALL",
         q,
       });
       const [listRes, countRes] = await Promise.all([
@@ -177,15 +194,19 @@ export function SupportCentre({
       if (listRes.ok) {
         const data = await listRes.json();
         setTickets(data.tickets ?? []);
+      } else {
+        setListError(true);
       }
       if (countRes.ok) {
         const data = await countRes.json();
         setCounts(data);
       }
+    } catch {
+      setListError(true);
     } finally {
       setLoading(false);
     }
-  }, [statusTab, department, dateRange, q]);
+  }, [statusTab, q, refreshKey]);
 
   useEffect(() => {
     void load();
@@ -214,6 +235,16 @@ export function SupportCentre({
     syncUrl("new", nextDept);
   }
 
+  function handleCreated(ticket: { id: string; reference: string }) {
+    setFlash({ reference: ticket.reference });
+    setHighlightId(ticket.id);
+    setStatusTab("ALL");
+    setQ("");
+    setSection("tickets");
+    syncUrl("tickets");
+    setRefreshKey((k) => k + 1);
+  }
+
   return (
     <div className="ds">
       <section className="ds__hero">
@@ -223,16 +254,20 @@ export function SupportCentre({
           <div className="ds__hero-copy">
             <span className="ds__hero-accent" aria-hidden />
             <div>
-              <h1>Support Centre</h1>
-              <p>{heroSubtitle}</p>
+              <p className="ds__hero-kicker">{hero.kicker}</p>
+              <h1>{hero.title}</h1>
+              <p>{hero.subtitle}</p>
             </div>
           </div>
-          <DealerHeroActions />
         </div>
       </section>
 
       <div className="ds__workspace">
       <nav className="ds__nav" aria-label="Support sections">
+        <button type="button" className="ds__nav-cta" onClick={() => goNew()}>
+          <PlusSquare size={16} strokeWidth={2} />
+          Raise a New Ticket
+        </button>
         <button
           type="button"
           className={`ds__nav-item ${section === "tickets" ? "is-active" : ""}`}
@@ -240,15 +275,7 @@ export function SupportCentre({
         >
           <Ticket size={16} strokeWidth={2} />
           My Tickets
-          {counts.total > 0 ? <span className="ds__nav-badge">{counts.total}</span> : null}
-        </button>
-        <button
-          type="button"
-          className={`ds__nav-item ${section === "new" ? "is-active" : ""}`}
-          onClick={() => goNew()}
-        >
-          <PlusSquare size={16} strokeWidth={2} />
-          Raise a New Ticket
+          <span className="ds__nav-badge">{counts.total}</span>
         </button>
         <button
           type="button"
@@ -278,15 +305,16 @@ export function SupportCentre({
             tickets={tickets}
             counts={counts}
             loading={loading}
+            listError={listError}
             statusTab={statusTab}
             setStatusTab={setStatusTab}
-            department={department}
-            setDepartment={setDepartment}
-            dateRange={dateRange}
-            setDateRange={setDateRange}
             q={q}
             setQ={setQ}
+            flash={flash}
+            onDismissFlash={() => setFlash(null)}
+            highlightId={highlightId}
             onRaise={() => goNew()}
+            onRetry={() => void load()}
             onOpen={(id) => router.push(`/dealer/support/tickets/${id}`)}
           />
         ) : null}
@@ -297,7 +325,7 @@ export function SupportCentre({
             orders={orders}
             initialDepartment={raiseDepartment || undefined}
             onCancel={() => goSection("tickets")}
-            onCreated={(id) => router.push(`/dealer/support/tickets/${id}`)}
+            onCreated={handleCreated}
           />
         ) : null}
         {section === "faq" ? <FaqPanel onRaise={() => goNew()} /> : null}
@@ -314,35 +342,70 @@ export function SupportCentre({
         ) : section === "contact" ? (
           <ContactAside />
         ) : (
-          <>
-            <div className="ds__aside-card">
-              <h3>Need help quickly?</h3>
-              <p>Raise a ticket and our team will get back to you as soon as possible.</p>
-              <button type="button" className="ds__btn-yellow" onClick={() => goNew()}>
-                <TicketPlus size={16} strokeWidth={2.2} />
-                Raise a New Ticket
-              </button>
-            </div>
-            <div className="ds__aside-card">
-              <div className="ds__guide-head">
-                <h3>Ticket Status Guide</h3>
-                <Info size={16} strokeWidth={2} aria-hidden />
-              </div>
-              {STATUS_GUIDE.map((row) => (
-                <div key={row.status} className="ds__guide-row">
-                  <span className={`ds__pill ds__pill--status-${row.status}`}>
-                    {statusIcon(row.status)}
-                    {STATUS_LABELS[row.status]}
-                  </span>
-                  <p>{row.description}</p>
-                </div>
-              ))}
-            </div>
-          </>
+          <TicketsAside counts={counts} />
         )}
       </aside>
       </div>
     </div>
+  );
+}
+
+function TicketsAside({ counts }: { counts: Counts }) {
+  return (
+    <>
+      <div className="ds__aside-card ds__glance">
+        <h3>Support at a Glance</h3>
+        <div className="ds__glance-tiles">
+          <div className="ds__glance-tile ds__glance-tile--resolved">
+            <CheckCircle2 size={18} strokeWidth={2.2} aria-hidden />
+            <strong>{counts.byStatus.RESOLVED}</strong>
+            <span>Resolved</span>
+          </div>
+          <div className="ds__glance-tile ds__glance-tile--progress">
+            <RefreshCw size={18} strokeWidth={2.2} aria-hidden />
+            <strong>{counts.byStatus.IN_PROGRESS}</strong>
+            <span>In Progress</span>
+          </div>
+          <div className="ds__glance-tile ds__glance-tile--awaiting">
+            <Clock3 size={18} strokeWidth={2.2} aria-hidden />
+            <strong>{counts.byStatus.AWAITING_RESPONSE}</strong>
+            <span>Awaiting Response</span>
+          </div>
+        </div>
+      </div>
+      <div className="ds__aside-card ds__next">
+        <h3>What Happens Next?</h3>
+        <ol className="ds__next-list">
+          <li>
+            <span className="ds__next-step" aria-hidden>
+              1
+            </span>
+            <div>
+              <strong>Ticket Submitted</strong>
+              <p>Your request is received and a ticket reference is generated.</p>
+            </div>
+          </li>
+          <li>
+            <span className="ds__next-step" aria-hidden>
+              2
+            </span>
+            <div>
+              <strong>Under Review</strong>
+              <p>Our support team reviews and works on it.</p>
+            </div>
+          </li>
+          <li>
+            <span className="ds__next-step" aria-hidden>
+              3
+            </span>
+            <div>
+              <strong>Resolution</strong>
+              <p>We update you and close the ticket once resolved.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </>
   );
 }
 
@@ -440,51 +503,103 @@ function TicketsPanel({
   tickets,
   counts,
   loading,
+  listError,
   statusTab,
   setStatusTab,
-  department,
-  setDepartment,
-  dateRange,
-  setDateRange,
   q,
   setQ,
+  flash,
+  onDismissFlash,
+  highlightId,
   onRaise,
+  onRetry,
   onOpen,
 }: {
   tickets: TicketRow[];
   counts: Counts;
   loading: boolean;
+  listError: boolean;
   statusTab: SupportStatus | "ALL";
   setStatusTab: (v: SupportStatus | "ALL") => void;
-  department: SupportDepartment | "ALL";
-  setDepartment: (v: SupportDepartment | "ALL") => void;
-  dateRange: "ALL" | "7d" | "30d" | "90d";
-  setDateRange: (v: "ALL" | "7d" | "30d" | "90d") => void;
   q: string;
   setQ: (v: string) => void;
+  flash: { reference: string } | null;
+  onDismissFlash: () => void;
+  highlightId: string | null;
   onRaise: () => void;
+  onRetry: () => void;
   onOpen: (id: string) => void;
 }) {
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
+  const [menuId, setMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const tabs: { key: SupportStatus | "ALL"; label: string; count: number }[] = [
     { key: "ALL", label: "All Tickets", count: counts.total },
     { key: "OPEN", label: "Open", count: counts.byStatus.OPEN },
     { key: "IN_PROGRESS", label: "In Progress", count: counts.byStatus.IN_PROGRESS },
     { key: "AWAITING_RESPONSE", label: "Awaiting Response", count: counts.byStatus.AWAITING_RESPONSE },
+    { key: "RESOLVED", label: "Resolved", count: counts.byStatus.RESOLVED },
     { key: "CLOSED", label: "Closed", count: counts.byStatus.CLOSED },
   ];
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusTab, q, pageSize]);
+
+  useEffect(() => {
+    if (!menuId) return;
+    function onDoc(e: MouseEvent) {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuId(null);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [menuId]);
+
+  const total = tickets.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(page, pageCount);
+  const start = total === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const end = Math.min(safePage * pageSize, total);
+  const pageRows = tickets.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   return (
     <>
       <div className="ds__main-head">
-        <div>
-          <h2>My Support Tickets</h2>
-          <p>Track and manage all your support requests.</p>
+        <div className="ds__main-head__copy">
+          <h2>My Tickets ({counts.total})</h2>
+          <p>All your support requests and their current status.</p>
         </div>
-        <button type="button" className="ds__btn-yellow" onClick={onRaise}>
-          <TicketPlus size={16} strokeWidth={2.2} />
-          Raise a New Ticket
-        </button>
+        <label className="ds__search ds__search--head">
+          <Search size={15} strokeWidth={1.75} aria-hidden />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by ticket no., subject or department..."
+            aria-label="Search tickets"
+          />
+        </label>
       </div>
+
+      {flash ? (
+        <div className="ds__flash" role="status">
+          <span className="ds__flash-ico" aria-hidden>
+            <CheckCircle2 size={18} strokeWidth={2.2} />
+          </span>
+          <div className="ds__flash-copy">
+            <strong>Your support ticket has been submitted successfully!</strong>
+            <p>
+              Ticket {flash.reference} has been received by our support team. We&apos;ll review your
+              request and keep you updated here. You can follow its progress and communicate with our
+              team at any time.
+            </p>
+          </div>
+          <button type="button" className="ds__flash-close" onClick={onDismissFlash} aria-label="Dismiss">
+            <X size={16} />
+          </button>
+        </div>
+      ) : null}
 
       <div className="ds__tabs" role="tablist" aria-label="Ticket status">
         {tabs.map((t) => (
@@ -496,118 +611,165 @@ function TicketsPanel({
             className={`ds__tab ${statusTab === t.key ? "is-active" : ""}`}
             onClick={() => setStatusTab(t.key)}
           >
-            {t.label} ({t.count})
+            <span className="ds__tab-label">{t.label}</span>
+            <span className="ds__tab-count">{t.count}</span>
           </button>
         ))}
-      </div>
-
-      <div className="ds__filters">
-        <label className="ds__search">
-          <Search size={15} strokeWidth={1.75} aria-hidden />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search tickets (e.g. TRN-4587, delivery, invoice...)"
-            aria-label="Search tickets"
-          />
-        </label>
-        <select
-          className="ds__select"
-          value={department}
-          onChange={(e) => setDepartment(e.target.value as SupportDepartment | "ALL")}
-          aria-label="Department filter"
-        >
-          <option value="ALL">All Departments</option>
-          {SUPPORT_DEPARTMENTS.map((d) => (
-            <option key={d} value={d}>
-              {DEPARTMENT_LABELS[d]}
-            </option>
-          ))}
-        </select>
-        <select
-          className="ds__select"
-          value={dateRange}
-          onChange={(e) => setDateRange(e.target.value as "ALL" | "7d" | "30d" | "90d")}
-          aria-label="Date range"
-        >
-          <option value="ALL">All Time</option>
-          <option value="7d">Last 7 Days</option>
-          <option value="30d">Last 30 Days</option>
-          <option value="90d">Last 90 Days</option>
-        </select>
       </div>
 
       {loading ? (
         <div className="ds__empty">
           <p>Loading tickets…</p>
         </div>
+      ) : listError ? (
+        <div className="ds__empty">
+          <strong>Couldn&apos;t load tickets</strong>
+          <p>Please try again. If the problem continues, contact Trinity Support.</p>
+          <button type="button" className="ds__btn-outline" onClick={onRetry}>
+            Retry
+          </button>
+        </div>
       ) : tickets.length === 0 ? (
         <div className="ds__empty">
           <div className="ds__empty-ico" aria-hidden>
             <Ticket size={28} strokeWidth={1.75} />
           </div>
-          <strong>No support tickets yet</strong>
-          <p>Raise a ticket when you need help with orders, PFIs, payments, or account access.</p>
-          <button type="button" className="ds__btn-yellow" onClick={onRaise}>
-            <TicketPlus size={16} />
-            Raise a New Ticket
-          </button>
+          <strong>{q || statusTab !== "ALL" ? "No matching tickets" : "No support tickets yet"}</strong>
+          <p>
+            {q || statusTab !== "ALL"
+              ? "Try a different search or status filter."
+              : "Raise a ticket when you need help with orders, PFIs, payments, or account access."}
+          </p>
+          {!q && statusTab === "ALL" ? (
+            <button type="button" className="ds__btn-yellow" onClick={onRaise}>
+              <TicketPlus size={16} />
+              Raise a New Ticket
+            </button>
+          ) : null}
         </div>
       ) : (
-        <div className="ds__table-wrap">
-          <table className="ds__table">
-            <thead>
-              <tr>
-                <th>Ticket Ref.</th>
-                <th>Subject</th>
-                <th>Department</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Last Updated</th>
-                <th aria-label="Open" />
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map((t) => (
-                <tr key={t.id} onClick={() => onOpen(t.id)}>
-                  <td>
-                    <span className="ds__ref">
-                      <Ticket size={14} />
-                      {t.reference}
-                    </span>
-                  </td>
-                  <td>{t.subject}</td>
-                  <td>
-                    <span className="ds__dept">
-                      {deptIcon(t.department)}
-                      {DEPARTMENT_LABELS[t.department]}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`ds__pill ds__pill--priority-${t.priority}`}>
-                      {PRIORITY_LABELS[t.priority]}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`ds__pill ds__pill--status-${t.status}`}>
-                      {statusIcon(t.status)}
-                      {STATUS_LABELS[t.status]}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="ds__dept">
-                      <CalendarDays size={13} />
-                      {formatUpdated(t.updatedAt)}
-                    </span>
-                  </td>
-                  <td className="ds__row-action">
-                    <ChevronRight size={16} />
-                  </td>
+        <>
+          <div className="ds__table-wrap">
+            <table className="ds__table">
+              <thead>
+                <tr>
+                  <th>Ticket No.</th>
+                  <th>Subject</th>
+                  <th>Department</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Last Updated</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {pageRows.map((t) => (
+                  <tr
+                    key={t.id}
+                    className={highlightId === t.id ? "is-highlight" : undefined}
+                    onClick={() => onOpen(t.id)}
+                  >
+                    <td>
+                      <span className="ds__ref">{t.reference}</span>
+                    </td>
+                    <td>
+                      <span className="ds__subject">{t.subject}</span>
+                    </td>
+                    <td>
+                      <span className="ds__dept">
+                        {deptIcon(t.department)}
+                        {DEPARTMENT_LABELS[t.department]}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`ds__pill ds__pill--priority-${t.priority}`}>
+                        {PRIORITY_LABELS[t.priority]}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`ds__pill ds__pill--status-${t.status}`}>
+                        <i className="ds__status-dot" aria-hidden />
+                        {STATUS_LABELS[t.status]}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="ds__updated">{formatUpdated(t.updatedAt)}</span>
+                    </td>
+                    <td className="ds__row-action" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        className="ds__icon-btn"
+                        aria-label={`View ${t.reference}`}
+                        onClick={() => onOpen(t.id)}
+                      >
+                        <Eye size={15} strokeWidth={2.1} />
+                      </button>
+                      <div className="ds__more" ref={menuId === t.id ? menuRef : undefined}>
+                        <button
+                          type="button"
+                          className="ds__icon-btn"
+                          aria-label={`More actions for ${t.reference}`}
+                          aria-expanded={menuId === t.id}
+                          onClick={() => setMenuId((cur) => (cur === t.id ? null : t.id))}
+                        >
+                          <MoreVertical size={15} strokeWidth={2.1} />
+                        </button>
+                        {menuId === t.id ? (
+                          <div className="ds__more-menu" role="menu">
+                            <button type="button" role="menuitem" onClick={() => onOpen(t.id)}>
+                              View ticket
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="ds__pager">
+            <span>
+              Showing {start} – {end} of {total} tickets
+            </span>
+            <div className="ds__pager-controls">
+              <label className="ds__pager-size">
+                Rows per page
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                  aria-label="Rows per page"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                className="ds__page-btn"
+                disabled={safePage <= 1}
+                aria-label="Previous page"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="ds__page-current" aria-current="page">
+                {safePage}
+              </span>
+              <button
+                type="button"
+                className="ds__page-btn"
+                disabled={safePage >= pageCount}
+                aria-label="Next page"
+                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </>
   );
@@ -624,7 +786,7 @@ function RaiseTicketForm({
   orders: OrderOption[];
   initialDepartment?: SupportDepartment;
   onCancel: () => void;
-  onCreated: (id: string) => void;
+  onCreated: (ticket: { id: string; reference: string }) => void;
 }) {
   const [subject, setSubject] = useState("");
   const [department, setDepartment] = useState<SupportDepartment | "">(initialDepartment ?? "");
@@ -636,14 +798,6 @@ function RaiseTicketForm({
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [pending, setPending] = useState(false);
-  const [success, setSuccess] = useState<{
-    id: string;
-    reference: string;
-    department: string;
-    priority: string;
-    status: string;
-    createdAt: string;
-  } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const dirty = Boolean(
@@ -699,45 +853,17 @@ function RaiseTicketForm({
         setPending(false);
         return;
       }
-      setSuccess(data.ticket);
+      const ticket = data.ticket as { id?: string; reference?: string } | undefined;
+      if (!ticket?.id || !ticket.reference) {
+        setError("Ticket was created but the response was incomplete. Check My Tickets.");
+        setPending(false);
+        return;
+      }
+      onCreated({ id: ticket.id, reference: ticket.reference });
     } catch {
       setError("Could not submit ticket.");
-    } finally {
       setPending(false);
     }
-  }
-
-  if (success) {
-    return (
-      <div className="ds__success">
-        <div className="ds__empty-ico" aria-hidden>
-          <CheckCircle2 size={28} />
-        </div>
-        <h3>Ticket Submitted Successfully</h3>
-        <p>
-          Your request was routed to{" "}
-          {DEPARTMENT_LABELS[success.department as SupportDepartment] || success.department}.
-        </p>
-        <dl>
-          <dt>Ticket reference</dt>
-          <dd>{success.reference}</dd>
-          <dt>Priority</dt>
-          <dd>{PRIORITY_LABELS[success.priority as SupportPriority] || success.priority}</dd>
-          <dt>Status</dt>
-          <dd>{STATUS_LABELS[success.status as SupportStatus] || success.status}</dd>
-          <dt>Submitted</dt>
-          <dd>{formatUpdated(success.createdAt)}</dd>
-        </dl>
-        <div style={{ display: "flex", gap: "0.65rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <button type="button" className="ds__btn-yellow" onClick={() => onCreated(success.id)}>
-            View Ticket
-          </button>
-          <button type="button" className="ds__btn-outline" onClick={onCancel}>
-            Back to My Tickets
-          </button>
-        </div>
-      </div>
-    );
   }
 
   return (

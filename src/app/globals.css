@@ -39,6 +39,11 @@
   strong {
     font-weight: 650;
   }
+
+  /* Native selects: whole control (incl. chevron) is the hit target */
+  select {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {

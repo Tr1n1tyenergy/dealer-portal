@@ -130,6 +130,65 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-17 — Staff Support KPI cards sleeker
+- Slightly shorter cards (`min-height` ~4.65rem), tighter padding; smaller icon wells, value, labels, and Create CTA to match.
+
+### 2026-11-17 — System-wide fluid laptop scale
+- **Why:** Same UI density across laptop widths — denser on ~13–14", baseline at ~1512px, roomier on 16"+ / 1920; no page zoom.
+- **Root:** [`src/styles/responsive-tokens.css`](src/styles/responsive-tokens.css) — `--tri-root-font` uses px+vw only (no circular rem); compact / mid / large / xl + short-height MQs. Verified: 1280→~12.8px, 1512→~15.3px, 1920→~17.1px.
+- **Px chrome → rem:** dealer topbar/controls/metrics (`dealer-portal.css`); messaging panes/avatars/composer (`messaging.css`); stock-wizard type/padding (`dealer-stock-wizard.css`); place-order + order-tracking key chrome.
+- **Support clamps:** staff Support titles/KPI/ref use `--tri-font-*` rem tokens (no rem+vw double fluid). Dealer Support already rem-based.
+- **Staff shell:** already rem (`staff-portal.css`). Depot reuses dealer portal shell.
+- **Check:** `tsc --noEmit` OK; CDP root font at 1280/1512/1920.
+
+### 2026-11-17 — Staff Support 3-col workspace pixel refinement
+- **Why:** Match approved Dealer Support Dashboard mockup for the ticket workspace only (hero/KPIs frozen). Fix squeezed table h-scroll, segmented selected-row borders, oversized left/right density, wrapped tabs, clipped Update Ticket.
+- **Files:** `src/app/intelligence/retail/staff-support.css`, `src/app/intelligence/retail/(home)/support/page.tsx`, `src/components/staff/staff-support-compose.tsx`, `docs/local-wip-changelog.md`
+- **Changes:** ~18/49/33 grid; denser status nav + filters; `table-layout: fixed` + colgroup; continuous `#FFCC00` selected row; soft Critical pill; compact right header/tabs/composer/assign (flags row + Send Reply; assign+priority+Update on one row where space allows).
+- **Follow-up:** Selected row is a full-bleed yellow band (left `#FFCC00` accent only — no side borders / rounded enclosure). Larger `Tickets (n)` title. Right ticket header: dealer + date inline with icons; subject as small caption under ref; status pill pushed right (blue + opacity); removed empty-conversation hint. Dropped row ⋮ actions; proportional % col widths + equal cell padding; shared yellow `sup-heading-ico` on Tickets heading + right ticket header.
+
+### 2026-11-16 — Dealer ticket detail premium redesign
+- Files: `support/tickets/[id]/page.tsx`, `support-ticket-detail.tsx`, `dealer-support.css`.
+- Ticket-specific hero (no Place Order / Pay PFI); conversation-first workspace with overview, progress, original request, attachments; reply composer preserved (reply attachments not in API — icons hint only).
+- No fabricated staff replies; progress mapped from real status/timestamps.
+
+### 2026-11-16 — Support hero forecourt image restore
+- Re-assert `.ds .ds__hero` forecourt plate in `dealer-support.css` (lighter left haze, cache-bust `?v=6`) so Support never renders as solid navy.
+
+### 2026-11-16 — Support nav selected accent
+- Selected sidebar items: solid `#FFCC00` curved left accent + soft yellow fill; Raise CTA stays solid yellow.
+
+### 2026-11-16 — Dealer My Tickets mockup + submission flow
+- Files: `support-centre.tsx`, `dealer-support.css`, `dealer-portal-hero.css`.
+- Removed standalone post-submit success screen; successful create returns to My Tickets with dismissible flash + yellow row highlight (session-only).
+- My Tickets redesigned toward mockup: hero copy, Raise CTA first in nav, yellow status tabs (+ Resolved), header search, compact table/actions/pagination, Support at a Glance + What Happens Next aside.
+
+### 2026-11-16 — Raise Ticket: related ref + attachments stacked full width
+- `.ds__attach-row` is a single column so Related reference and Attachments each span the form width.
+
+### 2026-11-16 — Full-hit dropdowns + one-line raise-ticket identity
+- Select wrappers (dealer support/orders, place-order chevron, staff Users/Support filters, SSI modal) use absolute full-area `<select>` / pointer-events-none icons so the chevron and entire control open the menu.
+- Raise Ticket identity cards: single-line values with ellipsis (`dealer-support.css`).
+
+### 2026-11-16 — Support tickets header inline with search
+- Files: `support/page.tsx`, `staff-support.css`. Title + caption stay left; search fixed ~14rem on the same row; smaller caption; wrap only below 820px.
+
+### 2026-11-16 — Support UI refinement pass
+- Files: `staff-support.css` only (hero/KPIs/logic untouched).
+- Wider middle / narrower right (`minmax(17.5rem,18.75rem) / 1.95fr / minmax(20.5rem,1fr)`); more sidebar + tickets-header padding; filter/search radius ~11–12px with Trinity Blue focus; selected status + count badge + Apply/Create CTAs use exact `#FFCC00` / rgba tints; empty-state spacing tightened.
+
+### 2026-11-16 — Support empty/populated workspace fidelity
+- Three columns stretch to equal height (~18/53/29); empty state centers middle/right content; no auto-select of first ticket.
+- Distinguishes system-empty vs filter-empty vs populated table; Create CTA + pagination footer match Attachment 2.
+
+### 2026-11-16 — Support KPI cards match mockup
+- Stat cards use larger square icon wells (not circles) with semantic colors; Create Internal Ticket is a yellow button inside a white card.
+
+### 2026-11-16 — Staff Support page mockup correction
+- Rebuilt Support workspace below the shared hero to match Dealer Support Tickets mockup: KPI icons/colors, Create Internal Ticket as yellow CTA inside white card, denser 18/46/36 three-column layout, status pills, compact filters, embedded search, richer empty states, conversation avatars, status dropdown, Assign/Priority/Update footer.
+- Added `StaffSupportCompose` (markdown-marker toolbar; plain-text backend) and `StaffSupportStatusSelect`.
+- Hero/header untouched. Staff attachment upload still not wired (controls disabled with hint).
+
 ### 2026-11-13 — Dealer hero copy sits lower + nowrap removed
 - Reduced dealer hero bottom padding so the text block sits a little lower (closer to overlapping cards) on every dealer page.
 - Dashboard hero `h1` no longer `white-space: nowrap` (long org names looked oversized on wide production screens).
