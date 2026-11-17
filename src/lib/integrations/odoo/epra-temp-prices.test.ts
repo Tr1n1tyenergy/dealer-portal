@@ -6,7 +6,7 @@ import {
   epraUnitPriceForWarehouse,
 } from "./epra-temp-prices";
 
-describe("EPRA prices 15 Oct – 14 Nov 2026", () => {
+describe("EPRA prices 15 Nov – 14 Dec 2026 (unchanged from 15 Oct – 14 Nov)", () => {
   it("stores the maximum pump prices exactly as EPRA published them (Annex I)", () => {
     const published = {
       LAKE_OIL_NRB: [226.96, 227.76],
@@ -16,7 +16,7 @@ describe("EPRA prices 15 Oct – 14 Nov 2026", () => {
     } as const;
     for (const [key, [pms, ago]] of Object.entries(published)) {
       const row = EPRA_TEMP_PRICES_BY_WAREHOUSE[key as keyof typeof published];
-      assert.deepEqual([row.pms, row.ago, row.periodFrom, row.periodTo], [pms, ago, "2026-10-15", "2026-11-14"], key);
+      assert.deepEqual([row.pms, row.ago, row.periodFrom, row.periodTo], [pms, ago, "2026-11-15", "2026-12-14"], key);
     }
   });
 

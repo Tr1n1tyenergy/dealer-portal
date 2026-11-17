@@ -1,7 +1,11 @@
 /**
  * Per-dealer fuel unit prices (KES/L, EXCLUDING VAT), keyed by portal station code.
  *
- * Source: Finance's price list received 11 Nov 2026 (EPRA 15 Oct – 14 Nov window).
+ * Source: Finance's price list received 11 Nov 2026 (EPRA 15 Oct – 14 Nov window). Still valid for
+ * 15 Nov – 14 Dec 2026: EPRA kept every price unchanged (checked 17 Nov 2026).
+ * Finance's rule, reverse-engineered: ex-VAT = (EPRA price of the loading region − deduction) / 1.08, where
+ * the deduction is the dealer margin, plus 0.71 for full-margin dealers (Etal PMS: +0.93). When EPRA moves,
+ * recompute with that rule and confirm with Finance before changing these values.
  * These are the same ex-VAT unit prices sales types into Odoo quotations by hand —
  * verified against confirmed/draft orders S01310, S01325 and S01352 to 7 decimals.
  * The billed price per litre is this value × 1.08 (8% VAT).
