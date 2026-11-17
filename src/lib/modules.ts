@@ -104,7 +104,7 @@ export const TRI_MODULES: TriModule[] = [
     shortLabel: "Activity",
     tagline: "Monitor · Audit · Trace",
     description: "System activity across login, modules, and admin actions.",
-    href: "/intelligence/admin/activity",
+    href: "/intelligence/retail/settings?tab=activity",
     icon: BarChart3,
     category: "Admin",
     features: [
@@ -121,7 +121,7 @@ export const TRI_MODULES: TriModule[] = [
     shortLabel: "Settings",
     tagline: "Configure · Connect · Secure",
     description: "Platform configuration for email, storage, and AI connectors.",
-    href: "/intelligence/admin/settings",
+    href: "/intelligence/retail/settings",
     icon: Settings,
     category: "Admin",
     features: [

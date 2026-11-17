@@ -257,6 +257,7 @@ model DealerOrganization {
   orders            DealerOrder[]
   supportTickets    SupportTicket[]
   stockSaleReports  StockSaleReport[]
+  fleetTrucks       FleetTruck[]
 
   @@index([name])
   @@index([odooPartnerId])
@@ -294,11 +295,34 @@ model Station {
   tanks            StationTank[]
   rttEvents        StationPumpRttEvent[]
   stockIntelligenceConfigs StationStockIntelligenceConfig[]
+  fleetTrucks      FleetTruck[]
+  fuelPrices       StationFuelPrice[]
 
   @@index([dealerOrganizationId])
   @@index([odooPartnerId])
   @@index([odooPartnerExternalId])
   @@index([odooStationExternalId])
+}
+
+/**
+ * Staff-managed fuel pricing rows for Platform Settings (Stations & Pricing).
+ * Base defaults to EPRA when null; dealer price = base − dealerMargin − transportMargin.
+ * Does not yet replace Finance/Odoo quotation unit prices.
+ */
+model StationFuelPrice {
+  id                  String      @id @default(cuid())
+  stationId           String
+  station             Station     @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  product             ProductCode
+  /** Optional override of EPRA base (KES/L). Null = use EPRA for the station region. */
+  basePriceKes        Float?
+  dealerMarginKes     Float?
+  transportMarginKes  Float?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  @@unique([stationId, product])
+  @@index([stationId])
 }
 
 /** Configured fuel dispensers for Stock Sale Reporting (PMS / AGO). */
@@ -391,6 +415,71 @@ model StationTank {
 
   @@unique([stationId, tankKey])
   @@index([stationId, active, sortOrder])
+}
+
+enum FleetTruckStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+}
+
+/** Transport / logistics companies that operate fleet trucks. */
+model TransportCompany {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  trucks    FleetTruck[]
+
+  @@index([active])
+}
+
+/** Dealer/station fleet trucks for Platform Settings Fleet & Trucks. */
+model FleetTruck {
+  id                   String           @id @default(cuid())
+  /** System ID, e.g. TRK-001 */
+  truckNumber          String           @unique
+  /** Normalized registration plate, e.g. KDM 452Z */
+  registrationNumber   String           @unique
+  transportCompanyId   String?
+  transportCompany     TransportCompany? @relation(fields: [transportCompanyId], references: [id], onDelete: Restrict)
+  /** Optional legacy dealer/station assignment (filters); not required on create. */
+  dealerOrganizationId String?
+  dealerOrganization   DealerOrganization? @relation(fields: [dealerOrganizationId], references: [id], onDelete: SetNull)
+  stationId            String?
+  station              Station?         @relation(fields: [stationId], references: [id], onDelete: SetNull)
+  capacityLitres       Float
+  status               FleetTruckStatus @default(ACTIVE)
+  truckType            String?
+  driverName           String?
+  /** Driver identifier (e.g. DRV-1024), not a phone number. */
+  driverId             String?
+  driverContact        String?
+  notes                String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  compartments         FleetTruckCompartment[]
+
+  @@index([transportCompanyId])
+  @@index([dealerOrganizationId])
+  @@index([stationId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/** Ordered tank compartments on a fleet truck; capacities must sum to truck capacity. */
+model FleetTruckCompartment {
+  id                 String     @id @default(cuid())
+  truckId            String
+  truck              FleetTruck @relation(fields: [truckId], references: [id], onDelete: Cascade)
+  compartmentNumber  Int
+  capacityLitres     Float
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  @@unique([truckId, compartmentNumber])
+  @@index([truckId])
 }
 
 model Depot {

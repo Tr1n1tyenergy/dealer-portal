@@ -45,12 +45,32 @@ describe(
       ({ prisma } = await import("@/lib/prisma"));
       service = await import("./service");
       organizationId = (await prisma.dealerOrganization.create({ data: { name: `PFI Dealer ${run}`, code: `PFI-${run}` } })).id;
-      // "kitale" is Pery Growers: Finance's dealer price PMS 197.5 before VAT (dealer-prices.ts).
+      // Kitale EPRA PMS 226.51; margins 13.21 / 0 → (226.51 − 13.21) / 1.08 = 197.5 ex-VAT.
       const existingKitale = await prisma.station.findUnique({ where: { code: "kitale" } });
       pricedStationId = existingKitale
         ? existingKitale.id
         : (await prisma.station.create({ data: { code: "kitale", name: "Kitale", dealerOrganizationId: organizationId } })).id;
       if (existingKitale) await prisma.station.update({ where: { id: existingKitale.id }, data: { dealerOrganizationId: organizationId } });
+      await prisma.stationFuelPrice.upsert({
+        where: { stationId_product: { stationId: pricedStationId, product: "PMS" } },
+        create: {
+          stationId: pricedStationId,
+          product: "PMS",
+          dealerMarginKes: 13.21,
+          transportMarginKes: 0,
+        },
+        update: { dealerMarginKes: 13.21, transportMarginKes: 0, basePriceKes: null },
+      });
+      await prisma.stationFuelPrice.upsert({
+        where: { stationId_product: { stationId: pricedStationId, product: "AGO" } },
+        create: {
+          stationId: pricedStationId,
+          product: "AGO",
+          dealerMarginKes: 13.21,
+          transportMarginKes: 0,
+        },
+        update: { dealerMarginKes: 13.21, transportMarginKes: 0, basePriceKes: null },
+      });
       unpricedStationId = (await prisma.station.create({ data: { name: "No Price Station", dealerOrganizationId: organizationId } })).id;
       dealerId = (
         await prisma.user.create({

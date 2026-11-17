@@ -4,6 +4,7 @@ import { MonetaryForm } from "@/components/dealer/monetary-form";
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   formatEquipmentBreakdown,
+  loadActiveTankEquipment,
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import { resolveSellingPrices } from "@/lib/stock-reporting/monetary";
@@ -57,7 +58,8 @@ export default async function MonetaryStagePage({
     snapshotAgo: report.sellingPriceAgoKes,
   });
 
-  const equipment = resolveStationEquipment(station);
+  const tankEq = await loadActiveTankEquipment(station.id);
+  const equipment = resolveStationEquipment(station, tankEq);
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
 
   return (

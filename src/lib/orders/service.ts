@@ -198,17 +198,19 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
     const client = getOdooClient();
     const stationCode = current.station.code ?? null;
     const fulfillment = stationCode ? fulfillmentForStation(stationCode) : null;
-    const fuelLines = current.lines
-      .filter((line) => line.product === "PMS" || line.product === "AGO")
-      .map((line) => {
-        const product = line.product as "PMS" | "AGO";
-        return {
-          id: line.id,
-          product,
-          quantityLitres: line.quantityLitres,
-          unitPrice: stationCode ? dealerUnitPriceForStation(stationCode, product) : null,
-        };
-      });
+    const fuelLines = await Promise.all(
+      current.lines
+        .filter((line) => line.product === "PMS" || line.product === "AGO")
+        .map(async (line) => {
+          const product = line.product as "PMS" | "AGO";
+          return {
+            id: line.id,
+            product,
+            quantityLitres: line.quantityLitres,
+            unitPrice: stationCode ? await dealerUnitPriceForStation(stationCode, product) : null,
+          };
+        })
+    );
     const quotation = await client.createQuotation({
       idempotencyKey: current.odooSyncKey,
       dealerCode: current.dealerOrganization.code,
@@ -289,7 +291,8 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
   }
 }
 
-export const PFI_NO_PRICE_NOTE = "PFI not issued: this station has no price yet.";
+export const PFI_NO_PRICE_NOTE =
+  "PFI not issued: this station has no dealer price in Stations & Pricing yet.";
 
 /**
  * Issue the PFI from the order's frozen line prices: 8% VAT on top, numbered with the SO
@@ -322,13 +325,15 @@ export async function generatePfi(orderId: string, actorId: string | null) {
   }
 
   const stationCode = order.station.code ?? null;
-  const fuelLines = order.lines
-    .filter((line) => line.product === "PMS" || line.product === "AGO")
-    .map((line) => {
-      const product = line.product as "PMS" | "AGO";
-      const today = stationCode ? dealerUnitPriceForStation(stationCode, product) : null;
-      return { line, product, price: line.unitPriceExVat ?? (today == null ? null : String(today)) };
-    });
+  const fuelLines = await Promise.all(
+    order.lines
+      .filter((line) => line.product === "PMS" || line.product === "AGO")
+      .map(async (line) => {
+        const product = line.product as "PMS" | "AGO";
+        const today = stationCode ? await dealerUnitPriceForStation(stationCode, product) : null;
+        return { line, product, price: line.unitPriceExVat ?? (today == null ? null : String(today)) };
+      })
+  );
 
   if (fuelLines.length === 0 || fuelLines.some((l) => l.price == null)) {
     const returned = await prisma.$transaction((tx) =>

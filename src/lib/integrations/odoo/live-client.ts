@@ -278,7 +278,7 @@ export class LiveOdooClient implements OdooClient {
         const unitPrice =
           line.unitPrice ??
           (input.stationCode && epraProduct
-            ? dealerUnitPriceForStation(input.stationCode, epraProduct)
+            ? await dealerUnitPriceForStation(input.stationCode, epraProduct)
             : null);
 
         return [

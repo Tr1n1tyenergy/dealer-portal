@@ -26,13 +26,19 @@ import {
 import { useFormStatus } from "react-dom";
 import { placeOrderAction } from "@/lib/orders/actions";
 import { deliveryWindow, MAX_LITRES, typedLitres } from "@/lib/orders/order-input";
-import { dealerUnitPriceForStation } from "@/lib/integrations/odoo/dealer-prices";
 import { formatMoney, pfiTotals } from "@/lib/orders/pfi-totals";
 import { DEALER_FORECOURT_SRC } from "@/lib/dealer/hero";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 
-type Station = { id: string; name: string; code: string | null };
+type Station = {
+  id: string;
+  name: string;
+  code: string | null;
+  /** Settings-configured ex-VAT unit prices (null = not priced → ordering blocked for that fuel). */
+  pmsPriceExVat: number | null;
+  agoPriceExVat: number | null;
+};
 type WizardStep = "details" | "review";
 
 const QUICK = [10000, 20000, 30000] as const;
@@ -110,18 +116,20 @@ function SubmitOrderButton({ disabled, unavailable }: { disabled: boolean; unava
   );
 }
 
-function estimateTotals(stationCode: string | null | undefined, pms: number, ago: number) {
-  if (!stationCode) return null;
+function estimateTotals(
+  station: Station | null | undefined,
+  pms: number,
+  ago: number
+) {
+  if (!station) return null;
   const lines: { product: "PMS" | "AGO"; quantityLitres: number; unitPriceExVat: string }[] = [];
   if (pms > 0) {
-    const price = dealerUnitPriceForStation(stationCode, "PMS");
-    if (price == null) return null;
-    lines.push({ product: "PMS", quantityLitres: pms, unitPriceExVat: String(price) });
+    if (station.pmsPriceExVat == null) return null;
+    lines.push({ product: "PMS", quantityLitres: pms, unitPriceExVat: String(station.pmsPriceExVat) });
   }
   if (ago > 0) {
-    const price = dealerUnitPriceForStation(stationCode, "AGO");
-    if (price == null) return null;
-    lines.push({ product: "AGO", quantityLitres: ago, unitPriceExVat: String(price) });
+    if (station.agoPriceExVat == null) return null;
+    lines.push({ product: "AGO", quantityLitres: ago, unitPriceExVat: String(station.agoPriceExVat) });
   }
   if (lines.length === 0) return null;
   return pfiTotals(lines);
@@ -145,8 +153,8 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
   const hero = HERO[step];
   const canReview = total > 0 && Boolean(stationId) && Boolean(deliveryDate);
   const estimate = useMemo(
-    () => estimateTotals(station?.code, pms, ago),
-    [station?.code, pms, ago],
+    () => estimateTotals(station, pms, ago),
+    [station, pms, ago],
   );
 
   function goToReview() {

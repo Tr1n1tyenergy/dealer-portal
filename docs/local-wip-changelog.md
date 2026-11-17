@@ -71,6 +71,25 @@ Move portal → Odoo quotation create from numeric/hardcoded IDs to **Odoo Exter
 | `src/app/api/messaging/files/**` | Authorized order/PFI file download |
 | `src/styles/responsive-tokens.css` | Site-wide `--tri-*` fluid type/space/gutter/hero caps |
 | `.cursor/rules/responsive-tokens.mdc` | Discipline: new UI consumes shared tokens |
+| `src/app/intelligence/retail/platform-settings.css` | Platform Settings workspace + `--ps-*` fluid laptop aliases |
+| `src/components/staff/platform-settings-client.tsx` | Settings shell + Stations & Pricing + tab routing |
+| `src/components/staff/tank-management-panel.tsx` | Tank Management UI + Create/Edit/Delete modals |
+| `src/lib/settings/stations-pricing.ts` | Station/tank pricing rows + dealer price formula |
+| `src/lib/settings/station-actions.ts` | Add station + inline pricing update + delete |
+| `prisma/migrations/20261117140000_station_fuel_prices/` | `StationFuelPrice` table |
+| `src/lib/settings/tank-actions.ts` | Create/update/delete tank + auto-naming |
+| `src/lib/settings/fleet-trucks.ts` | Fleet truck list + stats helpers |
+| `src/lib/settings/truck-actions.ts` | Create/update/status/delete truck + TRK numbering |
+| `src/components/staff/fleet-trucks-panel.tsx` | Fleet & Trucks UI + Create/Edit modals |
+| `src/components/staff/truck-form-modal.tsx` | Shared Create/Edit Truck modal + compartments |
+| `src/lib/settings/truck-compartments.ts` | Compartment allocation + L/m³ display helpers |
+| `prisma/migrations/20261117120000_fleet_trucks/` | `FleetTruck` table + status enum |
+| `prisma/migrations/20261117180000_fleet_truck_compartments/` | TransportCompany + FleetTruckCompartment |
+| `src/lib/settings/activity-present.ts` | Activity module/action/description mapping |
+| `src/lib/settings/activity-log-types.ts` | Client-safe activity query/row types |
+| `src/lib/settings/activity-logs.ts` | Server-side activity query/stats/export |
+| `src/lib/settings/activity-actions.ts` | Activity query + CSV export server actions |
+| `src/components/staff/activity-logs-panel.tsx` | Activity Logs UI + detail modal |
 | `src/app/intelligence/retail/(home)/users/page.tsx` | Users Management under Staff Portal shell |
 | `src/components/retail/retail-users-client.tsx` | Premium Users page (invites, tabs, roles) |
 | `src/app/intelligence/retail/retail-users.css` | Light Users design system |
@@ -129,6 +148,126 @@ Other product.template candidates kept for reference only.
 ---
 
 ## Entry log
+
+### 2026-11-17 — Platform Settings fluid laptop scale (`--ps-*`)
+Wired Settings chrome (nav, panels, filters, stats, buttons, modals, premium tables, fleet 5-row viewport) to Settings-scoped `--ps-*` aliases over `--tri-*`. Added compact-width / short-height / large-desktop MQs inside `platform-settings.css` only—no page zoom. Files: `src/app/intelligence/retail/platform-settings.css`, this changelog.
+
+### 2026-11-17 — Stations fuel badge column alignment
+- **Why:** PMS/AGO pills looked staggered because continuation-row Fuel cells used different left padding than the primary row.
+- **Files:** `platform-settings.css` (matched Fuel-column padding; equal badge min-width).
+
+### 2026-11-17 — Activity view icon + Stations Transport Margin header
+- **Why:** Free Activity Logs column space (eye-only action); keep “Transport Margin” on one line with “(KES/L)” below via column respacing.
+- **Files:** `activity-logs-panel.tsx`, `platform-settings-client.tsx` (colgroup + `ps-th-stack__title`), `platform-settings.css`.
+
+### 2026-11-17 — Shared premium settings tables + activity WHEN format
+- **Why:** Align Stations, Tanks, and Activity Logs tables with Fleet premium card styling; Activity WHEN uses comma between date and time (`17 Nov 2026, 17:45`).
+- **Files:** `platform-settings.css` (shared `.ps-table-wrap` / `.ps-table` premium shell), `activity-logs-panel.tsx` + `tank-management-panel.tsx` (`formatWhen`).
+
+### 2026-11-17 — Fleet actions ⋮ menu + premium table polish
+- **Why:** Match Stations & Pricing actions pattern (dots only → Edit Truck / Activate|Deactivate / Delete) and lift Fleet table visuals to Trinity premium styling.
+- **Files:** `fleet-trucks-panel.tsx` (portal `sp-actions-menu`, remove inline Edit + status modal), `platform-settings.css` (ft-table card, header, zebra/hover, status chips, truck icon wells).
+
+### 2026-11-17 — Fleet table 5-row viewport + nav height match
+- **Why:** Fleet & Trucks table should show a fixed 5-row-tall viewport with internal scroll; left settings nav should match the right panel height.
+- **Files:** `platform-settings.css` (`.ft-table-wrap` fixed thead+5-row height/overflow; workspace `:has(.ft-filters)` nav stretch).
+
+### 2026-11-17 — Transport company as free-text name
+- **Why:** Create Truck should let staff type the logistics company name instead of picking a dealer-seeded dropdown (e.g. BEEKEY).
+- **Files:** `truck-form-modal.tsx` (plain text field), `truck-actions.ts` (upsert `TransportCompany` by name), `fleet-trucks-panel.tsx` / settings page / `platform-settings-client.tsx` (drop company list prop), `fleet-trucks.ts` (stop dealer auto-seed).
+
+### 2026-11-17 — Create Truck modal + compartment management
+- **Why:** Redesign Create/Edit Truck to match mockup (transport company, plates, capacity L/m³, driver, dynamic compartments with auto final allocation) and persist normalized compartments.
+- **Files:** `prisma/schema.prisma` (`TransportCompany`, `FleetTruckCompartment`, optional dealer/station, `driverId`), `prisma/migrations/20261117180000_fleet_truck_compartments/`, `truck-compartments.ts` (+ test), `truck-actions.ts`, `fleet-trucks.ts` / `fleet-truck-types.ts`, `truck-form-modal.tsx`, `fleet-trucks-panel.tsx`, `platform-settings-client.tsx`, settings page, `platform-settings.css`, `prisma.ts` (delegates + schema stamp + lazy Proxy so Turbopack cannot keep a pre-generate client), `package.json` (unit test).
+
+### 2026-11-17 — Fleet & Trucks empty-state redesign
+- **Why:** Match premium Fleet empty mockup (illustration, copy, dual empty vs filtered states) while keeping filters/stats/create flow.
+- **Files:** `fleet-trucks-panel.tsx` (`FleetEmptyIllustration` SVG; absolute empty → Create Truck; filtered empty → Clear Filters), `platform-settings.css` (ft-empty wash/art, taller aligned filters, circular stat icons).
+
+### 2026-11-17 — Tank Create/Edit modal visual polish
+- **Why:** Create/Edit Tank popups looked uneven (label weight, input/select height mismatch, generic icon).
+- **Files:** `tank-management-panel.tsx` (structured `tm-field` form, premium icon wells, fuel icons, delete head), `platform-settings.css` (`tm-modal__form` / field controls at 2.55rem, bold navy labels, fuel opt polish).
+
+### 2026-11-17 — Staff SSR station list dealer chip polish
+- **Why:** Long dealer names wrapped to 2–3 lines in the left Stations list.
+- **Files:** `staff-stock-reconciliation.tsx` (`.ssr-station__dealer-name` wrap), `staff-stock-reporting.css` — single-line name, horizontal scroll, smaller yellow name vs blue DEALER kicker.
+
+### 2026-11-17 — Tank Management is system-wide tank source of truth
+- **Why:** Stock reporting was auto-seeding 2 PMS + 2 AGO tanks (and reactivating/overwriting capacity) via `ensureStationTanks` + `defaultTankDefinitions`, fighting Platform Settings.
+- **Fix:** `ensureStationTanks` only returns active `StationTank` rows; no create/reactivate/overwrite. Tank dips refuse to start with zero configured tanks. Open draft readings sync capacity/label from settings; stale inactive keys dropped. Dealer SSR labels use `loadActiveTankEquipment`.
+- **Files:** `stock-reporting/tanks.ts`, `equipment.ts`, dealer stock-reporting pages, changelog.
+- **Still separate:** Pump defaults/`ensureStationPumps` (not tanks). Historical closed-report tank reading snapshots stay as recorded.
+
+### 2026-11-17 — Settings dealer prices drive orders / PFI / Odoo
+- **Why:** Stop using the hardcoded Finance list; PMS/AGO unit prices come only from Stations & Pricing calculated dealer prices.
+- **Files:** `dealer-prices.ts` (DB `StationFuelPrice` + EPRA formula; async loaders + map), `stations-pricing.ts` (drop Finance field), `orders/service.ts`, `pfi-document.ts`, `live-client.ts`, dealer dashboard + place-order page/form, `dealer-prices.test.ts`, `pfi-issue.db.test.ts` (seed margins for kitale), changelog.
+- **Behaviour:** No configured margins → null price → order estimate / PFI / quotation blocked for that fuel.
+
+### 2026-11-17 — Dealer price truncate to 6 dp (no round)
+- **Why:** Final dealer price must chop at 6 decimals, not round (e.g. …0741 → …0740).
+- **Files:** `stations-pricing.ts` (`truncateTo6Decimals` + `dealerPriceFromParts`), `platform-settings-client.tsx` (preview uses same helper). Dealer price is computed on read — existing saved margins/base recalculate automatically on refresh.
+
+### 2026-11-17 — Dealer price ex-VAT label
+- **Why:** Make clear the calculated dealer price excludes 8% VAT.
+- **Files:** `platform-settings-client.tsx` (modal calc note + column header), `platform-settings.css` (`.sp-calc__note`), changelog.
+
+### 2026-11-17 — Dealer price formula ÷ 1.08 (6 dp)
+- **Why:** Final settings dealer price is ex-VAT: (EPRA/base − dealer margin − transport margin) / 1.08, truncated to 6 decimals.
+- **Files:** `stations-pricing.ts` (`dealerPriceFromParts`), `platform-settings-client.tsx` (live preview + table/CSV display at 6 dp), changelog.
+
+### 2026-11-17 — Stations & Pricing Edit/Delete modals + actions menu
+- **Why:** Replace inline row edit with premium Edit Station modal + Delete confirmation; ⋮ menu with icons/divider; portal so menu is not clipped by table overflow.
+- **Files:** `platform-settings-client.tsx` (portal menu, edit/delete modals, toast, unsaved discard), `platform-settings.css` (sp-actions-menu, sp-edit-*, danger btn), `station-actions.ts` (require base price; delete still blocks on orders/trucks/stock reports; tanks/pumps cascade), changelog.
+- **Pricing:** Calculated dealer price = (base − margins) / 1.08 at 6 dp (null margins stay empty, not zero). Dealer org read-only. Audit: `STATION_PRICING_UPDATED` / `STATION_DELETED`. Auth: `settings.act`.
+
+### 2026-11-17 — Stations & Pricing drop Tanks column
+- **Why:** Tank Management tab owns tanks; free column space for pricing fields.
+- **Files:** `platform-settings-client.tsx` (remove Tanks col + expand row; widen remaining cols), `platform-settings.css` (fuel-split border selectors), changelog.
+
+### 2026-11-17 — Stations & Pricing inline edit + dealer price column
+- **Why:** Staff need to set dealer/transport margins against EPRA base in-table (no edit popup), see computed dealer price, and use a ⋮ menu for Edit / Delete station.
+- **Schema:** `StationFuelPrice` (`basePriceKes?`, `dealerMarginKes?`, `transportMarginKes?` per station×PMS/AGO); migration `20261117140000_station_fuel_prices`.
+- **Files:** `stations-pricing.ts` (EPRA base + saved margins + `dealerPriceKes = base − margins`), `station-actions.ts` (`updateStationPricingAction`, `deleteStationAction`), `platform-settings-client.tsx` (inline row edit, ⋮ menu, Dealer Prices column; Add Station modal kept), `platform-settings.css` (menu + inline inputs), `prisma.ts` delegate, changelog.
+- **Behaviour:** Base defaults to EPRA; saving a base equal to EPRA clears the override so monthly EPRA updates still apply. Dealer/org, tanks, fuel badges stay read-only. Delete blocked when orders, trucks, or stock reports exist. Settings dealer price does **not** yet replace Finance ex-VAT quotation prices.
+- **Fix:** Stale Prisma HMR client rejected `include.fuelPrices` — freshness check now also verifies Station DMMF has `fuelPrices`; restarted `npm run dev`.
+
+### 2026-11-17 — Platform Settings sidebar nav stack + larger icons
+- **Why:** Captions sat inline beside titles; icons felt small vs text.
+- **Files:** `platform-settings-client.tsx` (nav copy wrapper + icon 22px), `platform-settings.css` (`.ps-nav__copy` column; title/desc `display:block`; icon well stretches to text block height, wider ~3rem).
+- **Follow-up:** Nav column stretches to match right panel height (`align-items: stretch`). Removed General Configuration from sidebar — four tabs ending at Activity Logs (`?tab=system` still renders environment/settings if deep-linked). Panel header icon (`.ps-panel__ico`) stretches to match heading+caption height. Stations table: stacked `(KES/L)` under price headers; full-width station separators; fuel sub-row padding fixed so AGO aligns under PMS. Station/dealer/tanks/actions cells vertically centered in PMS–AGO rowspan; table wrap scrolls (~6 rows visible, sticky header) for remaining stations.
+
+### 2026-11-17 — Tiny system-wide root scale bump (~5%)
+- **Why:** Fluid laptop pass left rem UI a tad too minute; raise density slightly without per-module CSS or page zoom.
+- **File:** [`src/styles/responsive-tokens.css`](src/styles/responsive-tokens.css) — all `--tri-root-font` clamps (default + short-height + compact/mid/large/xl).
+- **Verified calc:** 1280→~13.4px (+5.1%), 1512→~16.1px (+5.9%), 1920→~18.1px (+5.1%). Rem type/spacing/chrome scales; hero vw/px caps unchanged.
+
+### 2026-11-17 — Platform Settings Activity Logs Phase 4
+- **Why:** Fourth settings module matching Activity Logs mockup; real `ActivityLog` audit feed with filters/stats/export/detail modal.
+- **Files:** `activity-present.ts`, `activity-log-types.ts`, `activity-logs.ts`, `activity-actions.ts`, `activity-logs-panel.tsx`, settings page wiring, `platform-settings.css` (al-*), admin activity redirect, modules/home links → `?tab=activity`.
+- **Wired:** Date/user/module/action/station filters; server-side pagination; KPI aggregates; CSV export (capped 10k, formula-safe); View Details modal with sanitized meta; `activity.view` gating.
+- **Instrumentation added:** `STATION_*`, `TANK_*`, `TRUCK_*` via settings server actions (existing `logActivity` reused).
+- **Check:** `tsc --noEmit` OK. Authenticated visual pass vs mockup not run (login required).
+
+### 2026-11-17 — Platform Settings Fleet & Trucks Phase 3
+- **Why:** Third settings module matching Fleet & Trucks mockup; Create Truck as centered modal (not side panel).
+- **Schema:** `FleetTruck` + `FleetTruckStatus` enum (`ACTIVE` / `MAINTENANCE` / `INACTIVE`); migration `20261117120000_fleet_trucks`. Applied locally via `prisma db push`.
+- **Files:** `fleet-trucks.ts`, `truck-actions.ts`, `fleet-trucks-panel.tsx`, settings page + `platform-settings-client.tsx`, `platform-settings.css` (ft-*), changelog.
+- **Wired:** Dealer/station/status/search filters; filtered KPI cards; full-width table + pagination; Create/Edit modals; status change + deactivate/delete (soft-deactivate when registration appears on orders); TRK-NNN auto-numbering with unique retry; `settings.act` gating.
+- **Check:** `tsc --noEmit` OK. Authenticated browser visual pass not run (login required).
+
+### 2026-11-17 — Platform Settings Tank Management Phase 2
+- **Why:** Second settings module matching approved Tank Management mockups; Create Tank as centered modal overlay (not side panel).
+- **Files:** `src/components/staff/tank-management-panel.tsx`, `src/lib/settings/tank-actions.ts`, `src/lib/settings/stations-pricing.ts` (tanks + `createdAt`, active tankCount), `platform-settings-client.tsx` (nav labels + panel), `platform-settings.css` (tm-* styles), `docs/local-wip-changelog.md`.
+- **Wired:** Station selector from real stations; Total/PMS/AGO stats; Tanks + Station Details tabs; full-width tank table; Create/Edit/Delete modals with backdrop blur; auto-name `PMS/AGO Tank N` via `nextTankIdentity` (max index incl. inactive + 1, unique retry); soft-deactivate when readings/RTT/lastClosing; `settings.act` gating.
+- **Nav labels:** Tank Management, Fleet & Trucks, General Configuration (placeholders for fleet still).
+- **Check:** `tsc --noEmit` OK. Visual browser login not available in this pass — CSS/layout matched to Mockup 1 + modal form from Mockup 2.
+
+### 2026-11-17 — Platform Settings (Stations & Pricing) Phase 1
+- **Why:** Replace dark Executive System Settings with Staff Portal Platform Settings mockup; Stations & Pricing first.
+- **Route:** `/intelligence/retail/settings` (StaffPortalShell). Legacy `/intelligence/admin/settings` redirects to `?tab=system`.
+- **Files:** `platform-settings.css`, `(home)/settings/page.tsx`, `platform-settings-client.tsx`, `lib/settings/stations-pricing.ts`, `lib/settings/station-actions.ts`; nav/modules/middleware/`canAccessRetail` updates.
+- **Wired:** Real stations/dealers/tanks from Prisma; EPRA base prices + Finance dealer unit prices; search/filters/pagination/CSV export; tank expand; Add/Edit station (`settings.act`); System tab preserves Environment + Stored Settings; Activity links to existing admin activity.
+- **Gaps:** Dealer/transport margins not in DB (show —); Tanks/Trucks modules placeholder; no dedicated margin edit API.
 
 ### 2026-11-17 — Staff Support KPI cards sleeker
 - Slightly shorter cards (`min-height` ~4.65rem), tighter padding; smaller icon wells, value, labels, and Create CTA to match.

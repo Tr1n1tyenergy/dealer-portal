@@ -286,7 +286,7 @@ export default async function StaffHomePage() {
       badge: `Due in ${epraDays} day${epraDays === 1 ? "" : "s"}`,
       badgeTone: "due",
       actionLabel: "Update Prices →",
-      actionHref: "/intelligence/admin/settings",
+      actionHref: "/intelligence/retail/settings",
       actionVariant: "outline",
       icon: "tag",
     });

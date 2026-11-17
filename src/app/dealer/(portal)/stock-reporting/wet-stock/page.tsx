@@ -4,6 +4,7 @@ import { WetStockForm } from "@/components/dealer/wet-stock-form";
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   formatEquipmentBreakdown,
+  loadActiveTankEquipment,
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import { isStageCompleted } from "@/lib/stock-reporting/progress";
@@ -42,7 +43,8 @@ export default async function WetStockStagePage({
     );
   }
 
-  const equipment = resolveStationEquipment(station);
+  const tankEq = await loadActiveTankEquipment(station.id);
+  const equipment = resolveStationEquipment(station, tankEq);
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
   const deliveries = await listEligibleStockDeliveries({
     stationId: station.id,

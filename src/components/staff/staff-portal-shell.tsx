@@ -27,7 +27,9 @@ function activeKey(pathname: string): StaffPortalNavKey {
   if (pathname.startsWith("/intelligence/retail/messaging")) return "messages";
   if (pathname.startsWith("/intelligence/retail/support")) return "support";
   if (pathname.startsWith("/intelligence/retail/users")) return "users";
-  if (pathname.startsWith("/intelligence/admin/settings")) return "settings";
+  if (pathname.startsWith("/intelligence/retail/settings") || pathname.startsWith("/intelligence/admin/settings")) {
+    return "settings";
+  }
   if (pathname.startsWith("/intelligence/retail/stock-reporting")) return "stock-reporting";
   if (pathname === "/intelligence/retail" || pathname === "/intelligence/retail/") return "home";
   return "home";
@@ -158,7 +160,7 @@ export function StaffPortalShell({
             ) : null}
             {showSettings ? (
               <Link
-                href="/intelligence/admin/settings"
+                href="/intelligence/retail/settings"
                 className={cn("sp-nav__link", active === "settings" && "is-active")}
               >
                 Settings
