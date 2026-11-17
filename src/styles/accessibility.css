@@ -12,11 +12,6 @@ html[data-a11y-text="xlarge"] {
   font-size: calc(var(--tri-root-font, 15px) * 1.3);
 }
 
-/* Bigger text can overflow the centred staff nav; start-aligned keeps every item reachable by scrolling. */
-html[data-a11y-text] .sp-nav {
-  justify-content: flex-start;
-}
-
 /* Reduce motion: on request, and whenever the device asks for it. */
 @media (prefers-reduced-motion: reduce) {
   *,
