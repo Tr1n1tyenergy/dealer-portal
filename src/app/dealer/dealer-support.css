@@ -4,7 +4,7 @@
   --ds-blue: #3551a5;
   --ds-ink: #0a235b;
   --ds-yellow: #ffcc00;
-  --ds-muted: #64748b;
+  --ds-muted: var(--tri-text-faint, #64748b);
   --ds-line: #e2e8f0;
   --ds-canvas: #eef2f7;
   --ds-shadow: 0 16px 40px rgba(10, 35, 91, 0.1);
@@ -287,7 +287,7 @@
   flex-shrink: 0;
   border: 0;
   background: transparent;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   cursor: pointer;
   padding: 0.15rem;
   border-radius: 0.35rem;
@@ -415,7 +415,7 @@
   font-weight: 750;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   background: #eef3fb;
   border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
@@ -553,7 +553,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   position: relative;
 }
 
@@ -617,7 +617,7 @@
   margin-top: 0.75rem;
   padding-top: 0.65rem;
   border-top: 1px solid #eef2f7;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   font-size: 0.76rem;
   font-weight: 600;
 }
@@ -843,7 +843,7 @@
   margin: 0.2rem 0 0;
   font-size: 0.74rem;
   line-height: 1.4;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__aside-card .ds__btn-yellow {
@@ -1282,7 +1282,7 @@
   font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__faq-head h2 {
@@ -1297,7 +1297,7 @@
   margin: 0.35rem 0 0;
   font-size: 0.84rem;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   max-width: 42ch;
 }
 
@@ -1313,7 +1313,7 @@
   border-radius: 999px;
   border: 1px solid #d7e0ee;
   background: #f4f7fb;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   flex-shrink: 0;
 }
 
@@ -1413,7 +1413,7 @@
 }
 
 .ds__faq-chevron {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   flex-shrink: 0;
   transition: transform 160ms ease;
 }
@@ -1457,7 +1457,7 @@
 .ds__faq-empty {
   text-align: center;
   padding: 2.25rem 1rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__faq-empty strong {
@@ -1535,7 +1535,7 @@
 }
 
 .ds__quick-row svg:last-child {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .ds__quick-row:hover {
@@ -1558,7 +1558,7 @@
 .ds__aside-card--speak .ds__speak-head p {
   margin: 0.2rem 0 0;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__speak-list {
@@ -1608,7 +1608,7 @@
   font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__contact-head h2 {
@@ -1623,7 +1623,7 @@
   margin: 0.35rem 0 0;
   font-size: 0.86rem;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   max-width: 42ch;
 }
 
@@ -1694,7 +1694,7 @@
   flex: 1;
   font-size: 0.76rem;
   line-height: 1.4;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__reach-btn {
@@ -1824,11 +1824,11 @@
 .ds__dept-card-copy span {
   font-size: 0.74rem;
   line-height: 1.35;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__dept-card > svg:last-child {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   flex-shrink: 0;
 }
 
@@ -1887,7 +1887,7 @@
   margin-top: 0.12rem;
   font-style: normal;
   font-size: 0.78rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__hours-head {
@@ -2056,7 +2056,7 @@
   margin: 0.35rem 0 0;
   font-size: 0.86rem;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   max-width: 46ch;
 }
 
@@ -2118,7 +2118,7 @@
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   margin-bottom: 0.12rem;
 }
 
@@ -2150,7 +2150,7 @@
   border-radius: 12px;
   border: 1px solid #d7e0ee;
   background: #fff;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__control:focus-within {
@@ -2210,7 +2210,7 @@
 }
 
 .ds__priority-flag {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   margin-right: 0.1rem;
 }
 
@@ -2233,7 +2233,7 @@
 }
 .ds__prio-pill--MEDIUM {
   background: #fff8d6;
-  color: #8a6d00;
+  color: var(--tri-text-faint-gold, #8a6d00);
   border-color: #ffe58a;
 }
 .ds__prio-pill--HIGH {
@@ -2273,7 +2273,7 @@
   position: absolute;
   top: 0.85rem;
   left: 0.85rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__textarea-wrap textarea {
@@ -2297,7 +2297,7 @@
   bottom: 0.45rem;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2318,7 +2318,7 @@
   margin-left: 0.4rem;
   font-style: normal;
   font-weight: 650;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   font-size: 0.74rem;
 }
 
@@ -2331,7 +2331,7 @@
   border-radius: 14px;
   border: 1.5px dashed #8eaae0;
   background: #eef3fb;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__dropzone.is-over {
@@ -2473,7 +2473,7 @@
   margin: 0.15rem 0 0;
   font-size: 0.76rem;
   line-height: 1.4;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds__aside-card--priority {
@@ -2537,7 +2537,7 @@
   margin: 0.12rem 0 0;
   font-size: 0.76rem;
   line-height: 1.4;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 @media (max-width: 1100px) {
@@ -2779,7 +2779,7 @@
   margin: 0.2rem 0 0;
   font-size: 0.76rem;
   line-height: 1.4;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds-ticket__card-head > .ds__pill {
@@ -2840,12 +2840,12 @@
 
 .ds-ticket__msg-body header strong span {
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds-ticket__msg-body header time {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -2903,7 +2903,7 @@
   margin: 0;
   padding: 0.55rem 0.15rem 0.15rem;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds-ticket__composer {
@@ -2968,7 +2968,7 @@
 
 .ds-ticket__attach-hint {
   font-size: 0.72rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   line-height: 1.3;
 }
 
@@ -2982,7 +2982,7 @@
 .ds-ticket__muted {
   margin: 0;
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds-ticket__lower {
@@ -3004,7 +3004,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   margin-bottom: 0.25rem;
 }
 
@@ -3069,7 +3069,7 @@
 
 .ds-ticket__file-meta span {
   font-size: 0.7rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   white-space: nowrap;
 }
 
@@ -3120,7 +3120,7 @@
   margin: 0;
   font-size: 0.76rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   white-space: nowrap;
 }
 
@@ -3238,7 +3238,7 @@
 
 .ds-ticket__progress-top time {
   font-size: 0.7rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -3247,7 +3247,7 @@
   margin: 0.2rem 0 0;
   font-size: 0.76rem;
   line-height: 1.4;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ds-ticket__empty {
