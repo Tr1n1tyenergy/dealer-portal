@@ -105,6 +105,7 @@ export function eventText(e: {
 /** 12,000,000 ms → "3 h 20 m"; days shown with hours, under an hour as minutes. */
 export function formatWait(ms: number): string {
   const minutes = Math.floor(ms / 60_000);
+  if (minutes < 1) return "under 1 m";
   const d = Math.floor(minutes / 1440);
   const h = Math.floor((minutes % 1440) / 60);
   const m = minutes % 60;

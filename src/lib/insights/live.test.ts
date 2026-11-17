@@ -104,6 +104,8 @@ describe("formatWait / timeAgo", () => {
     assert.equal(formatWait(12_000_000), "3 h 20 m");
     assert.equal(formatWait(440_000_000), "5 d 2 h");
     assert.equal(formatWait(45 * 60_000), "45 m");
+    assert.equal(formatWait(30_000), "under 1 m");
+    assert.equal(formatWait(0), "under 1 m");
   });
   it("formats how long ago", () => {
     const ago = (ms: number) => timeAgo(new Date(now.getTime() - ms), now);

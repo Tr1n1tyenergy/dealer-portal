@@ -8,6 +8,10 @@
   --sa-bad: #b42318;
   --sa-gold: #ffcc00;
   --sa-gold-ink: #6b5200;
+  /* House tokens dip to ~10px on phones; floor them, still scaling with the text-size setting. */
+  --sa-xs: max(12px, var(--so-font-xs));
+  --sa-sm: max(13px, var(--so-font-sm));
+  --sa-lg: max(15px, var(--so-font-lg));
   font-variant-numeric: tabular-nums;
 }
 
@@ -21,7 +25,7 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   font-weight: 600;
   backdrop-filter: blur(4px);
 }
@@ -36,6 +40,7 @@
 .sa-wrap {
   display: grid;
   gap: var(--so-gap-lg);
+  font-size: var(--sa-sm);
 }
 
 /* Four figures overlap the hero like the Orders/Support cards. */
@@ -57,7 +62,7 @@
   border: 2px solid var(--sa-gold);
 }
 .sa-kpi__label {
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
   font-weight: 600;
   color: var(--so-muted);
 }
@@ -69,7 +74,7 @@
 }
 .sa-kpi__value small {
   margin-left: 0.35rem;
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
   font-weight: 600;
   color: var(--so-muted);
 }
@@ -80,7 +85,7 @@
   gap: 0.5rem;
 }
 .sa-chg {
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
   font-weight: 700;
   color: var(--so-muted);
 }
@@ -130,12 +135,12 @@
 .sa-sec h2,
 .sa-card__h h2 {
   margin: 0;
-  font-size: var(--so-font-lg);
+  font-size: var(--sa-lg);
   font-weight: 750;
 }
 .sa-sec small,
 .sa-card__h small {
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   color: var(--so-muted);
 }
 
@@ -168,7 +173,7 @@
   font-weight: 800;
 }
 .sa-stage span {
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   font-weight: 600;
   line-height: 1.25;
   color: var(--so-muted);
@@ -207,7 +212,7 @@
 }
 .sa-stuck__meta,
 .sa-stuck__lim {
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   color: var(--so-muted);
 }
 .sa-stuck__lim {
@@ -215,7 +220,7 @@
 }
 .sa-more {
   margin: 0.5rem 0 0;
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   color: var(--so-muted);
 }
 
@@ -231,7 +236,7 @@
   gap: 0.6rem;
   padding: 0.5rem 0;
   border-bottom: 1px dashed var(--so-line);
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
 }
 .sa-events li:last-child {
   border-bottom: 0;
@@ -245,7 +250,7 @@
 }
 .sa-events time {
   white-space: nowrap;
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   color: var(--so-muted);
 }
 .sa-events__dot {
@@ -263,7 +268,7 @@
 
 .sa-empty {
   margin: 0;
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
   color: var(--so-muted);
 }
 
@@ -281,7 +286,7 @@
   display: flex;
   gap: 0.9rem;
   margin-top: 0.35rem;
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   font-weight: 600;
   color: var(--so-muted);
 }
@@ -307,7 +312,7 @@
   background: #fff;
   color: var(--so-blue);
   font: inherit;
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   font-weight: 650;
   white-space: nowrap;
   cursor: pointer;
@@ -328,7 +333,7 @@
   justify-content: space-between;
   padding-bottom: 1.4rem;
   text-align: right;
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   color: var(--so-muted);
 }
 .sa-chart__plot {
@@ -362,7 +367,7 @@
   inset: auto 0 0 0;
   display: flex;
   justify-content: space-between;
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   color: var(--so-muted);
 }
 .sa-table-wrap {
@@ -372,7 +377,7 @@
 .sa-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
 }
 .sa-table th,
 .sa-table td {
@@ -395,7 +400,7 @@
   gap: 0.25rem 0.6rem;
 }
 .sa-cycle span {
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
   font-weight: 600;
 }
 .sa-cycle b {
@@ -427,7 +432,7 @@
   border-radius: 0.5rem;
   background: #fff7d1;
   color: var(--sa-gold-ink);
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
 }
 
 /* Bottom row */
@@ -444,7 +449,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.3rem 0.6rem;
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
 }
 .sa-hb span:first-child {
   font-weight: 600;
@@ -487,7 +492,7 @@
   gap: 0.5rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid #eef2f8;
-  font-size: var(--so-font-sm);
+  font-size: var(--sa-sm);
   counter-increment: sa-rank;
 }
 .sa-rank li:last-child {
@@ -502,7 +507,7 @@
   border-radius: 999px;
   background: #eef3fb;
   color: var(--so-blue);
-  font-size: var(--so-font-xs);
+  font-size: var(--sa-xs);
   font-weight: 800;
 }
 .sa-rank li:first-child::before {

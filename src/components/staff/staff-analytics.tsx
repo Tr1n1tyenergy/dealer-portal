@@ -171,7 +171,7 @@ export function StaffAnalytics({ data }: { data: AnalyticsData }) {
                   </span>
                 </div>
               ))}
-              {slowest ? <p className="sa-note">Slowest step this month: {slowest.label.toLowerCase()}.</p> : <p className="sa-empty">No finished steps this month yet.</p>}
+              {slowest ? <p className="sa-note">Slowest step this month: {slowest.label}.</p> : <p className="sa-empty">No finished steps this month yet.</p>}
             </div>
           </section>
         </div>
