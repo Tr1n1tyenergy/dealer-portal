@@ -1,56 +1,126 @@
 /**
- * Per-dealer fuel unit prices (KES/L, EXCLUDING VAT), keyed by portal station code.
+ * Dealer fuel unit prices (KES/L, EXCLUDING VAT).
  *
- * Source: Finance's price list received 11 Nov 2026 (EPRA 15 Oct – 14 Nov window). Still valid for
- * 15 Nov – 14 Dec 2026: EPRA kept every price unchanged (checked 17 Nov 2026).
- * Finance's rule, reverse-engineered: ex-VAT = (EPRA price of the loading region − deduction) / 1.08, where
- * the deduction is the dealer margin, plus 0.71 for full-margin dealers (Etal PMS: +0.93). When EPRA moves,
- * recompute with that rule and confirm with Finance before changing these values.
- * These are the same ex-VAT unit prices sales types into Odoo quotations by hand —
- * verified against confirmed/draft orders S01310, S01325 and S01352 to 7 decimals.
+ * Source of truth: Platform Settings → Stations & Pricing (`StationFuelPrice`).
+ * Formula: (base − dealerMargin − transportMargin) / 1.08, truncated to 6 decimals
+ * (base defaults to EPRA for the station’s loading region when not overridden).
+ *
+ * Stations without configured margins have no price: ordering and PFIs stay blocked.
  * The billed price per litre is this value × 1.08 (8% VAT).
- *
- * Dealers with two stations (Vereca: nakuru + banana, Iko Winners: maili-tatu +
- * maua-town) are priced per STATION, exactly as on Finance's list.
- *
- * Stations not on the list have no price: ordering and PFIs stay blocked for them.
- * The list changes with the EPRA window on the 15th of every month — update these
- * values then. Replace with Odoo pricelists once those become the source of truth.
  */
+
+import { prisma } from "@/lib/prisma";
+import { epraUnitPriceForStation } from "./epra-temp-prices";
 
 export type DealerFuelProduct = "PMS" | "AGO";
 
-/** Ex-VAT unit prices by station code, verbatim from Finance (11 Nov 2026). */
-export const DEALER_UNIT_PRICES_BY_STATION: Record<string, { pms: number; ago: number }> = {
-  athiriver: { pms: 198.49074, ago: 199.231481 }, // Oilden
-  migori: { pms: 202.518518, ago: 203.629629 }, // Sure Technologies
-  "ol-joro-orok": { pms: 197.055555, ago: 198.37037 }, // Etal
-  magumu: { pms: 197.564814, ago: 198.305555 }, // Beekey
-  nakuru: { pms: 201.796296, ago: 202.907407 }, // Vereca (Nakuru)
-  rimpa: { pms: 198.953703, ago: 199.694444 }, // Raban
-  "meru-gaitu": { pms: 197.222222, ago: 197.962962 }, // Elobay
-  kitale: { pms: 197.5, ago: 198.611111 }, // Pery Growers
-  kisii: { pms: 204.611111, ago: 205.712962 }, // Maxwel Nyaanga Magoma
-  sobea: { pms: 202.888888, ago: 204.0 }, // Ninas
-  kiserian: { pms: 197.481481, ago: 198.222222 }, // Tulla
-  "kabati-kitui": { pms: 202.935185, ago: 203.675925 }, // Rutiben
-  banana: { pms: 202.935185, ago: 203.675925 }, // Vereca (Banana)
-  kitanga: { pms: 204.027777, ago: 204.768518 }, // Memisi
-  greensted: { pms: 196.314814, ago: 197.425925 }, // Kenbi
-  mumias: { pms: 202.518518, ago: 203.629629 }, // Masaha ("Majaha" on the list)
-  "maili-tatu": { pms: 198.953703, ago: 199.694444 }, // Iko Winners (Maili Tatu)
-  "maua-town": { pms: 202.935185, ago: 203.675925 }, // Iko Winners (Maua)
-  // shortcut: written as 197.22222 on the list (a missed digit; Elobay shares the AGO
-  // price and has 197.222222) — using the six-decimal value; fix if Finance says otherwise.
-  thome: { pms: 197.222222, ago: 197.962962 }, // Ready To Go
-};
+export type StationDealerPrices = { pms: number | null; ago: number | null };
 
-/** The dealer's ex-VAT unit price for a station, or null when Finance has not priced it. */
-export function dealerUnitPriceForStation(
+/** Truncate (chop) to 6 decimal places — no rounding. */
+export function truncateTo6Decimals(n: number): number {
+  if (!Number.isFinite(n)) return n;
+  const sign = n < 0 ? -1 : 1;
+  return (sign * Math.floor(Math.abs(n) * 1e6 + 1e-9)) / 1e6;
+}
+
+/** Ex-VAT dealer unit price from settings parts. */
+export function dealerPriceFromParts(
+  base: number | null,
+  dealerMargin: number | null,
+  transportMargin: number | null
+): number | null {
+  if (base == null || dealerMargin == null || transportMargin == null) return null;
+  if (![base, dealerMargin, transportMargin].every((n) => Number.isFinite(n))) return null;
+  return truncateTo6Decimals((base - dealerMargin - transportMargin) / 1.08);
+}
+
+function priceFromSavedRow(
+  stationCode: string,
+  product: DealerFuelProduct,
+  saved:
+    | {
+        basePriceKes: number | null;
+        dealerMarginKes: number | null;
+        transportMarginKes: number | null;
+      }
+    | undefined
+): number | null {
+  if (!saved) return null;
+  const epra = epraUnitPriceForStation(stationCode, product);
+  const base = saved.basePriceKes != null ? saved.basePriceKes : epra;
+  return dealerPriceFromParts(base, saved.dealerMarginKes, saved.transportMarginKes);
+}
+
+/** Lookup from a preloaded map (client forms / batch pages). */
+export function dealerUnitPriceFromMap(
+  map: ReadonlyMap<string, StationDealerPrices>,
   stationCode: string,
   product: DealerFuelProduct
 ): number | null {
-  const row = DEALER_UNIT_PRICES_BY_STATION[stationCode];
+  const row = map.get(stationCode);
   if (!row) return null;
   return product === "PMS" ? row.pms : row.ago;
+}
+
+/**
+ * Load all configured station dealer prices (by portal station code).
+ * Only stations with a code and at least one computed fuel price appear.
+ */
+export async function loadDealerUnitPriceMap(): Promise<Map<string, StationDealerPrices>> {
+  const stations = await prisma.station.findMany({
+    where: { code: { not: null } },
+    select: {
+      code: true,
+      fuelPrices: {
+        where: { product: { in: ["PMS", "AGO"] } },
+        select: {
+          product: true,
+          basePriceKes: true,
+          dealerMarginKes: true,
+          transportMarginKes: true,
+        },
+      },
+    },
+  });
+
+  const map = new Map<string, StationDealerPrices>();
+  for (const st of stations) {
+    if (!st.code) continue;
+    const byProduct = new Map(st.fuelPrices.map((p) => [p.product, p]));
+    map.set(st.code, {
+      pms: priceFromSavedRow(st.code, "PMS", byProduct.get("PMS")),
+      ago: priceFromSavedRow(st.code, "AGO", byProduct.get("AGO")),
+    });
+  }
+  return map;
+}
+
+/** Async: settings-configured ex-VAT unit price for one station × product, or null. */
+export async function dealerUnitPriceForStation(
+  stationCode: string,
+  product: DealerFuelProduct
+): Promise<number | null> {
+  const station = await prisma.station.findUnique({
+    where: { code: stationCode },
+    select: {
+      code: true,
+      fuelPrices: {
+        where: { product },
+        select: {
+          basePriceKes: true,
+          dealerMarginKes: true,
+          transportMarginKes: true,
+        },
+        take: 1,
+      },
+    },
+  });
+  if (!station?.code) return null;
+  return priceFromSavedRow(station.code, product, station.fuelPrices[0]);
+}
+
+/** Async: both fuels for one station. */
+export async function dealerUnitPricesForStation(stationCode: string): Promise<StationDealerPrices> {
+  const map = await loadDealerUnitPriceMap();
+  return map.get(stationCode) ?? { pms: null, ago: null };
 }

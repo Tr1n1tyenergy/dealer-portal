@@ -1,66 +1,30 @@
 import type { ProductCode, StockSaleTankReading } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { defaultTankDefinitions } from "./equipment";
 import { calculateTankDip, sumTankSalesByProduct } from "./tank-calc";
 import { StockReportingError } from "./service";
 
 const FUEL: ProductCode[] = ["PMS", "AGO"];
 
+/**
+ * Active tanks for a station — Platform Settings → Tank Management is the source of truth.
+ * Does not create, reactivate, or overwrite tanks (legacy default seeding removed).
+ */
 export async function ensureStationTanks(stationId: string) {
-  const defs = defaultTankDefinitions();
-  const existing = await prisma.stationTank.findMany({ where: { stationId } });
-  const byKey = new Map(existing.map((t) => [t.tankKey, t]));
-
-  for (const d of defs) {
-    const row = byKey.get(d.tankKey);
-    if (!row) {
-      try {
-        await prisma.stationTank.create({
-          data: {
-            stationId,
-            tankKey: d.tankKey,
-            product: d.product,
-            label: d.label,
-            sortOrder: d.sortOrder,
-            capacityLitres: d.capacityLitres,
-            lastClosingLitres: 0,
-            active: true,
-          },
-        });
-      } catch (err) {
-        if (
-          !(
-            err &&
-            typeof err === "object" &&
-            "code" in err &&
-            (err as { code?: string }).code === "P2002"
-          )
-        ) {
-          throw err;
-        }
-      }
-    } else if (!row.active) {
-      await prisma.stationTank.update({
-        where: { id: row.id },
-        data: {
-          active: true,
-          product: d.product,
-          label: d.label,
-          sortOrder: d.sortOrder,
-          capacityLitres: d.capacityLitres,
-        },
-      });
-    }
-  }
-
   return prisma.stationTank.findMany({
     where: { stationId, active: true },
-    orderBy: { sortOrder: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { tankKey: "asc" }],
   });
 }
 
 export async function ensureTankReadingsForReport(reportId: string, stationId: string) {
   const tanks = await ensureStationTanks(stationId);
+  if (tanks.length === 0) {
+    throw new StockReportingError(
+      "No tanks configured for this station. Add tanks in Platform Settings → Tank Management.",
+      "VALIDATION"
+    );
+  }
+
   const existing = await prisma.stockSaleTankReading.findMany({ where: { reportId } });
   const have = new Set(existing.map((r) => r.tankKey));
   const missing = tanks.filter((t) => FUEL.includes(t.product) && !have.has(t.tankKey));
@@ -80,6 +44,28 @@ export async function ensureTankReadingsForReport(reportId: string, stationId: s
         ullageLitres: null,
       })),
       skipDuplicates: true,
+    });
+  }
+
+  // Drop draft readings for tanks that were removed/deactivated in settings (not yet completed).
+  const activeKeys = new Set(tanks.map((t) => t.tankKey));
+  const stale = existing.filter((r) => !activeKeys.has(r.tankKey) && r.closingLitres == null);
+  if (stale.length) {
+    await prisma.stockSaleTankReading.deleteMany({
+      where: { id: { in: stale.map((r) => r.id) } },
+    });
+  }
+
+  // Refresh capacity/label/sort from settings for open readings still on active tanks.
+  for (const t of tanks) {
+    await prisma.stockSaleTankReading.updateMany({
+      where: { reportId, tankKey: t.tankKey, closingLitres: null },
+      data: {
+        label: t.label,
+        sortOrder: t.sortOrder,
+        capacityLitres: t.capacityLitres,
+        product: t.product,
+      },
     });
   }
 

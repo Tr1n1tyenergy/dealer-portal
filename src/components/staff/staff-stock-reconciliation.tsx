@@ -340,7 +340,7 @@ export function StaffStockReconciliationDashboard(props: StaffReconViewModel) {
                             <span className="ssr-station__name">{s.name}</span>
                             <span className="ssr-station__dealer">
                               <span className="ssr-station__dealer-kicker">Dealer</span>
-                              {dealer}
+                              <span className="ssr-station__dealer-name">{dealer}</span>
                             </span>
                           </span>
                         </button>

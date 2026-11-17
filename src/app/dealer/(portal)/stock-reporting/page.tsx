@@ -3,6 +3,7 @@ import { formatKesAmount, formatLitres, formatProductVolumes } from "@/lib/stock
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   formatEquipmentBreakdown,
+  loadActiveTankEquipment,
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import { formatProductChip, stationFuelProductLabels } from "@/lib/stock-reporting/products";
@@ -57,7 +58,8 @@ export default async function StockSaleReportingPage({
   const productsLabel = station
     ? formatProductChip(stationFuelProductLabels(station.products))
     : "—";
-  const equipment = resolveStationEquipment(station);
+  const tankEq = station ? await loadActiveTankEquipment(station.id) : undefined;
+  const equipment = resolveStationEquipment(station, tankEq);
 
   return (
     <StockReportingDashboard

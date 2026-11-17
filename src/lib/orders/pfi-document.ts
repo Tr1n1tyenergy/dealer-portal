@@ -20,17 +20,19 @@ export async function loadPfiDocument(
   const pfi = order.proforma;
   const stationCode = order.station.code ?? null;
 
-  const lines: PfiLineInput[] = order.lines
-    .filter((line) => line.product === "PMS" || line.product === "AGO")
-    .map((line) => {
-      const product = line.product as "PMS" | "AGO";
-      const today = stationCode ? dealerUnitPriceForStation(stationCode, product) : null;
-      return {
-        product,
-        quantityLitres: line.quantityLitres,
-        unitPriceExVat: line.unitPriceExVat ?? (today == null ? "0.00" : String(today)),
-      };
-    });
+  const lines: PfiLineInput[] = await Promise.all(
+    order.lines
+      .filter((line) => line.product === "PMS" || line.product === "AGO")
+      .map(async (line) => {
+        const product = line.product as "PMS" | "AGO";
+        const today = stationCode ? await dealerUnitPriceForStation(stationCode, product) : null;
+        return {
+          product,
+          quantityLitres: line.quantityLitres,
+          unitPriceExVat: line.unitPriceExVat ?? (today == null ? "0.00" : String(today)),
+        };
+      })
+  );
   const totals = pfiTotals(lines, pfi.vatRate ?? PFI_VAT_RATE);
 
   const partnerId = order.station.odooPartnerId ?? order.dealerOrganization.odooPartnerId;

@@ -250,18 +250,19 @@
 }
 
 .ssr-station__dealer {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.35rem;
   max-width: 100%;
+  min-width: 0;
   padding: 0.18rem 0.45rem;
   border-radius: 0.4rem;
   background: #eef3fb;
-  color: #3551a5;
-  font-weight: 650;
-  font-size: var(--tri-font-xs, 0.66rem);
   line-height: 1.25;
-  letter-spacing: 0.01em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ssr-station__dealer-kicker {
@@ -269,20 +270,35 @@
   padding: 0.05rem 0.3rem;
   border-radius: 0.28rem;
   background: rgba(53, 81, 165, 0.12);
+  color: #3551a5;
   font-size: var(--tri-font-xs, 0.58rem);
   font-weight: 750;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ssr-station__dealer-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #e6b800;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .ssr-station.is-active .ssr-station__dealer {
-  background: rgba(255, 255, 255, 0.72);
-  color: #7a5a00;
+  background: rgba(255, 255, 255, 0.78);
 }
 
 .ssr-station.is-active .ssr-station__dealer-kicker {
-  background: rgba(255, 204, 0, 0.45);
-  color: #7a5a00;
+  background: rgba(53, 81, 165, 0.14);
+  color: #3551a5;
+}
+
+.ssr-station.is-active .ssr-station__dealer-name {
+  color: #c99700;
 }
 
 .ssr-station__dot {

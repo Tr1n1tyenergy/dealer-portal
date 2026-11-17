@@ -23,6 +23,9 @@ export default withAuth(
       if (accountType !== "INTERNAL") {
         return NextResponse.redirect(new URL(home, req.url));
       }
+      if (path.startsWith("/intelligence/retail/settings") && !canUser(token, "settings", "view")) {
+        return NextResponse.redirect(new URL("/intelligence/dashboard", req.url));
+      }
       const adminArea = path.startsWith("/intelligence/admin/activity")
         ? "activity"
         : path.startsWith("/intelligence/admin/settings")

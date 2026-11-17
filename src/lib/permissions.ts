@@ -228,9 +228,9 @@ export function canUser(user: StaffUser | null | undefined, module: PermissionMo
 /** The Retail Interface opens when Retail module access is on and at least one retail tab is viewable. */
 export function canAccessRetail(user: StaffUser | null | undefined): boolean {
   if (!canAccessAppModule(user, "retail")) return false;
-  return (["analytics", "orders", "messaging", "support", "retailUsers", "stockReporting"] as const).some((m) =>
-    canUser(user, m, "view"),
-  );
+  return (
+    ["analytics", "orders", "messaging", "support", "retailUsers", "stockReporting", "settings"] as const
+  ).some((m) => canUser(user, m, "view"));
 }
 
 /** Count of app modules with access enabled for a permission key list (Roles sidebar). */

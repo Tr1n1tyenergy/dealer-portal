@@ -1,6 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+  prismaSchemaStamp?: string;
+};
+
+/** Bump when schema relations change so HMR drops a stale Prisma singleton. */
+const PRISMA_SCHEMA_STAMP = "fleet-truck-compartments-2026-11-17b";
 
 /**
  * Neon pooler + Turbopack HMR can exhaust default Prisma pools
@@ -45,29 +51,82 @@ const REQUIRED_DELEGATES = [
   "stockSaleTankReading",
   "supportTicket",
   "stationStockIntelligenceConfig",
+  "fleetTruck",
+  "fleetTruckCompartment",
+  "transportCompany",
+  "stationFuelPrice",
 ] as const;
 
 /**
  * After `prisma generate` adds models, Turbopack can keep a stale global singleton
- * that is missing delegates (e.g. stationPumpRttEvent → findMany on undefined).
- * Recreate when any required delegate is missing.
+ * that is missing delegates (e.g. stationPumpRttEvent → findMany on undefined)
+ * or whose DMMF lacks new relations (e.g. Station.fuelPrices → PrismaClientValidationError).
+ * Recreate when any required delegate / relation is missing.
  */
+function modelHasField(client: PrismaClient, model: string, field: string): boolean {
+  const runtime = client as unknown as {
+    _runtimeDataModel?: {
+      models?: Record<string, { fields?: Record<string, unknown> | Array<{ name: string }> }>;
+    };
+  };
+  const entry = runtime._runtimeDataModel?.models?.[model];
+  if (!entry?.fields) return false;
+  if (Array.isArray(entry.fields)) {
+    return entry.fields.some((f) => f.name === field);
+  }
+  return field in entry.fields;
+}
+
 function isFreshPrismaClient(client: PrismaClient): boolean {
   const record = client as unknown as Record<string, unknown>;
-  return REQUIRED_DELEGATES.every((key) => record[key] != null);
+  if (!REQUIRED_DELEGATES.every((key) => record[key] != null)) return false;
+  if (!modelHasField(client, "Station", "fuelPrices")) return false;
+  if (!modelHasField(client, "FleetTruck", "transportCompany")) return false;
+  if (!modelHasField(client, "FleetTruck", "compartments")) return false;
+  return true;
 }
 
 function resolvePrismaClient(): PrismaClient {
   const existing = globalForPrisma.prisma;
-  if (existing && isFreshPrismaClient(existing)) {
+  const stampOk = globalForPrisma.prismaSchemaStamp === PRISMA_SCHEMA_STAMP;
+  if (existing && stampOk && isFreshPrismaClient(existing)) {
     return existing;
   }
   if (existing) {
     void existing.$disconnect().catch(() => undefined);
   }
+  globalForPrisma.prismaSchemaStamp = PRISMA_SCHEMA_STAMP;
   return createPrismaClient();
 }
 
-export const prisma = resolvePrismaClient();
+/** Drop HMR-stale singleton so the next import rebuilds against current generated client. */
+export function resetPrismaClient(): PrismaClient {
+  const existing = globalForPrisma.prisma;
+  if (existing) {
+    void existing.$disconnect().catch(() => undefined);
+  }
+  const next = createPrismaClient();
+  globalForPrisma.prisma = next;
+  globalForPrisma.prismaSchemaStamp = PRISMA_SCHEMA_STAMP;
+  return next;
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+function getPrisma(): PrismaClient {
+  const client = resolvePrismaClient();
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = client;
+  }
+  return client;
+}
+
+/**
+ * Lazy accessor so Turbopack HMR cannot keep serving a module-scoped
+ * PrismaClient constructed against an older generated schema.
+ */
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    const client = getPrisma();
+    const value = Reflect.get(client, prop, receiver);
+    return typeof value === "function" ? value.bind(client) : value;
+  },
+});

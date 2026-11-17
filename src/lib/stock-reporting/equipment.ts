@@ -1,7 +1,9 @@
+import { prisma } from "@/lib/prisma";
+
 /**
- * Temporary station forecourt defaults until per-station equipment is configured.
- * Every station: 2 PMS + 2 AGO pumps and tanks.
- * Default tank capacities (config, not operational readings): PMS 100,000 L · AGO 50,000 L.
+ * Legacy display/seed defaults for pumps (and label fallbacks only).
+ * Tanks are configured exclusively in Platform Settings → Tank Management (`StationTank`).
+ * Do not auto-create tanks from these defaults.
  */
 export const DEFAULT_STATION_EQUIPMENT = {
   pumpCount: 4,
@@ -76,27 +78,51 @@ export function defaultTankDefinitions(): StationTankDefinition[] {
   return defs;
 }
 
-export function resolveStationEquipment(station: {
-  pumpCount: number | null;
-  tankCount: number | null;
-} | null) {
+export function resolveStationEquipment(
+  station: {
+    pumpCount: number | null;
+    tankCount: number | null;
+  } | null,
+  overrides?: {
+    tankCount?: number;
+    tanksByProduct?: { PMS: number; AGO: number };
+  }
+) {
   if (!station) {
     return {
       pumpCount: DEFAULT_STATION_EQUIPMENT.pumpCount,
-      tankCount: DEFAULT_STATION_EQUIPMENT.tankCount,
+      tankCount: overrides?.tankCount ?? DEFAULT_STATION_EQUIPMENT.tankCount,
       pumpsByProduct: { ...DEFAULT_STATION_EQUIPMENT.pumpsByProduct },
-      tanksByProduct: { ...DEFAULT_STATION_EQUIPMENT.tanksByProduct },
+      tanksByProduct: overrides?.tanksByProduct ?? { ...DEFAULT_STATION_EQUIPMENT.tanksByProduct },
       fromDefault: true,
     };
   }
-  const missing = station.pumpCount == null || station.tankCount == null;
+  const missingPumps = station.pumpCount == null;
+  const tankCount = overrides?.tankCount ?? station.tankCount ?? 0;
   return {
     pumpCount: station.pumpCount ?? DEFAULT_STATION_EQUIPMENT.pumpCount,
-    tankCount: station.tankCount ?? DEFAULT_STATION_EQUIPMENT.tankCount,
+    tankCount,
     pumpsByProduct: { ...DEFAULT_STATION_EQUIPMENT.pumpsByProduct },
-    tanksByProduct: { ...DEFAULT_STATION_EQUIPMENT.tanksByProduct },
-    fromDefault: missing,
+    tanksByProduct: overrides?.tanksByProduct ?? { PMS: 0, AGO: 0 },
+    fromDefault: missingPumps && overrides?.tankCount == null,
   };
+}
+
+/** Active tank counts from Platform Settings (`StationTank`). */
+export async function loadActiveTankEquipment(stationId: string): Promise<{
+  tankCount: number;
+  tanksByProduct: { PMS: number; AGO: number };
+}> {
+  const tanks = await prisma.stationTank.findMany({
+    where: { stationId, active: true },
+    select: { product: true },
+  });
+  const tanksByProduct = { PMS: 0, AGO: 0 };
+  for (const t of tanks) {
+    if (t.product === "PMS") tanksByProduct.PMS += 1;
+    else if (t.product === "AGO") tanksByProduct.AGO += 1;
+  }
+  return { tankCount: tanks.length, tanksByProduct };
 }
 
 export function formatEquipmentBreakdown(count: number, byProduct: { PMS: number; AGO: number }) {

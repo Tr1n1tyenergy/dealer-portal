@@ -4,6 +4,7 @@ import { TankDipsForm } from "@/components/dealer/tank-dips-form";
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   formatEquipmentBreakdown,
+  loadActiveTankEquipment,
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import { isStageCompleted } from "@/lib/stock-reporting/progress";

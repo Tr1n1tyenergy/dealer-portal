@@ -249,8 +249,8 @@ export default async function DealerDashboardPage() {
   const priceStation = stations.find((s) => s.code) ?? stations[0] ?? null;
   const fulfillment = priceStation?.code ? fulfillmentForStation(priceStation.code) : null;
   const epra = fulfillment ? EPRA_TEMP_PRICES_BY_WAREHOUSE[fulfillment.warehouseKey] : null;
-  const pmsPrice = priceStation?.code ? dealerUnitPriceForStation(priceStation.code, "PMS") : null;
-  const agoPrice = priceStation?.code ? dealerUnitPriceForStation(priceStation.code, "AGO") : null;
+  const pmsPrice = priceStation?.code ? await dealerUnitPriceForStation(priceStation.code, "PMS") : null;
+  const agoPrice = priceStation?.code ? await dealerUnitPriceForStation(priceStation.code, "AGO") : null;
   const sampleLitres = 10_000;
   const sampleTotal =
     pmsPrice == null ? null : Math.round(sampleLitres * pmsPrice * 1.08 * 100) / 100;

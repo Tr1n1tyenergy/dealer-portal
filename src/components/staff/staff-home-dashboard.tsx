@@ -224,7 +224,7 @@ export function StaffHomeDashboard(props: StaffHomeProps) {
                   </p>
                 </div>
               </div>
-              <Link href="/intelligence/admin/activity" className="sh-panel__link">
+              <Link href="/intelligence/retail/settings?tab=activity" className="sh-panel__link">
                 View all activity →
               </Link>
             </header>
