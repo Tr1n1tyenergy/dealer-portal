@@ -19,7 +19,7 @@
    - **Happening now:** the latest 6 `OrderStatusHistory` rows, worded per status (§4), with "12 min ago". Empty: "No order activity yet".
 3. **Four figures** (this Nairobi month vs last month, change as ▲/▼ %, plus a 12-month sparkline):
    - Litres ordered (sum of order lines, PMS + AGO).
-   - Value incl. VAT (sum of `amountDue` of orders with a quotation this month).
+   - Value incl. VAT (sum of `amountDue` of orders with a quotation this month). `amountDue` is the quotation total at the dealer's own price (`dealerUnitPriceForStation`, margins included) plus 8% VAT, so no extra margin maths is needed.
    - Orders placed.
    - Active dealers (organisations with at least one order this month).
 4. **Litres ordered, 12 months:** two lines, PMS (blue) and AGO (teal), monthly. "View as table" toggle shows the same numbers.
