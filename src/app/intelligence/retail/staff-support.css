@@ -5,7 +5,7 @@
   --sup-blue: #3551a5;
   --sup-gold: #ffcc00;
   --sup-navy: #0a235b;
-  --sup-muted: #64748b;
+  --sup-muted: var(--tri-text-faint, #64748b);
   --sup-line: #e2e8f0;
   --sup-shadow: 0 10px 28px rgba(10, 35, 91, 0.08);
   --sup-radius: 12px;
@@ -94,7 +94,7 @@
 .sup-kpi-ico--total { background: #e8eefb; color: var(--sup-blue); }
 .sup-kpi-ico--open { background: #dff5e8; color: #15803d; }
 .sup-kpi-ico--progress { background: #e8eefb; color: var(--sup-blue); }
-.sup-kpi-ico--await { background: #fff6d6; color: #a16207; }
+.sup-kpi-ico--await { background: #fff6d6; color: var(--tri-text-faint-gold, #a16207); }
 .sup-kpi-ico--resolved { background: #fde8e8; color: #b91c1c; }
 
 /* White card + yellow CTA — match mockup exactly */
@@ -381,7 +381,7 @@
 .sup-search__ico {
   position: absolute;
   left: 0.65rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   pointer-events: none;
 }
 .sup-search input {
