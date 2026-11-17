@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../styles/responsive-tokens.css" layer(base);
+@import "../styles/accessibility.css";
 
 @theme inline {
   --color-trinity-blue: #173d8f;

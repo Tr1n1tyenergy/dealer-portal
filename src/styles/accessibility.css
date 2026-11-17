@@ -1,0 +1,64 @@
+/*
+  Accessibility menu settings (src/lib/a11y/preferences.ts). Each rule reacts to a data-a11y-* attribute
+  on <html>; with no attribute set, nothing here applies and the portal looks exactly as designed.
+  Unlayered on purpose so these beat the layered Tailwind base/utilities.
+*/
+
+/* Text size: scales the fluid root, so every rem-based size and gap follows. */
+html[data-a11y-text="large"] {
+  font-size: calc(var(--tri-root-font, 15px) * 1.15);
+}
+html[data-a11y-text="xlarge"] {
+  font-size: calc(var(--tri-root-font, 15px) * 1.3);
+}
+
+/* Reduce motion: on request, and whenever the device asks for it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html[data-a11y-motion="reduce"],
+html[data-a11y-motion="reduce"] *,
+html[data-a11y-motion="reduce"] ::before,
+html[data-a11y-motion="reduce"] ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Readable font: plain, wide letterforms installed on every PC and phone. */
+html[data-a11y-font="readable"] body,
+html[data-a11y-font="readable"] body *:not(code):not(pre):not(kbd):not(samp) {
+  font-family: Verdana, Tahoma, sans-serif !important;
+  letter-spacing: 0.02em !important;
+  word-spacing: 0.08em;
+}
+
+/* High contrast: faint text (routed through these variables) darkens to WCAG AA on white. */
+html[data-a11y-contrast] {
+  --tri-text-faint: #475569;
+  --tri-text-faint-green: #047857;
+  --tri-text-faint-gold: #8a6100;
+}
+/* Muted variables of light-background areas; dark-theme ones stay light-on-dark. */
+html[data-a11y-contrast] .dl,
+html[data-a11y-contrast] .tri-access {
+  --tri-muted-soft: #475569;
+}
+html[data-a11y-contrast] .ro {
+  --ro-muted: #475569;
+}
+html[data-a11y-contrast] .ru-multi {
+  --ru-multi-muted: #475569;
+}
+html[data-a11y-contrast] :focus-visible {
+  outline: 3px solid #1e3a8a !important;
+  outline-offset: 2px;
+}
