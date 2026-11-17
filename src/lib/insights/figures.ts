@@ -40,20 +40,32 @@ export function monthFigures(orders: InsightOrder[], now: Date) {
 }
 
 export function monthlyLitres(orders: InsightOrder[], now: Date, months = 12) {
-  const byMonth = new Map<string, { pms: number; ago: number }>();
+  type Month = { pms: number; ago: number; value: number; orders: number; dealers: Set<string> };
+  const byMonth = new Map<string, Month>();
   for (const o of orders.filter(counted)) {
-    const m = byMonth.get(monthKey(o.createdAt)) ?? { pms: 0, ago: 0 };
+    const key = monthKey(o.createdAt);
+    const m = byMonth.get(key) ?? { pms: 0, ago: 0, value: 0, orders: 0, dealers: new Set<string>() };
     for (const l of o.lines) {
       if (l.product === "PMS") m.pms += l.quantityLitres;
       if (l.product === "AGO") m.ago += l.quantityLitres;
     }
-    byMonth.set(monthKey(o.createdAt), m);
+    m.value += valueOf(o);
+    m.orders += 1;
+    m.dealers.add(o.dealerName);
+    byMonth.set(key, m);
   }
-  return lastNMonthLabels(months, now).map(({ key, label }) => ({
-    key,
-    label: label.split(" ")[0],
-    ...(byMonth.get(key) ?? { pms: 0, ago: 0 }),
-  }));
+  return lastNMonthLabels(months, now).map(({ key, label }) => {
+    const m = byMonth.get(key);
+    return {
+      key,
+      label: label.split(" ")[0],
+      pms: m?.pms ?? 0,
+      ago: m?.ago ?? 0,
+      value: m?.value ?? 0,
+      orders: m?.orders ?? 0,
+      dealers: m?.dealers.size ?? 0,
+    };
+  });
 }
 
 const STEPS = [

@@ -66,11 +66,19 @@ describe("monthFigures", () => {
 });
 
 describe("monthlyLitres", () => {
-  it("returns 12 Nairobi months ending this month, PMS and AGO apart", () => {
-    const series = monthlyLitres([order(now, { pms: 10, ago: 5 }), order(lastMonth, { ago: 7 }), order(now, { pms: 99 }, { status: "CANCELLED" })], now);
+  it("returns 12 Nairobi months ending this month: litres apart, value, orders and dealers", () => {
+    const series = monthlyLitres(
+      [
+        order(now, { pms: 10, ago: 5 }, { amountDue: "100.50" }),
+        order(now, { pms: 1 }, { dealerName: "Beekey" }),
+        order(lastMonth, { ago: 7 }),
+        order(now, { pms: 99 }, { status: "CANCELLED" }),
+      ],
+      now,
+    );
     assert.equal(series.length, 12);
-    assert.deepEqual(series.at(-1), { key: "2026-11", label: "Nov", pms: 10, ago: 5 });
-    assert.deepEqual(series.at(-2), { key: "2026-10", label: "Oct", pms: 0, ago: 7 });
+    assert.deepEqual(series.at(-1), { key: "2026-11", label: "Nov", pms: 11, ago: 5, value: 100.5, orders: 2, dealers: 2 });
+    assert.deepEqual(series.at(-2), { key: "2026-10", label: "Oct", pms: 0, ago: 7, value: 0, orders: 1, dealers: 1 });
     assert.equal(series[0].key, "2025-12");
   });
 });
