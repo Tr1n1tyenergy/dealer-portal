@@ -148,7 +148,7 @@
 }
 
 .do__search input::placeholder {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .do__select {
@@ -268,7 +268,7 @@
 
 .do__order-ico.is-a {
   background: #fff4c7;
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
 }
 .do__order-ico.is-b {
   background: #eef0ff;

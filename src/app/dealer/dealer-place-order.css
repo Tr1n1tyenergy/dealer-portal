@@ -309,7 +309,7 @@ a.po__crumb:hover {
   margin-top: 0.2rem;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #059669;
+  color: var(--tri-text-faint-green, #059669);
 }
 
 .po__station__status i {
@@ -391,7 +391,7 @@ a.po__crumb:hover {
 
 .po__product.is-ago .po__product-ico {
   background: #fff8db;
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
 }
 
 .po__product-head strong {
@@ -429,7 +429,7 @@ a.po__crumb:hover {
 
 .po__product.is-ago .po__qty-btn {
   border-color: #f0d978;
-  color: #9a7b00;
+  color: var(--tri-text-faint-gold, #9a7b00);
 }
 
 .po__qty-input {
@@ -488,7 +488,7 @@ a.po__crumb:hover {
 
 .po__product.is-ago .po__quick-row button {
   border-color: #f0d978;
-  color: #9a7b00;
+  color: var(--tri-text-faint-gold, #9a7b00);
 }
 
 .po__product.is-pms .po__quick-row button.is-on {
@@ -615,7 +615,7 @@ a.po__crumb:hover {
   font-style: normal;
   font-size: 0.74rem;
   font-weight: 650;
-  color: #059669;
+  color: var(--tri-text-faint-green, #059669);
 }
 
 .po__review-tile em i {
@@ -751,7 +751,7 @@ a.po__crumb:hover {
 }
 
 .po__review-fuel.is-ago .po__review-fuel__wash {
-  color: #c9a227;
+  color: var(--tri-text-faint-gold, #c9a227);
 }
 
 .po__review-fuel__wash svg {

@@ -96,7 +96,7 @@
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   line-height: 1.1;
 }
 
@@ -808,7 +808,7 @@ button.dp-sidebar__link {
   font-weight: 650;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   padding: 0.35rem 0.45rem;
   border-bottom: 1px solid var(--dp-line);
   white-space: nowrap !important;
@@ -963,7 +963,7 @@ button.dp-sidebar__link {
 }
 
 .dp-action > svg {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   flex-shrink: 0;
 }
 
@@ -987,7 +987,7 @@ button.dp-sidebar__link {
   border-radius: 12px;
   border: 1px solid #e8eef6;
   background: #f8fafc;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .dp-stations li > div {
@@ -1008,7 +1008,7 @@ button.dp-sidebar__link {
   gap: 0.35rem;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #16a34a;
+  color: var(--tri-text-faint-green, #16a34a);
 }
 
 .dp-stations__status i {
@@ -1128,7 +1128,7 @@ button.dp-sidebar__link {
   font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #b88600;
+  color: var(--tri-text-faint-gold, #b88600);
 }
 
 .portal h1 {
@@ -1523,7 +1523,7 @@ button.dp-sidebar__link {
 .dp-track__meta p {
   margin: 0.35rem 0 0;
   font-size: 0.88rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .dp-track__open {

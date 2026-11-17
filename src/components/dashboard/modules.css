@@ -136,7 +136,7 @@
   margin-top: 0.08rem !important;
   border-radius: 999px !important;
   background: #fff3cc !important;
-  color: #b8860b !important;
+  color: var(--tri-text-faint-gold, #b8860b) !important;
   flex-shrink: 0 !important;
 }
 

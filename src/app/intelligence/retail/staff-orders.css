@@ -102,7 +102,7 @@
   flex: none;
 }
 .so-ico--blue { background: #e8edf9; color: var(--so-blue); }
-.so-ico--gold { background: #fff4cc; color: #a67c00; }
+.so-ico--gold { background: #fff4cc; color: var(--tri-text-faint-gold, #a67c00); }
 .so-ico--card { background: #e7eefc; color: var(--so-blue); }
 .so-ico--doc { background: #efe8fb; color: #6b4db8; }
 .so-ico--depot { background: #e2f5ea; color: #1a7a45; }
@@ -529,7 +529,7 @@
   cursor: pointer;
 }
 .so-period__day:hover { background: #eef3fb; }
-.so-period__day.is-outside { color: #a8b4cc; }
+.so-period__day.is-outside { color: var(--tri-text-faint, #a8b4cc); }
 .so-period__day.is-today { box-shadow: inset 0 0 0 1px #c9d5ec; }
 .so-period__day.is-in-range { background: #e8f7ee; border-radius: 0; }
 .so-period__day.is-start {
@@ -957,7 +957,7 @@
   display: block;
   font-size: var(--tri-font-xs, 0.62rem);
   font-weight: 650;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   line-height: 1.2;
   max-width: 4.5rem;
   margin: 0;
@@ -971,13 +971,13 @@
   display: block;
   font-size: var(--tri-font-xs, 0.56rem);
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   letter-spacing: 0.02em;
   margin: 0;
   line-height: 1.2;
 }
 .so-progress__step.is-active .so-progress__note {
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
   font-weight: 650;
 }
 .so-progress__step.is-done .so-progress__note { color: #64748b; }
@@ -1155,7 +1155,7 @@
   background: rgba(53, 81, 165, 0.08);
 }
 .sod-action--locked .sod-action__ico {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   background: rgba(148, 163, 184, 0.16);
 }
 .sod-action__copy { flex: 1; min-width: 0; }
@@ -1182,7 +1182,7 @@
 }
 .sod-action--locked .sod-action__go {
   background: #dbe3ef;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 .sod-action__sub { font-size: var(--tri-font-xs, 0.68rem); color: var(--so-muted); line-height: 1.25; margin-top: 0.1rem; }
 /* Ready forms (confirm/release) keep stacked layout below the compact header row */

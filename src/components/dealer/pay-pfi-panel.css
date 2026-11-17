@@ -660,7 +660,7 @@
 }
 
 .pay-modal__trust > svg {
-  color: #d4a106;
+  color: var(--tri-text-faint-gold, #d4a106);
   flex-shrink: 0;
   margin-top: 0.1rem;
 }

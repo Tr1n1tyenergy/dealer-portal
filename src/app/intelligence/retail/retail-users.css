@@ -239,7 +239,7 @@
 }
 
 .ru-field__control input::placeholder {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .ru-form__foot {
@@ -433,7 +433,7 @@
 }
 
 .ru-multi__placeholder {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .ru-multi__chev {
@@ -477,7 +477,7 @@
   width: 0.95rem;
   height: 0.95rem;
   flex: 0 0 auto;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
 }
 
 .ru-multi__search input {
@@ -496,7 +496,7 @@
 }
 
 .ru-multi__search input::placeholder {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .ru-multi__list {
@@ -1224,7 +1224,7 @@
   display: block;
   margin-top: 0.1rem;
   font-size: var(--tri-font-xs, 0.72rem);
-  color: #7b8ba5;
+  color: var(--tri-text-faint, #7b8ba5);
 }
 
 .ru-modsel__grid {
@@ -1326,7 +1326,7 @@
   display: block;
   margin-top: 0.08rem;
   font-size: var(--tri-font-xs, 0.7rem);
-  color: #7b8ba5;
+  color: var(--tri-text-faint, #7b8ba5);
   max-width: 28rem;
 }
 
@@ -1581,7 +1581,7 @@
   margin-top: 0.05rem;
   font-size: var(--tri-font-xs, 0.62rem);
   font-weight: 600;
-  color: #8b9bb8;
+  color: var(--tri-text-faint, #8b9bb8);
   letter-spacing: 0.02em;
   line-height: 1.15;
 }
@@ -1629,7 +1629,7 @@
 }
 
 .ru-perm-na {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   font-size: var(--tri-font-sm, 0.8rem);
 }
 

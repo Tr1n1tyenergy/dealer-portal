@@ -439,7 +439,7 @@
   gap: 0.3rem;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #16a34a;
+  color: var(--tri-text-faint-green, #16a34a);
   margin-top: 0.15rem;
 }
 
@@ -460,7 +460,7 @@
 }
 
 .dp-po-body .dp-po-station__chev {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .dp-po-body .dp-po-station__select {
@@ -509,11 +509,11 @@
   font-style: normal;
   font-size: 0.72rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .dp-po-body .dp-po-date__chev {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   flex-shrink: 0;
 }
 
@@ -1149,7 +1149,7 @@
   font-weight: 750;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   margin-bottom: 0.25rem;
 }
 
@@ -1170,7 +1170,7 @@
   font-style: normal !important;
   font-size: 0.74rem;
   font-weight: 650;
-  color: #16a34a !important;
+  color: var(--tri-text-faint-green, #16a34a) !important;
 }
 
 .dp-po-body .dp-po-review__active i {
@@ -1195,7 +1195,7 @@
   margin-top: 0.28rem;
   font-style: normal;
   font-size: 0.74rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .dp-po-body .dp-po-review__fuel {
