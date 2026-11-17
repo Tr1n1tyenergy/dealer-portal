@@ -4,7 +4,7 @@
   --po-blue: #3551a5;
   --po-ink: #0a235b;
   --po-yellow: #ffcc00;
-  --po-muted: #64748b;
+  --po-muted: var(--tri-text-faint, #64748b);
   --po-line: #e6edf7;
   --po-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
   padding-bottom: 2rem;

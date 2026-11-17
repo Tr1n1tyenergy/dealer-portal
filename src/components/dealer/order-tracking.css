@@ -4,7 +4,7 @@
   --ot-blue: #3551a5;
   --ot-ink: #0a235b;
   --ot-yellow: #ffcc00;
-  --ot-muted: #64748b;
+  --ot-muted: var(--tri-text-faint, #64748b);
   --ot-line: #e6edf7;
   --ot-bg: #f5f8fd;
   --ot-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
@@ -205,7 +205,7 @@ a.ot__crumb:hover {
   border-radius: 999px;
   background: #fff6cc;
   border: 1px solid #f5e08a;
-  color: #8a6d00;
+  color: var(--tri-text-faint-gold, #8a6d00);
   font-size: 0.78rem;
   font-weight: 750;
   white-space: nowrap;
@@ -271,7 +271,7 @@ a.ot__crumb:hover {
   font-size: 0.75rem;
   font-weight: 750;
   background: #eef2f7;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   border: 2px solid #d7e0ec;
   position: relative;
   z-index: 2;
@@ -349,7 +349,7 @@ a.ot__crumb:hover {
 }
 
 .ot__progress-step.is-done .ot__progress-node small {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ot__progress-step.is-attention .ot__progress-node small {
@@ -555,7 +555,7 @@ a.ot__crumb:hover {
 .ot__product-chip.is-ago {
   background: #fffbeb;
   border-color: #f5e6a8;
-  color: #8a6d00;
+  color: var(--tri-text-faint-gold, #8a6d00);
 }
 
 .ot__product-chip strong {

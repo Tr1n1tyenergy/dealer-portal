@@ -12,9 +12,17 @@
   z-index: 60;
 }
 
-/* The header button replaces the floating one on pages that have it. */
-body:has(.a11y-trigger--header) .a11y-menu--floating {
-  display: none;
+/* The header button replaces the floating one on pages that have it, except on phones,
+   where the headers have no room and the floating button is used instead. */
+@media (min-width: 481px) {
+  body:has(.a11y-trigger--header) .a11y-menu--floating {
+    display: none;
+  }
+}
+@media (max-width: 480px) {
+  .a11y-menu--header {
+    display: none;
+  }
 }
 
 .a11y-trigger {

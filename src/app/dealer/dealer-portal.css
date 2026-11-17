@@ -11,7 +11,7 @@
   --dp-gold-2: #ffcc00;
   --dp-turquoise: rgb(0, 198, 214);
   --dp-ink: #0a235b;
-  --dp-muted: #64748b;
+  --dp-muted: var(--tri-text-faint, #64748b);
   --dp-line: #e6edf7;
   --dp-canvas: #eef2f7;
   --dp-white: #ffffff;
@@ -1100,7 +1100,7 @@ button.dp-sidebar__link {
 .dp-announce__banner button {
   border: 0;
   background: transparent;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   cursor: pointer;
   padding: 0;
   display: inline-flex;
@@ -1460,7 +1460,7 @@ button.dp-sidebar__link {
   border-radius: 14px;
   padding: 2rem 1.5rem;
   text-align: center;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .dp-orders-empty a {
@@ -1597,7 +1597,7 @@ button.dp-sidebar__link {
   margin: 0.65rem 0 0 !important;
   font-size: 0.85rem !important;
   font-weight: 500 !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
   line-height: 1.45;
 }
 
@@ -1622,7 +1622,7 @@ button.dp-sidebar__link {
   gap: 0.3rem;
   font-size: 0.78rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .dp-track__pay input,
@@ -1686,7 +1686,7 @@ button.dp-sidebar__link {
 .dp-support__head button {
   border: 0;
   background: transparent;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   cursor: pointer;
 }
 

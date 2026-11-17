@@ -377,7 +377,7 @@
 .dp-po-body .dp-po-card__head p {
   margin: 0.25rem 0 0;
   font-size: 0.8rem;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
   line-height: 1.4;
 }
 
@@ -398,7 +398,7 @@
   display: block;
   font-size: 0.78rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   margin-bottom: 0.45rem;
 }
 
@@ -455,7 +455,7 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.72rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   margin-top: 0.2rem;
 }
 
@@ -484,7 +484,7 @@
   border: 1px solid #dbe4f0;
   border-radius: 12px;
   background: #fff;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   box-sizing: border-box;
 }
 
@@ -614,7 +614,7 @@
   display: block;
   font-style: normal;
   font-size: 0.72rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   margin-top: 0.1rem;
 }
 
@@ -692,14 +692,14 @@
   border: 1px solid #e2e8f0;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .dp-po-body .dp-po-quick > span {
   display: block;
   font-size: 0.68rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   margin-bottom: 0.4rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -805,7 +805,7 @@
   font-style: normal;
   font-size: 0.74rem;
   font-weight: 500;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .dp-po-body .dp-po-total-bar.is-review .dp-po-total-bar__left em {
@@ -1020,7 +1020,7 @@
 .dp-po-body .dp-po-next li > div p {
   margin: 0.15rem 0 0;
   font-size: 0.72rem;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
   line-height: 1.35;
 }
 
@@ -1060,7 +1060,7 @@
 .dp-po-body .dp-po-review__title p {
   margin: 0.25rem 0 0;
   font-size: 0.82rem;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .dp-po-body .dp-po-review__badge {
@@ -1187,7 +1187,7 @@
   margin-top: 0.22rem;
   font-style: normal !important;
   font-size: 0.74rem;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .dp-po-body .dp-po-review__delivery em {
@@ -1274,7 +1274,7 @@
   margin-top: 0.15rem;
   font-style: normal;
   font-size: 0.74rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .dp-po-body .dp-po-review__fuel-copy b {

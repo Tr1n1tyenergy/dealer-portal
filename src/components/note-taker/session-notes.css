@@ -387,7 +387,7 @@
   margin-top: 0.45rem;
   font-size: 0.82rem;
   font-weight: 500;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   line-height: 1.4;
 }
 
@@ -566,7 +566,7 @@
   margin-top: 0.25rem;
   font-size: 0.8rem;
   font-weight: 500;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   line-height: 1.4;
 }
 
@@ -835,7 +835,7 @@
   margin-top: 0.15rem;
   font-size: 0.78rem;
   font-weight: 500;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   line-height: 1.4;
 }
 

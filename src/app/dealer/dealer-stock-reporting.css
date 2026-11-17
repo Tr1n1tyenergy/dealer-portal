@@ -26,7 +26,7 @@
   --ssr-blue: #3551a5;
   --ssr-ink: #0a235b;
   --ssr-yellow: #ffcc00;
-  --ssr-muted: #64748b;
+  --ssr-muted: var(--tri-text-faint, #64748b);
   --ssr-line: #e2e8f0;
   --ssr-canvas: #eef2f7;
   --ssr-panel: #f3f6fb;
@@ -254,7 +254,7 @@
 
 .ssr__status--idle {
   background: #f1f5f9;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr__status--closed {
@@ -309,7 +309,7 @@
   font-size: 0.75rem;
   font-weight: 750;
   background: #eef2f7;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   border: 2px solid #d7e0ec;
   position: relative;
   z-index: 2;
@@ -351,7 +351,7 @@
 .ssr__progress-step.is-pending .ssr__progress-dot {
   background: #eef2f7;
   border-color: #d7e0ec;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr__progress-node em {
@@ -383,7 +383,7 @@
 }
 
 .ssr__progress-step.is-done .ssr__progress-node small {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 /* Space between order-style progress rail and Continue / Start Over. */
@@ -1024,7 +1024,7 @@
   min-width: 0;
   font-size: 0.78rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr-rtt__field--grow {
@@ -1337,7 +1337,7 @@
   margin: 0;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr-rtt__total strong {
@@ -1359,7 +1359,7 @@
 
 .ssr-rtt__total--all {
   background: #fff8db;
-  color: #a16207;
+  color: var(--tri-text-faint-gold, #a16207);
 }
 
 .ssr-rtt__log-filters {
