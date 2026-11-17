@@ -96,7 +96,7 @@
 }
 
 .sh-kpi__go {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .sh-kpi__label {
@@ -121,7 +121,7 @@
 }
 
 .sh-kpi__meta--up {
-  color: #059669;
+  color: var(--tri-text-faint-green, #059669);
 }
 
 .sh-ops {
@@ -357,7 +357,7 @@
 
 .sh-feed__icon--ok {
   background: #ecfdf5;
-  color: #059669;
+  color: var(--tri-text-faint-green, #059669);
 }
 
 .sh-feed__text {

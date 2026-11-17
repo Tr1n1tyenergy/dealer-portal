@@ -181,11 +181,11 @@
 .ro-paid {
   margin-top: 0.25rem;
   font-size: var(--tri-font-xs, 0.74rem);
-  color: #4ade80;
+  color: var(--tri-text-faint-green, #4ade80);
 }
 
 .ro-paid--mismatch {
-  color: #fbbf24;
+  color: var(--tri-text-faint-gold, #fbbf24);
   font-weight: 650;
 }
 
@@ -193,7 +193,7 @@
   margin-top: 0.25rem;
   max-width: 18rem;
   font-size: var(--tri-font-xs, 0.74rem);
-  color: #fbbf24;
+  color: var(--tri-text-faint-gold, #fbbf24);
 }
 
 .ro-actions {

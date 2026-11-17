@@ -125,7 +125,7 @@
   border-radius: 999px;
   background: rgba(16, 185, 129, 0.14);
   border: 1px solid rgba(16, 185, 129, 0.32);
-  color: #34d399;
+  color: var(--tri-text-faint-green, #34d399);
   font-size: 0.68rem;
   font-weight: 650;
 }
@@ -345,7 +345,7 @@
 }
 
 .rlive__signal--good {
-  color: #34d399;
+  color: var(--tri-text-faint-green, #34d399);
 }
 
 .rlive__signal-dot {

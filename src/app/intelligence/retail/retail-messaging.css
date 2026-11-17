@@ -89,7 +89,7 @@
   max-width: 28rem;
   font-size: var(--tri-font-body, 0.93rem);
   line-height: 1.45;
-  color: #b0bfd4;
+  color: var(--tri-text-faint, #b0bfd4);
 }
 
 .rm-workspace {
