@@ -57,7 +57,7 @@ describe(
       assert.deepEqual((await savePermissions(admin, ids.dealer, [])).ok ? null : 400, 400);
       const unknown = await savePermissions(admin, ids.spe, [{ key: "x.view", value: "allow" }]);
       assert.match(unknown.ok ? "" : unknown.message, /Unknown permission/);
-      const many = Array.from({ length: 15 }, () => ({ key: "orders.act", value: "deny" as const }));
+      const many = Array.from({ length: 25 }, () => ({ key: "orders.act", value: "deny" as const }));
       assert.equal((await savePermissions(admin, ids.spe, many)).ok, false);
     });
 

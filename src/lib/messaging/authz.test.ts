@@ -28,7 +28,12 @@ describe("canUseMessaging", () => {
 
   it("follows a person's ticks", () => {
     assert.equal(canUseMessaging(person("INTERNAL", "SALES_PERSON_EXECUTIVE", '{"messaging.view":"deny"}')), false);
-    assert.equal(canUseMessaging(person("INTERNAL", "STANDARD_USER", '{"messaging.view":"allow"}')), true);
+    // Since #69 a tab also needs its module's access tick.
+    assert.equal(canUseMessaging(person("INTERNAL", "STANDARD_USER", '{"messaging.view":"allow"}')), false);
+    assert.equal(
+      canUseMessaging(person("INTERNAL", "STANDARD_USER", '{"accessRetail.view":"allow","messaging.view":"allow"}')),
+      true,
+    );
   });
 });
 
