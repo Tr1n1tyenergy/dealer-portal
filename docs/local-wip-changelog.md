@@ -149,6 +149,13 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-18 — Stations toolbar rules + Actions column shell fill
+- Removed both horizontal rules around the Stations search/filter toolbar.
+- Fixed Stations table shell so header tint and row backgrounds reach the Actions column (wider Actions col, cell-level backgrounds instead of `tr` backgrounds that stop short when scrolling). Files: `platform-settings.css`, `platform-settings-client.tsx`.
+
+### 2026-11-18 — Stations Dealer Prices alignment
+Fuel continuation rows end on Dealer Prices, so `td:last-child { text-align: center }` (meant for Actions) was centering every other price. Scoped Actions centering to `th:last-child` + `.ps-station-block > td:last-child` and forced `.ps-num` left-align. File: `platform-settings.css`.
+
 ### 2026-11-17 — Platform Settings fluid laptop scale (`--ps-*`)
 Wired Settings chrome (nav, panels, filters, stats, buttons, modals, premium tables, fleet 5-row viewport) to Settings-scoped `--ps-*` aliases over `--tri-*`. Added compact-width / short-height / large-desktop MQs inside `platform-settings.css` only—no page zoom. Files: `src/app/intelligence/retail/platform-settings.css`, this changelog.
 
