@@ -157,6 +157,11 @@
   border-bottom: 1px solid var(--ps-line);
 }
 
+/* Stations: drop the rule between title and search toolbar (keep the one under filters) */
+.ps-panel__head:has(+ .ps-toolbar) {
+  border-bottom: 0;
+}
+
 .ps-panel__ico {
   flex: none;
   width: var(--ps-icon-well);
@@ -266,7 +271,7 @@
   gap: var(--ps-gap-xs);
   flex-wrap: nowrap;
   padding: var(--ps-gap-xs) var(--ps-gap-md);
-  border-bottom: 1px solid var(--ps-line);
+  border-bottom: 0;
   min-width: 0;
 }
 
@@ -344,6 +349,11 @@
   border-spacing: 0;
   table-layout: fixed;
   min-width: 58rem;
+  background: #fff;
+}
+
+.ps-table thead tr {
+  background: linear-gradient(180deg, #eef3fb 0%, #e6edf8 100%);
 }
 
 .ps-table th {
@@ -362,6 +372,7 @@
   position: sticky;
   top: 0;
   z-index: 2;
+  box-sizing: border-box;
 }
 
 .ps-th-stack {
@@ -398,20 +409,23 @@
   border-bottom: 1px solid #eef2f8;
   color: var(--ps-navy);
   min-height: var(--ps-table-row);
+  background: #fff;
+  box-sizing: border-box;
+  transition: background 0.12s ease;
 }
 
 .ps-table tbody tr {
   transition: background 0.12s ease;
 }
 
-.ps-table.al-table tbody tr:nth-child(even),
-.ps-table.tm-table tbody tr:nth-child(even),
-.ps-table.ft-table tbody tr:nth-child(even) {
+.ps-table.al-table tbody tr:nth-child(even) > td,
+.ps-table.tm-table tbody tr:nth-child(even) > td,
+.ps-table.ft-table tbody tr:nth-child(even) > td {
   background: #fafbfd;
 }
 
-.ps-table tbody tr:hover,
-.ps-table tbody tr.is-menu-open {
+.ps-table tbody tr:hover > td,
+.ps-table tbody tr.is-menu-open > td {
   background: #f3f6fc;
 }
 
@@ -424,9 +438,35 @@
   padding-left: 1rem;
 }
 
-.ps-table th:last-child,
+/*
+ * Stations only — Actions column stays inside the tinted shell.
+ * Do NOT target `td:last-child` on the whole table: fuel continuation rows
+ * end on Dealer Prices, so that would center every other price.
+ */
+.ps-table:not(.tm-table):not(.ft-table):not(.al-table) th:last-child,
 .ps-station-block > td:last-child {
-  padding-right: 0.85rem;
+  width: 5.25rem;
+  min-width: 5.25rem;
+  max-width: 5.25rem;
+  padding-left: 0.35rem;
+  padding-right: 0.55rem;
+  text-align: center;
+}
+
+.ps-station-block > td:last-child {
+  overflow: hidden;
+}
+
+.ps-table:not(.tm-table):not(.ft-table):not(.al-table) th:last-child {
+  /* Keep header fill edge-to-edge with the wrap */
+  background: linear-gradient(180deg, #eef3fb 0%, #e6edf8 100%);
+  letter-spacing: 0.04em;
+}
+
+/* Keep Dealer Prices (and other numeric cols) left-aligned across PMS + AGO rows */
+.ps-station-block > td.ps-num,
+.ps-fuel-rows > td.ps-num {
+  text-align: left;
 }
 
 /*
@@ -862,9 +902,19 @@
   border-bottom: 1px solid #e8eef6;
 }
 
+.ps-table tbody tr.ps-fuel-rows:hover > td {
+  background: #f3f6fc;
+}
+
 .ps-station-block > td[rowspan] {
   vertical-align: middle;
   border-bottom: 1px solid #e8eef6;
+  background: #fff;
+}
+
+.ps-table tbody tr.ps-station-block:hover > td[rowspan],
+.ps-table tbody tr.ps-station-block.is-menu-open > td[rowspan] {
+  background: #f3f6fc;
 }
 
 .ps-station-block + .ps-station-block > td {
