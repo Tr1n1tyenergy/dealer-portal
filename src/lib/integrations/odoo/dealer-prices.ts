@@ -20,7 +20,8 @@ export type StationDealerPrices = { pms: number | null; ago: number | null };
 export function truncateTo6Decimals(n: number): number {
   if (!Number.isFinite(n)) return n;
   const sign = n < 0 ? -1 : 1;
-  return (sign * Math.floor(Math.abs(n) * 1e6 + 1e-9)) / 1e6;
+  // Round away float noise at 9 dp first (213.3 / 1.08 = 197.49999999999997 must stay 197.5), then chop.
+  return (sign * Math.floor(Math.round(Math.abs(n) * 1e9) / 1000)) / 1e6;
 }
 
 /** Ex-VAT dealer unit price from settings parts. */

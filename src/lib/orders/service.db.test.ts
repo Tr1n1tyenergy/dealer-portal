@@ -52,6 +52,14 @@ describe(
       stationId = existingKitale
         ? (await prisma.station.update({ where: { id: existingKitale.id }, data: { dealerOrganizationId: organizationId } })).id
         : (await prisma.station.create({ data: { code: "kitale", name: "Kitale", dealerOrganizationId: organizationId } })).id;
+      // Prices now come from Settings (StationFuelPrice): (226.51 − 13.21) / 1.08 = 197.5 ex-VAT for PMS.
+      for (const product of ["PMS", "AGO"] as const) {
+        await prisma.stationFuelPrice.upsert({
+          where: { stationId_product: { stationId, product } },
+          create: { stationId, product, dealerMarginKes: 13.21, transportMarginKes: 0 },
+          update: { dealerMarginKes: 13.21, transportMarginKes: 0, basePriceKes: null },
+        });
+      }
       depotId = (await prisma.depot.create({ data: { name: "Test Depot", code: `TEST-${run}` } })).id;
       actorId = (
         await prisma.user.create({

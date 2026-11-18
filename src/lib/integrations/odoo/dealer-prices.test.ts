@@ -15,6 +15,14 @@ describe("Settings dealer price formula", () => {
     assert.equal(truncateTo6Decimals(198.49074099), 198.49074);
   });
 
+  it("lands exactly on Finance's price when the maths is exact (no floating-point loss)", () => {
+    // Kitale (Eldoret EPRA 226.51 / 227.71, margin 12.5, transport 0.71): Finance lists 197.5 and 198.611111.
+    // 213.3 / 1.08 is 197.49999999999997 in floating point; truncating that must still give 197.5.
+    assert.equal(dealerPriceFromParts(226.51, 12.5, 0.71), 197.5);
+    assert.equal(dealerPriceFromParts(227.71, 12.5, 0.71), 198.611111);
+    assert.equal(truncateTo6Decimals(197.49999999999997), 197.5);
+  });
+
   it("does not round up the 6th decimal", () => {
     assert.notEqual(Math.round(198.49074074 * 1e6) / 1e6, truncateTo6Decimals(198.49074074));
     assert.equal(truncateTo6Decimals(1.9999999), 1.999999);
