@@ -5,7 +5,7 @@
   --ps-blue: #3551a5;
   --ps-navy: #0a235b;
   --ps-gold: #ffcc00;
-  --ps-muted: #64748b;
+  --ps-muted: var(--tri-text-faint, #64748b);
   --ps-line: #e2e8f0;
   --ps-shadow: 0 10px 28px rgba(10, 35, 91, 0.08);
 
@@ -287,7 +287,7 @@
   left: 0.7rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   pointer-events: none;
 }
 
@@ -398,7 +398,7 @@
   letter-spacing: 0.02em;
   text-transform: none;
   font-size: calc(var(--ps-font-xs) * 0.92);
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
   white-space: nowrap;
 }
 
@@ -610,7 +610,7 @@
 
 .ps-icon-btn--ok {
   border-color: #9ed4b2;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
   background: #f0faf4;
 }
 
@@ -710,7 +710,7 @@
   margin-top: 0.35rem;
   font-size: var(--ps-font-xs);
   font-weight: 650;
-  color: #6b7c9c;
+  color: var(--tri-text-faint, #6b7c9c);
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
@@ -805,7 +805,7 @@
 
 .sp-field__locked svg {
   flex-shrink: 0;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
 }
 
 .sp-fuel-block {
@@ -867,7 +867,7 @@
 .sp-calc__note {
   font-size: var(--ps-font-2xs);
   font-weight: 650;
-  color: #8a7a3d;
+  color: var(--tri-text-faint-gold, #8a7a3d);
   white-space: nowrap;
 }
 
@@ -1278,7 +1278,7 @@
 
 .tm-stat__ico--ago {
   background: #e8f7ee;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
 }
 
 .tm-stat__value {
@@ -1375,7 +1375,7 @@
 }
 
 .tm-name svg {
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
   flex: none;
 }
 
@@ -1400,12 +1400,12 @@
 
 .tm-status--active {
   background: #e9f8ef;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
 }
 
 .tm-status--inactive {
   background: #f1f4f8;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .tm-btn-del {
@@ -1542,7 +1542,7 @@
   appearance: none;
   border: 0;
   background: transparent;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
   cursor: pointer;
   padding: 0.28rem;
   border-radius: 0.45rem;
@@ -1669,7 +1669,7 @@
 
 .tm-fuel__opt svg {
   flex-shrink: 0;
-  color: #6b7c9c;
+  color: var(--tri-text-faint, #6b7c9c);
 }
 
 .tm-fuel__radio {
@@ -1881,12 +1881,12 @@
 
 .ft-stat__ico--active {
   background: #e9f8ef;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
 }
 
 .ft-stat__ico--maint {
   background: #fff7db;
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
 }
 
 .ft-stat__ico--inactive {
@@ -2095,7 +2095,7 @@
 .ft-id small {
   display: block;
   font-size: var(--ps-font-xs);
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
   font-weight: 600;
   white-space: nowrap;
   letter-spacing: 0.01em;
@@ -2114,7 +2114,7 @@
 
 .ft-cell-ico svg {
   flex: none;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
 }
 
 .ft-cell-ico > span {
@@ -2138,7 +2138,7 @@
 .ft-driver-id {
   display: block;
   font-size: var(--ps-font-2xs);
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
   font-weight: 600;
 }
 
@@ -2159,7 +2159,7 @@
 .ft-cap-cell small {
   font-size: var(--ps-font-2xs);
   font-weight: 600;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
 }
 
 .ft-status {
@@ -2184,13 +2184,13 @@
 
 .ft-status--active {
   background: #e9f8ef;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
   border: 1px solid #c8ebd4;
 }
 
 .ft-status--maintenance {
   background: #fff7db;
-  color: #a67c00;
+  color: var(--tri-text-faint-gold, #a67c00);
   border: 1px solid #f0e0a0;
 }
 
@@ -2313,7 +2313,7 @@
 
 .ft-truck-field__control > svg {
   flex: none;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
 }
 
 .ft-truck-field__control input,
@@ -2358,7 +2358,7 @@
   appearance: none;
   border: 0;
   background: transparent;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
   padding: 0.15rem;
   line-height: 0;
   cursor: pointer;
@@ -2406,7 +2406,7 @@
 }
 
 .ft-truck-combo__list button svg {
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
   flex: none;
 }
 
@@ -2475,7 +2475,7 @@
   border-radius: 0.7rem;
   border: 1px solid #d5e8d8;
   background: #f3fbf6;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
 }
 
 .ft-comp__summary.is-bad {
@@ -2528,7 +2528,7 @@
 
 .ft-comp__badge.is-ok {
   background: #dff5e8;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
 }
 
 .ft-comp__badge.is-bad {
@@ -2559,7 +2559,7 @@
   font-weight: 750;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #6b7c9c;
+  color: var(--tri-text-faint, #6b7c9c);
   background: #f3f7fd;
   padding: 0.55rem 0.85rem;
   border-bottom: 1px solid #e2eaf6;
@@ -2599,7 +2599,7 @@
   font-weight: 750;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #7b8db0;
+  color: var(--tri-text-faint, #7b8db0);
 }
 
 .ft-comp__cap {
@@ -2793,12 +2793,12 @@
 
 .al-stat__ico--ok {
   background: #e9f8ef;
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
 }
 
 .al-stat__ico--edit {
   background: #fff7db;
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
 }
 
 .al-stat__ico--del {
@@ -3020,7 +3020,7 @@
 
 .al-mod--support {
   background: #fff0e8;
-  color: #b85a2a;
+  color: var(--tri-text-faint-gold, #b85a2a);
 }
 
 .al-mod--permissions {
@@ -3071,7 +3071,7 @@
 }
 
 .al-status--success {
-  color: #1f8a4c;
+  color: var(--tri-text-faint-green, #1f8a4c);
 }
 
 .al-status--failed {

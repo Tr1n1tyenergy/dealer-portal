@@ -5,7 +5,7 @@
   --tri-blue: #3551a5;
   --tri-blue-deep: #0a235b;
   --tri-yellow: #ffcc00;
-  --tri-muted: #64748b;
+  --tri-muted: var(--tri-text-faint, #64748b);
   --tri-muted-soft: #94a3b8;
   --tri-panel: #eef2f7;
   --tri-border: #d7e0ec;

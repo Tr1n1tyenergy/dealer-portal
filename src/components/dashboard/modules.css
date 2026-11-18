@@ -98,7 +98,7 @@
   margin: 0.3rem 0 0 !important;
   font-size: 0.8rem !important;
   line-height: 1.4 !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 /* Divider between description and feature list */
@@ -136,7 +136,7 @@
   margin-top: 0.08rem !important;
   border-radius: 999px !important;
   background: #fff3cc !important;
-  color: #b8860b !important;
+  color: var(--tri-text-faint-gold, #b8860b) !important;
   flex-shrink: 0 !important;
 }
 

@@ -4,7 +4,7 @@
   --ot-blue: #3551a5;
   --ot-ink: #0a235b;
   --ot-yellow: #ffcc00;
-  --ot-muted: #64748b;
+  --ot-muted: var(--tri-text-faint, #64748b);
   --ot-line: #e6edf7;
   --ot-bg: #f5f8fd;
   --ot-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
@@ -164,7 +164,7 @@ a.ot__crumb:hover {
   border-radius: 14px;
   background: #fff8db;
   border: 1px solid #fde68a;
-  color: #d4a106;
+  color: var(--tri-text-faint-gold, #d4a106);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -205,7 +205,7 @@ a.ot__crumb:hover {
   border-radius: 999px;
   background: #fff6cc;
   border: 1px solid #f5e08a;
-  color: #8a6d00;
+  color: var(--tri-text-faint-gold, #8a6d00);
   font-size: 0.78rem;
   font-weight: 750;
   white-space: nowrap;
@@ -271,7 +271,7 @@ a.ot__crumb:hover {
   font-size: 0.75rem;
   font-weight: 750;
   background: #eef2f7;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   border: 2px solid #d7e0ec;
   position: relative;
   z-index: 2;
@@ -323,7 +323,7 @@ a.ot__crumb:hover {
   font-style: normal;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   line-height: 1.25;
   max-width: 94px;
   margin: 0;
@@ -338,18 +338,18 @@ a.ot__crumb:hover {
 .ot__progress-node small {
   font-size: 0.62rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   letter-spacing: 0.02em;
   margin: 0;
 }
 
 .ot__progress-step.is-active .ot__progress-node small {
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
   font-weight: 650;
 }
 
 .ot__progress-step.is-done .ot__progress-node small {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ot__progress-step.is-attention .ot__progress-node small {
@@ -523,7 +523,7 @@ a.ot__crumb:hover {
 }
 
 .ot__tile.is-station .ot__tile-watermark {
-  color: #c9a227;
+  color: var(--tri-text-faint-gold, #c9a227);
   opacity: 0.14;
 }
 
@@ -555,7 +555,7 @@ a.ot__crumb:hover {
 .ot__product-chip.is-ago {
   background: #fffbeb;
   border-color: #f5e6a8;
-  color: #8a6d00;
+  color: var(--tri-text-faint-gold, #8a6d00);
 }
 
 .ot__product-chip strong {
@@ -696,7 +696,7 @@ a.ot__crumb:hover {
 }
 
 .ot__doc-action.is-disabled {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   cursor: not-allowed;
   opacity: 0.75;
 }
@@ -790,13 +790,13 @@ a.ot__crumb:hover {
 }
 
 .ot .dp-ot-find__search input::placeholder {
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
 }
 
 .ot .dp-ot-find__search kbd {
   border: 1px solid #e2e8f0 !important;
   background: #f8fafc !important;
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
 }
 
 .ot .dp-ot-find__results {

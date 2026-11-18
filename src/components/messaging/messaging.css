@@ -36,7 +36,7 @@
 
 .msg-app--dealer {
   --msg-ink: #0a235b;
-  --msg-muted: #64748b;
+  --msg-muted: var(--tri-text-faint, #64748b);
   --msg-line: #e2e8f0;
   --msg-glass: #ffffff;
   --msg-glass-2: #f4f7fb;
@@ -1018,7 +1018,7 @@
 
 .msg-pill--muted {
   background: rgba(148, 163, 184, 0.12);
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
@@ -1310,7 +1310,7 @@
   border-radius: 999px;
   border: 1px solid #d7e0ee;
   background: #f8fafc;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .msg-app--dealer .msg-search input {
@@ -1318,7 +1318,7 @@
 }
 
 .msg-app--dealer .msg-search input::placeholder {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .msg-app--dealer .msg-filters {
@@ -1394,7 +1394,7 @@
 }
 
 .msg-app--dealer .msg-list__kind {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .msg-app--dealer .msg-list__unread {
@@ -1437,7 +1437,7 @@
 .msg-app--dealer .msg-thread__empty-card span {
   font-size: 0.88rem;
   line-height: 1.5;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   max-width: 28ch;
 }
 
@@ -1495,7 +1495,7 @@
 .msg-app--dealer .msg-day span {
   background: #eef3fb;
   border: none;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   font-weight: 650;
 }
 
@@ -1514,7 +1514,7 @@
 }
 
 .msg-app--dealer .msg-composer textarea::placeholder {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .msg-app--dealer .msg-composer__icon:hover:not(:disabled) {
@@ -1545,7 +1545,7 @@
 }
 
 .msg-app--dealer .msg-context__head svg {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .msg-app--dealer .msg-context__idle {
@@ -1559,7 +1559,7 @@
   margin: 0 0.15rem 0.15rem;
   font-size: 0.82rem;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .msg-app--dealer .msg-profile {
@@ -1576,7 +1576,7 @@
 }
 
 .msg-app--dealer .msg-profile__body em {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .msg-app--dealer .msg-avatar--lg {
@@ -1645,7 +1645,7 @@
 .msg-app--dealer .msg-card__empty {
   text-align: left;
   padding: 0.85rem 0.7rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .msg-app--dealer .msg-order {
@@ -1667,7 +1667,7 @@
 
 .msg-order__meta {
   font-size: 0.72rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .msg-app--dealer .msg-order:hover {
@@ -1688,7 +1688,7 @@
 
 .msg-app--dealer .msg-pill--gold {
   background: #fffbeb;
-  color: #a16207;
+  color: var(--tri-text-faint-gold, #a16207);
   border-color: #fde68a;
 }
 

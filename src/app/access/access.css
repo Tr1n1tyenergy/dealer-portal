@@ -7,7 +7,7 @@
   --tri-yellow: #ffcc00;
   --tri-yellow-soft: #fff3cc;
   --tri-yellow-text: #b8860b;
-  --tri-muted: #64748b;
+  --tri-muted: var(--tri-text-faint, #64748b);
   --tri-muted-soft: #94a3b8;
   --tri-panel: #eef2f7;
   --tri-green: #10b981;

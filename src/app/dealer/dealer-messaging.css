@@ -4,7 +4,7 @@
   --dm-blue: #3551a5;
   --dm-ink: #0a235b;
   --dm-yellow: #ffcc00;
-  --dm-muted: #64748b;
+  --dm-muted: var(--tri-text-faint, #64748b);
   --dm-line: #e2e8f0;
   --dm-canvas: #eef2f7;
   --dm-shadow: 0 16px 40px rgba(10, 35, 91, 0.1);

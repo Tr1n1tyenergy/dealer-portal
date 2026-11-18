@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import { Bell, ChevronDown, KeyRound, LogOut, Search } from "lucide-react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { canUser, type StaffUser } from "@/lib/permissions";
+import { AccessibilityMenu } from "@/components/a11y/accessibility-menu";
 import { cn } from "@/lib/utils";
 import "./staff-portal.css";
 import "@/app/intelligence/retail/staff-portal-hero.css";
@@ -188,6 +189,8 @@ export function StaffPortalShell({
                 aria-label="Search dealers, orders, reports"
               />
             </form>
+
+            <AccessibilityMenu variant="header" />
 
             {showMessages ? (
               <Link

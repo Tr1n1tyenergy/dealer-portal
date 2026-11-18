@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { A11Y_HEAD_SCRIPT } from "@/lib/a11y/preferences";
+import { AccessibilityMenu } from "@/components/a11y/accessibility-menu";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,8 +11,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Applies saved accessibility choices before first paint (no flash). */}
+        <script dangerouslySetInnerHTML={{ __html: A11Y_HEAD_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -21,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <AuthProvider>{children}</AuthProvider>
+        <AccessibilityMenu variant="floating" />
       </body>
     </html>
   );

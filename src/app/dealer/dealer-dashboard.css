@@ -5,7 +5,7 @@
   --dd-ink: #0a235b;
   --dd-yellow: #ffcc00;
   --dd-turquoise: rgb(0, 198, 214);
-  --dd-muted: #64748b;
+  --dd-muted: var(--tri-text-faint, #64748b);
   --dd-line: #e6edf7;
   --dd-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
   padding: 0 0 1.75rem;
@@ -162,7 +162,7 @@
 
 .dd__kpi--pay .dd__kpi-icon {
   background: #fff6d6;
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
 }
 
 .dd__kpi-copy {
@@ -192,7 +192,7 @@
 }
 
 .dd__kpi-go {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   margin-top: 0.2rem;
 }
 
@@ -285,7 +285,7 @@
   border-radius: 12px;
   background: #fff8db;
   border: 1px solid #fde68a;
-  color: #d4a106;
+  color: var(--tri-text-faint-gold, #d4a106);
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -339,7 +339,7 @@
   border-radius: 999px;
   background: #fff6cc;
   border: 1px solid #f5e08a;
-  color: #8a6d00;
+  color: var(--tri-text-faint-gold, #8a6d00);
   font-size: 0.76rem;
   font-weight: 750;
   white-space: nowrap;
@@ -411,7 +411,7 @@
   font-size: 0.75rem !important;
   font-weight: 750 !important;
   background: #eef2f7 !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
   border: 2px solid #d7e0ec !important;
   position: relative !important;
   z-index: 2 !important;
@@ -465,7 +465,7 @@
   font-style: normal !important;
   font-size: 0.7rem !important;
   font-weight: 650 !important;
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
   line-height: 1.25 !important;
   max-width: 94px !important;
   margin: 0 !important;
@@ -481,19 +481,19 @@
   display: block !important;
   font-size: 0.6rem !important;
   font-weight: 600 !important;
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
   letter-spacing: 0.02em !important;
   margin: 0 !important;
   line-height: 1.2 !important;
 }
 
 .dd .dd__progress-step.is-active .dd__progress-note {
-  color: #b8860b !important;
+  color: var(--tri-text-faint-gold, #b8860b) !important;
   font-weight: 650 !important;
 }
 
 .dd .dd__progress-step.is-done .dd__progress-note {
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .dd .dd__progress-step.is-attention .dd__progress-note {
@@ -819,7 +819,7 @@
 .dd__msg-time {
   margin-top: 0.25rem;
   font-size: 0.7rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 @media (max-width: 1100px) {

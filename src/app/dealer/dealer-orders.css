@@ -6,7 +6,7 @@
   --do-yellow: #ffcc00;
   --do-turquoise: rgb(0, 198, 214);
   --do-red: rgb(239, 0, 18);
-  --do-muted: #64748b;
+  --do-muted: var(--tri-text-faint, #64748b);
   --do-line: #e6edf7;
   --do-shadow: 0 14px 36px rgba(10, 35, 91, 0.08);
   padding-bottom: 1.75rem;
@@ -148,7 +148,7 @@
 }
 
 .do__search input::placeholder {
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .do__select {
@@ -268,7 +268,7 @@
 
 .do__order-ico.is-a {
   background: #fff4c7;
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
 }
 .do__order-ico.is-b {
   background: #eef0ff;

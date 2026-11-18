@@ -26,7 +26,7 @@
   --ssr-blue: #3551a5;
   --ssr-ink: #0a235b;
   --ssr-yellow: #ffcc00;
-  --ssr-muted: #64748b;
+  --ssr-muted: var(--tri-text-faint, #64748b);
   --ssr-line: #e2e8f0;
   --ssr-canvas: #eef2f7;
   --ssr-panel: #f3f6fb;
@@ -164,7 +164,7 @@
   margin: 0;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #7b8aa5;
+  color: var(--tri-text-faint, #7b8aa5);
   letter-spacing: 0.01em;
 }
 
@@ -254,7 +254,7 @@
 
 .ssr__status--idle {
   background: #f1f5f9;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr__status--closed {
@@ -309,7 +309,7 @@
   font-size: 0.75rem;
   font-weight: 750;
   background: #eef2f7;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   border: 2px solid #d7e0ec;
   position: relative;
   z-index: 2;
@@ -351,14 +351,14 @@
 .ssr__progress-step.is-pending .ssr__progress-dot {
   background: #eef2f7;
   border-color: #d7e0ec;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr__progress-node em {
   font-style: normal;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   line-height: 1.25;
   max-width: 94px;
   margin: 0;
@@ -372,18 +372,18 @@
 .ssr__progress-node small {
   font-size: 0.62rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   letter-spacing: 0.02em;
   margin: 0;
 }
 
 .ssr__progress-step.is-active .ssr__progress-node small {
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
   font-weight: 650;
 }
 
 .ssr__progress-step.is-done .ssr__progress-node small {
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 /* Space between order-style progress rail and Continue / Start Over. */
@@ -568,7 +568,7 @@
   text-align: left;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #7b8aa5;
+  color: var(--tri-text-faint, #7b8aa5);
   padding: 0.55rem 0.65rem 0.7rem;
   border-bottom: 1px solid #e8edf5;
   white-space: nowrap;
@@ -729,7 +729,7 @@
 .ssr-records__field > span {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #7b8aa5;
+  color: var(--tri-text-faint, #7b8aa5);
 }
 
 .ssr-records__status {
@@ -1024,7 +1024,7 @@
   min-width: 0;
   font-size: 0.78rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr-rtt__field--grow {
@@ -1078,7 +1078,7 @@
   bottom: 0.55rem;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   pointer-events: none;
 }
 
@@ -1118,7 +1118,7 @@
   margin: 0.2rem 0 0;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #7b8aa5;
+  color: var(--tri-text-faint, #7b8aa5);
 }
 
 .ssr-rtt__upload {
@@ -1160,7 +1160,7 @@
 .ssr-rtt__upload-copy span {
   font-size: 0.74rem;
   font-weight: 600;
-  color: #7b8aa5;
+  color: var(--tri-text-faint, #7b8aa5);
 }
 
 .ssr-rtt__upload-btn {
@@ -1205,13 +1205,13 @@
 .ssr-rtt__upload-file-meta span {
   font-size: 0.74rem;
   font-weight: 600;
-  color: #7b8aa5;
+  color: var(--tri-text-faint, #7b8aa5);
 }
 
 .ssr-rtt__upload-remove {
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   cursor: pointer;
   padding: 0.35rem;
   border-radius: 8px;
@@ -1257,7 +1257,7 @@
 .ssr-rtt__dialog-close {
   border: 0;
   background: transparent;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   cursor: pointer;
   padding: 0.2rem;
   border-radius: 8px;
@@ -1337,7 +1337,7 @@
   margin: 0;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .ssr-rtt__total strong {
@@ -1359,7 +1359,7 @@
 
 .ssr-rtt__total--all {
   background: #fff8db;
-  color: #a16207;
+  color: var(--tri-text-faint-gold, #a16207);
 }
 
 .ssr-rtt__log-filters {
@@ -1406,7 +1406,7 @@
 }
 
 .ssr-rtt__detail dt {
-  color: #7b8aa5;
+  color: var(--tri-text-faint, #7b8aa5);
   font-weight: 650;
 }
 

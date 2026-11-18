@@ -5,7 +5,7 @@
   --sp-navy: #0a235b;
   --sp-yellow: #ffcc00;
   --sp-bg: #f4f7fb;
-  --sp-muted: #64748b;
+  --sp-muted: var(--tri-text-faint, #64748b);
   --sp-line: rgba(10, 35, 91, 0.08);
   --sp-card-radius: 1.15rem;
   min-height: 100dvh;
@@ -78,6 +78,8 @@
   flex: 1;
   min-width: 0;
   justify-content: center;
+  /* When the links overflow (tablets, big text), start-align so Home stays reachable. */
+  justify-content: safe center;
   overflow-x: auto;
   scrollbar-width: none;
 }

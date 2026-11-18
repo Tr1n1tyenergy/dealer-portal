@@ -262,7 +262,7 @@
   padding: 0.4rem 0.85rem;
   border-radius: 999px;
   background: #fff3cc;
-  color: #b8860b;
+  color: var(--tri-text-faint-gold, #b8860b);
   font-size: 0.68rem;
   font-weight: 650;
   letter-spacing: 0.14em;
@@ -281,7 +281,7 @@
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
   line-height: 1.55;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .login-field {
@@ -307,7 +307,7 @@
   width: 1rem;
   height: 1rem;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   pointer-events: none;
 }
 
@@ -342,7 +342,7 @@
   border: 0;
   border-radius: 0.5rem;
   background: transparent;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
   cursor: pointer;
 }
 
@@ -482,14 +482,14 @@
 .login-trust__sub {
   margin-top: 0.15rem;
   font-size: 0.62rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .login-footer {
   margin-top: 1.35rem;
   text-align: center;
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .login-back {
@@ -623,7 +623,7 @@
   font-size: 0.78rem;
   font-weight: 500;
   line-height: 1.35;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
 }
 
 .access-card__caps {
@@ -631,7 +631,7 @@
   font-size: 0.7rem;
   font-weight: 500;
   line-height: 1.35;
-  color: #94a3b8;
+  color: var(--tri-text-faint, #94a3b8);
 }
 
 .access-card__go {
@@ -714,7 +714,7 @@
 .login-support span {
   display: block;
   margin-top: 0.15rem;
-  color: #64748b;
+  color: var(--tri-text-faint, #64748b);
   font-size: 0.75rem;
 }
 

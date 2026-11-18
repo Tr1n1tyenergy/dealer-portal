@@ -238,13 +238,13 @@
   margin-top: 0.1rem !important;
   font-size: 0.62rem !important;
   font-weight: 600 !important;
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
 }
 
 .nt-stat__trend {
   font-size: 0.62rem !important;
   font-weight: 650 !important;
-  color: #16a34a !important;
+  color: var(--tri-text-faint-green, #16a34a) !important;
 }
 
 .nt-insights {
@@ -325,7 +325,7 @@
 .nt-insight__label {
   font-size: 0.6rem !important;
   font-weight: 600 !important;
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
   line-height: 1.25 !important;
 }
 
@@ -340,13 +340,13 @@
 .nt-insight__detail {
   font-size: 0.5rem !important;
   font-weight: 600 !important;
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
   line-height: 1.25 !important;
   white-space: nowrap !important;
 }
 
 .nt-insight__detail--up {
-  color: #16a34a !important;
+  color: var(--tri-text-faint-green, #16a34a) !important;
 }
 
 /* ── Action cards — under hero, same width as left column ── */
@@ -696,7 +696,7 @@
   padding: 1.75rem 1rem !important;
   text-align: center !important;
   font-size: 0.82rem !important;
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
 }
 
 /* Upcoming row */
@@ -763,7 +763,7 @@
   gap: 0.4rem 0.65rem !important;
   margin-top: 0.25rem !important;
   font-size: 0.7rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-meet__meta span {
@@ -778,12 +778,12 @@
   gap: 0.35rem !important;
   font-size: 0.66rem !important;
   font-weight: 650 !important;
-  color: #16a34a !important;
+  color: var(--tri-text-faint-green, #16a34a) !important;
   white-space: nowrap !important;
 }
 
 .nt-meet__more {
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
   flex-shrink: 0 !important;
 }
 
@@ -838,7 +838,7 @@
 .nt-rec__meta {
   margin-top: 0.2rem !important;
   font-size: 0.7rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-rec__right {
@@ -904,7 +904,7 @@
 .nt-note__when {
   margin-top: 0.2rem !important;
   font-size: 0.7rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-note__pills {
@@ -915,7 +915,7 @@
 }
 
 .nt-note__chev {
-  color: #94a3b8 !important;
+  color: var(--tri-text-faint, #94a3b8) !important;
   flex-shrink: 0 !important;
 }
 
@@ -931,7 +931,7 @@
 
 .nt-pill--gold {
   background: #fff6d6 !important;
-  color: #9a7400 !important;
+  color: var(--tri-text-faint-gold, #9a7400) !important;
 }
 
 .nt-pill--blue {
@@ -1043,7 +1043,7 @@
 .nt-modal__desc {
   margin: 0.35rem 0 1.1rem !important;
   font-size: 0.85rem !important;
-  color: #64748b !important;
+  color: var(--tri-text-faint, #64748b) !important;
 }
 
 .nt-field {
