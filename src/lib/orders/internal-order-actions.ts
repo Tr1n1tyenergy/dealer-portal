@@ -1,7 +1,7 @@
 import { canUser, type StaffUser } from "@/lib/permissions";
 import { logActivity } from "@/lib/activity";
 import { prisma } from "@/lib/prisma";
-import { confirmPayment, generatePfi, releaseToDepot, syncQuotation } from "@/lib/orders/service";
+import { generatePfi, releaseToDepot, retryPaymentOdoo, reviewPayment, syncQuotation } from "@/lib/orders/service";
 import { ignoreStaleTransition } from "@/lib/orders/state-machine";
 
 /**
@@ -31,8 +31,10 @@ export async function applyInternalOrderAction(
   if (action === "generate-pfi") await ignoreStaleTransition(() => generatePfi(orderId, actor.id));
   if (action === "confirm-payment" || action === "reject-payment") {
     const note = String(formData.get("note") || "").slice(0, 300);
-    await ignoreStaleTransition(() => confirmPayment(orderId, actor.id, action === "confirm-payment", note));
+    const paymentId = String(formData.get("paymentId") || "");
+    await ignoreStaleTransition(() => reviewPayment(paymentId, actor.id, action === "confirm-payment", note));
   }
+  if (action === "retry-payment-odoo") await retryPaymentOdoo(String(formData.get("paymentId") || ""), actor.id);
   if (action === "release") {
     const depot = await prisma.depot.findFirst({ orderBy: { name: "asc" } });
     if (!depot) throw new Error("No depot is configured.");

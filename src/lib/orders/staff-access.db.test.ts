@@ -39,8 +39,8 @@ describe(
           createdById: users.spe,
         },
       });
-      await prisma.paymentRecord.create({ data: { orderId: order.id, amount: "1000.00", status: "VERIFICATION" } });
-      return order;
+      const payment = await prisma.paymentRecord.create({ data: { orderId: order.id, amount: "1000.00", status: "VERIFICATION" } });
+      return { ...order, paymentId: payment.id };
     }
 
     before(async () => {
@@ -86,7 +86,7 @@ describe(
 
       const result = await core.applyInternalOrderAction(
         { id: users.staff, accountType: "INTERNAL", role: "STANDARD_USER", permissions: "[]" },
-        form({ orderId: order.id, action: "confirm-payment" })
+        form({ orderId: order.id, paymentId: order.paymentId, action: "confirm-payment" })
       );
 
       assert.equal(result, "refused");
@@ -108,7 +108,7 @@ describe(
 
       const result = await core.applyInternalOrderAction(
         { id: users.spe, accountType: "INTERNAL", role: "SALES_PERSON_EXECUTIVE", permissions: '{"orders.act":"deny"}' },
-        form({ orderId: order.id, action: "confirm-payment" })
+        form({ orderId: order.id, paymentId: order.paymentId, action: "confirm-payment" })
       );
 
       assert.equal(result, "refused");
@@ -120,7 +120,7 @@ describe(
 
       const result = await core.applyInternalOrderAction(
         { id: users.spe, accountType: "INTERNAL", role: "SALES_PERSON_EXECUTIVE", permissions: "[]" },
-        form({ orderId: order.id, action: "confirm-payment" })
+        form({ orderId: order.id, paymentId: order.paymentId, action: "confirm-payment" })
       );
 
       assert.equal(result, "done");

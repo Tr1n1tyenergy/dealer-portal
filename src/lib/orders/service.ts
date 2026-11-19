@@ -14,6 +14,7 @@ import { pfiTotals, PFI_VAT_RATE } from "@/lib/orders/pfi-totals";
 import { assertTransition, InvalidOrderTransition, StaleOrderTransition } from "@/lib/orders/state-machine";
 import {
   bankAccountByNumber,
+  orderStatusAfterReview,
   parseMpesaCode,
   paymentClaimKey,
   paymentTotals,
@@ -613,30 +614,110 @@ export async function retryPaymentOdoo(paymentId: string, actorId: string, odoo:
   await logActivity({ actorId, action: "PAYMENT_ODOO_RETRY", entity: "PaymentRecord", entityId: paymentId });
 }
 
-export async function confirmPayment(orderId: string, actorId: string, accept: boolean, note?: string) {
-  const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
-  if (!order) throw new Error("Order not found.");
-  const to = accept ? "PAYMENT_CONFIRMED" : "PAYMENT_EXCEPTION";
-  const saved = await prisma.$transaction(async (tx) => {
-    await tx.paymentRecord.updateMany({
-      where: { orderId, status: { in: ["SUBMITTED", "VERIFICATION"] } },
-      data: { status: accept ? "CONFIRMED" : "REJECTED" },
-    });
-    return recordTransition(tx, {
-      orderId,
-      from: order.status,
-      to,
-      actorId,
-      note: [accept ? "Payment confirmed" : "Payment needs review", note?.trim() || null].filter(Boolean).join(" — "),
-    });
+/**
+ * Staff confirm or flag one payment. With Odoo payments on, Confirm posts the manual payment's draft
+ * (or re-checks an M-PESA payment Odoo already posted) and the portal only confirms what Odoo posted;
+ * Flag cancels the draft. Older payments (no account recorded) and the switch off: portal-only.
+ */
+export async function reviewPayment(
+  paymentId: string,
+  actorId: string,
+  accept: boolean,
+  note?: string,
+  odoo: OdooClient = getOdooClient()
+): Promise<"done" | "stale" | "odoo-failed"> {
+  // Claim the payment first, so two staff pressing Confirm together can't post it twice.
+  const claim = await prisma.paymentRecord.updateMany({
+    where: { id: paymentId, status: { in: ["SUBMITTED", "VERIFICATION"] }, reviewedAt: null },
+    data: { reviewedAt: new Date(), reviewedById: actorId },
   });
+  if (claim.count === 0) return "stale";
+  const payment = await prisma.paymentRecord.findUniqueOrThrow({ where: { id: paymentId } });
+  const useOdoo =
+    odooPaymentsEnabled() &&
+    (payment.method === "MPESA_CODE" || (payment.method === "MANUAL" && payment.bankAccountNumber != null));
+
+  if (accept && useOdoo) {
+    try {
+      if (payment.method === "MANUAL") {
+        let odooId = payment.odooPaymentId;
+        if (odooId == null) {
+          await pushPaymentToOdoo(paymentId, odoo);
+          const pushed = await prisma.paymentRecord.findUniqueOrThrow({ where: { id: paymentId } });
+          if (pushed.odooPaymentId == null) throw new Error(pushed.odooError ?? "The Odoo draft could not be created.");
+          odooId = pushed.odooPaymentId;
+        }
+        const posted = await odoo.postPayment(odooId);
+        await prisma.paymentRecord.update({ where: { id: paymentId }, data: { odooState: posted.state } });
+        if (posted.state !== "posted") throw new Error(`Odoo left the payment in "${posted.state}", not posted.`);
+      } else {
+        const found = await odoo.findMpesaPayment(payment.mpesaCode ?? "");
+        if (!found || found.state !== "posted" || toCents(found.amount) !== toCents(payment.amount)) {
+          throw new Error("This M-PESA payment no longer matches Odoo.");
+        }
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      await prisma.paymentRecord.update({
+        where: { id: paymentId },
+        data: { reviewedAt: null, reviewedById: null, odooError: message.slice(0, 300) },
+      });
+      return "odoo-failed";
+    }
+  }
+
+  const amountText = `KES ${kes(toCents(payment.amount) ?? 0)}`;
+  const reason = note?.trim() || null;
+  await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "DealerOrder" WHERE id = ${payment.orderId} FOR UPDATE`;
+    await tx.paymentRecord.update({
+      where: { id: paymentId },
+      data: accept
+        ? { status: "CONFIRMED", reviewNote: reason, odooError: null }
+        : { status: "REJECTED", reviewNote: reason, claimKey: null },
+    });
+    const order = await tx.dealerOrder.findUniqueOrThrow({
+      where: { id: payment.orderId },
+      include: { proforma: true, payments: true },
+    });
+    const totals = paymentTotals(order.proforma?.amount ?? order.amountDue, order.payments);
+    // An order with no PFI total (older data): one confirmation pays it, as before.
+    const next =
+      totals.totalCents == null && accept ? "PAYMENT_CONFIRMED" : orderStatusAfterReview(totals);
+    if (next !== order.status) {
+      await recordTransition(tx, {
+        orderId: order.id,
+        from: order.status,
+        to: next,
+        actorId,
+        note: [accept ? `Payment confirmed — ${amountText}` : `Payment needs review — ${amountText}`, reason]
+          .filter(Boolean)
+          .join(" — "),
+      });
+    }
+  });
+
+  if (!accept && useOdoo && payment.method === "MANUAL" && payment.odooPaymentId != null) {
+    try {
+      const cancelled = await odoo.cancelPayment(payment.odooPaymentId);
+      await prisma.paymentRecord.update({ where: { id: paymentId }, data: { odooState: cancelled.state } });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      await prisma.paymentRecord.update({
+        where: { id: paymentId },
+        data: { odooError: `Cancel the draft in Odoo by hand: ${message}`.slice(0, 300) },
+      });
+    }
+  }
+
   await logActivity({
     actorId,
     action: accept ? "PAYMENT_CONFIRMED" : "PAYMENT_REJECTED",
     entity: "DealerOrder",
-    entityId: orderId,
+    entityId: payment.orderId,
+    meta: { paymentId },
   });
-  return saved;
+  return "done";
 }
 
 export async function releaseToDepot(orderId: string, actorId: string, depotId: string) {

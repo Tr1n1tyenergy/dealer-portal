@@ -86,14 +86,15 @@ describe(
 
     it("confirms a payment once when five confirmations arrive together", async () => {
       const order = await createOrder("PAYMENT_VERIFICATION");
+      const payment = await prisma.paymentRecord.create({ data: { orderId: order.id, amount: "1000.00", status: "SUBMITTED" } });
 
-      const results = await attemptsInParallel(5, () => service.confirmPayment(order.id, actorId, true));
+      const results = await attemptsInParallel(5, () => service.reviewPayment(payment.id, actorId, true));
 
       const confirmations = await prisma.orderStatusHistory.count({
         where: { orderId: order.id, toStatus: "PAYMENT_CONFIRMED" },
       });
       assert.equal(confirmations, 1);
-      assert.equal(results.filter((r) => r.status === "fulfilled").length, 1);
+      assert.equal(results.filter((r) => r.status === "fulfilled" && r.value === "done").length, 1);
     });
 
     it("releases an order to the depot once when five releases arrive together", async () => {

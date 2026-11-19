@@ -197,5 +197,101 @@ describe(
         assert.equal(retried.odooError, null);
       });
     });
+
+    describe("reviewing", () => {
+      const status = async (orderId: string) => (await prisma.dealerOrder.findUniqueOrThrow({ where: { id: orderId } })).status;
+      const payment = (id: string) => prisma.paymentRecord.findUniqueOrThrow({ where: { id } });
+
+      it("confirms a part payment and returns the order to awaiting payment", async () => {
+        const order = await payableOrder();
+        const { paymentId } = await manual(order.id, "400");
+        assert.equal(await service.reviewPayment(paymentId, staffId, true), "done");
+        const saved = await payment(paymentId);
+        assert.equal(saved.status, "CONFIRMED");
+        assert.equal(saved.odooState, "posted");
+        assert.equal(await status(order.id), "AWAITING_PAYMENT");
+      });
+
+      it("marks the order paid when confirmed payments cover the PFI", async () => {
+        const order = await payableOrder();
+        const a = await manual(order.id, "400");
+        const b = await manual(order.id, "600");
+        await service.reviewPayment(a.paymentId, staffId, true);
+        await service.reviewPayment(b.paymentId, staffId, true);
+        assert.equal(await status(order.id), "PAYMENT_CONFIRMED");
+      });
+
+      it("stays in verification while another payment waits", async () => {
+        const order = await payableOrder();
+        const a = await manual(order.id, "400");
+        await manual(order.id, "300");
+        await service.reviewPayment(a.paymentId, staffId, true);
+        assert.equal(await status(order.id), "PAYMENT_VERIFICATION");
+      });
+
+      it("flags a payment, cancels its draft and frees the reference", async () => {
+        const order = await payableOrder();
+        const ref = `FTFLAG-${run}`;
+        const { paymentId } = await manual(order.id, "400", ref);
+        assert.equal(await service.reviewPayment(paymentId, staffId, false, "Not on the KCB statement"), "done");
+        const saved = await payment(paymentId);
+        assert.equal(saved.status, "REJECTED");
+        assert.equal(saved.claimKey, null);
+        assert.equal(saved.odooState, "cancel");
+        assert.equal(saved.reviewNote, "Not on the KCB statement");
+        assert.equal(await status(order.id), "PAYMENT_EXCEPTION");
+        await manual(order.id, "400", ref);
+        assert.equal(await status(order.id), "PAYMENT_VERIFICATION");
+      });
+
+      it("reviews a payment once when five confirmations arrive together", async () => {
+        const order = await payableOrder();
+        const { paymentId } = await manual(order.id, "1000");
+        let posts = 0;
+        const counting = odooWith({
+          postPayment: async (id: number) => {
+            posts += 1;
+            return { id, state: "posted" };
+          },
+        });
+        const results = await Promise.all(Array.from({ length: 5 }, () => service.reviewPayment(paymentId, staffId, true, undefined, counting)));
+        assert.equal(results.filter((r) => r === "done").length, 1);
+        assert.equal(posts, 1);
+        assert.equal(await prisma.orderStatusHistory.count({ where: { orderId: order.id, toStatus: "PAYMENT_CONFIRMED" } }), 1);
+      });
+
+      it("keeps the payment waiting when Odoo does not post it", async () => {
+        const order = await payableOrder();
+        const { paymentId } = await manual(order.id, "400");
+        const awaiting = odooWith({ postPayment: async (id: number) => ({ id, state: "awaitV" }) });
+        assert.equal(await service.reviewPayment(paymentId, staffId, true, undefined, awaiting), "odoo-failed");
+        const saved = await payment(paymentId);
+        assert.equal(saved.status, "SUBMITTED");
+        assert.equal(saved.reviewedAt, null);
+        assert.match(saved.odooError ?? "", /awaitV/);
+        assert.equal(await status(order.id), "PAYMENT_VERIFICATION");
+        assert.equal(await service.reviewPayment(paymentId, staffId, true), "done", "a later retry still works");
+      });
+
+      it("confirms an older payment that has no Odoo draft", async () => {
+        process.env.ODOO_MODE = "live";
+        try {
+          const order = await payableOrder("PAYMENT_VERIFICATION");
+          const old = await prisma.paymentRecord.create({ data: { orderId: order.id, amount: "1000.00", status: "SUBMITTED" } });
+          let calls = 0;
+          const refuse = async () => {
+            calls += 1;
+            throw new Error("Odoo must not be called");
+          };
+          const none = odooWith({ createPaymentDraft: refuse, postPayment: refuse, cancelPayment: refuse, findMpesaPayment: refuse });
+          assert.equal(await service.reviewPayment(old.id, staffId, true, undefined, none), "done");
+          assert.equal((await payment(old.id)).status, "CONFIRMED");
+          assert.equal(await status(order.id), "PAYMENT_CONFIRMED");
+          assert.equal(calls, 0);
+        } finally {
+          process.env.ODOO_MODE = "mock";
+        }
+      });
+    });
   }
 );
