@@ -1,5 +1,19 @@
-import type { CreateQuotationInput, OdooClient, OdooQuotation } from "./types";
-import { odooEnv, odooProductIdForKind, ODOO_TRINITY } from "./config";
+import type {
+  CreateQuotationInput,
+  OdooClient,
+  OdooMpesaPayment,
+  OdooPaymentState,
+  OdooQuotation,
+  PaymentDraftInput,
+} from "./types";
+import {
+  odooEnv,
+  odooPaymentsEnabled,
+  odooProductIdForKind,
+  ODOO_KES_CURRENCY_ID,
+  ODOO_MPESA_JOURNAL_ID,
+  ODOO_TRINITY,
+} from "./config";
 import type { FuelProductKind } from "./fuel-products";
 import { resolveFuelProductExternalId } from "./fuel-products";
 import { fulfillmentForStation } from "./quotation-contract";
@@ -218,7 +232,9 @@ export class LiveOdooClient implements OdooClient {
     );
   }
 
-  private async resolvePartnerId(input: CreateQuotationInput): Promise<number> {
+  private async resolvePartnerId(
+    input: Pick<CreateQuotationInput, "dealerCode" | "dealerName" | "odooPartnerId" | "odooPartnerExternalId">
+  ): Promise<number> {
     if (input.odooPartnerExternalId) {
       return this.resolveExternalId(input.odooPartnerExternalId, M.partner);
     }
@@ -372,5 +388,88 @@ export class LiveOdooClient implements OdooClient {
       lines: [],
       model: M.saleOrder,
     };
+  }
+
+  private assertPaymentsEnabled() {
+    if (!odooPaymentsEnabled()) {
+      throw new Error("Odoo payments are switched off (set ODOO_PAYMENTS_LIVE=1 after the approved live test).");
+    }
+  }
+
+  private async paymentState(id: number): Promise<OdooPaymentState> {
+    const rows = await this.execute<Array<{ id: number; state: string }>>(M.payment, "read", [[id], ["state"]]);
+    if (!rows[0]) throw new Error(`Odoo payment ${id} was not found.`);
+    return { id, state: rows[0].state };
+  }
+
+  async createPaymentDraft(input: PaymentDraftInput): Promise<OdooPaymentState> {
+    this.assertPaymentsEnabled();
+    const partnerId = await this.resolvePartnerId(input);
+    const amount = Number(input.amount);
+    // A retry after a crash must not make a second draft: reuse the identical one.
+    const existing = await this.execute<number[]>(
+      M.payment,
+      "search",
+      [
+        [
+          ["partner_id", "=", partnerId],
+          ["journal_id", "=", input.journalId],
+          ["amount", "=", amount],
+          ["ref", "=", input.reference],
+          ["state", "=", "draft"],
+        ],
+      ],
+      { limit: 1 }
+    );
+    if (existing[0]) return { id: existing[0], state: "draft" };
+    const id = await this.execute<number>(M.payment, "create", [
+      {
+        is_internal_transfer: false,
+        payment_type: "inbound",
+        partner_type: "customer",
+        partner_id: partnerId,
+        amount,
+        currency_id: ODOO_KES_CURRENCY_ID,
+        date: input.date,
+        ref: input.reference,
+        journal_id: input.journalId,
+        payment_method_line_id: input.paymentMethodLineId,
+        partner_bank_id: input.partnerBankId,
+      },
+    ]);
+    return { id, state: "draft" };
+  }
+
+  /** The draft's Confirm button (account.payment.action_post); the caller checks the state is "posted". */
+  async postPayment(id: number): Promise<OdooPaymentState> {
+    this.assertPaymentsEnabled();
+    await this.execute(M.payment, "action_post", [[id]]);
+    return this.paymentState(id);
+  }
+
+  async cancelPayment(id: number): Promise<OdooPaymentState> {
+    this.assertPaymentsEnabled();
+    await this.execute(M.payment, "action_cancel", [[id]]);
+    return this.paymentState(id);
+  }
+
+  async findMpesaPayment(code: string): Promise<OdooMpesaPayment | null> {
+    const rows = await this.execute<Array<{ id: number; ref: string | false; amount: number; date: string; state: string }>>(
+      M.payment,
+      "search_read",
+      [
+        [
+          ["journal_id", "=", ODOO_MPESA_JOURNAL_ID],
+          ["state", "=", "posted"],
+          ["ref", "ilike", code],
+        ],
+      ],
+      { fields: ["ref", "amount", "date", "state"], limit: 5 }
+    );
+    // Odoo's M-PESA refs look like "MP-<digits> - <payer> - <CODE>": only the last part is the code.
+    const matches = rows.filter((row) => typeof row.ref === "string" && row.ref.trim().endsWith(` - ${code}`));
+    if (matches.length > 1) throw new Error("This M-PESA code matches more than one Odoo payment.");
+    const row = matches[0];
+    return row ? { id: row.id, amount: Number(row.amount).toFixed(2), date: row.date, state: row.state } : null;
   }
 }

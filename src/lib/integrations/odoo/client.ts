@@ -1,4 +1,11 @@
-import type { CreateQuotationInput, OdooClient, OdooQuotation } from "./types";
+import type {
+  CreateQuotationInput,
+  OdooClient,
+  OdooMpesaPayment,
+  OdooPaymentState,
+  OdooQuotation,
+  PaymentDraftInput,
+} from "./types";
 import { odooConfigured, odooEnv } from "./config";
 import { LiveOdooClient } from "./live-client";
 import { mockCommercialDocumentPrefix } from "@/lib/security/launch-mode";
@@ -19,6 +26,11 @@ function hashKey(key: string) {
 }
 
 const MOCK_QUOTATION_PREFIX = "mock-quot-";
+
+const mockPayments = new Map<string, OdooPaymentState>();
+let mockPaymentId = 900000;
+/** Test M-PESA codes the mock "finds"; anything else is not in Odoo. */
+const MOCK_MPESA: Record<string, string> = { TEST000001: "1000.00", TEST500000: "500000.00" };
 
 /** Litres x unit price per line, each rounded to cents; a line with no price counts as 0. */
 function mockAmountTotal(lines: CreateQuotationInput["lines"]): string {
@@ -61,6 +73,38 @@ export class MockOdooClient implements OdooClient {
     }
     return null;
   }
+
+  async createPaymentDraft(input: PaymentDraftInput): Promise<OdooPaymentState> {
+    const existing = mockPayments.get(input.idempotencyKey);
+    if (existing) return { ...existing };
+    const payment = { id: ++mockPaymentId, state: "draft" };
+    mockPayments.set(input.idempotencyKey, payment);
+    return { ...payment };
+  }
+
+  async postPayment(id: number): Promise<OdooPaymentState> {
+    return this.setPaymentState(id, "posted");
+  }
+
+  async cancelPayment(id: number): Promise<OdooPaymentState> {
+    return this.setPaymentState(id, "cancel");
+  }
+
+  async findMpesaPayment(code: string): Promise<OdooMpesaPayment | null> {
+    const amount = MOCK_MPESA[code];
+    return amount ? { id: 800000 + Number(code.slice(-6)), amount, date: "2026-11-19", state: "posted" } : null;
+  }
+
+  private setPaymentState(id: number, state: string): OdooPaymentState {
+    for (const payment of mockPayments.values()) {
+      if (payment.id === id) {
+        payment.state = state;
+        return { ...payment };
+      }
+    }
+    // A draft made by another server instance: the mock just answers as Odoo would.
+    return { id, state };
+  }
 }
 
 export class UnconfiguredOdooClient implements OdooClient {
@@ -76,6 +120,18 @@ export class UnconfiguredOdooClient implements OdooClient {
     this.fail();
   }
   async getQuotation(): Promise<OdooQuotation | null> {
+    this.fail();
+  }
+  async createPaymentDraft(): Promise<OdooPaymentState> {
+    this.fail();
+  }
+  async postPayment(): Promise<OdooPaymentState> {
+    this.fail();
+  }
+  async cancelPayment(): Promise<OdooPaymentState> {
+    this.fail();
+  }
+  async findMpesaPayment(): Promise<OdooMpesaPayment | null> {
     this.fail();
   }
 }

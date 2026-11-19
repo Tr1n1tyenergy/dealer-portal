@@ -189,7 +189,7 @@ export function renderPfiPdf(data: PfiDocument): Promise<Buffer> {
   blueCell(LEFT, bankTop, WIDTH, 13.4);
   text("Bank Account Details", 15.4, bankTop + 9.6, 200, { font: "Label", size: 7.7, color: "#ffffff" });
   bankTop += 13.4;
-  const bankRows: [string, keyof (typeof PFI_BANK_ACCOUNTS)[number]][] = [
+  const bankRows: [string, Exclude<keyof (typeof PFI_BANK_ACCOUNTS)[number], "odoo">][] = [
     ["Bank:", "bank"],
     ["Beneficiary:", "beneficiary"],
     ["Account Number:", "accountNumber"],
