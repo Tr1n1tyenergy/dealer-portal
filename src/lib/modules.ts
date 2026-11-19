@@ -133,11 +133,17 @@ export const TRI_MODULES: TriModule[] = [
   },
 ];
 
-export const FEATURED_MODULES = TRI_MODULES.filter((m) =>
-  ["reports", "note-taker", "presentations"].includes(m.id)
-);
 
 /** The tiles a role may open (the dashboard and launcher show only these). */
 export function visibleModules(user: StaffUser): TriModule[] {
   return TRI_MODULES.filter((module) => !module.allowed || module.allowed(user));
+}
+
+/** The modules page: big panels for work modules, a small row for admin tools. */
+export function splitModules(user: StaffUser): { work: TriModule[]; admin: TriModule[] } {
+  const visible = visibleModules(user);
+  return {
+    work: visible.filter((m) => m.category !== "Admin"),
+    admin: visible.filter((m) => m.category === "Admin"),
+  };
 }
