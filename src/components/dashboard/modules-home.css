@@ -8,7 +8,8 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: 22px 40px 40px;
+  /* Bottom room for the floating accessibility button (bottom-left, about 62px tall with its offset). */
+  padding: 22px 40px 88px;
   color: #fff;
   font-family: "Century Gothic", "TeX Gyre Adventor", sans-serif;
   background:
@@ -243,7 +244,7 @@
 
 @media (max-width: 760px) {
   .mh {
-    padding: 16px 16px 28px;
+    padding: 16px 16px 88px;
   }
   .mh h1 {
     font-size: 32px;
