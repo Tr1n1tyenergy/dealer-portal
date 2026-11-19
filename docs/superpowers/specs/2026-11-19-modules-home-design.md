@@ -15,7 +15,7 @@ The page serves both regular staff and executives/admins. It must look complete 
   - Below it: a greeting, then one line with live numbers, then a frosted panel per module.
   - **Every** module panel uses the brand gradient (#3853a4 → #2cc0d2).
 - Show each person only the modules their role can open. This keeps the existing `visibleModules(user)`.
-  - The work modules (Retail, AI Note Taker, Presentations) are large panels. The first one is the widest.
+  - The work modules (Retail, AI Note Taker, Presentations) are large panels. They are all the same width.
   - The admin tools (Users, Activity logs, Settings) are a small "Admin" row of links under the panels. Only people who can open them see it.
 - Show live numbers, for Retail only:
   - **The line under the greeting.** For example: "Across the network today: 7 orders, 3 payments to confirm, 2 unread messages."
@@ -73,7 +73,7 @@ How the line reads:
 
 **Panels.**
 - Each panel has an icon, its title, a one-line description and "Open →". The whole panel is the link.
-- Desktop grid: the first panel is 1.4fr and the rest are 1fr each.
+- Desktop grid: equal columns, one per panel. Adrian chose this on 19 Nov ("equal widths"); see the mockup `D:\Downloads\modules-page-mockup-d-equal-widths-2026-11-19.html`.
 - At 760px or narrower, it becomes one column.
 - Panel text (role-neutral):
   - **Retail:** "Orders, payments, stations, stock, dealer messages and analytics."
