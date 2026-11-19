@@ -21,7 +21,9 @@ import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
 import { internalOrderAction } from "@/lib/orders/actions";
-import { formatKes, sameAmount } from "@/lib/orders/money";
+import { formatKes } from "@/lib/orders/money";
+import { bankAccountByNumber } from "@/lib/orders/payments";
+import { odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
 import { stageOf, statusLabel } from "@/lib/orders/stages";
 import { paymentSummary, stepCompletionTimes } from "@/lib/orders/staff-views";
 import { dealerTrackerSteps, trackerStepSecondary } from "@/lib/orders/state-machine";
@@ -42,6 +44,20 @@ const when = (at: Date | null | undefined, withTime = true) =>
     : null;
 
 /** "2 Nov, 15:01" — short enough for tracker columns. */
+/** The Odoo line on a waiting payment in the Confirm Payment card. */
+function odooLine(
+  payment: { method: string; odooState: string | null; odooError: string | null; bankAccountNumber: string | null },
+  odooOn: boolean,
+  bank: string | undefined
+) {
+  if (payment.odooError) return `Odoo: ${payment.odooError}`;
+  if (payment.method === "MPESA_CODE") return "Already posted in Odoo (M-PESA). Confirming links it, no new entry.";
+  if (!odooOn) return "Odoo payments are off: Accounts records this in Odoo.";
+  if (!payment.bankAccountNumber) return "Sent before Odoo payments: confirming is portal-only.";
+  if (payment.odooState === "draft") return `Draft created in Odoo · ${bank ?? "bank"} journal · Manual`;
+  return "Not in Odoo yet.";
+}
+
 const shortWhen = (at: Date | null | undefined) =>
   at
     ? at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" })
@@ -75,7 +91,10 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
   const litres = order.lines.reduce((sum, line) => sum + line.quantityLitres, 0);
   const byProduct = order.lines.map((line) => `${line.quantityLitres.toLocaleString("en-US")} L ${line.product}`).join(" · ");
   const pay = paymentSummary(order.proforma?.amount ?? order.amountDue, order.payments);
-  const openPayments = order.payments.filter((p) => p.status === "SUBMITTED" || p.status === "VERIFICATION");
+  const openPayments = order.payments
+    .filter((p) => p.status === "SUBMITTED" || p.status === "VERIFICATION")
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  const odooPayments = odooPaymentsEnabled();
   const contact = order.dealerOrganization.users[0] ?? null;
   const depots = mayAct && order.status === "PAYMENT_CONFIRMED" ? await prisma.depot.findMany({ orderBy: { name: "asc" } }) : [];
   const actorName = (actor: { firstName: string | null; lastName: string | null } | null) =>
@@ -188,40 +207,70 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                   </div>
                 ) : null}
 
-                {mayAct && (order.status === "PAYMENT_SUBMITTED" || order.status === "PAYMENT_VERIFICATION") ? (
+                {mayAct && openPayments.length > 0 ? (
                   <div className="sod-action sod-action--ready">
                     <div className="sod-action__title">
                       <Landmark size={15} /> Confirm Payment
-                      <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>
+                      <span className="sod-pay__count">{openPayments.length} waiting</span>
                     </div>
-                    <div className="sod-action__sub">Verify the dealer&apos;s payment against the PFI before confirming.</div>
-                    {openPayments.length === 0 ? <div className="sod-action__sub">No payment record was submitted.</div> : null}
-                    {openPayments.map((payment) => (
-                      <div key={payment.id} className="sod-pay">
-                        <span className="sod-pay__amount">
-                          {formatKes(payment.amount)}
-                          {order.proforma && !sameAmount(payment.amount, order.proforma.amount) ? (
-                            <span className="sod-pay__mismatch"> — does not match PFI {formatKes(order.proforma.amount)}</span>
-                          ) : null}
-                        </span>
-                        <span className="sod-pay__meta">
-                          {[
-                            payment.bankReference ? `Bank ref: ${payment.bankReference}` : null,
-                            payment.transactionReference ? `Txn: ${payment.transactionReference}` : null,
-                            payment.paymentDate ? `Paid: ${when(payment.paymentDate, false)}` : null,
-                          ]
-                            .filter(Boolean)
-                            .join(" · ") || "No references provided"}
-                        </span>
-                        {payment.note ? <span className="sod-pay__meta">Dealer note: {payment.note}</span> : null}
-                      </div>
-                    ))}
-                    <form action={internalOrderAction}>
-                      <input type="hidden" name="orderId" value={order.id} />
-                      <input type="text" name="note" maxLength={300} placeholder="Note (optional)" aria-label="Verification note" />
-                      <button className="so-btn so-btn--gold" name="action" value="confirm-payment">Confirm payment</button>
-                      <button className="so-btn so-btn--warn" name="action" value="reject-payment">Flag exception</button>
-                    </form>
+                    <div className="sod-action__sub">
+                      {odooPayments
+                        ? "Confirm posts the draft in Odoo. A payment is only marked confirmed once Odoo says it is posted."
+                        : "Check each payment against the bank or M-PESA statement before confirming."}
+                    </div>
+                    {openPayments.map((payment) => {
+                      const account = bankAccountByNumber(payment.bankAccountNumber);
+                      return (
+                        <div key={payment.id} className="sod-pay">
+                          <div className="sod-pay__top">
+                            <span className="sod-pay__amount">{formatKes(payment.amount)}</span>
+                            <span className={`sod-pay__method${payment.method === "MPESA_CODE" ? " is-mpesa" : ""}`}>
+                              {payment.method === "MPESA_CODE" ? "M-PESA code" : "Manual"}
+                            </span>
+                          </div>
+                          <dl className="sod-pay__kv">
+                            {payment.method === "MPESA_CODE" ? (
+                              <>
+                                <dt>M-PESA code</dt>
+                                <dd>{payment.mpesaCode}</dd>
+                              </>
+                            ) : (
+                              <>
+                                <dt>Account</dt>
+                                <dd>{account ? `${account.bank.split(" ")[0]} ${account.accountNumber}` : "Not recorded"}</dd>
+                                <dt>Bank ref</dt>
+                                <dd>{payment.bankReference || "Not provided"}</dd>
+                              </>
+                            )}
+                            <dt>Sent</dt>
+                            <dd>{when(payment.createdAt)}</dd>
+                            {payment.note ? (
+                              <>
+                                <dt>Dealer note</dt>
+                                <dd>{payment.note}</dd>
+                              </>
+                            ) : null}
+                          </dl>
+                          <div className={`sod-pay__odoo${payment.odooError ? " is-error" : ""}`}>
+                            {odooLine(payment, odooPayments, account?.bank)}
+                            {payment.odooError && payment.method === "MANUAL" && payment.odooPaymentId == null ? (
+                              <form action={internalOrderAction}>
+                                <input type="hidden" name="orderId" value={order.id} />
+                                <input type="hidden" name="paymentId" value={payment.id} />
+                                <button className="so-btn so-btn--line" name="action" value="retry-payment-odoo">Retry Odoo</button>
+                              </form>
+                            ) : null}
+                          </div>
+                          <form action={internalOrderAction} className="sod-pay__form">
+                            <input type="hidden" name="orderId" value={order.id} />
+                            <input type="hidden" name="paymentId" value={payment.id} />
+                            <input type="text" name="note" maxLength={300} placeholder="Note (optional)" aria-label="Verification note" />
+                            <button className="so-btn so-btn--gold" name="action" value="confirm-payment">Confirm payment</button>
+                            <button className="so-btn so-btn--warn" name="action" value="reject-payment">Flag</button>
+                          </form>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : null}
 
@@ -244,7 +293,7 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                   </div>
                 ) : null}
 
-                {mayAct && !tracker.stopped && stageNumber <= 3 && order.status !== "PAYMENT_CONFIRMED" && !(order.status === "PAYMENT_SUBMITTED" || order.status === "PAYMENT_VERIFICATION") ? (
+                {mayAct && !tracker.stopped && stageNumber <= 3 && order.status !== "PAYMENT_CONFIRMED" && openPayments.length === 0 ? (
                   <div className="sod-action sod-action--ready">
                     <span className="sod-action__ico" aria-hidden><Landmark size={16} strokeWidth={1.9} /></span>
                     <div className="sod-action__copy">
