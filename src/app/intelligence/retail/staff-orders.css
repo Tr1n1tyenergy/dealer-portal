@@ -1215,7 +1215,7 @@
   color: var(--so-navy);
 }
 
-.sod-pay { border: 1px solid var(--so-line); border-radius: 0.625rem; padding: 0.625rem 0.75rem; display: grid; gap: 0.25rem; font-size: var(--tri-font-sm, 0.82rem); }
+.sod-pay { border: 1px solid var(--so-line); border-radius: 0.625rem; padding: 0.625rem 0.75rem; display: grid; gap: 0.25rem; font-size: max(var(--tri-font-sm, 0.82rem), 12px); }
 .sod-pay__amount { font-weight: 750; font-size: var(--tri-font-body, 0.95rem); }
 .sod-pay__mismatch { color: #a1272d; font-weight: 650; }
 .sod-pay__meta { color: var(--so-muted); }
