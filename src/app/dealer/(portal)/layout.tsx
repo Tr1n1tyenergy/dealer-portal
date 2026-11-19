@@ -13,7 +13,7 @@ export default async function DealerPortalLayout({
 }) {
   const session = await requireDealer();
   const orgId = session.user.dealerOrganizationId!;
-  const [org, unread, payableOrder] = await Promise.all([
+  const [org, unread, payableOrders] = await Promise.all([
     prisma.dealerOrganization.findUnique({
       where: { id: orgId },
       include: {
@@ -26,7 +26,7 @@ export default async function DealerPortalLayout({
     }),
     // The bell is a nicety: a messaging error must not take every dealer page down.
     unreadMessageCount(session.user.id).catch(() => 0),
-    prisma.dealerOrder.findFirst({
+    prisma.dealerOrder.findMany({
       where: {
         dealerOrganizationId: orgId,
         status: { in: DEALER_PAYABLE_STATUSES },
@@ -35,9 +35,11 @@ export default async function DealerPortalLayout({
       include: {
         station: { select: { name: true } },
         proforma: true,
+        payments: { select: { amount: true, status: true } },
         dealerOrganization: { select: { name: true } },
       },
       orderBy: { createdAt: "asc" },
+      take: 20,
     }),
   ]);
   // Post-activation: trading name is the primary dealer label
@@ -51,7 +53,8 @@ export default async function DealerPortalLayout({
     .slice(0, 2)
     .toUpperCase() || "AB";
 
-  const payPfi = payableOrder ? toPayPfiProps(payableOrder) : null;
+  // The oldest order with a balance left (an order whose payments all wait for checking has none).
+  const payPfi = payableOrders.map((o) => toPayPfiProps(o)).find((props) => props != null) ?? null;
 
   return (
     <DealerShell

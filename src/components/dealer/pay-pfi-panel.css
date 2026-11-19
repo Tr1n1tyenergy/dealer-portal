@@ -813,3 +813,201 @@
     width: 100%;
   }
 }
+
+/* ---- Part payments: balance, methods, M-PESA, done ---- */
+.pay-modal__amount--balance {
+  grid-template-columns: 1fr auto;
+}
+
+.pay-modal__progress {
+  grid-column: 1 / -1;
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--tri-progress-track, #dbe4f3);
+}
+
+.pay-modal__progress i {
+  display: block;
+  height: 100%;
+}
+
+.pay-modal__progress .is-paid {
+  background: var(--tri-good, #0f7b4f);
+}
+
+.pay-modal__progress .is-waiting {
+  background: #ffcc00;
+}
+
+.pay-modal__split {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  font-size: max(0.8125rem, 12px);
+  color: var(--tri-text-muted, #334155);
+}
+
+.pay-modal__methods--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pay-modal__method-ico--mpesa {
+  width: auto;
+  padding: 0 0.35rem;
+  background: #2e9e44;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pay-modal__method.is-on .pay-modal__method-ico--mpesa {
+  background: #2e9e44;
+}
+
+.pay-modal__method-copy strong {
+  white-space: nowrap;
+}
+
+.pay-modal__method.is-soon {
+  position: relative;
+  cursor: not-allowed;
+  border-style: dashed;
+  background: var(--tri-surface-muted, #f8fafc);
+  color: var(--tri-text-faint, #64748b);
+}
+
+.pay-modal__method.is-soon strong,
+.pay-modal__method.is-soon em {
+  color: var(--tri-text-faint, #64748b);
+}
+
+.pay-modal__soon {
+  position: absolute;
+  top: -0.6rem;
+  right: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #0a235b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pay-modal__hint {
+  display: block;
+  margin: 0.25rem 0 0;
+  font-size: max(0.8125rem, 12px);
+  font-weight: 500;
+  color: var(--tri-text-muted, #475569);
+  line-height: 1.45;
+}
+
+.pay-modal__hint.is-bad {
+  color: #b42318;
+}
+
+.pay-modal__inline {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+  margin-top: 0.75rem;
+}
+
+.pay-modal__inline .pay-modal__field {
+  flex: 1;
+}
+
+.pay-modal__inline .pay-modal__hint {
+  margin: 0;
+  align-self: center;
+}
+
+.pay-modal__or {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1rem 0 0.5rem;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tri-text-faint, #64748b);
+}
+
+.pay-modal__or::before,
+.pay-modal__or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #d7e0ec;
+}
+
+.pay-modal__found {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0.6rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #b7e4c7;
+  border-radius: 10px;
+  background: #ecfdf3;
+  color: #14532d;
+  font-size: max(0.8125rem, 12px);
+}
+
+.pay-modal__found-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pay-modal__done {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  padding: 0.5rem 0 0.25rem;
+}
+
+.pay-modal__done-ico {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ecfdf3;
+  color: #0f7b4f;
+}
+
+.pay-modal__done p {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  color: #0a235b;
+}
+
+.pay-modal__done p span {
+  color: var(--tri-text-muted, #475569);
+}
+
+@media (max-width: 760px) {
+  .pay-modal__methods--three {
+    grid-template-columns: 1fr;
+  }
+
+  .pay-modal__inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pay-modal__amount--balance {
+    grid-template-columns: 1fr;
+  }
+}

@@ -30,6 +30,7 @@ import { PayPfiPanel } from "@/components/dealer/pay-pfi-panel";
 import { cn } from "@/lib/utils";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { DEALER_PAYABLE_STATUSES, toPayPfiProps } from "@/lib/dealer/pay-pfi";
+import { paymentTotals } from "@/lib/orders/payments";
 import "../../dealer-dashboard.css";
 import "../../dealer-portal-hero.css";
 
@@ -157,7 +158,7 @@ export default async function DealerDashboardPage() {
     prisma.dealerOrganization.findUnique({ where: { id: orgId } }),
     prisma.dealerOrder.findMany({
       where: { dealerOrganizationId: orgId },
-      include: { station: true, lines: true, proforma: true, depot: true },
+      include: { station: true, lines: true, proforma: true, depot: true, payments: true },
       orderBy: { updatedAt: "desc" },
     }),
     prisma.station.findMany({
@@ -170,12 +171,14 @@ export default async function DealerDashboardPage() {
   const orgName =
     stations[0]?.tradingName || stations[0]?.name || org?.name || session.user.firstName || "Dealer";
 
-  const payable = orders.filter((o) => PAYABLE.includes(o.status) && o.proforma);
-  const toPayCents = payable.reduce((sum, o) => {
-    const raw = (o.proforma?.amount || o.amountDue || "").replace(/,/g, "");
-    const n = Number(raw);
-    return sum + (Number.isFinite(n) ? Math.round(n * 100) : 0);
-  }, 0);
+  // Payable = a PFI with a balance left (part-paid orders included, fully covered ones not).
+  const payable = orders.filter(
+    (o) => PAYABLE.includes(o.status) && toPayPfiProps({ ...o, dealerOrganization: { name: "" } }) != null
+  );
+  const toPayCents = payable.reduce(
+    (sum, o) => sum + (paymentTotals(o.proforma?.amount ?? o.amountDue, o.payments).balanceCents ?? 0),
+    0
+  );
   const oldestPayable = payable
     .slice()
     .sort(
@@ -292,7 +295,7 @@ export default async function DealerDashboardPage() {
             <Link href="/dealer/orders/new" className="dd__btn dd__btn--primary">
               Place an Order
             </Link>
-            {oldestPayable && oldestPayable.proforma ? (
+            {oldestPayable ? (
               <PayPfiPanel
                 {...toPayPfiProps({
                   ...oldestPayable,

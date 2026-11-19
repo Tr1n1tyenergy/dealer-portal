@@ -24,7 +24,6 @@ import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode"
 import {
   OrderInputError,
   isDepotAction,
-  isRealDate,
   nairobiToday,
   parseDeliveryDate,
   parseLitres,
