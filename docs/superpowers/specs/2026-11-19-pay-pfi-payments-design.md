@@ -1,6 +1,6 @@
 # Pay PFI: M-PESA, manual payments, instalments and Odoo payments: design
 
-Status: draft for Adrian's review (19 Nov 2026). Branch `feat/pay-pfi-payments`.
+Status: APPROVED by Adrian 19 Nov 2026. Branch `feat/pay-pfi-payments`.
 
 ## Why
 
@@ -123,10 +123,10 @@ Choose payment method
 **M-PESA tab.** It has two parts:
 
 1. **Pay with a prompt on your phone** (layout only)
-   - Fields: phone `07XX XXX XXX`, and an amount defaulting to min(balance, 250,000).
+   - Fields: phone `07XX XXX XXX`, and an amount defaulting to min(balance, 500,000).
    - The button "Send payment prompt" is disabled, with the note "M-PESA prompts are being set up. For
      now, pay to the paybill and enter the M-PESA code below."
-   - The fields validate as you type: Safaricom number, and 1 ≤ amount ≤ min(balance, 250,000).
+   - The fields validate as you type: Safaricom number, and 1 ≤ amount ≤ min(balance, 500,000).
 2. **Already paid by M-PESA?**
    - The dealer enters the M-PESA code (10 characters) and presses **Check code**.
    - The portal looks the code up in Odoo (read only) and shows "Found: KES 120,000 paid 19 Nov 14:02".
@@ -294,7 +294,7 @@ findMpesaPayment(code: string): Promise<{ id: number; amount: string; date: stri
 - **Unit tests:**
   - balance and status rules (table above);
   - M-PESA code and phone validation;
-  - the 250,000 cap;
+  - the 500,000 cap;
   - account → Odoo ids mapping;
   - the live client's `account.payment` payloads, checked against a fake `rpc` with no network;
   - `ref` matching for M-PESA codes;
@@ -324,7 +324,7 @@ findMpesaPayment(code: string): Promise<{ id: number; amount: string; date: stri
 
 ## Finance questions (not blocking the build)
 
-1. Is the M-PESA limit per payment KES 250,000 for Trinity's paybill?
+1. M-PESA limit: KES 500,000 per payment (Adrian, 19 Nov). Paybill number and account wording: Adrian will supply.
 2. What are the paybill number and the account-number wording dealers should use?
 3. Should M-PESA payments claimed in the portal be moved in Odoo to the dealer's customer record?
    Today almost all sit on one walk-in customer.
