@@ -12,8 +12,22 @@ export const ODOO_TRINITY = {
     stockLocation: "stock.location",
     stockQuant: "stock.quant",
     modelData: "ir.model.data",
+    payment: "account.payment",
   },
 } as const;
+
+/** res.currency KES in Trinity's Odoo. */
+export const ODOO_KES_CURRENCY_ID = 92;
+/** account.journal "Mpesa": paybill payments arrive here posted, via Odoo's own M-PESA link. */
+export const ODOO_MPESA_JOURNAL_ID = 11;
+
+/**
+ * Whether the portal creates, posts and cancels Odoo payments. Always with mock Odoo; with live
+ * Odoo only once ODOO_PAYMENTS_LIVE=1 (after Adrian approves a live test). Off = confirm is portal-only.
+ */
+export function odooPaymentsEnabled(): boolean {
+  return (process.env.ODOO_MODE ?? "mock") !== "live" || process.env.ODOO_PAYMENTS_LIVE === "1";
+}
 
 export function odooEnv() {
   const envPms = Number(process.env.ODOO_PRODUCT_PMS_ID || 0) || null;

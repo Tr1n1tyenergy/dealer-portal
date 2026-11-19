@@ -41,8 +41,34 @@ export type OdooQuotation = {
   model?: string;
 };
 
+/** A dealer's manual bank payment, as Accounts would type it into an Odoo account.payment draft. */
+export type PaymentDraftInput = {
+  /** Stable key (payment:<PaymentRecord id>); the mock uses it, the live client matches on the fields. */
+  idempotencyKey: string;
+  dealerCode: string;
+  dealerName: string;
+  odooPartnerId?: number | null;
+  odooPartnerExternalId?: string | null;
+  amount: string;
+  /** YYYY-MM-DD, Nairobi */
+  date: string;
+  /** The dealer's bank reference (account.payment.ref) */
+  reference: string;
+  journalId: number;
+  paymentMethodLineId: number;
+  partnerBankId: number;
+};
+
+export type OdooPaymentState = { id: number; state: string };
+export type OdooMpesaPayment = { id: number; amount: string; date: string; state: string; ref: string };
+
 export interface OdooClient {
   readonly mode: "mock" | "live";
   createQuotation(input: CreateQuotationInput): Promise<OdooQuotation>;
   getQuotation(quotationId: string): Promise<OdooQuotation | null>;
+  createPaymentDraft(input: PaymentDraftInput): Promise<OdooPaymentState>;
+  postPayment(id: number): Promise<OdooPaymentState>;
+  cancelPayment(id: number): Promise<OdooPaymentState>;
+  /** A posted payment in Odoo's M-PESA journal whose reference ends with this code; null if none. */
+  findMpesaPayment(code: string): Promise<OdooMpesaPayment | null>;
 }

@@ -5,6 +5,7 @@ import {
   canTransition,
   dealerStatusLabel,
   dealerTrackerSteps,
+  paymentStepDetail,
   DEALER_TRACKER_STEPS,
   ignoreStaleTransition,
   StaleOrderTransition,
@@ -128,5 +129,23 @@ describe("dealerTrackerSteps", () => {
     assert.equal(dealerTrackerSteps("REJECTED").stopped, "Order rejected");
     assert.deepEqual(states("CANCELLED"), Array(6).fill("stopped"));
     assert.equal(dealerTrackerSteps("AWAITING_PAYMENT").stopped, null);
+  });
+});
+
+describe("paymentStepDetail", () => {
+  it("says how much is paid while an order is part paid", () => {
+    assert.equal(
+      paymentStepDetail({ totalCents: 736214400, confirmedCents: 300000000, waitingCents: 0, balanceCents: 436214400 }),
+      "Part paid: KES 3M of 7.36M"
+    );
+    assert.equal(
+      paymentStepDetail({ totalCents: 100000, confirmedCents: 40000, waitingCents: 0, balanceCents: 60000 }),
+      "Part paid: KES 400 of 1,000"
+    );
+  });
+
+  it("says nothing before the first confirmed payment or once fully paid", () => {
+    assert.equal(paymentStepDetail({ totalCents: 100, confirmedCents: 0, waitingCents: 50, balanceCents: 50 }), null);
+    assert.equal(paymentStepDetail({ totalCents: 100, confirmedCents: 100, waitingCents: 0, balanceCents: 0 }), null);
   });
 });

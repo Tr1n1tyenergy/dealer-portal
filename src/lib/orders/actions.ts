@@ -7,6 +7,7 @@ import { canOperateDepot } from "@/lib/access";
 import { applyInternalOrderAction } from "@/lib/orders/internal-order-actions";
 import {
   applyDepotAction,
+  lookUpMpesaCode,
   submitDealerOrder,
   submitPayment,
 } from "@/lib/orders/service";
@@ -18,7 +19,6 @@ import {
   parseDeliveryDate,
   parseLitres,
   parseOrderLines,
-  parsePaymentAmount,
 } from "@/lib/orders/order-input";
 import { DEALER_ORDERING_UNAVAILABLE, dealerCommercialOrdersBlockedReason } from "@/lib/security/launch-mode";
 
@@ -65,20 +65,22 @@ export async function placeOrderAction(_prev: ActionResult, formData: FormData):
   redirect(`/dealer/orders/${order.id}`);
 }
 
+const PAYMENT_METHODS = ["MANUAL", "MPESA_CODE", "MPESA_PROMPT"] as const;
+
 export async function paymentAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
   const session = await requireDealer();
   const orderId = String(formData.get("orderId") || "");
-  const amount = parsePaymentAmount(formData.get("amount"));
-  if (!amount.ok) return { error: amount.message };
+  const method = PAYMENT_METHODS.find((m) => m === formData.get("method")) ?? "MANUAL";
   try {
     await submitPayment({
       orderId,
       actorId: session.user.id,
       dealerOrganizationId: session.user.dealerOrganizationId!,
-      amount: amount.value,
+      method,
+      amount: String(formData.get("amount") || ""),
       bankReference: freeText(formData.get("bankReference")),
-      transactionReference: freeText(formData.get("transactionReference")),
-      paymentDate: String(formData.get("paymentDate") || "") || undefined,
+      bankAccountNumber: freeText(formData.get("bankAccountNumber")),
+      mpesaCode: freeText(formData.get("mpesaCode")),
       note: freeText(formData.get("note")),
     });
   } catch (error) {
@@ -89,7 +91,18 @@ export async function paymentAction(_prev: ActionResult, formData: FormData): Pr
     throw error;
   }
   revalidatePath(`/dealer/orders/${orderId}`);
+  revalidatePath("/dealer/dashboard");
   return null;
+}
+
+/** "Check code" in the Pay PFI popup: finds the dealer's M-PESA payment in Odoo (read only). */
+export async function checkMpesaCodeAction(code: string) {
+  await requireDealer();
+  try {
+    return await lookUpMpesaCode(String(code ?? ""));
+  } catch {
+    return { ok: false as const, error: "We couldn't check this code right now. Try again shortly." };
+  }
 }
 
 export async function internalOrderAction(formData: FormData) {

@@ -1,4 +1,5 @@
 import type { DealerOrderStatus } from "@prisma/client";
+import type { PaymentTotals } from "./payments";
 
 export const ORDER_TRANSITIONS: Record<DealerOrderStatus, DealerOrderStatus[]> = {
   DRAFT: ["SUBMITTED", "CANCELLED"],
@@ -11,7 +12,7 @@ export const ORDER_TRANSITIONS: Record<DealerOrderStatus, DealerOrderStatus[]> =
   PFI_ISSUED: ["AWAITING_PAYMENT"],
   AWAITING_PAYMENT: ["PAYMENT_SUBMITTED", "CANCELLED"],
   PAYMENT_SUBMITTED: ["PAYMENT_VERIFICATION", "PAYMENT_EXCEPTION"],
-  PAYMENT_VERIFICATION: ["PAYMENT_CONFIRMED", "PAYMENT_EXCEPTION"],
+  PAYMENT_VERIFICATION: ["PAYMENT_CONFIRMED", "PAYMENT_EXCEPTION", "AWAITING_PAYMENT"],
   PAYMENT_CONFIRMED: ["RELEASED_TO_DEPOT"],
   RELEASED_TO_DEPOT: ["LOADING", "STOCK_EXCEPTION"],
   LOADING: ["LOADED", "STOCK_EXCEPTION"],
@@ -213,4 +214,15 @@ export function trackerStepSecondary(step: DealerTrackerStep): string {
   if (step.state === "pending") return "Pending";
   if (step.state === "stopped") return "—";
   return step.note ?? (step.state === "attention" ? "Needs attention" : "In progress");
+}
+
+const compactKes = (cents: number) => {
+  const kes = cents / 100;
+  return kes >= 1_000_000 ? `${+(kes / 1_000_000).toFixed(2)}M` : Math.round(kes).toLocaleString("en-GB");
+};
+
+/** Tracker step 3 text while some, not all, of the PFI is confirmed ("Part paid: KES 3M of 7.36M"). */
+export function paymentStepDetail(totals: PaymentTotals): string | null {
+  if (totals.totalCents == null || totals.confirmedCents <= 0 || totals.confirmedCents >= totals.totalCents) return null;
+  return `Part paid: KES ${compactKes(totals.confirmedCents)} of ${compactKes(totals.totalCents)}`;
 }

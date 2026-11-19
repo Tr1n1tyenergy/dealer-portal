@@ -102,6 +102,12 @@ enum PaymentState {
   REJECTED
 }
 
+enum PaymentMethod {
+  MANUAL
+  MPESA_CODE
+  MPESA_PROMPT
+}
+
 model User {
   id           String     @id @default(cuid())
   firstName    String
@@ -597,6 +603,20 @@ model PaymentRecord {
   note                 String?
   submittedById        String?
   createdAt            DateTime     @default(now())
+  method               PaymentMethod @default(MANUAL)
+  /// Trinity account the dealer paid into (manual payments); Odoo ids come from PFI_BANK_ACCOUNTS.
+  bankAccountNumber    String?
+  mpesaCode            String?
+  /// Odoo's reference for an M-PESA payment (payer details), so staff can see who paid.
+  mpesaPayer           String?
+  /// MPESA:<code> or BANK:<account>:<REF>; cleared when staff flag the payment so it can be resent.
+  claimKey             String?      @unique
+  odooPaymentId        Int?
+  odooState            String?
+  odooError            String?
+  reviewNote           String?
+  reviewedById         String?
+  reviewedAt           DateTime?
 
   @@index([orderId])
   @@index([status])

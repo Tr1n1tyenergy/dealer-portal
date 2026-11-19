@@ -1,4 +1,6 @@
-import type { DealerOrderStatus, PaymentState } from "@prisma/client";
+import type { DealerOrderStatus, PaymentMethod, PaymentState } from "@prisma/client";
+import type { StaffHomeTask } from "@/components/staff/staff-home-dashboard";
+import { bankAccountByNumber } from "@/lib/orders/payments";
 import { NAIROBI_OFFSET_MS, nairobiMonthStart, nairobiParts } from "@/lib/time/nairobi";
 
 /** Active / non-terminal order statuses for “Ongoing Orders”. */
@@ -125,4 +127,55 @@ export function sumPaymentsToday(rows: ConfirmedPayment[], todayStart: Date, tom
     }
   }
   return { total, count };
+}
+
+export type WaitingPaymentOrder = {
+  id: string;
+  reference: string;
+  dealerName: string;
+  payments: {
+    amount: string;
+    method: PaymentMethod;
+    bankAccountNumber: string | null;
+    odooState: string | null;
+    odooError: string | null;
+    createdAt: Date;
+  }[];
+};
+
+const shortKes = (amount: string) =>
+  `KES ${Number(amount).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+
+function bankShort(accountNumber: string | null) {
+  const word = bankAccountByNumber(accountNumber)?.bank.split(" ")[0] ?? "bank";
+  return word.length > 3 ? word[0] + word.slice(1).toLowerCase() : word;
+}
+
+/** Needs Action: one row per order with payments waiting for staff, newest first, at most five. */
+export function paymentTasks(orders: WaitingPaymentOrder[]): StaffHomeTask[] {
+  const newest = (o: WaitingPaymentOrder) => Math.max(...o.payments.map((p) => p.createdAt.getTime()));
+  return orders
+    .filter((o) => o.payments.length > 0)
+    .sort((a, b) => newest(b) - newest(a))
+    .slice(0, 5)
+    .map((o) => {
+      const parts = o.payments.map((p) =>
+        p.method === "MANUAL" ? `${shortKes(p.amount)} manual (${bankShort(p.bankAccountNumber)})` : `${shortKes(p.amount)} by M-PESA`
+      );
+      const manual = o.payments.filter((p) => p.method === "MANUAL");
+      if (manual.some((p) => p.odooState === "draft")) parts.push("Draft in Odoo");
+      else if (manual.some((p) => p.odooState == null && p.bankAccountNumber)) parts.push("Not in Odoo yet");
+      const odooError = o.payments.some((p) => p.odooError);
+      return {
+        key: `pay-${o.id}`,
+        title: `${o.reference} · ${o.dealerName}`,
+        description: parts.join(" · "),
+        badge: odooError ? "Odoo error" : `${o.payments.length} waiting`,
+        badgeTone: odooError ? "overdue" : "pending",
+        actionLabel: "Review →",
+        actionHref: `/intelligence/retail/orders/${o.id}`,
+        actionVariant: "yellow",
+        icon: "coins",
+      };
+    });
 }

@@ -85,7 +85,7 @@ describe(
       const o = await order("AWAITING_PAYMENT");
 
       await assert.rejects(
-        service.submitPayment({ orderId: o.id, actorId, dealerOrganizationId: organizationId, amount: "-999999abc" }),
+        service.submitPayment({ orderId: o.id, actorId, dealerOrganizationId: organizationId, method: "MANUAL", amount: "-999999abc", bankReference: `FT-${o.id}`, bankAccountNumber: "1289725640" }),
         rules.OrderInputError
       );
 
@@ -95,8 +95,9 @@ describe(
 
     it("submitPayment stores the amount normalised", async () => {
       const o = await order("AWAITING_PAYMENT");
+      await prisma.proFormaInvoice.create({ data: { orderId: o.id, number: `PFI-${o.id}`, amount: "1070150.00" } });
 
-      await service.submitPayment({ orderId: o.id, actorId, dealerOrganizationId: organizationId, amount: "1,070,150" });
+      await service.submitPayment({ orderId: o.id, actorId, dealerOrganizationId: organizationId, method: "MANUAL", amount: "1,070,150", bankReference: `FT-${o.id}`, bankAccountNumber: "1289725640" });
 
       const record = await prisma.paymentRecord.findFirstOrThrow({ where: { orderId: o.id } });
       assert.equal(record.amount, "1070150.00");

@@ -13,6 +13,7 @@ import {
   StickyNote,
   Tag,
   Truck,
+  Wallet,
 } from "lucide-react";
 import type { DealerOrderStatus } from "@prisma/client";
 import { requireDealer } from "@/lib/session";
@@ -20,8 +21,11 @@ import { prisma } from "@/lib/prisma";
 import {
   dealerStatusLabel,
   dealerTrackerSteps,
+  paymentStepDetail,
   type DealerTrackerStep,
 } from "@/lib/orders/state-machine";
+import { bankAccountByNumber, centsToAmount, paymentTotals } from "@/lib/orders/payments";
+import { formatKes } from "@/lib/orders/money";
 import { OrderTrackingNav } from "@/components/dealer/order-tracking-nav";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
@@ -227,11 +231,18 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
   }));
 
   const tracker = dealerTrackerSteps(order.status);
+  const totals = paymentTotals(order.proforma?.amount ?? order.amountDue, order.payments);
+  const partPaid = paymentStepDetail(totals);
+  const payments = [...order.payments].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   const pms = order.lines.find((l) => l.product === "PMS")?.quantityLitres ?? 0;
   const ago = order.lines.find((l) => l.product === "AGO")?.quantityLitres ?? 0;
   const headline = trackerHeadline(order.status, tracker.steps);
   const badgeLabel =
-    order.status === "SUBMITTED" ? "Order Submitted" : dealerStatusLabel(order.status);
+    order.status === "SUBMITTED"
+      ? "Order Submitted"
+      : partPaid && order.status === "AWAITING_PAYMENT"
+        ? "Part paid"
+        : dealerStatusLabel(order.status);
   const badgeTone =
     order.status === "CANCELLED" || order.status === "REJECTED"
       ? "danger"
@@ -348,7 +359,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                           )}
                         </span>
                         <em>{item.label}</em>
-                        <small>{stepSecondary(item)}</small>
+                        <small>{item.key === "payment" && partPaid ? partPaid : stepSecondary(item)}</small>
                       </div>
                       {index < tracker.steps.length - 1 ? (
                         <span className={`ot__progress-line ${connectorClass}`} aria-hidden />
@@ -442,6 +453,58 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
           </article>
 
           <aside className="ot__side">
+            {payments.length ? (
+              <article className="ot__card">
+                <header className="ot__card-head">
+                  <div className="ot__card-title">
+                    <span className="ot__card-icon" aria-hidden>
+                      <Wallet size={18} strokeWidth={2.2} />
+                    </span>
+                    <h2>Payments</h2>
+                  </div>
+                </header>
+                <dl className="ot__pay-sum">
+                  <div>
+                    <dt>Paid</dt>
+                    <dd>{formatKes(centsToAmount(totals.confirmedCents))}</dd>
+                  </div>
+                  <div>
+                    <dt>Waiting</dt>
+                    <dd>{formatKes(centsToAmount(totals.waitingCents))}</dd>
+                  </div>
+                  <div>
+                    <dt>Balance</dt>
+                    <dd>{totals.balanceCents == null ? "—" : formatKes(centsToAmount(totals.balanceCents))}</dd>
+                  </div>
+                </dl>
+                <ul className="ot__pays">
+                  {payments.map((p) => {
+                    const account = bankAccountByNumber(p.bankAccountNumber);
+                    const tone = p.status === "CONFIRMED" ? "good" : p.status === "REJECTED" ? "bad" : "wait";
+                    const label =
+                      p.status === "CONFIRMED" ? "Confirmed" : p.status === "REJECTED" ? "Flagged" : "Waiting for Trinity";
+                    return (
+                      <li key={p.id} className="ot__pay">
+                        <div>
+                          <strong>
+                            {p.method === "MPESA_CODE" ? `M-PESA · ${p.mpesaCode}` : `Manual · ${p.bankReference ?? "no reference"}`}
+                          </strong>
+                          <span>
+                            {formatDateTime(p.createdAt)}
+                            {account ? ` · ${account.bank.split(" ")[0]} ${account.accountNumber}` : ""}
+                          </span>
+                          {p.status === "REJECTED" && p.reviewNote ? <span>Flagged: “{p.reviewNote}”</span> : null}
+                        </div>
+                        <div className="ot__pay-side">
+                          <b>{formatKes(p.amount)}</b>
+                          <em className={`ot__pay-chip is-${tone}`}>{label}</em>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </article>
+            ) : null}
             <article className="ot__card">
               <header className="ot__card-head">
                 <div className="ot__card-title">

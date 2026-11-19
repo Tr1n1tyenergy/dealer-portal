@@ -12,7 +12,6 @@ import {
 import {
   IN_TRANSIT_STATUSES,
   ONGOING_ORDER_STATUSES,
-  PAYMENT_REVIEW_STATUSES,
   WAITING_PAYMENT_STATUSES,
   formatKes,
   formatLitres,
@@ -20,6 +19,7 @@ import {
   greetingForHour,
   nextEpraEffectiveAt,
   nairobiTodayStart,
+  paymentTasks,
   nairobiYesterdayStart,
   pctChange,
   relativeTimeLabel,
@@ -49,7 +49,7 @@ export default async function StaffHomePage() {
     payments,
     transitOrders,
     waitingOrders,
-    paymentReviewCount,
+    waitingPaymentOrders,
     stations,
     closedYesterday,
     recentHistory,
@@ -89,7 +89,19 @@ export default async function StaffHomePage() {
       },
       orderBy: { updatedAt: "asc" },
     }),
-    prisma.dealerOrder.count({ where: { status: { in: PAYMENT_REVIEW_STATUSES } } }),
+    prisma.dealerOrder.findMany({
+      where: { payments: { some: { status: { in: ["SUBMITTED", "VERIFICATION"] } } } },
+      select: {
+        id: true,
+        reference: true,
+        dealerOrganization: { select: { name: true } },
+        payments: {
+          where: { status: { in: ["SUBMITTED", "VERIFICATION"] } },
+          orderBy: { createdAt: "asc" },
+          select: { amount: true, method: true, bankAccountNumber: true, odooState: true, odooError: true, createdAt: true },
+        },
+      },
+    }),
     prisma.station.findMany({
       select: { id: true, name: true, tradingName: true, dealerOrganizationId: true },
     }),
@@ -245,22 +257,12 @@ export default async function StaffHomePage() {
 
   // Only surface tasks that have real outstanding work — never pad with mockup rows.
   const tasks: StaffHomeTask[] = [];
-  if (paymentReviewCount > 0) {
-    tasks.push({
-      key: "payments",
-      title: "Payment Confirmation",
-      description:
-        paymentReviewCount === 1
-          ? "1 order has payment awaiting confirmation to create Sale Orders."
-          : `${paymentReviewCount} orders have payments awaiting confirmation to create Sale Orders.`,
-      badge: `${paymentReviewCount} Pending`,
-      badgeTone: "pending",
-      actionLabel: "Review Payments →",
-      actionHref: "/intelligence/retail/orders?stage=checking-payment",
-      actionVariant: "yellow",
-      icon: "coins",
-    });
-  }
+  // One Needs Action row per order with payments waiting, linking straight to that order.
+  tasks.push(
+    ...paymentTasks(
+      waitingPaymentOrders.map((o) => ({ id: o.id, reference: o.reference, dealerName: o.dealerOrganization.name, payments: o.payments }))
+    )
+  );
   if (missingCount > 0) {
     tasks.push({
       key: "reports",
