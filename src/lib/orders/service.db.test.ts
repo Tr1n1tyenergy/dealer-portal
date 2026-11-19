@@ -155,11 +155,15 @@ describe(
     it("lets a dealer resubmit a payment after finance flags it", async () => {
       const order = await createOrder("PAYMENT_EXCEPTION");
 
+      await prisma.proFormaInvoice.create({ data: { orderId: order.id, number: `PFI-${order.reference}`, amount: "1070150.00" } });
       await service.submitPayment({
         orderId: order.id,
         actorId,
         dealerOrganizationId: organizationId,
+        method: "MANUAL",
         amount: "1070150.00",
+        bankReference: `FT-${order.reference}`,
+        bankAccountNumber: "1289725640",
       });
 
       const saved = await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } });
@@ -175,7 +179,10 @@ describe(
           orderId: order.id,
           actorId,
           dealerOrganizationId: organizationId,
+          method: "MANUAL",
           amount: "1070150.00",
+          bankReference: `FT-${order.reference}`,
+          bankAccountNumber: "1289725640",
         })
       );
 
