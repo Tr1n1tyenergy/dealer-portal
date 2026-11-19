@@ -607,6 +607,8 @@ model PaymentRecord {
   /// Trinity account the dealer paid into (manual payments); Odoo ids come from PFI_BANK_ACCOUNTS.
   bankAccountNumber    String?
   mpesaCode            String?
+  /// Odoo's reference for an M-PESA payment (payer details), so staff can see who paid.
+  mpesaPayer           String?
   /// MPESA:<code> or BANK:<account>:<REF>; cleared when staff flag the payment so it can be resent.
   claimKey             String?      @unique
   odooPaymentId        Int?

@@ -60,7 +60,7 @@ export type PaymentDraftInput = {
 };
 
 export type OdooPaymentState = { id: number; state: string };
-export type OdooMpesaPayment = { id: number; amount: string; date: string; state: string };
+export type OdooMpesaPayment = { id: number; amount: string; date: string; state: string; ref: string };
 
 export interface OdooClient {
   readonly mode: "mock" | "live";

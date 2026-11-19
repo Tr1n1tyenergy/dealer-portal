@@ -52,6 +52,7 @@ describe("orderStatusAfterReview", () => {
 describe("M-PESA codes and phones", () => {
   it("normalises codes and refuses the wrong shape", () => {
     assert.deepEqual(parseMpesaCode(" tkj4ab12cd "), { ok: true, value: "TKJ4AB12CD" });
+    assert.deepEqual(parseMpesaCode("TKJ4 AB12 CD"), { ok: true, value: "TKJ4AB12CD" });
     assert.equal(parseMpesaCode("TKJ4AB12C").ok, false);
     assert.equal(parseMpesaCode("TKJ4AB-12CD").ok, false);
   });

@@ -443,12 +443,19 @@ export class LiveOdooClient implements OdooClient {
   /** The draft's Confirm button (account.payment.action_post); the caller checks the state is "posted". */
   async postPayment(id: number): Promise<OdooPaymentState> {
     this.assertPaymentsEnabled();
+    // Only a draft is posted: a payment already posted (a timed-out earlier try, or Accounts pressing
+    // Confirm in Odoo) is reported as it is, so the portal can catch up instead of failing for ever.
+    const before = await this.paymentState(id);
+    if (before.state !== "draft") return before;
     await this.execute(M.payment, "action_post", [[id]]);
     return this.paymentState(id);
   }
 
   async cancelPayment(id: number): Promise<OdooPaymentState> {
     this.assertPaymentsEnabled();
+    // Never cancel a posted payment: in Odoo that un-posts money Trinity really received.
+    const before = await this.paymentState(id);
+    if (before.state !== "draft") return before;
     await this.execute(M.payment, "action_cancel", [[id]]);
     return this.paymentState(id);
   }
@@ -470,6 +477,8 @@ export class LiveOdooClient implements OdooClient {
     const matches = rows.filter((row) => typeof row.ref === "string" && row.ref.trim().endsWith(` - ${code}`));
     if (matches.length > 1) throw new Error("This M-PESA code matches more than one Odoo payment.");
     const row = matches[0];
-    return row ? { id: row.id, amount: Number(row.amount).toFixed(2), date: row.date, state: row.state } : null;
+    return row
+      ? { id: row.id, amount: Number(row.amount).toFixed(2), date: row.date, state: row.state, ref: String(row.ref).trim() }
+      : null;
   }
 }

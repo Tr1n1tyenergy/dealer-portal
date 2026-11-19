@@ -49,7 +49,7 @@ export function orderStatusAfterReview(
 }
 
 export function parseMpesaCode(value: unknown): Parsed<string> {
-  const code = value == null ? "" : String(value).trim().toUpperCase();
+  const code = value == null ? "" : String(value).replace(/\s+/g, "").toUpperCase();
   return /^[A-Z0-9]{10}$/.test(code)
     ? { ok: true, value: code }
     : { ok: false, message: "Enter the 10-character M-PESA code from your confirmation SMS." };

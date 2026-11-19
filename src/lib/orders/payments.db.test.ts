@@ -144,6 +144,20 @@ describe(
         assert.equal(payment.method, "MPESA_CODE");
         assert.equal(payment.mpesaCode, "TEST000001");
         assert.equal(payment.odooState, "posted");
+        assert.match(payment.mpesaPayer ?? "", /Test Payer/);
+      });
+
+      it("shows the dealer a message, not a crash, when Odoo can't be reached for an M-PESA code", async () => {
+        const order = await payableOrder();
+        const down = odooWith({
+          findMpesaPayment: async () => {
+            throw new Error("Odoo HTTP 502");
+          },
+        });
+        await assert.rejects(
+          () => service.submitPayment({ orderId: order.id, actorId, dealerOrganizationId: organizationId, method: "MPESA_CODE", mpesaCode: "TEST000001" }, down),
+          (e: Error) => e.name === "OrderInputError" && /try again shortly/i.test(e.message)
+        );
       });
 
       it("lookUpMpesaCode says when a code is already claimed", async () => {
@@ -271,6 +285,63 @@ describe(
         assert.match(saved.odooError ?? "", /awaitV/);
         assert.equal(await status(order.id), "PAYMENT_VERIFICATION");
         assert.equal(await service.reviewPayment(paymentId, staffId, true), "done", "a later retry still works");
+      });
+
+      it("flags a payment Odoo already posted without undoing it in Odoo", async () => {
+        const order = await payableOrder();
+        const { paymentId } = await manual(order.id, "400");
+        const posted = odooWith({ cancelPayment: async (id: number) => ({ id, state: "posted" }) });
+        assert.equal(await service.reviewPayment(paymentId, staffId, false, "Wrong order", posted), "done");
+        const saved = await payment(paymentId);
+        assert.equal(saved.status, "REJECTED");
+        assert.match(saved.odooError ?? "", /Posted in Odoo, not cancelled/);
+      });
+
+      it("frees the payment again when confirming crashes part-way", async () => {
+        const order = await payableOrder();
+        const { paymentId } = await manual(order.id, "400");
+        await prisma.dealerOrder.update({ where: { id: order.id }, data: { status: "CANCELLED" } });
+        await assert.rejects(() => service.reviewPayment(paymentId, staffId, true));
+        assert.equal((await payment(paymentId)).reviewedAt, null);
+      });
+
+      it("treats a review claim older than two minutes as abandoned", async () => {
+        const order = await payableOrder();
+        const { paymentId } = await manual(order.id, "1000");
+        await prisma.paymentRecord.update({ where: { id: paymentId }, data: { reviewedAt: new Date(Date.now() - 5 * 60_000) } });
+        assert.equal(await service.reviewPayment(paymentId, staffId, true), "done");
+      });
+
+      it("confirms portal-only a payment sent while Odoo payments were off", async () => {
+        const order = await payableOrder("PAYMENT_VERIFICATION");
+        const offPeriod = await prisma.paymentRecord.create({
+          data: { orderId: order.id, amount: "1000.00", status: "SUBMITTED", method: "MANUAL", bankAccountNumber: KCB, bankReference: `FTOFF-${run}` },
+        });
+        let calls = 0;
+        const count = async () => {
+          calls += 1;
+          throw new Error("Odoo must not be called");
+        };
+        const none = odooWith({ createPaymentDraft: count, postPayment: count, cancelPayment: count });
+        assert.equal(await service.reviewPayment(offPeriod.id, staffId, true, undefined, none), "done");
+        assert.equal(calls, 0);
+      });
+
+      it("never pushes a reviewed payment to Odoo", async () => {
+        const order = await payableOrder("PAYMENT_EXCEPTION");
+        const rejected = await prisma.paymentRecord.create({
+          data: { orderId: order.id, amount: "100.00", status: "REJECTED", method: "MANUAL", bankAccountNumber: KCB, bankReference: `FTREJ-${run}`, odooError: "earlier" },
+        });
+        let drafts = 0;
+        const counting = odooWith({
+          createPaymentDraft: async () => {
+            drafts += 1;
+            return { id: 1, state: "draft" };
+          },
+        });
+        await service.retryPaymentOdoo(rejected.id, staffId, counting);
+        assert.equal(drafts, 0);
+        assert.equal((await payment(rejected.id)).odooPaymentId, null);
       });
 
       it("confirms an older payment that has no Odoo draft", async () => {

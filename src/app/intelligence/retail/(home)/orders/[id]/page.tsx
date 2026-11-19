@@ -46,7 +46,13 @@ const when = (at: Date | null | undefined, withTime = true) =>
 /** "2 Nov, 15:01" — short enough for tracker columns. */
 /** The Odoo line on a waiting payment in the Confirm Payment card. */
 function odooLine(
-  payment: { method: string; odooState: string | null; odooError: string | null; bankAccountNumber: string | null },
+  payment: {
+    method: string;
+    odooState: string | null;
+    odooError: string | null;
+    odooPaymentId: number | null;
+    bankAccountNumber: string | null;
+  },
   odooOn: boolean,
   bank: string | undefined
 ) {
@@ -54,6 +60,7 @@ function odooLine(
   if (payment.method === "MPESA_CODE") return "Already posted in Odoo (M-PESA). Confirming links it, no new entry.";
   if (!odooOn) return "Odoo payments are off: Accounts records this in Odoo.";
   if (!payment.bankAccountNumber) return "Sent before Odoo payments: confirming is portal-only.";
+  if (payment.odooPaymentId == null) return "Sent while Odoo payments were off: confirming is portal-only.";
   if (payment.odooState === "draft") return `Draft created in Odoo · ${bank ?? "bank"} journal · Manual`;
   return "Not in Odoo yet.";
 }
@@ -233,6 +240,12 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                               <>
                                 <dt>M-PESA code</dt>
                                 <dd>{payment.mpesaCode}</dd>
+                                {payment.mpesaPayer ? (
+                                  <>
+                                    <dt>Paid by (Odoo)</dt>
+                                    <dd>{payment.mpesaPayer}</dd>
+                                  </>
+                                ) : null}
                               </>
                             ) : (
                               <>

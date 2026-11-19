@@ -473,7 +473,7 @@ export async function submitPayment(
   odoo: OdooClient = getOdooClient()
 ): Promise<{ paymentId: string }> {
   let amount: string;
-  let mpesa: { code: string; odooPaymentId: number; odooState: string } | null = null;
+  let mpesa: { code: string; odooPaymentId: number; odooState: string; payer: string } | null = null;
   let bankReference: string | undefined;
   let bankAccountNumber: string | undefined;
 
@@ -481,10 +481,15 @@ export async function submitPayment(
   if (params.method === "MPESA_CODE") {
     const code = parseMpesaCode(params.mpesaCode);
     if (!code.ok) throw new OrderInputError(code.message);
-    const found = await odoo.findMpesaPayment(code.value);
+    let found: Awaited<ReturnType<OdooClient["findMpesaPayment"]>>;
+    try {
+      found = await odoo.findMpesaPayment(code.value);
+    } catch {
+      throw new OrderInputError("We couldn't check this M-PESA code right now. Try again shortly.");
+    }
     if (!found) throw new OrderInputError(MPESA_NOT_FOUND);
     amount = found.amount;
-    mpesa = { code: code.value, odooPaymentId: found.id, odooState: found.state };
+    mpesa = { code: code.value, odooPaymentId: found.id, odooState: found.state, payer: found.ref.slice(0, 200) };
   } else {
     bankReference = params.bankReference?.trim();
     if (!bankReference) throw new OrderInputError("Enter the bank reference from your bank.");
@@ -536,6 +541,7 @@ export async function submitPayment(
           bankReference,
           bankAccountNumber,
           mpesaCode: mpesa?.code,
+          mpesaPayer: mpesa?.payer,
           claimKey: paymentClaimKey({ method: params.method, mpesaCode: mpesa?.code, bankAccountNumber, bankReference }),
           odooPaymentId: mpesa?.odooPaymentId,
           odooState: mpesa?.odooState,
@@ -580,7 +586,15 @@ export async function pushPaymentToOdoo(paymentId: string, odoo: OdooClient = ge
     where: { id: paymentId },
     include: { order: { include: { station: true, dealerOrganization: true } } },
   });
-  if (!payment || payment.method !== "MANUAL" || payment.odooPaymentId != null) return;
+  // Only a payment still waiting for staff: a reviewed one must never get a (stray) Odoo draft.
+  if (
+    !payment ||
+    payment.method !== "MANUAL" ||
+    payment.odooPaymentId != null ||
+    (payment.status !== "SUBMITTED" && payment.status !== "VERIFICATION")
+  ) {
+    return;
+  }
   const account = bankAccountByNumber(payment.bankAccountNumber);
   try {
     if (!account || !payment.bankReference) throw new Error("This payment has no Trinity account or bank reference.");
@@ -598,8 +612,9 @@ export async function pushPaymentToOdoo(paymentId: string, odoo: OdooClient = ge
       paymentMethodLineId: account.odoo.paymentMethodLineId,
       partnerBankId: account.odoo.partnerBankId,
     });
-    await prisma.paymentRecord.update({
-      where: { id: payment.id },
+    // Only the first writer records its draft (a retry racing the dealer's own push).
+    await prisma.paymentRecord.updateMany({
+      where: { id: payment.id, odooPaymentId: null },
       data: { odooPaymentId: draft.id, odooState: draft.state, odooError: null },
     });
   } catch (error) {
@@ -625,16 +640,45 @@ export async function reviewPayment(
   note?: string,
   odoo: OdooClient = getOdooClient()
 ): Promise<"done" | "stale" | "odoo-failed"> {
-  // Claim the payment first, so two staff pressing Confirm together can't post it twice.
+  // Claim the payment first, so two staff pressing Confirm together can't post it twice. A claim older
+  // than two minutes was abandoned (the server died mid-way) and may be taken again.
+  const now = new Date();
   const claim = await prisma.paymentRecord.updateMany({
-    where: { id: paymentId, status: { in: ["SUBMITTED", "VERIFICATION"] }, reviewedAt: null },
-    data: { reviewedAt: new Date(), reviewedById: actorId },
+    where: {
+      id: paymentId,
+      status: { in: ["SUBMITTED", "VERIFICATION"] },
+      OR: [{ reviewedAt: null }, { reviewedAt: { lt: new Date(now.getTime() - CLAIM_EXPIRES_MS) } }],
+    },
+    data: { reviewedAt: now, reviewedById: actorId },
   });
   if (claim.count === 0) return "stale";
+  const release = (data: Prisma.PaymentRecordUpdateInput = {}) =>
+    prisma.paymentRecord.update({ where: { id: paymentId }, data: { reviewedAt: null, reviewedById: null, ...data } });
+  try {
+    return await reviewClaimedPayment(paymentId, actorId, accept, note, odoo, release);
+  } catch (error) {
+    await release().catch(() => undefined);
+    throw error;
+  }
+}
+
+const CLAIM_EXPIRES_MS = 2 * 60_000;
+
+async function reviewClaimedPayment(
+  paymentId: string,
+  actorId: string,
+  accept: boolean,
+  note: string | undefined,
+  odoo: OdooClient,
+  release: (data?: Prisma.PaymentRecordUpdateInput) => Promise<unknown>
+): Promise<"done" | "odoo-failed"> {
   const payment = await prisma.paymentRecord.findUniqueOrThrow({ where: { id: paymentId } });
+  // Manual payments use Odoo only if they went there (or tried to) while the switch was on: one sent
+  // while it was off may already be typed into Odoo by Accounts, so a new draft would count it twice.
+  const sentToOdoo = payment.odooPaymentId != null || payment.odooError != null;
   const useOdoo =
     odooPaymentsEnabled() &&
-    (payment.method === "MPESA_CODE" || (payment.method === "MANUAL" && payment.bankAccountNumber != null));
+    (payment.method === "MPESA_CODE" || (payment.method === "MANUAL" && payment.bankAccountNumber != null && sentToOdoo));
 
   if (accept && useOdoo) {
     try {
@@ -657,10 +701,7 @@ export async function reviewPayment(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      await prisma.paymentRecord.update({
-        where: { id: paymentId },
-        data: { reviewedAt: null, reviewedById: null, odooError: message.slice(0, 300) },
-      });
+      await release({ odooError: message.slice(0, 300) });
       return "odoo-failed";
     }
   }
@@ -699,7 +740,16 @@ export async function reviewPayment(
   if (!accept && useOdoo && payment.method === "MANUAL" && payment.odooPaymentId != null) {
     try {
       const cancelled = await odoo.cancelPayment(payment.odooPaymentId);
-      await prisma.paymentRecord.update({ where: { id: paymentId }, data: { odooState: cancelled.state } });
+      await prisma.paymentRecord.update({
+        where: { id: paymentId },
+        data: {
+          odooState: cancelled.state,
+          odooError:
+            cancelled.state === "cancel"
+              ? null
+              : `Posted in Odoo, not cancelled: check with Accounts (Odoo state "${cancelled.state}").`,
+        },
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       await prisma.paymentRecord.update({

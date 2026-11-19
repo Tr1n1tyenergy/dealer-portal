@@ -92,13 +92,16 @@ export class MockOdooClient implements OdooClient {
 
   async findMpesaPayment(code: string): Promise<OdooMpesaPayment | null> {
     const amount = MOCK_MPESA[code];
-    return amount ? { id: 800000 + Number(code.slice(-6)), amount, date: "2026-11-19", state: "posted" } : null;
+    return amount
+      ? { id: 800000 + Number(code.slice(-6)), amount, date: "2026-11-19", state: "posted", ref: `MP-254700000000 - Test Payer - ${code}` }
+      : null;
   }
 
+  /** Like Odoo after the live client's checks: only a draft moves; anything else is left as it is. */
   private setPaymentState(id: number, state: string): OdooPaymentState {
     for (const payment of mockPayments.values()) {
       if (payment.id === id) {
-        payment.state = state;
+        if (payment.state === "draft") payment.state = state;
         return { ...payment };
       }
     }

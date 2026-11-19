@@ -111,17 +111,37 @@ describe("live Odoo client: payments", () => {
     ]);
   });
 
-  it("posts with action_post and reports the state Odoo ends in", async () => {
-    answer = (c) => (c.method === "read" ? [{ id: 77, state: "awaitV" }] : true);
+  it("posts a draft with action_post and reports the state Odoo ends in", async () => {
+    let posted = false;
+    answer = (c) => {
+      if (c.method === "action_post") posted = true;
+      return c.method === "read" ? [{ id: 77, state: posted ? "awaitV" : "draft" }] : true;
+    };
     const result = await (await client()).postPayment(77);
     assert.deepEqual(result, { id: 77, state: "awaitV" });
-    assert.deepEqual(calls[0], { model: "account.payment", method: "action_post", args: [[77]], kwargs: {} });
+    assert.deepEqual(calls.find((c) => c.method === "action_post"), { model: "account.payment", method: "action_post", args: [[77]], kwargs: {} });
   });
 
-  it("cancels with action_cancel", async () => {
-    answer = (c) => (c.method === "read" ? [{ id: 77, state: "cancel" }] : true);
+  it("does not post again a payment Odoo already posted", async () => {
+    answer = (c) => (c.method === "read" ? [{ id: 77, state: "posted" }] : true);
+    assert.deepEqual(await (await client()).postPayment(77), { id: 77, state: "posted" });
+    assert.equal(calls.some((c) => c.method === "action_post"), false);
+  });
+
+  it("never cancels a payment that is already posted", async () => {
+    answer = (c) => (c.method === "read" ? [{ id: 77, state: "posted" }] : true);
+    assert.deepEqual(await (await client()).cancelPayment(77), { id: 77, state: "posted" });
+    assert.equal(calls.some((c) => c.method === "action_cancel"), false);
+  });
+
+  it("cancels a draft with action_cancel", async () => {
+    let cancelled = false;
+    answer = (c) => {
+      if (c.method === "action_cancel") cancelled = true;
+      return c.method === "read" ? [{ id: 77, state: cancelled ? "cancel" : "draft" }] : true;
+    };
     assert.deepEqual(await (await client()).cancelPayment(77), { id: 77, state: "cancel" });
-    assert.equal(calls[0].method, "action_cancel");
+    assert.equal(calls.some((c) => c.method === "action_cancel"), true);
   });
 
   it("finds an M-PESA payment only when the code is the last part of the reference", async () => {
@@ -130,7 +150,7 @@ describe("live Odoo client: payments", () => {
       { id: 2, ref: "MP-25471 - TKJ4AB12CD Ltd - XYZ1234567", amount: 50, date: "2026-11-19", state: "posted" },
     ];
     const found = await (await client()).findMpesaPayment("TKJ4AB12CD");
-    assert.deepEqual(found, { id: 1, amount: "120000.00", date: "2026-11-19", state: "posted" });
+    assert.deepEqual(found, { id: 1, amount: "120000.00", date: "2026-11-19", state: "posted", ref: "MP-25471 - Jane Doe - TKJ4AB12CD" });
     assert.deepEqual(calls[0].args, [
       [
         ["journal_id", "=", 11],
