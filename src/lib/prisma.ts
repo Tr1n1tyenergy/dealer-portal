@@ -113,9 +113,9 @@ export function resetPrismaClient(): PrismaClient {
 
 function getPrisma(): PrismaClient {
   const client = resolvePrismaClient();
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = client;
-  }
+  // Keep it in production too: this runs on every `prisma.x` access, so without the cache each
+  // query would open a new client and connection pool until Postgres runs out of connections.
+  globalForPrisma.prisma = client;
   return client;
 }
 
