@@ -2,11 +2,9 @@
  * Money and status rules for PFI payments paid in parts (M-PESA code, manual bank payment).
  * Pure: amounts are compared in whole cents, stored as "1234.50" strings like PaymentRecord.amount.
  */
-import type { PaymentState } from "@prisma/client";
+import type { PaymentMethod, PaymentState } from "@prisma/client";
 import { PFI_BANK_ACCOUNTS } from "@/lib/company/pfi-settings";
 import type { Parsed } from "./order-input";
-
-type PaymentMethod = "MANUAL" | "MPESA_CODE" | "MPESA_PROMPT";
 
 export type PaymentLike = { amount: string; status: PaymentState };
 export type PaymentTotals = {
