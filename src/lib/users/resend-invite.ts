@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { daysFromNow, generateSecureToken } from "@/lib/tokens";
+import { daysFromNow, generateSecureToken, hashToken } from "@/lib/tokens";
 import { EmailDeliveryError, invitationEmailHtml, sendEmail } from "@/lib/email";
 
 const PORTAL = {
@@ -22,7 +22,7 @@ export async function resendInvite(
   }
 
   const token = generateSecureToken();
-  await prisma.invitationToken.create({ data: { token, userId: user.id, expiresAt: daysFromNow(7) } });
+  await prisma.invitationToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: daysFromNow(7) } });
   const activateUrl = `${process.env.NEXTAUTH_URL ?? "http://localhost:3000"}${portal.path}?token=${token}`;
 
   try {
@@ -32,12 +32,12 @@ export async function resendInvite(
       html: invitationEmailHtml({ firstName: user.firstName, activateUrl }),
     });
   } catch (err) {
-    await prisma.invitationToken.deleteMany({ where: { token } });
+    await prisma.invitationToken.deleteMany({ where: { token: hashToken(token) } });
     return { ok: false, status: 503, message: err instanceof EmailDeliveryError ? err.message : "Invitation email could not be sent." };
   }
 
   await prisma.$transaction([
-    prisma.invitationToken.deleteMany({ where: { userId: user.id, token: { not: token } } }),
+    prisma.invitationToken.deleteMany({ where: { userId: user.id, token: { not: hashToken(token) } } }),
     prisma.user.update({ where: { id: user.id }, data: { passwordHash: null, status: "PENDING" } }),
   ]);
   return { ok: true, activateUrl };

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import type { PrismaClient } from "@prisma/client";
+import { hashToken } from "@/lib/tokens";
 
 // Integration tests: these need a real PostgreSQL database whose name ends in `_test`
 // (see .env.test.local and `npm run test:db`). They never run against tri_dev or Neon.
@@ -43,7 +44,7 @@ describe(
       const { POST } = await import("@/app/api/auth/activate/route");
       const user = await disabledUser("invited");
       const token = `inv-${run}-xxxxxxxx`;
-      await prisma.invitationToken.create({ data: { token, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.invitationToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
 
       const res = await POST(post({ token, password: NEW_PASSWORD }));
 
@@ -51,37 +52,44 @@ describe(
       const after = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
       assert.equal(after.status, "DISABLED");
       assert.equal(after.passwordHash, null);
+      // The same link works once the account isn't disabled, so the refusal above was the account, not the link.
+      await prisma.user.update({ where: { id: user.id }, data: { status: "PENDING" } });
+      assert.equal((await POST(post({ token, password: NEW_PASSWORD }))).status, 200);
     });
 
     it("doesn't show the set-password form for a disabled account's invite", async () => {
       const { GET } = await import("@/app/api/auth/activate/route");
       const user = await disabledUser("lookup");
       const token = `inv3-${run}-xxxxxxx`;
-      await prisma.invitationToken.create({ data: { token, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.invitationToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
 
       const res = await GET(new Request(`http://test.local/api?token=${token}`));
 
       assert.equal(res.status, 400);
+      await prisma.user.update({ where: { id: user.id }, data: { status: "PENDING" } });
+      assert.equal((await GET(new Request(`http://test.local/api?token=${token}`))).status, 200);
     });
 
     it("refuses a password-reset link for a disabled account", async () => {
       const { POST } = await import("@/app/api/auth/reset-password/route");
       const user = await disabledUser("reset");
       const token = `rst-${run}-xxxxxxxx`;
-      await prisma.passwordResetToken.create({ data: { token, userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
+      await prisma.passwordResetToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
 
       const res = await POST(post({ token, password: NEW_PASSWORD }));
 
       assert.equal(res.status, 400);
       const after = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
       assert.equal(after.status, "DISABLED");
+      await prisma.user.update({ where: { id: user.id }, data: { status: "ACTIVE" } });
+      assert.equal((await POST(post({ token, password: NEW_PASSWORD }))).status, 200);
     });
 
     it("removes a person's open links when they are disabled", async () => {
       const { revokeOpenLinks } = await import("./admin-rules");
       const user = await disabledUser("revoked");
-      await prisma.invitationToken.create({ data: { token: `inv2-${run}-xxxxxxx`, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
-      await prisma.passwordResetToken.create({ data: { token: `rst2-${run}-xxxxxxx`, userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
+      await prisma.invitationToken.create({ data: { token: hashToken(`inv2-${run}-xxxxxxx`), userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.passwordResetToken.create({ data: { token: hashToken(`rst2-${run}-xxxxxxx`), userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
 
       await revokeOpenLinks(user.id);
 
