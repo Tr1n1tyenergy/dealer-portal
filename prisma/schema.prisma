@@ -1122,3 +1122,10 @@ model StaffRoleTemplate {
 
   @@index([createdAt])
 }
+
+/// Uploaded files (support attachments, RTT job cards). Vercel has no lasting disk, so the bytes live here.
+model StoredFile {
+  key       String   @id
+  data      Bytes
+  createdAt DateTime @default(now())
+}
