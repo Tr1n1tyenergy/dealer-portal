@@ -6,6 +6,8 @@ export type HomeCounts = {
   ordersToday: number | null;
   paymentsToConfirm: number | null;
   unreadMessages: number | null;
+  /** True when an allowed count failed to load, so "nothing waiting" can't be claimed. */
+  incomplete?: boolean;
 };
 
 type CountDb = {
@@ -23,17 +25,20 @@ export function summaryLine(c: HomeCounts): string {
     c.paymentsToConfirm ? plural(c.paymentsToConfirm, "payment to confirm", "payments to confirm") : null,
     c.unreadMessages ? plural(c.unreadMessages, "unread message", "unread messages") : null,
   ].filter(Boolean);
-  if (parts.length === 0) return "Nothing waiting for you right now.";
+  if (parts.length === 0) return c.incomplete ? "Where do you want to work today?" : "Nothing waiting for you right now.";
   return `Across the network today: ${parts.join(", ")}.`;
 }
 
-/** Runs one count only when allowed; a failure becomes null so the page still loads. */
-async function maybe(allowed: boolean, run: () => Promise<number>): Promise<number | null> {
+const FAILED = Symbol("failed");
+
+/** Runs one count only when allowed; a failure is logged and marked so the page still loads. */
+async function maybe(allowed: boolean, run: () => Promise<number>): Promise<number | null | typeof FAILED> {
   if (!allowed) return null;
   try {
     return await run();
-  } catch {
-    return null;
+  } catch (error) {
+    console.error("modules page: a home count failed", error);
+    return FAILED;
   }
 }
 
@@ -45,12 +50,13 @@ export async function loadHomeCounts(
   const unread = deps.unread ?? (await import("@/lib/messaging/service")).unreadMessageCount;
   const since = nairobiTodayStart(deps.now ?? new Date());
 
-  const [ordersToday, paymentsToConfirm, unreadMessages] = await Promise.all([
+  const results = await Promise.all([
     maybe(canUser(user, "orders", "view"), () => db.dealerOrder.count({ where: { createdAt: { gte: since } } })),
     maybe(canUser(user, "orders", "act"), () =>
       db.paymentRecord.count({ where: { status: { in: ["SUBMITTED", "VERIFICATION"] } } })
     ),
     maybe(canUser(user, "messaging", "view"), () => unread(user.id)),
   ]);
-  return { ordersToday, paymentsToConfirm, unreadMessages };
+  const [ordersToday, paymentsToConfirm, unreadMessages] = results.map((r) => (r === FAILED ? null : r));
+  return { ordersToday, paymentsToConfirm, unreadMessages, incomplete: results.includes(FAILED) };
 }

@@ -22,6 +22,13 @@ describe("summaryLine", () => {
     assert.equal(summaryLine({ ordersToday: 0, paymentsToConfirm: 0, unreadMessages: 0 }), "Nothing waiting for you right now.");
   });
 
+  it("never claims nothing is waiting when a count could not be loaded", () => {
+    assert.equal(
+      summaryLine({ ordersToday: 0, paymentsToConfirm: null, unreadMessages: 0, incomplete: true }),
+      "Where do you want to work today?"
+    );
+  });
+
   it("falls back to a plain prompt when no count is visible", () => {
     assert.equal(summaryLine({ ordersToday: null, paymentsToConfirm: null, unreadMessages: null }), "Where do you want to work today?");
   });
@@ -47,6 +54,7 @@ describe("loadHomeCounts", () => {
       ordersToday: 5,
       paymentsToConfirm: 5,
       unreadMessages: 2,
+      incomplete: false,
     });
   });
 
@@ -57,13 +65,13 @@ describe("loadHomeCounts", () => {
       db: fakeDb(calls),
       unread: async () => ((unreadCalled = true), 2),
     });
-    assert.deepEqual(counts, { ordersToday: null, paymentsToConfirm: null, unreadMessages: null });
+    assert.deepEqual(counts, { ordersToday: null, paymentsToConfirm: null, unreadMessages: null, incomplete: false });
     assert.deepEqual(calls, []);
     assert.equal(unreadCalled, false);
   });
 
   it("drops only the count that fails", async () => {
     const counts = await loadHomeCounts(user("SUPER_ADMIN"), { db: fakeDb([], true), unread });
-    assert.deepEqual(counts, { ordersToday: 5, paymentsToConfirm: null, unreadMessages: 2 });
+    assert.deepEqual(counts, { ordersToday: 5, paymentsToConfirm: null, unreadMessages: 2, incomplete: true });
   });
 });
