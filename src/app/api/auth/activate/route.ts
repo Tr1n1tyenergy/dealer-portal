@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { hashToken } from "@/lib/tokens";
 import { jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { validatePasswordStrength } from "@/lib/security/password-policy";
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
   if (!token || token.length < 10) return jsonError("Invalid token", 400);
 
   const invite = await prisma.invitationToken.findUnique({
-    where: { token },
+    where: { token: hashToken(token) },
     include: { user: { select: { email: true, accountType: true, firstName: true, status: true } } },
   });
 
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
   if (!strength.ok) return jsonError(strength.message, 400);
 
   const invite = await prisma.invitationToken.findUnique({
-    where: { token: parsed.data.token },
+    where: { token: hashToken(parsed.data.token) },
     include: { user: true },
   });
 

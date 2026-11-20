@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requirePermissionApi, jsonError } from "@/lib/api-auth";
-import { generateSecureToken, daysFromNow } from "@/lib/tokens";
+import { generateSecureToken, daysFromNow, hashToken } from "@/lib/tokens";
 import {
   EmailDeliveryError,
   emailDeliveryConfigured,
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
   const token = generateSecureToken();
   await prisma.invitationToken.create({
     data: {
-      token,
+      token: hashToken(token),
       userId: user.id,
       expiresAt: daysFromNow(7),
     },
