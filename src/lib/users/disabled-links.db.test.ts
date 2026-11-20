@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import type { PrismaClient } from "@prisma/client";
+import { hashToken } from "@/lib/tokens";
 
 // Integration tests: these need a real PostgreSQL database whose name ends in `_test`
 // (see .env.test.local and `npm run test:db`). They never run against tri_dev or Neon.
@@ -43,7 +44,7 @@ describe(
       const { POST } = await import("@/app/api/auth/activate/route");
       const user = await disabledUser("invited");
       const token = `inv-${run}-xxxxxxxx`;
-      await prisma.invitationToken.create({ data: { token, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.invitationToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
 
       const res = await POST(post({ token, password: NEW_PASSWORD }));
 
@@ -57,7 +58,7 @@ describe(
       const { GET } = await import("@/app/api/auth/activate/route");
       const user = await disabledUser("lookup");
       const token = `inv3-${run}-xxxxxxx`;
-      await prisma.invitationToken.create({ data: { token, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.invitationToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
 
       const res = await GET(new Request(`http://test.local/api?token=${token}`));
 
@@ -68,7 +69,7 @@ describe(
       const { POST } = await import("@/app/api/auth/reset-password/route");
       const user = await disabledUser("reset");
       const token = `rst-${run}-xxxxxxxx`;
-      await prisma.passwordResetToken.create({ data: { token, userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
+      await prisma.passwordResetToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
 
       const res = await POST(post({ token, password: NEW_PASSWORD }));
 
@@ -80,8 +81,8 @@ describe(
     it("removes a person's open links when they are disabled", async () => {
       const { revokeOpenLinks } = await import("./admin-rules");
       const user = await disabledUser("revoked");
-      await prisma.invitationToken.create({ data: { token: `inv2-${run}-xxxxxxx`, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
-      await prisma.passwordResetToken.create({ data: { token: `rst2-${run}-xxxxxxx`, userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
+      await prisma.invitationToken.create({ data: { token: hashToken(`inv2-${run}-xxxxxxx`), userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.passwordResetToken.create({ data: { token: hashToken(`rst2-${run}-xxxxxxx`), userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
 
       await revokeOpenLinks(user.id);
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import type { PrismaClient } from "@prisma/client";
+import { hashToken } from "@/lib/tokens";
 import type { JWT } from "next-auth/jwt";
 
 // Integration tests: these need a real PostgreSQL database whose name ends in `_test`
@@ -40,7 +41,7 @@ describe(
     it("stamps the change time when the password is reset", async () => {
       const { POST } = await import("@/app/api/auth/reset-password/route");
       const reset = `rst-${run}-xxxxxxxxx`;
-      await prisma.passwordResetToken.create({ data: { token: reset, userId, expiresAt: new Date(Date.now() + 3600e3) } });
+      await prisma.passwordResetToken.create({ data: { token: hashToken(reset), userId, expiresAt: new Date(Date.now() + 3600e3) } });
       const res = await POST(
         new Request("http://test.local/api", {
           method: "POST",
