@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 /** Bump when schema relations change so HMR drops a stale Prisma singleton. */
-const PRISMA_SCHEMA_STAMP = "fleet-truck-compartments-2026-11-17b";
+const PRISMA_SCHEMA_STAMP = "stored-files-2026-11-20";
 
 /**
  * Neon pooler + Turbopack HMR can exhaust default Prisma pools
@@ -55,6 +55,7 @@ const REQUIRED_DELEGATES = [
   "fleetTruckCompartment",
   "transportCompany",
   "stationFuelPrice",
+  "storedFile",
 ] as const;
 
 /**
