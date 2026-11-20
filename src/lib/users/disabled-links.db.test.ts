@@ -52,6 +52,9 @@ describe(
       const after = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
       assert.equal(after.status, "DISABLED");
       assert.equal(after.passwordHash, null);
+      // The same link works once the account isn't disabled, so the refusal above was the account, not the link.
+      await prisma.user.update({ where: { id: user.id }, data: { status: "PENDING" } });
+      assert.equal((await POST(post({ token, password: NEW_PASSWORD }))).status, 200);
     });
 
     it("doesn't show the set-password form for a disabled account's invite", async () => {
@@ -63,6 +66,8 @@ describe(
       const res = await GET(new Request(`http://test.local/api?token=${token}`));
 
       assert.equal(res.status, 400);
+      await prisma.user.update({ where: { id: user.id }, data: { status: "PENDING" } });
+      assert.equal((await GET(new Request(`http://test.local/api?token=${token}`))).status, 200);
     });
 
     it("refuses a password-reset link for a disabled account", async () => {
@@ -76,6 +81,8 @@ describe(
       assert.equal(res.status, 400);
       const after = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
       assert.equal(after.status, "DISABLED");
+      await prisma.user.update({ where: { id: user.id }, data: { status: "ACTIVE" } });
+      assert.equal((await POST(post({ token, password: NEW_PASSWORD }))).status, 200);
     });
 
     it("removes a person's open links when they are disabled", async () => {
