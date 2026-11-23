@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { jsonError, requireDealerApi, requirePermissionApi, requireSessionApi } from "@/lib/api-auth";
 import { isStaffAccount } from "@/lib/access";
+import { attachmentDownloadError } from "@/lib/support/attachment-errors";
 import { getAttachmentForAccess } from "@/lib/support/service";
 import { readSupportUpload } from "@/lib/support/storage";
 
@@ -39,7 +40,8 @@ export async function GET(_req: Request, ctx: Ctx) {
       },
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Not found";
-    return jsonError(msg, msg === "Forbidden." ? 403 : 404);
+    const { message, status } = attachmentDownloadError(err);
+    if (status === 404 && message === "Not found") console.error("[support] attachment download failed", err);
+    return jsonError(message, status);
   }
 }
