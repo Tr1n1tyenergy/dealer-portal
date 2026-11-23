@@ -5,7 +5,7 @@ import { requireDepot } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { depotOrderAction } from "@/lib/orders/actions";
 import { SignOutButton } from "@/components/auth/sign-out-button";
-import "../../dealer/dealer-portal.css";
+import "../../../dealer/dealer-portal.css";
 
 const queues: { title: string; statuses: DealerOrderStatus[] }[] = [
   { title: "Ready for release", statuses: ["RELEASED_TO_DEPOT"] },

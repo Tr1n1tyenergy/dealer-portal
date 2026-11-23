@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { TrinityWorkspaceLoader } from "@/components/ui/trinity-workspace-loader";
 import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
@@ -9,7 +11,19 @@ import { PlatformSettingsClient, type SettingsTab } from "@/components/staff/pla
 import "@/app/intelligence/retail/staff-orders.css";
 import "@/app/intelligence/retail/platform-settings.css";
 
-export default async function PlatformSettingsPage({
+export default function PlatformSettingsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  return (
+    <Suspense fallback={<TrinityWorkspaceLoader />}>
+      <PlatformSettingsContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function PlatformSettingsContent({
   searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
