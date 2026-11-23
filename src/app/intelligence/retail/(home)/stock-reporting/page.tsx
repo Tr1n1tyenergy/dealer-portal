@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { canUser } from "@/lib/permissions";
 import { requireInternal } from "@/lib/session";
@@ -748,16 +747,40 @@ async function loadView(
 
   const stationName = displayStationName(station);
 
-  const periodReportsMeta = await prisma.stockSaleReport.findMany({
-    where: {
-      reportingDate: { gte: bounds.start, lt: bounds.endExclusive },
-    },
-    select: {
-      stationId: true,
-      status: true,
-      reportingDate: true,
-    },
-  });
+  const [periodReportsMeta, reports] = await Promise.all([
+    prisma.stockSaleReport.findMany({
+      where: {
+        reportingDate: { gte: bounds.start, lt: bounds.endExclusive },
+      },
+      select: {
+        stationId: true,
+        status: true,
+        reportingDate: true,
+      },
+    }),
+    prisma.stockSaleReport.findMany({
+      where: {
+        stationId,
+        reportingDate: { gte: bounds.start, lt: bounds.endExclusive },
+      },
+      include: {
+        tankReadings: {
+          select: {
+            product: true,
+            openingLitres: true,
+            closingLitres: true,
+          },
+        },
+        pumpReadings: {
+          select: {
+            product: true,
+            salesLitres: true,
+          },
+        },
+      },
+      orderBy: { reportingDate: "asc" },
+    }),
+  ]);
 
   const stationOptions = stations
     .map((s) => {
@@ -774,29 +797,6 @@ async function loadView(
       const d = a.dealerName.localeCompare(b.dealerName, undefined, { sensitivity: "base" });
       return d !== 0 ? d : a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
     });
-
-  const reports = await prisma.stockSaleReport.findMany({
-    where: {
-      stationId,
-      reportingDate: { gte: bounds.start, lt: bounds.endExclusive },
-    },
-    include: {
-      tankReadings: {
-        select: {
-          product: true,
-          openingLitres: true,
-          closingLitres: true,
-        },
-      },
-      pumpReadings: {
-        select: {
-          product: true,
-          salesLitres: true,
-        },
-      },
-    },
-    orderBy: { reportingDate: "asc" },
-  });
 
   const closed = reports.filter((r) => r.status === "CLOSED");
   const hasDraft = reports.some((r) => r.status === "DRAFT");
@@ -833,24 +833,28 @@ async function loadView(
       .at(-1) ?? null;
 
   const [intelligence, monetary] = await Promise.all([
-    loadIntelligence({
-      stationId,
-      stationName,
-      dealerName: station.dealerOrganization.name,
-      user,
-      intelPeriod,
-      today,
-    }),
-    loadMonetary({
-      stationId,
-      stationName,
-      period,
-      date,
-      from,
-      to,
-      bounds,
-      today,
-    }),
+    section === "intelligence"
+      ? loadIntelligence({
+          stationId,
+          stationName,
+          dealerName: station.dealerOrganization.name,
+          user,
+          intelPeriod,
+          today,
+        })
+      : Promise.resolve(null),
+    section === "monetary"
+      ? loadMonetary({
+          stationId,
+          stationName,
+          period,
+          date,
+          from,
+          to,
+          bounds,
+          today,
+        })
+      : Promise.resolve(null),
   ]);
 
   return {
@@ -894,9 +898,5 @@ export default async function StaffStockReportingPage({
   const params = await searchParams;
   const view = await loadView(params, session.user);
 
-  return (
-    <Suspense fallback={<div className="ssr ssr-placeholder">Loading stock reporting…</div>}>
-      <StaffStockReconciliationDashboard {...view} />
-    </Suspense>
-  );
+  return <StaffStockReconciliationDashboard {...view} />;
 }

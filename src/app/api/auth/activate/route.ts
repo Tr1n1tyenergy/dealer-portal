@@ -7,6 +7,7 @@ import { jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { validatePasswordStrength } from "@/lib/security/password-policy";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
+import { invalidateUserSessionCache } from "@/lib/auth";
 
 const schema = z.object({
   token: z.string().min(10).max(200),
@@ -69,6 +70,8 @@ export async function POST(req: Request) {
       data: { usedAt: new Date() },
     }),
   ]);
+
+  invalidateUserSessionCache(invite.userId);
 
   await logActivity({
     actorId: invite.userId,

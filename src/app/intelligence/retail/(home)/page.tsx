@@ -47,11 +47,12 @@ export default async function StaffHomePage() {
     ongoingNow,
     ongoingYesterday,
     payments,
-    transitOrders,
+    transitCount,
+    transitByProduct,
     waitingOrders,
     waitingPaymentOrders,
-    stations,
-    closedYesterday,
+    stationCount,
+    closedYesterdayGroups,
     recentHistory,
     recentPayments,
     recentReports,
@@ -77,13 +78,17 @@ export default async function StaffHomePage() {
       },
       select: { status: true, amount: true, paymentDate: true, createdAt: true },
     }),
-    prisma.dealerOrder.findMany({
-      where: { status: { in: IN_TRANSIT_STATUSES } },
-      include: { lines: { select: { product: true, quantityLitres: true } } },
+    prisma.dealerOrder.count({ where: { status: { in: IN_TRANSIT_STATUSES } } }),
+    prisma.dealerOrderLine.groupBy({
+      by: ["product"],
+      where: { order: { status: { in: IN_TRANSIT_STATUSES } } },
+      _sum: { quantityLitres: true },
     }),
     prisma.dealerOrder.findMany({
       where: { status: { in: WAITING_PAYMENT_STATUSES } },
-      include: {
+      select: {
+        dealerOrganizationId: true,
+        updatedAt: true,
         dealerOrganization: { select: { name: true } },
         proforma: { select: { issuedAt: true } },
       },
@@ -102,15 +107,13 @@ export default async function StaffHomePage() {
         },
       },
     }),
-    prisma.station.findMany({
-      select: { id: true, name: true, tradingName: true, dealerOrganizationId: true },
-    }),
-    prisma.stockSaleReport.findMany({
+    prisma.station.count(),
+    prisma.stockSaleReport.groupBy({
+      by: ["stationId"],
       where: {
         reportingDate: yesterdayStart,
         status: "CLOSED",
       },
-      select: { stationId: true },
     }),
     prisma.orderStatusHistory.findMany({
       take: 12,
@@ -157,7 +160,11 @@ export default async function StaffHomePage() {
         status: "CLOSED",
         reportingDate: { gte: monthStart, lt: monthEnd },
       },
-      include: {
+      select: {
+        collectionsKes: true,
+        wetAbsoluteVarianceLitres: true,
+        wetVarianceTotalLitres: true,
+        totalSalesLitres: true,
         station: { select: { name: true, tradingName: true } },
       },
     }),
@@ -167,11 +174,10 @@ export default async function StaffHomePage() {
 
   let transitPms = 0;
   let transitAgo = 0;
-  for (const o of transitOrders) {
-    for (const line of o.lines) {
-      if (line.product === "PMS") transitPms += line.quantityLitres;
-      if (line.product === "AGO") transitAgo += line.quantityLitres;
-    }
+  for (const row of transitByProduct) {
+    const litres = row._sum.quantityLitres ?? 0;
+    if (row.product === "PMS") transitPms += litres;
+    if (row.product === "AGO") transitAgo += litres;
   }
   const transitTotal = transitPms + transitAgo;
 
@@ -194,9 +200,7 @@ export default async function StaffHomePage() {
   );
   const longest = waitingList[0];
 
-  const closedStationIds = new Set(closedYesterday.map((r) => r.stationId));
-  const missingStations = stations.filter((s) => !closedStationIds.has(s.id));
-  const missingCount = missingStations.length;
+  const missingCount = Math.max(0, stationCount - closedYesterdayGroups.length);
 
   const delta = pctChange(ongoingNow, ongoingYesterday);
   const deltaLabel =
@@ -228,7 +232,7 @@ export default async function StaffHomePage() {
       key: "transit",
       label: "Orders in Transit",
       value: formatLitres(transitTotal),
-      meta: `${transitOrders.length} deliver${transitOrders.length === 1 ? "y" : "ies"} (PMS: ${formatLitres(transitPms).replace(" L", "")} L, AGO: ${formatLitres(transitAgo).replace(" L", "")} L)`,
+      meta: `${transitCount} deliver${transitCount === 1 ? "y" : "ies"} (PMS: ${formatLitres(transitPms).replace(" L", "")} L, AGO: ${formatLitres(transitAgo).replace(" L", "")} L)`,
       href: "/intelligence/retail/orders?stage=depot",
       tone: "blue",
       icon: "truck",

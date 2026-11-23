@@ -869,6 +869,10 @@
   background: #2e9e44;
 }
 
+.pay-modal__method.is-soon .pay-modal__method-ico--mpesa {
+  background: #94a3b8;
+}
+
 .pay-modal__method-copy strong {
   white-space: nowrap;
 }

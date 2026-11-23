@@ -12,23 +12,66 @@ import { SESSION_MAX_AGE_SECONDS, signedInAfterPasswordChange } from "@/lib/secu
 // Cost-12 bcrypt hash of a random throwaway string (matches real hashes); precomputed to keep cold starts fast.
 const DUMMY_HASH = "$2b$12$/It9sYuAHtJEye3YXjINqeM2LnwnY5fDT.mI5bRv4PWzD.jGMuC3q";
 
-async function hydrateTokenFromUser(userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user || !user.passwordHash || user.status === "DISABLED" || user.status === "PENDING") {
-    return null;
-  }
-  return {
-    id: user.id,
-    role: user.role,
-    department: user.department,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    accountType: user.accountType,
-    dealerOrganizationId: user.dealerOrganizationId,
-    depotId: user.depotId,
-    permissions: user.permissions,
-    passwordChangedAt: user.passwordChangedAt,
-  };
+/** Skip a Neon round trip on every click. Disable/role changes apply within this window. */
+const HYDRATE_TTL_MS = 45_000;
+
+type HydratedUser = {
+  id: string;
+  role: string;
+  department: string;
+  firstName: string;
+  lastName: string;
+  accountType: string;
+  dealerOrganizationId: string | null;
+  depotId: string | null;
+  permissions: string;
+  passwordChangedAt: Date | null;
+};
+
+const hydrateCache = new Map<string, { at: number; value: HydratedUser | null }>();
+
+/** Drop a cached session snapshot so a password reset takes effect on the next request. */
+export function invalidateUserSessionCache(userId: string) {
+  hydrateCache.delete(userId);
+}
+
+async function hydrateTokenFromUser(userId: string): Promise<HydratedUser | null> {
+  const hit = hydrateCache.get(userId);
+  if (hit && Date.now() - hit.at < HYDRATE_TTL_MS) return hit.value;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      role: true,
+      department: true,
+      firstName: true,
+      lastName: true,
+      accountType: true,
+      dealerOrganizationId: true,
+      depotId: true,
+      permissions: true,
+      passwordChangedAt: true,
+      status: true,
+    },
+  });
+  const value =
+    !user || user.status === "DISABLED" || user.status === "PENDING"
+      ? null
+      : {
+          id: user.id,
+          role: user.role,
+          department: user.department,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          accountType: user.accountType,
+          dealerOrganizationId: user.dealerOrganizationId,
+          depotId: user.depotId,
+          permissions: user.permissions,
+          passwordChangedAt: user.passwordChangedAt,
+        };
+  hydrateCache.set(userId, { at: Date.now(), value });
+  return value;
 }
 
 export const authOptions: NextAuthOptions = {

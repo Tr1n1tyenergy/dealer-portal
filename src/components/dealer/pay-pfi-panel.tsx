@@ -322,13 +322,8 @@ function PayPfiModal({
 
             <h3 className="pay-modal__section-title">Choose payment method</h3>
             <div className="pay-modal__methods pay-modal__methods--three" role="radiogroup" aria-label="Payment method">
-              <button
-                type="button"
-                role="radio"
-                aria-checked={method === "mpesa"}
-                className={`pay-modal__method ${method === "mpesa" ? "is-on" : ""}`}
-                onClick={() => setMethod("mpesa")}
-              >
+              <div className="pay-modal__method is-soon" aria-disabled="true">
+                <span className="pay-modal__soon">Coming soon</span>
                 <span className="pay-modal__method-ico pay-modal__method-ico--mpesa" aria-hidden>
                   M-PESA
                 </span>
@@ -336,8 +331,7 @@ function PayPfiModal({
                   <strong>M-PESA</strong>
                   <em>Any amount</em>
                 </span>
-                <i className="pay-modal__radio" aria-hidden />
-              </button>
+              </div>
               <button
                 type="button"
                 role="radio"

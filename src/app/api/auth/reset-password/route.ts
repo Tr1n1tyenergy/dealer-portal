@@ -9,6 +9,7 @@ import { validatePasswordStrength } from "@/lib/security/password-policy";
 import { clearLoginFailures } from "@/lib/security/auth-throttle";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { loginPathFor } from "@/lib/security/login-path";
+import { invalidateUserSessionCache } from "@/lib/auth";
 
 const schema = z.object({
   token: z.string().min(10).max(200),

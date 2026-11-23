@@ -33,14 +33,6 @@ html[data-a11y-motion="reduce"] ::after {
   scroll-behavior: auto !important;
 }
 
-/* Readable font: plain, wide letterforms installed on every PC and phone. */
-html[data-a11y-font="readable"] body,
-html[data-a11y-font="readable"] body *:not(code):not(pre):not(kbd):not(samp) {
-  font-family: Verdana, Tahoma, sans-serif !important;
-  letter-spacing: 0.02em !important;
-  word-spacing: 0.08em;
-}
-
 /* High contrast: faint text (routed through these variables) darkens to WCAG AA on white. */
 html[data-a11y-contrast] {
   --tri-text-faint: #475569;

@@ -17,9 +17,10 @@ export async function assertParticipant(conversationId: string, userId: string) 
   return participants.every((p) => p.userId === userId || messagingPairAllowed(me.user, p.user));
 }
 
-export async function listConversationsForUser(userId: string) {
+export async function listConversationsForUser(userId: string, opts?: { take?: number }) {
   const allRows = await prisma.conversationParticipant.findMany({
     where: { userId },
+    ...(opts?.take ? { take: opts.take } : {}),
     include: {
       conversation: {
         include: {

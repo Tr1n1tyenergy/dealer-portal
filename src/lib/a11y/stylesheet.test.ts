@@ -17,8 +17,9 @@ describe("accessibility stylesheet", () => {
     assert.match(css, /html\[data-a11y-motion="reduce"\][\s\S]*transition-duration: 0\.01ms !important/);
   });
 
-  it("swaps to a readable font", () => {
-    assert.match(css, /html\[data-a11y-font="readable"\][\s\S]*Verdana/);
+  it("no longer swaps to a readable/Verdana font", () => {
+    assert.doesNotMatch(css, /data-a11y-font/);
+    assert.doesNotMatch(css, /Verdana/);
   });
 
   it("defines the high-contrast colours and the existing muted variables", () => {
