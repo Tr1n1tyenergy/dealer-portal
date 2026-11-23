@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { TrinityWorkspaceLoader } from "@/components/ui/trinity-workspace-loader";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
@@ -16,7 +18,19 @@ import "../../dealer-portal-hero.css";
  * My Orders: every order of the dealer, newest first, with tabs for orders needing payment,
  * orders with a PFI and orders on their way (`?view=`). `?q=` pre-fills the search.
  */
-export default async function MyOrdersPage({
+export default function MyOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ submitted?: string; view?: string | string[]; q?: string | string[] }>;
+}) {
+  return (
+    <Suspense fallback={<TrinityWorkspaceLoader />}>
+      <MyOrdersContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function MyOrdersContent({
   searchParams,
 }: {
   searchParams: Promise<{ submitted?: string; view?: string | string[]; q?: string | string[] }>;

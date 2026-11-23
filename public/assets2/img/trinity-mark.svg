@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 70 59" fill="none">
+  <defs>
+    <clipPath id="trinity-mark-stem">
+      <path d="M33.33,21.1s0,0,0,0c-.12.04-.24.07-.36.11h0c-.1.04-.19.07-.29.1-.02,0-.05.02-.07.03-.09.03-.18.07-.27.1-.03,0-.06.02-.09.03-.08.03-.16.07-.24.1-.04.02-.07.03-.11.05-.07.03-.15.07-.22.1-.04.02-.08.04-.12.06-.07.03-.14.07-.2.1-.04.02-.09.04-.13.07-.06.03-.13.07-.19.1-.05.03-.09.05-.14.08-.06.03-.12.07-.18.11-.05.03-.1.06-.14.09-.07.05-.14.09-.21.14-.03.02-.07.05-.11.07-.08.06-.16.11-.24.18-.02.01-.04.03-.06.04-.09.07-.18.14-.26.21-.01,0-.02.02-.03.03-2.61,2.16-4.22,5.99-4.3,12.78v-.07s0,.05,0,.07v-1.23c0,.19-.01.39-.01.59v.4c0,.73,0,1.91,0,2.45,0,10.69,8.67,19.36,19.36,19.36V20.21c-.6,0-1.2,0-1.8,0-3.54,0-6.83.06-9.59.9Z"/>
+    </clipPath>
+    <linearGradient id="trinity-mark-stem-fill" x1="-161" y1="432.22" x2="-159.9" y2="432.22" gradientTransform="translate(2578.44 6890.47) scale(15.85 -15.85)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffca05"/>
+      <stop offset=".14" stop-color="#ffca05"/>
+      <stop offset="1" stop-color="#ed1c24"/>
+    </linearGradient>
+    <clipPath id="trinity-mark-bar">
+      <path d="M39.22.85s-.02,0-.03,0h.03c-4.79.12-8.03,1.82-10.16,4.54-2.74,3.49-3.66,8.66-3.68,14.26v16.06c.09-6.73,1.69-10.55,4.3-12.7.01,0,.02-.02.03-.03.08-.07.17-.14.26-.21.02-.01.04-.03.06-.04.08-.06.16-.12.24-.18.04-.03.07-.05.11-.07.07-.05.14-.09.21-.14.05-.03.09-.06.14-.09.06-.04.12-.07.18-.11.05-.03.09-.05.14-.08.06-.04.13-.07.19-.1.04-.02.09-.05.13-.07.07-.04.14-.07.2-.1.04-.02.08-.04.12-.06.07-.03.14-.07.22-.1.04-.02.07-.03.11-.05.08-.04.16-.07.24-.1.03-.01.06-.02.09-.03.09-.04.18-.07.27-.1.03,0,.05-.02.07-.03.1-.04.19-.07.29-.1h0c.12-.04.24-.08.36-.12,0,0,0,0,0,0,3.22-.98,7.17-.9,11.38-.9h23.65c0-1.42-.15-2.81-.44-4.15-.51-2.35-1.45-4.53-2.73-6.48C61.74,4.32,55.78.85,49.01.85h-9.8Z"/>
+    </clipPath>
+    <linearGradient id="trinity-mark-bar-fill" x1="-166.94" y1="446.38" x2="-165.83" y2="446.38" gradientTransform="translate(6533.09 17419.75) scale(38.98 -38.98)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3853a4"/>
+      <stop offset="1" stop-color="#2dc0d1"/>
+    </linearGradient>
+    <clipPath id="trinity-mark-cap">
+      <path d="M1.7.85c0,2.05.32,4.02.91,5.87,2.49,7.82,9.81,13.49,18.45,13.49h4.31v-.56c.02-5.6.94-10.76,3.68-14.26,2.13-2.71,5.36-4.42,10.14-4.54H1.7Z"/>
+    </clipPath>
+    <linearGradient id="trinity-mark-cap-fill" x1="-166.4" y1="444.99" x2="-165.3" y2="444.99" gradientTransform="translate(5656.67 15132.81) scale(33.98 -33.98)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffca05"/>
+      <stop offset=".14" stop-color="#ffca05"/>
+      <stop offset="1" stop-color="#ed1c24"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#trinity-mark-stem)">
+    <rect x="25.36" y="20.21" width="19.36" height="37.14" fill="url(#trinity-mark-stem-fill)"/>
+  </g>
+  <g clip-path="url(#trinity-mark-bar)">
+    <rect x="25.37" y=".85" width="43" height="34.86" fill="url(#trinity-mark-bar-fill)"/>
+  </g>
+  <g clip-path="url(#trinity-mark-cap)">
+    <rect x="1.7" y=".85" width="37.48" height="19.36" fill="url(#trinity-mark-cap-fill)"/>
+  </g>
+</svg>

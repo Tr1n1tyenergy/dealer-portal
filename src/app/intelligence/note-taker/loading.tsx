@@ -1,5 +1,5 @@
-import { RouteLoading } from "@/components/ui/route-loading";
+import { TrinityWorkspaceLoader } from "@/components/ui/trinity-workspace-loader";
 
 export default function Loading() {
-  return <RouteLoading label="Loading note taker" />;
+  return <TrinityWorkspaceLoader />;
 }

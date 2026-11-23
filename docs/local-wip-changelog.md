@@ -149,6 +149,12 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-23 — Branded workspace loading screen
+- Route transitions under the dealer portal, staff retail shell, modules home, note taker, presentations, admin, and the depot app use a pale Trinity loading scene (rotating blue/yellow ring, official T mark, indeterminate bar, dotted paths, bottom waves) instead of the grey skeleton cards. Nested routes (an order, a stock-reporting step, a ticket, a note, a deck) share that screen. Settings tabs and the dealer Orders views (Needs Payment, PFIs, Deliveries) do too. Sign-in screens do not.
+- New depot pages belong in `src/app/depot/(portal)/` so they pick this up. The address stays `/depot/...`.
+- The real portal header stays in the layout. The scene waits 150ms before it appears, and reduced-motion shows a static frame.
+- Files: `src/components/ui/trinity-workspace-loader.tsx`, `trinity-workspace-loader.css`, `route-loading.tsx`, dealer/staff/admin/depot `loading.tsx`, settings page, `public/assets2/img/trinity-mark.svg` (T cropped from the official logo artwork).
+
 ### 2026-11-23 — Pay PFI: M-PESA marked coming soon
 - The M-PESA method tile in the Pay PFI modal is no longer selectable. It uses the same dashed “Coming soon” treatment as Bank transfer. Manual payment stays the way to pay.
 - File: `src/components/dealer/pay-pfi-panel.tsx`, `pay-pfi-panel.css`.
