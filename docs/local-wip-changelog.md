@@ -150,10 +150,12 @@ Other product.template candidates kept for reference only.
 ## Entry log
 
 ### 2026-11-23 — Branded workspace loading screen
-- Route transitions under the dealer portal, staff retail shell, modules home, note taker, presentations, admin, and the depot app use a pale Trinity loading scene (rotating blue/yellow ring, official T mark, indeterminate bar, dotted paths, bottom waves) instead of the grey skeleton cards. Nested routes (an order, a stock-reporting step, a ticket, a note, a deck) share that screen. Settings tabs and the dealer Orders views (Needs Payment, PFIs, Deliveries) do too. Sign-in screens do not.
+- Route transitions under the dealer portal, staff retail shell, modules home, note taker, presentations, admin, and the depot app use a pale Trinity loading scene (rotating blue/yellow ring, official T mark, indeterminate bar, dotted paths) instead of the grey skeleton cards. Nested routes (an order, a stock-reporting step, a ticket, a note, a deck) share that screen. Settings tabs and the dealer Orders views (Needs Payment, PFIs, Deliveries) do too. Sign-in screens do not.
+- The same scene now appears the moment a click asks for a different view inside a page: station filters, stock-reporting sections, period and date changes, and any other link or in-page navigation that loads a new view. It stays up until that view is committed, including on dealer, staff, and depot. Hover prefetches do not show it. Typing in a field does not show it.
+- The yellow and blue waves along the bottom are gone. The scene is visible on the first paint; the old 150ms wait is gone.
 - New depot pages belong in `src/app/depot/(portal)/` so they pick this up. The address stays `/depot/...`.
-- The real portal header stays in the layout. The scene waits 150ms before it appears, and reduced-motion shows a static frame.
-- Files: `src/components/ui/trinity-workspace-loader.tsx`, `trinity-workspace-loader.css`, `route-loading.tsx`, dealer/staff/admin/depot `loading.tsx`, settings page, `public/assets2/img/trinity-mark.svg` (T cropped from the official logo artwork).
+- The real portal header stays in the layout, above the scene. Reduced-motion shows a static frame.
+- Files: `src/components/ui/trinity-workspace-loader.tsx`, `trinity-workspace-loader.css`, `view-change-loader.tsx`, `route-loading.tsx`, `src/app/layout.tsx`, dealer/staff/admin/depot `loading.tsx`, settings page, `public/assets2/img/trinity-mark.svg` (T cropped from the official logo artwork).
 
 ### 2026-11-23 — Pay PFI: M-PESA marked coming soon
 - The M-PESA method tile in the Pay PFI modal is no longer selectable. It uses the same dashed “Coming soon” treatment as Bank transfer. Manual payment stays the way to pay.
