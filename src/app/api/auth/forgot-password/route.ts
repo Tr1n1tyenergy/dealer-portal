@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError } from "@/lib/api-auth";
-import { generateSecureToken, hoursFromNow } from "@/lib/tokens";
+import { generateSecureToken, hoursFromNow, hashToken } from "@/lib/tokens";
 import {
   EmailDeliveryError,
   emailDeliveryConfigured,
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   const token = generateSecureToken();
   await prisma.passwordResetToken.create({
     data: {
-      token,
+      token: hashToken(token),
       userId: user.id,
       expiresAt: hoursFromNow(1),
     },
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     // Do not leak tokens. Invalidate unused token on delivery failure.
     await prisma.passwordResetToken
       .update({
-        where: { token },
+        where: { token: hashToken(token) },
         data: { usedAt: new Date() },
       })
       .catch(() => undefined);

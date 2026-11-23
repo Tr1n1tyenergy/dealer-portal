@@ -4,7 +4,7 @@
  */
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { daysFromNow, generateSecureToken } from "@/lib/tokens";
+import { daysFromNow, generateSecureToken, hashToken } from "@/lib/tokens";
 import type { StationInviteCatalogRow } from "@/lib/dealers/station-invite-catalog";
 
 type Db = Prisma.TransactionClient | typeof prisma;
@@ -156,7 +156,7 @@ export async function createDealerInvite(
       });
 
       const token = generateSecureToken();
-      await tx.invitationToken.create({ data: { token, userId: user.id, expiresAt: daysFromNow(7) } });
+      await tx.invitationToken.create({ data: { token: hashToken(token), userId: user.id, expiresAt: daysFromNow(7) } });
 
       return { ok: true as const, user, token };
     });
