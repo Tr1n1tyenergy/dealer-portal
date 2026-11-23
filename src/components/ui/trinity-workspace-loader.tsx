@@ -1,32 +1,13 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import "./trinity-workspace-loader.css";
 
-/**
- * Full-area branded loader for route transitions. The portal header stays in the layout
- * above this component. Reveals after a short wait so an already-ready page is not covered.
- */
+/** Branded loading scene. The portal header stays above it. */
 export function TrinityWorkspaceLoader({
   label = "Preparing your workspace",
 }: {
   label?: string;
 }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setTimeout(() => setVisible(true), reduce ? 0 : 150);
-    return () => window.clearTimeout(timer);
-  }, []);
-
   return (
-    <div
-      className={`twl${visible ? " is-on" : ""}`}
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-    >
+    <div className="twl is-on" role="status" aria-live="polite" aria-busy="true">
       <span className="twl-sr">{label}. Just a moment please.</span>
       <svg className="twl-paths" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <path className="twl-paths__line" d="M-40 168C180 120 320 210 520 168C760 116 860 78 1100 132C1280 172 1380 150 1500 96" />
@@ -36,13 +17,6 @@ export function TrinityWorkspaceLoader({
         <circle className="twl-paths__node" cx="1180" cy="142" r="3" />
         <circle className="twl-paths__node twl-paths__node--low" cx="430" cy="268" r="2.8" />
         <circle className="twl-paths__node twl-paths__node--low" cx="1120" cy="228" r="2.4" />
-      </svg>
-
-      <svg className="twl-waves" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
-        <path className="twl-waves__blue" d="M0 180C180 140 320 210 520 176C760 134 980 150 1200 188C1320 208 1380 196 1440 180V320H0Z" />
-        <path className="twl-waves__pale" d="M0 210C220 168 420 236 680 200C940 164 1100 196 1440 168V320H0Z" />
-        <path className="twl-waves__mist" d="M0 246C260 214 480 270 760 236C1040 202 1220 248 1440 220V320H0Z" />
-        <path className="twl-waves__gold" d="M0 268C300 236 560 292 860 250C1120 214 1280 260 1440 236V320H0Z" />
       </svg>
 
       <div className="twl-stage">
