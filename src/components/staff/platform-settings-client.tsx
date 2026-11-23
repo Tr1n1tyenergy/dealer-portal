@@ -235,6 +235,9 @@ export function PlatformSettingsClient({
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<SettingsTab>(initialTab);
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
   const [q, setQ] = useState("");
   const [dealerId, setDealerId] = useState("");
   const [stationId, setStationId] = useState("");
@@ -523,7 +526,11 @@ export function PlatformSettingsClient({
               key={item.id}
               type="button"
               className={`ps-nav__item${tab === item.id ? " is-active" : ""}`}
-              onClick={() => setTab(item.id)}
+              onClick={() => {
+                if (item.id === tab) return;
+                setTab(item.id);
+                router.push(`/intelligence/retail/settings?tab=${item.id}`);
+              }}
             >
               <span className="ps-nav__ico" aria-hidden>
                 <Icon size={22} strokeWidth={2.05} />

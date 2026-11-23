@@ -18,10 +18,9 @@ const TEXT_SIZES: { value: A11yText; label: string }[] = [
   { value: "xlarge", label: "Extra large" },
 ];
 
-const SWITCHES: { key: "contrast" | "motion" | "font"; label: string; hint: string }[] = [
+const SWITCHES: { key: "contrast" | "motion"; label: string; hint: string }[] = [
   { key: "contrast", label: "High contrast", hint: "Darker text and a strong focus outline" },
   { key: "motion", label: "Reduce motion", hint: "No slides, fades or zoom" },
-  { key: "font", label: "Readable font", hint: "Plainer, wider letters" },
 ];
 
 /** Accessibility settings for this device: a header button (dealer/staff) or a floating one (everywhere else). */
@@ -81,7 +80,13 @@ export function AccessibilityMenu({ variant }: { variant: "header" | "floating" 
       {open ? (
         <div id={panelId} role="dialog" aria-label="Accessibility settings" className="a11y-panel">
           <div className="a11y-panel__head">
-            <h2 className="a11y-panel__title">Accessibility</h2>
+            <span className="a11y-panel__ico" aria-hidden>
+              <PersonStanding size={18} strokeWidth={2.2} />
+            </span>
+            <div className="a11y-panel__copy">
+              <h2 className="a11y-panel__title">Accessibility</h2>
+              <p className="a11y-panel__note">Saved on this device only.</p>
+            </div>
             <button
               type="button"
               className="a11y-panel__close"
@@ -94,7 +99,6 @@ export function AccessibilityMenu({ variant }: { variant: "header" | "floating" 
               <X size={16} aria-hidden />
             </button>
           </div>
-          <p className="a11y-panel__note">Saved on this device only.</p>
 
           <div className="a11y-field">
             <span id={textGroupId} className="a11y-field__label">
@@ -116,24 +120,26 @@ export function AccessibilityMenu({ variant }: { variant: "header" | "floating" 
             </div>
           </div>
 
-          {SWITCHES.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              role="switch"
-              aria-checked={prefs[s.key]}
-              className="a11y-switch"
-              onClick={() => update({ ...prefs, [s.key]: !prefs[s.key] })}
-            >
-              <span className="a11y-switch__text">
-                <span className="a11y-switch__label">{s.label}</span>
-                <span className="a11y-switch__hint">{s.hint}</span>
-              </span>
-              <span className="a11y-switch__track" aria-hidden>
-                <span className="a11y-switch__thumb" />
-              </span>
-            </button>
-          ))}
+          <div className="a11y-switches">
+            {SWITCHES.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                role="switch"
+                aria-checked={prefs[s.key]}
+                className="a11y-switch"
+                onClick={() => update({ ...prefs, [s.key]: !prefs[s.key] })}
+              >
+                <span className="a11y-switch__text">
+                  <span className="a11y-switch__label">{s.label}</span>
+                  <span className="a11y-switch__hint">{s.hint}</span>
+                </span>
+                <span className="a11y-switch__track" aria-hidden>
+                  <span className="a11y-switch__thumb" />
+                </span>
+              </button>
+            ))}
+          </div>
 
           <button type="button" className="a11y-reset" onClick={() => update({ ...A11Y_DEFAULTS })}>
             Reset to default

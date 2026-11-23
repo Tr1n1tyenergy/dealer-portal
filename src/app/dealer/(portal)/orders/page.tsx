@@ -35,7 +35,16 @@ export default async function MyOrdersPage({
   const [orders, totalOrders] = await Promise.all([
     prisma.dealerOrder.findMany({
       where: { dealerOrganizationId: orgId, ...dealerOrderViewWhere(view) },
-      include: { station: true, lines: true, proforma: true },
+      select: {
+        id: true,
+        reference: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        station: { select: { name: true } },
+        lines: { select: { product: true, quantityLitres: true } },
+        proforma: { select: { id: true } },
+      },
       orderBy: { createdAt: "desc" },
     }),
     prisma.dealerOrder.count({ where: { dealerOrganizationId: orgId } }),

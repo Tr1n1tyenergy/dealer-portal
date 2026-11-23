@@ -12,7 +12,7 @@ import {
   type A11yPrefs,
 } from "./preferences";
 
-const ALL_ON: A11yPrefs = { text: "xlarge", contrast: true, motion: true, font: true };
+const ALL_ON: A11yPrefs = { text: "xlarge", contrast: true, motion: true };
 
 function fakeRoot(initial: Record<string, string> = {}) {
   const attrs = new Map(Object.entries(initial));
@@ -41,7 +41,11 @@ describe("parsePrefs", () => {
 
   it("keeps the valid fields of a partial object", () => {
     assert.deepEqual(parsePrefs('{"contrast":true}'), { ...A11Y_DEFAULTS, contrast: true });
-    assert.deepEqual(parsePrefs('{"text":"large","font":"yes"}'), { ...A11Y_DEFAULTS, text: "large" });
+    assert.deepEqual(parsePrefs('{"text":"large","font":true}'), { ...A11Y_DEFAULTS, text: "large" });
+  });
+
+  it("ignores the removed Readable font flag", () => {
+    assert.deepEqual(parsePrefs('{"font":true}'), A11Y_DEFAULTS);
   });
 });
 
@@ -50,17 +54,21 @@ describe("prefsAttributes / applyPrefs", () => {
     assert.deepEqual(prefsAttributes(A11Y_DEFAULTS), {});
   });
 
-  it("writes exactly the four attributes when everything is on", () => {
+  it("writes text, contrast, and motion when everything is on", () => {
     assert.deepEqual(prefsAttributes(ALL_ON), {
       "data-a11y-text": "xlarge",
       "data-a11y-contrast": "",
       "data-a11y-motion": "reduce",
-      "data-a11y-font": "readable",
     });
   });
 
-  it("removes attributes that are no longer set", () => {
-    const root = fakeRoot({ "data-a11y-contrast": "", "data-a11y-text": "large", lang: "en" });
+  it("removes attributes that are no longer set, including legacy font", () => {
+    const root = fakeRoot({
+      "data-a11y-contrast": "",
+      "data-a11y-text": "large",
+      "data-a11y-font": "readable",
+      lang: "en",
+    });
     applyPrefs(root, { ...A11Y_DEFAULTS, motion: true });
     assert.deepEqual(Object.fromEntries(root.attrs), { lang: "en", "data-a11y-motion": "reduce" });
   });
@@ -83,14 +91,14 @@ describe("readPrefs / writePrefs", () => {
 
 describe("A11Y_HEAD_SCRIPT", () => {
   const run = (getItem: () => string | null) => {
-    const root = fakeRoot();
+    const root = fakeRoot({ "data-a11y-font": "readable" });
     new Function("document", "localStorage", A11Y_HEAD_SCRIPT)({ documentElement: root }, { getItem });
     return Object.fromEntries(root.attrs);
   };
 
-  it("applies stored choices before paint", () => {
+  it("applies stored choices before paint and clears legacy font", () => {
     assert.deepEqual(run(() => '{"text":"large"}'), { "data-a11y-text": "large" });
-    assert.deepEqual(run(() => JSON.stringify(ALL_ON)), prefsAttributes(ALL_ON));
+    assert.deepEqual(run(() => JSON.stringify({ ...ALL_ON, font: true })), prefsAttributes(ALL_ON));
   });
 
   it("writes nothing for unsafe values or blocked storage", () => {

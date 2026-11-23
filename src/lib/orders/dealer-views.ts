@@ -1,4 +1,4 @@
-import type { DealerOrder, DealerOrderLine, DealerOrderStatus, Prisma, ProFormaInvoice, Station } from "@prisma/client";
+import type { DealerOrderStatus, Prisma } from "@prisma/client";
 import { dealerStatusLabel } from "@/lib/orders/state-machine";
 
 /** The tabs on the dealer's My Orders list (`?view=`). */
@@ -65,9 +65,16 @@ function statusTone(status: DealerOrderStatus) {
   return "processing";
 }
 
-export function toDealerOrderRow(
-  order: DealerOrder & { station: Station; lines: DealerOrderLine[]; proforma: ProFormaInvoice | null },
-): RecentOrderRow {
+export function toDealerOrderRow(order: {
+  id: string;
+  reference: string;
+  status: DealerOrderStatus;
+  createdAt: Date;
+  updatedAt: Date;
+  station: { name: string };
+  lines: { product: string; quantityLitres: number }[];
+  proforma: { id: string } | null;
+}): RecentOrderRow {
   return {
     id: order.id,
     reference: order.reference,

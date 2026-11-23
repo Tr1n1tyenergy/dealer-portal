@@ -149,6 +149,21 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-23 — Pay PFI: M-PESA marked coming soon
+- The M-PESA method tile in the Pay PFI modal is no longer selectable. It uses the same dashed “Coming soon” treatment as Bank transfer. Manual payment stays the way to pay.
+- File: `src/components/dealer/pay-pfi-panel.tsx`, `pay-pfi-panel.css`.
+
+### 2026-11-23 — Faster portal navigation
+- JWT user re-check is cached for 45s (slim select, no password hash). `getSession` is request-cached. Session refetch is every 60s, not on window focus. Password reset/activate clears that cache immediately.
+- Route `loading.tsx` skeletons for staff retail, dealer portal, modules home, note taker, and presentations so a click paints before Neon returns.
+- Staff home uses counts/groupBy for transit litres and missing reports, and a slim monthly sales select. Dealer dashboard/orders/layout select only the columns they render; the dashboard loads one conversation. Settings loads the open tab only (tab clicks navigate). Stock reporting loads period + station reports together and skips intelligence/monetary unless that section is open.
+- Files: `src/lib/auth.ts`, `src/lib/session.ts`, `src/components/providers/auth-provider.tsx`, `src/components/ui/route-loading.tsx`, portal `loading.tsx`, staff home, dealer dashboard/orders/layout, `dealer-views.ts`, `messaging/service.ts`, settings page + client, stock-reporting page, reset/activate routes, this changelog.
+
+### 2026-11-23 — Accessibility menu: Inter font, drop Readable font, Trinity polish
+- Panel uses Inter + navy/gold Settings-like chrome (icon well, gold top rule, segmented sizes, card switches).
+- Removed Readable font toggle/CSS/`data-a11y-font` (legacy attribute cleared on apply/head script).
+- Files: `accessibility-menu.tsx/css`, `preferences.ts` (+ tests), `accessibility.css`, `stylesheet.test.ts`, this changelog.
+
 ### 2026-11-18 — Stations toolbar rules + Actions column shell fill
 - Removed both horizontal rules around the Stations search/filter toolbar.
 - Fixed Stations table shell so header tint and row backgrounds reach the Actions column (wider Actions col, cell-level backgrounds instead of `tr` backgrounds that stop short when scrolling). Files: `platform-settings.css`, `platform-settings-client.tsx`.

@@ -158,14 +158,28 @@ export default async function DealerDashboardPage() {
     prisma.dealerOrganization.findUnique({ where: { id: orgId } }),
     prisma.dealerOrder.findMany({
       where: { dealerOrganizationId: orgId },
-      include: { station: true, lines: true, proforma: true, depot: true, payments: true },
+      select: {
+        id: true,
+        reference: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        amountDue: true,
+        odooQuotationNumber: true,
+        station: { select: { name: true, code: true } },
+        lines: { select: { product: true, quantityLitres: true } },
+        proforma: {
+          select: { number: true, amount: true, issuedAt: true, subtotal: true, vatAmount: true, vatRate: true },
+        },
+        payments: { select: { amount: true, status: true } },
+      },
       orderBy: { updatedAt: "desc" },
     }),
     prisma.station.findMany({
       where: { dealerOrganizationId: orgId },
       orderBy: { name: "asc" },
     }),
-    listConversationsForUser(session.user.id).catch(() => []),
+    listConversationsForUser(session.user.id, { take: 1 }).catch(() => []),
   ]);
 
   const orgName =

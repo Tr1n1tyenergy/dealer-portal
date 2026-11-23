@@ -1,11 +1,11 @@
+import { cache } from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { canUser, type PermissionLevel, type PermissionModule } from "@/lib/permissions";
 
-export async function getSession() {
-  return getServerSession(authOptions);
-}
+/** One session lookup per request, even when layout and page both call this. */
+export const getSession = cache(async () => getServerSession(authOptions));
 
 export async function requireSession() {
   const session = await getSession();

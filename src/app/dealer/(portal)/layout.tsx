@@ -32,9 +32,15 @@ export default async function DealerPortalLayout({
         status: { in: DEALER_PAYABLE_STATUSES },
         proforma: { isNot: null },
       },
-      include: {
+      select: {
+        id: true,
+        reference: true,
+        amountDue: true,
+        odooQuotationNumber: true,
         station: { select: { name: true } },
-        proforma: true,
+        proforma: {
+          select: { number: true, amount: true, subtotal: true, vatAmount: true, vatRate: true },
+        },
         payments: { select: { amount: true, status: true } },
         dealerOrganization: { select: { name: true } },
       },

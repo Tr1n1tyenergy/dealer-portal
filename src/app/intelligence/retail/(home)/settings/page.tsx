@@ -24,13 +24,19 @@ export default async function PlatformSettingsPage({
   ) as SettingsTab;
 
   const canViewActivity = canUser(session.user, "activity", "view");
+  const needStations = initialTab === "stations" || initialTab === "tanks" || initialTab === "trucks";
+  const needTrucks = initialTab === "trucks";
+  const needActivity = initialTab === "activity" && canViewActivity;
+  const needSystem = initialTab === "system";
 
   const [stations, dealers, trucks, storedSettings, activityBundle] = await Promise.all([
-    listStationsForPricing(),
-    listDealerOptions(),
-    listFleetTrucks(),
-    prisma.systemSetting.findMany({ orderBy: { key: "asc" }, select: { key: true, value: true } }),
-    canViewActivity
+    needStations ? listStationsForPricing() : Promise.resolve([]),
+    needStations ? listDealerOptions() : Promise.resolve([]),
+    needTrucks ? listFleetTrucks() : Promise.resolve([]),
+    needSystem
+      ? prisma.systemSetting.findMany({ orderBy: { key: "asc" }, select: { key: true, value: true } })
+      : Promise.resolve([]),
+    needActivity
       ? Promise.all([
           listActivityFilterOptions(),
           queryActivityLogs({ datePreset: "7d", page: 1, pageSize: 8, sort: "desc" }),
