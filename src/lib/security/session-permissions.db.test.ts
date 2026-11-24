@@ -73,5 +73,24 @@ describe(
         mock.timers.reset();
       }
     });
+
+    it("a session ended by disabling the account stays ended after the account is re-enabled", async () => {
+      const { invalidateUserSessionCache } = await import("@/lib/security/session-cache");
+      const live = await jwt({ token: { id: userId, loginAt: Date.now() } as JWT });
+      assert.equal(live.error, undefined);
+
+      await prisma.user.update({ where: { id: userId }, data: { status: "DISABLED" } });
+      invalidateUserSessionCache(userId);
+      const revoked = await jwt({ token: live });
+      assert.equal(revoked.error, "SessionRevoked");
+
+      await prisma.user.update({ where: { id: userId }, data: { status: "ACTIVE" } });
+      invalidateUserSessionCache(userId);
+      const later = await jwt({ token: revoked });
+      assert.equal(later.error, "SessionRevoked", "the person must sign in again");
+
+      const fresh = await jwt({ token: { id: userId, loginAt: Date.now() } as JWT });
+      assert.equal(fresh.error, undefined, "a new sign-in works");
+    });
   },
 );

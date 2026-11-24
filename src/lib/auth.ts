@@ -155,6 +155,9 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
+      // A revoked session stays revoked (e.g. disabled, then re-enabled): the person must sign in again.
+      if (token.error === "SessionRevoked") return token;
+
       // Re-validate role/status on subsequent JWT access so disables/role changes take effect
       if (token.id && typeof token.id === "string") {
         try {
