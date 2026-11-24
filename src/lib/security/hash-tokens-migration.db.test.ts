@@ -28,24 +28,53 @@ describe(
       await prisma.user.deleteMany({ where: { id: { in: ids } } });
     });
 
-    it("turns plain tokens into their hashes, and the old link still activates", async () => {
+    // #86 went live on production at 09:34:49 UTC on 23 Nov; rows from before were stored in plain text,
+    // rows from after were already stored hashed by the new code.
+    const BEFORE_DEPLOY = new Date("2026-11-23T09:30:00Z");
+    const AFTER_DEPLOY = new Date("2026-11-23T10:00:00Z");
+
+    async function runMigrationFor(userId: string) {
+      // Only touch this test's rows: the migration's statements, narrowed to this user.
+      const sql = readFileSync(MIGRATION, "utf8").replace(/^--.*$/gm, "");
+      for (const statement of sql.split(";").map((s) => s.trim()).filter((s) => /^UPDATE/i.test(s))) {
+        await prisma.$executeRawUnsafe(`${statement} AND "userId" = $1`, userId);
+      }
+    }
+
+    async function pendingUser(name: string) {
       const user = await prisma.user.create({
-        data: { firstName: "T", lastName: "Old", email: `old.${run}@example.test`, department: "T", status: "PENDING" },
+        data: { firstName: "T", lastName: name, email: `${name}.${run}@example.test`, department: "T", status: "PENDING" },
       });
       ids.push(user.id);
+      return user;
+    }
+
+    it("hashes links stored in plain text before the deploy, and the old link still activates", async () => {
+      const user = await pendingUser("old");
       const invite = `inv${run}`.padEnd(64, "a");
       const reset = `rst${run}`.padEnd(64, "b");
-      await prisma.invitationToken.create({ data: { token: invite, userId: user.id, expiresAt: new Date(Date.now() + 86400e3) } });
-      await prisma.passwordResetToken.create({ data: { token: reset, userId: user.id, expiresAt: new Date(Date.now() + 3600e3) } });
+      await prisma.invitationToken.create({ data: { token: invite, userId: user.id, createdAt: BEFORE_DEPLOY, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.passwordResetToken.create({ data: { token: reset, userId: user.id, createdAt: BEFORE_DEPLOY, expiresAt: new Date(Date.now() + 3600e3) } });
 
-      // Only touch this test's rows: the migration's statements, narrowed to this user.
-      for (const statement of readFileSync(MIGRATION, "utf8").replace(/^--.*$/gm, "").split(";").map((s) => s.trim()).filter((s) => /^UPDATE/i.test(s))) {
-        await prisma.$executeRawUnsafe(`${statement} WHERE "userId" = $1`, user.id);
-      }
+      await runMigrationFor(user.id);
 
       assert.equal((await prisma.invitationToken.findFirstOrThrow({ where: { userId: user.id } })).token, hashToken(invite));
       assert.equal((await prisma.passwordResetToken.findFirstOrThrow({ where: { userId: user.id } })).token, hashToken(reset));
+      const { GET } = await import("@/app/api/auth/activate/route");
+      assert.equal((await GET(new Request(`http://test.local/api?token=${invite}`))).status, 200);
+    });
 
+    it("leaves links created after the deploy alone (already hashed), so they keep working", async () => {
+      const user = await pendingUser("new");
+      const invite = `new${run}`.padEnd(64, "c");
+      const reset = `nrs${run}`.padEnd(64, "d");
+      await prisma.invitationToken.create({ data: { token: hashToken(invite), userId: user.id, createdAt: AFTER_DEPLOY, expiresAt: new Date(Date.now() + 86400e3) } });
+      await prisma.passwordResetToken.create({ data: { token: hashToken(reset), userId: user.id, createdAt: AFTER_DEPLOY, expiresAt: new Date(Date.now() + 3600e3) } });
+
+      await runMigrationFor(user.id);
+
+      assert.equal((await prisma.invitationToken.findFirstOrThrow({ where: { userId: user.id } })).token, hashToken(invite));
+      assert.equal((await prisma.passwordResetToken.findFirstOrThrow({ where: { userId: user.id } })).token, hashToken(reset));
       const { GET } = await import("@/app/api/auth/activate/route");
       assert.equal((await GET(new Request(`http://test.local/api?token=${invite}`))).status, 200);
     });
