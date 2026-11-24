@@ -2,9 +2,20 @@
 
 .login-shell {
   display: flex !important;
-  min-height: 100vh;
+  flex-direction: column;
+  min-height: 100dvh;
   width: 100%;
   background: #f5f7fa;
+}
+
+/* Activation reuses the access/login photo panel inside this shell. */
+.login-shell > .dl__brand {
+  width: 100%;
+  min-height: 38vh;
+}
+
+.login-shell > .dl__brand .dl__brand-inner {
+  min-height: 100%;
 }
 
 .login-brand {
@@ -29,12 +40,31 @@
 }
 
 @media (min-width: 1024px) {
+  .login-shell {
+    flex-direction: row;
+    height: 100dvh;
+    overflow: hidden;
+    align-items: stretch;
+  }
+
+  .login-shell > .dl__brand {
+    flex: 1 1 50%;
+    width: 50%;
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+  }
+
   .login-brand {
     display: flex !important;
   }
 
   .login-panel {
+    flex: 1 1 50%;
     width: 50%;
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
     padding: 2.5rem 2rem;
   }
 }

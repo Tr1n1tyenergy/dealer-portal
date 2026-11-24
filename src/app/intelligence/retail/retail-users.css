@@ -1411,7 +1411,7 @@
   pointer-events: none;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .ru-modsel__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1808,18 +1808,7 @@
   font-weight: 750;
 }
 
-/* Compact / mid laptops — keep two invite cards, tighten form columns */
-@media (max-width: 1366px) {
-  .ru-form__row--4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .ru-roles {
-    grid-template-columns: minmax(11.5rem, 15.5rem) minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .ru-form__row--4,
   .ru-form__row--5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1845,15 +1834,5 @@
   .ru-form__row--4,
   .ru-form__row--5 {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (min-width: 1024px) and (max-height: 800px) {
-  .ru-card__inner {
-    padding: var(--tri-space-xs, 0.65rem) var(--tri-space-sm, 0.85rem);
-  }
-
-  .ru-invites {
-    margin-top: -1.75rem;
   }
 }

@@ -1367,19 +1367,6 @@
 .sod-event__meta { font-size: var(--tri-font-xs, 0.76rem); color: var(--so-muted); }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1366px) {
-  .so-kpis { gap: 0.5rem; }
-  .so-kpi { padding: 0.625rem; }
-  .so-cols { grid-template-columns: minmax(0, 1.7fr) minmax(16.25rem, 1fr); }
-}
-
-@media (max-width: 1200px) {
-  .so-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .sod-top { grid-template-columns: minmax(0, 1fr) minmax(15rem, 18.75rem); }
-  .sod-grid { grid-template-columns: minmax(0, 1fr) clamp(17.5rem, 20vw, 21rem); }
-  .so-preview__actions { grid-template-columns: 1fr; }
-}
-
 @media (max-width: 1024px) {
   .so-cols,
   .sod-top,
