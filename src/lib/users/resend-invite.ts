@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { daysFromNow, generateSecureToken, hashToken } from "@/lib/tokens";
 import { EmailDeliveryError, invitationEmailHtml, sendEmail } from "@/lib/email";
+import { invalidateUserSessionCache } from "@/lib/security/session-cache";
 
 const PORTAL = {
   INTERNAL: { path: "/intelligence/activate", subject: "Welcome to Trinity Retail Intelligence" },
@@ -40,5 +41,6 @@ export async function resendInvite(
     prisma.invitationToken.deleteMany({ where: { userId: user.id, token: { not: hashToken(token) } } }),
     prisma.user.update({ where: { id: user.id }, data: { passwordHash: null, status: "PENDING" } }),
   ]);
+  invalidateUserSessionCache(user.id);
   return { ok: true, activateUrl };
 }

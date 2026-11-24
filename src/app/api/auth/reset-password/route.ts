@@ -49,6 +49,9 @@ export async function POST(req: Request) {
     }),
   ]);
 
+  // Other devices signed in before the reset are signed out: at once on this server, within 5 s on the others.
+  invalidateUserSessionCache(reset.userId);
+
   // The lock message tells people to reset their password, so a reset has to lift it.
   await clearLoginFailures(user.email);
 
