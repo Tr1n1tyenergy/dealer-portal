@@ -1,9 +1,11 @@
 /**
  * Per-server memory of each signed-in person's account (role, permissions, status, password-change time),
  * so one page load's requests share one database lookup.
- * Kept short on purpose: Vercel runs several copies of the app, each with its own memory, so a disable,
- * role or permission change made on another copy applies here within SESSION_CACHE_TTL_MS. Changes made
- * through this copy clear the entry at once (invalidateUserSessionCache / clearAllSessionCache).
+ * Kept short on purpose: Vercel runs several copies of the app, each with its own memory, and an admin's
+ * change usually lands on a different copy from the affected person's next request. So the real guarantee
+ * is: a password reset, disable, role or permission change applies everywhere within SESSION_CACHE_TTL_MS.
+ * Clearing (invalidateUserSessionCache / clearAllSessionCache) only makes it immediate on the copy that
+ * made the change. A read that started just before a change can put the old answer back; the TTL bounds that too.
  */
 export const SESSION_CACHE_TTL_MS = 5_000;
 

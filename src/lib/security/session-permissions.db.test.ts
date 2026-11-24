@@ -46,7 +46,7 @@ describe(
       await prisma.user.deleteMany({ where: { id: { in: [userId, adminId] } } });
     });
 
-    it("puts the stored overrides in the token, and picks up a change made in the app on the next request", async () => {
+    it("puts the stored overrides in the token, and a change made in the app applies at once on the same server", async () => {
       const first = await jwt({ token: { id: userId } as JWT });
       assert.equal(first.permissions, '{"orders.act":"deny"}');
 
