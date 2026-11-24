@@ -48,6 +48,8 @@ export function destinationLabel(href: string): string {
 
 type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 const SPLASH_KEY = "tri-splash";
+/** PortalLogin dispatches this on window after marking the splash, since sign-in moves on without a reload. */
+export const SPLASH_START_EVENT = "tri:splash-start";
 
 /** Called on a successful sign-in, just before redirecting. */
 export function markSplashPending(storage: Store): void {

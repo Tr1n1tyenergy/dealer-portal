@@ -1,1 +1,1 @@
-export { TrinityWorkspaceLoader as RouteLoading } from "./trinity-workspace-loader";
+export { PageLoader as RouteLoading } from "./brand-loaders";

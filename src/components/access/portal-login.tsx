@@ -20,6 +20,7 @@ import { SUPPORT_EMAIL } from "@/lib/company/contact";
 import { loginErrorMessage } from "@/lib/security/login-errors";
 import { cn } from "@/lib/utils";
 import "./portal-auth.css";
+import { SPLASH_START_EVENT, markSplashPending } from "@/lib/ui/loader-routes";
 
 const DEFAULT_TRUST = [
   { title: "Secure Access", icon: Shield },
@@ -131,6 +132,8 @@ export function PortalLogin({
       );
       return;
     }
+    markSplashPending(window.sessionStorage);
+    window.dispatchEvent(new Event(SPLASH_START_EVENT));
     router.push(destination);
     router.refresh();
   }

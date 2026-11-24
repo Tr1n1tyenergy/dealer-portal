@@ -1,0 +1,265 @@
+/* Brand loaders (spec 2026-11-24-brand-loaders-design). Warm #ffca05 → #ed1c24, cool #3853a4 → #2dc0d1. */
+.bl {
+  --bl-blue: #3853a4;
+  --bl-cyan: #2dc0d1;
+  --bl-yellow: #ffca05;
+  --bl-red: #ed1c24;
+  --bl-ink: #14244d;
+  --bl-muted: #5b6886;
+  --bl-bg: #f4f7fb;
+  --bl-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: var(--bl-ink);
+  font-family: "Century Gothic", "TeX Gyre Adventor", sans-serif;
+  background: var(--bl-bg);
+}
+.bl *,
+.bl *::before,
+.bl *::after {
+  box-sizing: border-box;
+}
+.bl-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Overlay used by ViewChangeLoader, under the portal header. */
+.bl-overlay {
+  position: fixed;
+  z-index: 40;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+}
+.bl-overlay > .bl {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Fallbacks rendered inside the page content area (loading.tsx, Suspense). */
+.dp-content > .bl,
+.sp-main > .bl {
+  min-height: calc(100dvh - 4.25rem);
+}
+
+/* ---- Page skeleton (everyday clicks) ---- */
+.bl-line {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  overflow: hidden;
+  background: rgba(56, 83, 164, 0.12);
+  z-index: 1;
+}
+.bl-line::before,
+.bl-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  animation: bl-race 1.4s var(--bl-ease) infinite;
+}
+.bl-line::before {
+  background: linear-gradient(90deg, transparent, var(--bl-yellow), var(--bl-red));
+}
+.bl-line::after {
+  background: linear-gradient(90deg, transparent, var(--bl-blue), var(--bl-cyan));
+  animation-delay: 0.35s;
+}
+@keyframes bl-race {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+.bl-sk-wrap {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.25rem clamp(1rem, 3vw, 2rem) 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-height: inherit;
+}
+.bl-sk-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: max(12px, 0.75rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bl-muted);
+}
+.bl-sk {
+  border-radius: 0.75rem;
+  background: linear-gradient(100deg, #e3e9f3 30%, #f2f5fb 50%, #e3e9f3 70%);
+  background-size: 300% 100%;
+  animation: bl-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes bl-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+.bl-sk-hero { height: clamp(5rem, 14vh, 9rem); }
+.bl-sk-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.bl-sk-kpis .bl-sk { height: 5.25rem; }
+.bl-sk-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  border-radius: 1rem;
+  background: #fff;
+}
+.bl-sk-table .bl-sk { height: 2.4rem; border-radius: 0.5rem; }
+@media (max-width: 640px) {
+  .bl-sk-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---- Portal orbit (opening a portal or module) ---- */
+.bl-portal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: radial-gradient(ellipse at 50% 42%, #fff 0%, #f1f5fb 60%, #e9eff8 100%);
+}
+.bl-orbit {
+  position: relative;
+  width: 8.5rem;
+  height: 7.5rem;
+  display: grid;
+  place-items: center;
+}
+.bl-orbit i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: -0.475rem;
+  border-radius: 50%;
+  animation: bl-orbit 3s var(--bl-ease) infinite;
+}
+.bl-orbit i:nth-child(1) { background: var(--bl-yellow); }
+.bl-orbit i:nth-child(2) { background: var(--bl-red); --o: 120deg; animation-delay: -0.1s; }
+.bl-orbit i:nth-child(3) { background: var(--bl-blue); --o: 240deg; animation-delay: -0.2s; }
+@keyframes bl-orbit {
+  0% { transform: rotate(var(--o, 0deg)) translateX(3.1rem); opacity: 1; }
+  55% { transform: rotate(calc(var(--o, 0deg) + 540deg)) translateX(3.1rem); opacity: 1; }
+  70%, 100% { transform: rotate(calc(var(--o, 0deg) + 560deg)) translateX(0); opacity: 0; }
+}
+.bl-orbit-mark { animation: bl-pop 3s var(--bl-ease) infinite; }
+@keyframes bl-pop {
+  0%, 62% { transform: scale(0); opacity: 0; }
+  76% { transform: scale(1.08); opacity: 1; }
+  90% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+.bl-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ---- Sign-in splash ---- */
+.bl-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem clamp(1rem, 5vw, 4rem);
+  background: radial-gradient(ellipse at 30% 50%, #fff 0%, #f1f4fa 55%, #e4eaf5 100%);
+  cursor: pointer;
+  transition: opacity 0.45s ease, visibility 0.45s;
+}
+.bl-splash.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+.bl-splash-art {
+  justify-self: end;
+  width: min(100%, 34rem);
+  height: auto;
+  max-height: 80dvh;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 30px rgba(20, 40, 90, 0.2));
+  animation: bl-drift 5s ease-in-out infinite alternate;
+}
+@keyframes bl-drift {
+  from { transform: translateY(6px) rotate(-1.5deg); }
+  to { transform: translateY(-8px) rotate(1deg); }
+}
+.bl-splash-eyebrow {
+  margin: 0;
+  font-size: max(12px, 0.75rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #c4161d;
+}
+.bl-splash-title {
+  margin: 0.4rem 0 0.25rem;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+.bl-splash-sub { margin: 0; color: var(--bl-muted); font-size: 1rem; }
+.bl-dots { display: flex; gap: 0.45rem; margin-top: 1.1rem; }
+.bl-dots i {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  animation: bl-bounce 1.2s ease-in-out infinite;
+}
+.bl-dots i:nth-child(1) { background: var(--bl-yellow); }
+.bl-dots i:nth-child(2) { background: var(--bl-red); animation-delay: 0.15s; }
+.bl-dots i:nth-child(3) { background: var(--bl-blue); animation-delay: 0.3s; }
+@keyframes bl-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-7px); opacity: 1; }
+}
+.bl-skip { margin-top: 1.4rem; font-size: max(12px, 0.8rem); color: var(--bl-muted); }
+@media (max-width: 760px) {
+  .bl-splash { grid-template-columns: 1fr; text-align: center; align-content: center; }
+  .bl-splash-art { justify-self: center; width: min(78vw, 22rem); }
+  .bl-dots { justify-content: center; }
+}
+
+/* Still frames for "Reduce motion": the device setting and the portal's own Accessibility menu
+   (whose html[data-a11y-motion] rule would otherwise freeze the orbit on its last, invisible frame). */
+@media (prefers-reduced-motion: reduce) {
+  .bl *,
+  .bl *::before,
+  .bl *::after,
+  .bl-splash * {
+    animation: none !important;
+  }
+  .bl-orbit i { display: none; }
+  .bl-orbit-mark { transform: none; opacity: 1; }
+}
+html[data-a11y-motion="reduce"] .bl *,
+html[data-a11y-motion="reduce"] .bl *::before,
+html[data-a11y-motion="reduce"] .bl *::after,
+html[data-a11y-motion="reduce"] .bl-splash * {
+  animation: none !important;
+}
+html[data-a11y-motion="reduce"] .bl-orbit i { display: none; }
+html[data-a11y-motion="reduce"] .bl-orbit-mark { transform: none; opacity: 1; }
