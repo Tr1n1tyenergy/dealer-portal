@@ -1,6 +1,8 @@
 "use client";
 
 import { useId } from "react";
+import { usePathname } from "next/navigation";
+import { destinationLabel } from "@/lib/ui/loader-routes";
 import "@/styles/century-gothic.css";
 import "./brand-loaders.css";
 
@@ -40,7 +42,10 @@ export function TrinityMark({ size = 104, className }: { size?: number; classNam
 }
 
 /** Everyday page changes: a warm-and-cool line under the header over a grey page skeleton. */
-export function PageLoader({ label = "the page" }: { label?: string }) {
+export function PageLoader({ label: given }: { label?: string }) {
+  // Route fallbacks (loading.tsx) don't pass a label: name the page from the address being loaded.
+  const pathname = usePathname();
+  const label = given ?? destinationLabel(pathname ?? "/");
   return (
     <div className="bl bl-page" role="status" aria-live="polite" aria-busy="true">
       <span className="bl-line" aria-hidden="true" />
