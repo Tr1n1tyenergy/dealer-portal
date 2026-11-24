@@ -1,5 +1,6 @@
 /* Brand loaders (spec 2026-11-24-brand-loaders-design). Warm #ffca05 → #ed1c24, cool #3853a4 → #2dc0d1. */
-.bl {
+.bl,
+.bl-splash {
   --bl-blue: #3853a4;
   --bl-cyan: #2dc0d1;
   --bl-yellow: #ffca05;
@@ -8,6 +9,10 @@
   --bl-muted: #5b6886;
   --bl-bg: #f4f7fb;
   --bl-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color: var(--bl-ink);
+  font-family: "Century Gothic", "TeX Gyre Adventor", sans-serif;
+}
+.bl {
   position: relative;
   width: 100%;
   min-height: 100%;

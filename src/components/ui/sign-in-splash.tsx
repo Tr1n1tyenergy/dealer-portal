@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { SPLASH_START_EVENT, takeSplash } from "@/lib/ui/loader-routes";
+import "@/styles/century-gothic.css";
 import "./brand-loaders.css";
 
 const MIN_MS = 1200;
