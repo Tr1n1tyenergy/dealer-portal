@@ -1190,7 +1190,20 @@
   background: #dbe3ef;
   color: var(--tri-text-faint, #94a3b8);
 }
-.sod-action__sub { font-size: var(--tri-font-xs, 0.68rem); color: var(--so-muted); line-height: 1.25; margin-top: 0.1rem; }
+.sod-action__sub { display: block; font-size: var(--tri-font-xs, 0.68rem); color: var(--so-muted); line-height: 1.25; margin-top: 0.1rem; }
+/* Placeholder cards that lead somewhere (this order's payment summary, the depot queue). */
+.sod-action--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.sod-action--link:hover { border-color: #e2c45a; box-shadow: 0 4px 14px rgba(10, 35, 91, 0.08); transform: translateY(-1px); }
+.sod-action--locked.sod-action--link:hover { border-color: #c9d5ec; }
+.sod-action--link:focus-visible { outline: 3px solid var(--so-blue); outline-offset: 2px; }
+.sod-pay-card { scroll-margin-top: 5rem; }
+.sod-pay-card:target { box-shadow: 0 0 0 3px #ffca06; }
+@media (prefers-reduced-motion: reduce) { .sod-action--link { transition: none; } .sod-action--link:hover { transform: none; } }
 /* Ready forms (confirm/release) keep stacked layout below the compact header row */
 .sod-action:has(form) {
   display: grid;
