@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
 import { adminTargetRefusal, anotherAbleAdmin } from "@/lib/users/admin-rules";
 import { canUser, parseOverrides, PERMISSION_KEYS, type PermissionKey, type StaffUser } from "@/lib/permissions";
+import { invalidateUserSessionCache } from "@/lib/security/session-cache";
 
 export type PermissionChange = { key: string; value: "allow" | "deny" | "inherit" };
 type Result = { ok: true; permissions: string } | { ok: false; status: 400 | 403 | 404; message: string };
@@ -45,6 +46,7 @@ export async function savePermissions(
   }
 
   await prisma.user.update({ where: { id: targetId }, data: { permissions: next } });
+  invalidateUserSessionCache(targetId);
   await logActivity({
     actorId: actor.id,
     action: "USER_PERMISSIONS_CHANGED",

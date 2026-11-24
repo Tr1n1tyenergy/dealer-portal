@@ -6,14 +6,12 @@ import { logActivity } from "@/lib/activity";
 import { beginLoginAttempt, clearLoginFailures, normalizeEmail } from "@/lib/security/auth-throttle";
 import { clientIp } from "@/lib/security/client-ip";
 import { lockedError } from "@/lib/security/login-errors";
+import { cachedSession, rememberSession } from "@/lib/security/session-cache";
 import { SESSION_MAX_AGE_SECONDS, signedInAfterPasswordChange } from "@/lib/security/session-length";
 
 /** Compared against when there is no real hash, so every refusal takes about as long as a real check. */
 // Cost-12 bcrypt hash of a random throwaway string (matches real hashes); precomputed to keep cold starts fast.
 const DUMMY_HASH = "$2b$12$/It9sYuAHtJEye3YXjINqeM2LnwnY5fDT.mI5bRv4PWzD.jGMuC3q";
-
-/** Skip a Neon round trip on every click. Disable/role changes apply within this window. */
-const HYDRATE_TTL_MS = 45_000;
 
 type HydratedUser = {
   id: string;
@@ -28,16 +26,11 @@ type HydratedUser = {
   passwordChangedAt: Date | null;
 };
 
-const hydrateCache = new Map<string, { at: number; value: HydratedUser | null }>();
-
-/** Drop a cached session snapshot so a password reset takes effect on the next request. */
-export function invalidateUserSessionCache(userId: string) {
-  hydrateCache.delete(userId);
-}
+export { invalidateUserSessionCache } from "@/lib/security/session-cache";
 
 async function hydrateTokenFromUser(userId: string): Promise<HydratedUser | null> {
-  const hit = hydrateCache.get(userId);
-  if (hit && Date.now() - hit.at < HYDRATE_TTL_MS) return hit.value;
+  const hit = cachedSession<HydratedUser>(userId);
+  if (hit.hit) return hit.value;
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -70,7 +63,7 @@ async function hydrateTokenFromUser(userId: string): Promise<HydratedUser | null
           permissions: user.permissions,
           passwordChangedAt: user.passwordChangedAt,
         };
-  hydrateCache.set(userId, { at: Date.now(), value });
+  rememberSession(userId, value);
   return value;
 }
 

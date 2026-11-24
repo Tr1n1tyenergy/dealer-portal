@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { after, before, describe, it } from "node:test";
+import { after, before, describe, it, mock } from "node:test";
 import type { PrismaClient } from "@prisma/client";
 import type { JWT } from "next-auth/jwt";
 
@@ -16,6 +16,7 @@ describe(
     let jwt: (args: { token: JWT }) => Promise<JWT>;
     const run = `sp${Date.now()}`;
     let userId = "";
+    let adminId = "";
 
     before(async () => {
       ({ prisma } = await import("@/lib/prisma"));
@@ -30,19 +31,47 @@ describe(
           },
         })
       ).id;
+      adminId = (
+        await prisma.user.create({
+          data: {
+            firstName: "T", lastName: "Admin", email: `permadmin.${run}@example.test`, department: "T",
+            role: "SUPER_ADMIN", status: "ACTIVE", passwordHash: "x",
+          },
+        })
+      ).id;
     });
 
     after(async () => {
-      await prisma.user.deleteMany({ where: { id: userId } });
+      await prisma.activityLog.deleteMany({ where: { actorId: adminId } });
+      await prisma.user.deleteMany({ where: { id: { in: [userId, adminId] } } });
     });
 
-    it("puts the stored overrides in the token, and picks up a change on the next request", async () => {
+    it("puts the stored overrides in the token, and picks up a change made in the app on the next request", async () => {
       const first = await jwt({ token: { id: userId } as JWT });
       assert.equal(first.permissions, '{"orders.act":"deny"}');
 
-      await prisma.user.update({ where: { id: userId }, data: { permissions: '{"settings.view":"allow"}' } });
+      const { savePermissions } = await import("@/lib/users/permissions-admin");
+      const saved = await savePermissions({ id: adminId, accountType: "INTERNAL", role: "SUPER_ADMIN", permissions: null }, userId, [
+        { key: "settings.view", value: "allow" },
+      ]);
+      assert.equal(saved.ok, true);
+      const stored = (await prisma.user.findUniqueOrThrow({ where: { id: userId } })).permissions;
       const next = await jwt({ token: first });
-      assert.equal(next.permissions, '{"settings.view":"allow"}');
+      assert.equal(next.permissions, stored);
+      assert.match(String(next.permissions), /settings\.view/);
+    });
+
+    it("picks up a change made anywhere else (another server, a script) within 5 seconds", async () => {
+      mock.timers.enable({ apis: ["Date"], now: Date.now() });
+      try {
+        const first = await jwt({ token: { id: userId } as JWT });
+        await prisma.user.update({ where: { id: userId }, data: { permissions: '{"stock.view":"deny"}' } });
+        mock.timers.tick(5_001);
+        const next = await jwt({ token: first });
+        assert.equal(next.permissions, '{"stock.view":"deny"}');
+      } finally {
+        mock.timers.reset();
+      }
     });
   },
 );

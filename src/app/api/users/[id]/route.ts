@@ -10,6 +10,7 @@ import { adminTargetRefusal, dealerLoginRefusal, historyRefusal, lastSuperAdminR
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 import { resendInvite } from "@/lib/users/resend-invite";
 import { STAFF_ROLES } from "@/lib/access";
+import { invalidateUserSessionCache } from "@/lib/security/session-cache";
 
 const updateSchema = z.object({
   firstName: z.string().min(1).max(100).optional(),
@@ -62,6 +63,7 @@ export async function PATCH(
       status: parsed.data.status,
     },
   });
+  invalidateUserSessionCache(id);
 
   let invitationSent = false;
 
@@ -126,6 +128,7 @@ export async function DELETE(
   if (refusal) return jsonError(refusal.message, refusal.status);
 
   await prisma.user.delete({ where: { id } });
+  invalidateUserSessionCache(id);
   await logActivity({
     actorId: auth.session.user.id,
     action: "USER_DELETED",

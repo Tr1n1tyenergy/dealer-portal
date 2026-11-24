@@ -8,6 +8,7 @@ import {
   type PermissionKey,
 } from "@/lib/permissions";
 import { STAFF_ROLES, type StaffRole } from "@/lib/access";
+import { clearAllSessionCache } from "@/lib/security/session-cache";
 
 const settingKey = (role: StaffRole) => `staff.roleDefaults.${role}`;
 
@@ -77,6 +78,7 @@ export async function updateSystemRolePermissions(
       data: { permissions: overridesJson },
     });
   });
+  clearAllSessionCache(); // every person with this role has new permissions
 
   await logActivity({
     actorId: actor.id,
