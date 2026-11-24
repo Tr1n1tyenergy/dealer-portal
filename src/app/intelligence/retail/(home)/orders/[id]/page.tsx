@@ -307,24 +307,24 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                 ) : null}
 
                 {mayAct && !tracker.stopped && stageNumber <= 3 && order.status !== "PAYMENT_CONFIRMED" && openPayments.length === 0 ? (
-                  <div className="sod-action sod-action--ready">
+                  <a href="#payment" className="sod-action sod-action--ready sod-action--link">
                     <span className="sod-action__ico" aria-hidden><Landmark size={16} strokeWidth={1.9} /></span>
-                    <div className="sod-action__copy">
-                      <div className="sod-action__title">Confirm Payment</div>
-                      <div className="sod-action__sub">Available once the dealer submits payment details.</div>
-                    </div>
+                    <span className="sod-action__copy">
+                      <span className="sod-action__title">Confirm Payment</span>
+                      <span className="sod-action__sub">Available once the dealer submits payment details. See this order&apos;s payment summary.</span>
+                    </span>
                     <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>
-                  </div>
+                  </a>
                 ) : null}
                 {mayAct && !tracker.stopped && stageNumber <= 3 ? (
-                  <div className="sod-action sod-action--locked">
+                  <Link href="/intelligence/retail/orders?stage=depot" className="sod-action sod-action--locked sod-action--link">
                     <span className="sod-action__ico" aria-hidden><Warehouse size={16} strokeWidth={1.9} /></span>
-                    <div className="sod-action__copy">
-                      <div className="sod-action__title">Release to Depot</div>
-                      <div className="sod-action__sub">Available after payment confirmation.</div>
-                    </div>
+                    <span className="sod-action__copy">
+                      <span className="sod-action__title">Release to Depot</span>
+                      <span className="sod-action__sub">Available after payment confirmation. See orders already at the depot.</span>
+                    </span>
                     <span className="sod-action__go" aria-hidden><Lock size={13} strokeWidth={2.2} /></span>
-                  </div>
+                  </Link>
                 ) : null}
                 {mayAct && stageNumber > 3 && !tracker.stopped ? (
                   <p className="so-preview__hint" style={{ margin: 0 }}>
@@ -368,7 +368,7 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                   </section>
                 </div>
 
-                <section className="so-card sod-pay-card">
+                <section className="so-card sod-pay-card" id="payment">
                   <div className="so-card__head"><span className="so-ico"><Layers size={15} /></span> Payment Summary</div>
                   <div className="sod-summary">
                     <div className="sod-summary__cell">
