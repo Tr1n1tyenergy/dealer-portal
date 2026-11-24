@@ -46,6 +46,22 @@ export function destinationLabel(href: string): string {
   return MODULES[portalKey(href)] ?? "the page";
 }
 
+/**
+ * Where a Next page-data (RSC) request is going: its path and query without the `_rsc` cache-buster.
+ * Navigations started by code (router.push) have no clicked link, so this is how we know the destination.
+ */
+export function rscTarget(input: string | URL | { url: string }, base: string): string | undefined {
+  try {
+    const raw = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    const url = new URL(raw, base);
+    if (url.origin !== new URL(base).origin) return undefined;
+    url.searchParams.delete("_rsc");
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return undefined;
+  }
+}
+
 type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 const SPLASH_KEY = "tri-splash";
 /** PortalLogin dispatches this on window after marking the splash, since sign-in moves on without a reload. */

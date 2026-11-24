@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import { destinationLabel, loaderFor, type LoaderKind } from "@/lib/ui/loader-routes";
+import { destinationLabel, loaderFor, rscTarget, type LoaderKind } from "@/lib/ui/loader-routes";
 import { PageLoader, PortalLoader } from "./brand-loaders";
 
 /**
@@ -10,7 +10,7 @@ import { PageLoader, PortalLoader } from "./brand-loaders";
  * the portal orbit when the click opens a different portal or module, the page skeleton otherwise.
  * Hover prefetches are ignored, so resting on a link does not bring the screen up.
  */
-type Bridge = { start: () => void; stop: () => void };
+type Bridge = { start: (target?: string) => void; stop: () => void };
 let bridge: Bridge | null = null;
 let fetchPatched = false;
 let historyPatched = false;
@@ -38,7 +38,7 @@ function installFetchWatch() {
   const original = window.fetch.bind(window);
   window.fetch = async (input, init) => {
     if (!isViewNavigation(input, init)) return original(input, init);
-    bridge?.start();
+    bridge?.start(rscTarget(input instanceof Request ? input.url : input, window.location.href));
     try {
       return await original(input, init);
     } finally {
@@ -126,12 +126,13 @@ export function ViewChangeLoader() {
     };
 
     bridge = {
-      start() {
+      start(target) {
         inflight += 1;
         sawFetch = true;
         window.clearTimeout(stuck);
         stuck = window.setTimeout(hide, 12000);
-        show();
+        // A click already chose the loader; a navigation from code (router.push) chooses it from the request.
+        show(showing ? undefined : target);
       },
       stop() {
         inflight = Math.max(0, inflight - 1);

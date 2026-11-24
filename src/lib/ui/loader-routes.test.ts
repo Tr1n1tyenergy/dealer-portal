@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { destinationLabel, loaderFor, markSplashPending, portalKey, takeSplash } from "./loader-routes";
+import { destinationLabel, loaderFor, markSplashPending, portalKey, rscTarget, takeSplash } from "./loader-routes";
 
 describe("which loader a navigation shows", () => {
   it("knows the portal or module a path belongs to", () => {
@@ -30,6 +30,19 @@ describe("which loader a navigation shows", () => {
     assert.equal(destinationLabel("/dealer/messages"), "Messages");
     assert.equal(destinationLabel("/depot/dashboard"), "Depot Board");
     assert.equal(destinationLabel("/somewhere/odd-thing"), "the page");
+  });
+});
+
+describe("where a page request is going", () => {
+  it("reads the destination from Next's page-data request, without its cache-busting parameter", () => {
+    assert.equal(rscTarget("http://localhost:3996/dealer/support?_rsc=1x2y", "http://localhost:3996/dealer/orders"), "/dealer/support");
+    assert.equal(rscTarget("/intelligence/retail/orders?stage=depot&_rsc=abc", "http://x.test/intelligence/retail"), "/intelligence/retail/orders?stage=depot");
+    assert.equal(rscTarget(new URL("https://portal.test/depot/dashboard?_rsc=9"), "https://portal.test/access"), "/depot/dashboard");
+  });
+
+  it("gives nothing for requests to other sites or unreadable input", () => {
+    assert.equal(rscTarget("https://elsewhere.test/x?_rsc=1", "https://portal.test/"), undefined);
+    assert.equal(rscTarget("http://[bad", "https://portal.test/"), undefined);
   });
 });
 
