@@ -1448,7 +1448,7 @@
   font-weight: 650;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .ssr-rtt__grid {
     grid-template-columns: 1fr;
   }
@@ -1569,7 +1569,7 @@
   line-height: 1.45;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .ssr__body {
     grid-template-columns: 1fr;
   }
@@ -1627,11 +1627,4 @@
     min-width: 96px;
   }
 
-}
-
-@media (min-width: 1024px) and (max-height: 800px) {
-  .ssr__body {
-    margin-top: -1.5rem;
-    gap: var(--tri-space-md, 0.95rem);
-  }
 }

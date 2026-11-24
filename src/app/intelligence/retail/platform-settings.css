@@ -3144,58 +3144,7 @@
   color: var(--ps-navy);
 }
 
-/* Compact laptop width — denser Settings chrome (root already tightened globally) */
-@media (min-width: 1024px) and (max-width: 1366px) {
-  .ps {
-    --ps-panel-max: min(48rem, calc(100vh - 10rem));
-    --ps-table-row: clamp(2.95rem, 2.75rem + 0.3vw, 3.35rem);
-    --ps-control-h: clamp(2.05rem, 1.9rem + 0.25vw, 2.35rem);
-    --ps-icon-well: clamp(2.45rem, 2.3rem + 0.25vw, 2.85rem);
-  }
-
-  .ps-workspace {
-    grid-template-columns: minmax(12rem, 22%) minmax(0, 1fr);
-    gap: var(--ps-gap-xs);
-  }
-
-  .ft-filters,
-  .al-filters {
-    padding-top: var(--ps-gap-xs);
-    gap: var(--ps-gap-2xs);
-  }
-}
-
-/* Short laptop height — tighten vertical chrome */
-@media (min-width: 1024px) and (max-height: 800px) {
-  .ps {
-    --ps-panel-max: min(44rem, calc(100vh - 9rem));
-    --ps-table-row: clamp(2.85rem, 2.65rem + 0.25vw, 3.25rem);
-    --ps-table-head: clamp(2.15rem, 2.05rem + 0.15vw, 2.4rem);
-    --ps-workspace-overlap: clamp(-1.75rem, -1.2rem - 0.6vw, -2.25rem);
-  }
-
-  .ps-panel__head {
-    padding-top: var(--ps-gap-xs);
-    padding-bottom: var(--ps-gap-xs);
-  }
-
-  .ft-stats,
-  .al-stats,
-  .tm-stats {
-    padding-top: var(--ps-gap-2xs);
-    padding-bottom: var(--ps-gap-2xs);
-  }
-}
-
-/* Large / 16"+ — slightly roomier table rows */
-@media (min-width: 1600px) {
-  .ps {
-    --ps-table-row: clamp(3.45rem, 3.1rem + 0.35vw, 4rem);
-    --ps-panel-max: min(56rem, calc(100vh - 11.5rem));
-  }
-}
-
-@media (max-width: 1180px) {
+@media (max-width: 1024px) {
   .ps-workspace {
     grid-template-columns: minmax(12.5rem, 22%) minmax(0, 1fr);
   }

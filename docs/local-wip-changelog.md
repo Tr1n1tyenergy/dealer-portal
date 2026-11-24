@@ -149,6 +149,15 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-24 — Laptop layouts match the 13.3-inch screen
+- Shorter laptop windows were cropping the forecourt hero and shrinking type. Hero height, type, and spacing now follow width only, so a short 14-inch window keeps the same photo crop as the 13.3-inch Mac.
+- Orders, Analytics, Messages, Support, stock reporting, dealer dashboard, and the other laptop pages keep that Mac column layout down to tablet width. They stack at 1024px and below, as before.
+- Files: `src/styles/responsive-tokens.css`, staff orders/analytics/home/support/stock/users/settings CSS, dealer dashboard/support/stock CSS, messaging, note taker, order tracking.
+
+### 2026-11-24 — Activation page photo panel fills the left side
+- Staff and dealer set-password pages were leaving the forecourt photo as a short block, with empty space under it. The panel now fills the left half on laptop widths, the same way the access and login pages do, and the caption sits at the bottom of that photo.
+- File: `src/app/intelligence/login/login.css`.
+
 ### 2026-11-23 — Branded workspace loading screen
 - Route transitions under the dealer portal, staff retail shell, modules home, note taker, presentations, admin, and the depot app use a pale Trinity loading scene (rotating blue/yellow ring, official T mark, indeterminate bar, dotted paths) instead of the grey skeleton cards. Nested routes (an order, a stock-reporting step, a ticket, a note, a deck) share that screen. Settings tabs and the dealer Orders views (Needs Payment, PFIs, Deliveries) do too. Sign-in screens do not.
 - The same scene now appears the moment a click asks for a different view inside a page: station filters, stock-reporting sections, period and date changes, and any other link or in-page navigation that loads a new view. It stays up until that view is committed, including on dealer, staff, and depot. Hover prefetches do not show it. Typing in a field does not show it.

@@ -1780,20 +1780,3 @@ button.dp-sidebar__link {
 .dp-account__menu button:hover {
   background: #f1f5f9;
 }
-
-/* Short laptop: tighter topbar + hero copy rhythm (tokens already cap hero height) */
-@media (min-width: 1024px) and (max-height: 800px) {
-  .dp-topbar {
-    --dp-topbar-h: 3.5rem;
-    height: 3.5rem;
-  }
-
-  .dp-hero__copy h1 {
-    font-size: var(--tri-font-title, 1.45rem);
-  }
-
-  .dp-hero__copy p {
-    margin-top: var(--tri-space-xs, 0.4rem);
-    font-size: var(--tri-font-sm, 0.85rem);
-  }
-}
