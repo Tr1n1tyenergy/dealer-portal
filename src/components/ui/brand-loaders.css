@@ -10,7 +10,7 @@
   --bl-bg: #f4f7fb;
   --bl-ease: cubic-bezier(0.22, 1, 0.36, 1);
   color: var(--bl-ink);
-  font-family: "Century Gothic", "TeX Gyre Adventor", sans-serif;
+  font-family: var(--font-sans);
 }
 .bl {
   position: relative;

@@ -3,7 +3,6 @@
 import { useId, useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { destinationLabel } from "@/lib/ui/loader-routes";
-import "@/styles/century-gothic.css";
 import "./brand-loaders.css";
 
 // The three parts of the Trinity mark (viewBox 0 0 70 59), copied from the brand file public/assets2/img/trinity-mark.svg.
