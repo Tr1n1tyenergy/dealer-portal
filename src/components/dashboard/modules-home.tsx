@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { MODULE_PANEL as PANEL, type TriModule } from "@/lib/modules";
-import "@/styles/century-gothic.css";
 import "./modules-home.css";
 
 export function ModulesHome({

@@ -11,8 +11,6 @@
   background: var(--sh-bg);
   padding-bottom: clamp(1.5rem, 3vh, 2.5rem);
   color: var(--sh-navy);
-  /* Same face as the modules page (century-gothic.css: system Century Gothic, else TeX Gyre Adventor). */
-  font-family: "Century Gothic", "TeX Gyre Adventor", sans-serif;
 }
 
 /* Hero plate: staff-portal-hero.css (Messages source of truth) */
