@@ -11,6 +11,9 @@ import { odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
 import { stageOf, statusLabel } from "@/lib/orders/stages";
 import "@/app/intelligence/retail/staff-orders.css";
 
+// Confirm and Retry Odoo run from this page and can call Odoo twice (draft, then post).
+export const maxDuration = 60;
+
 const when = (at: Date | null | undefined) =>
   at
     ? at.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" })
@@ -69,7 +72,6 @@ export default async function OrderPaymentReviewPage({ params }: { params: Promi
   const earlier = order.payments.filter((p) => p.status === "CONFIRMED" || p.status === "REJECTED");
   const odooOn = odooPaymentsEnabled();
   const orderHref = `/intelligence/retail/orders/${order.id}`;
-  const balanceAfter = totals.balanceCents == null ? null : Math.max(0, totals.balanceCents);
 
   return (
     <div className="so">
@@ -98,7 +100,7 @@ export default async function OrderPaymentReviewPage({ params }: { params: Promi
           <div><span>PFI total</span><b>{kes(totals.totalCents)}</b></div>
           <div><span>Confirmed</span><b>{kes(totals.confirmedCents)}</b></div>
           <div><span>Waiting</span><b>{kes(totals.waitingCents)}</b></div>
-          <div className="spr-sum__bal"><span>Balance if confirmed</span><b>{kes(balanceAfter)}</b></div>
+          <div className="spr-sum__bal"><span>Balance if confirmed</span><b>{kes(totals.balanceCents)}</b></div>
         </section>
 
         {waiting.length === 0 ? (
@@ -107,9 +109,11 @@ export default async function OrderPaymentReviewPage({ params }: { params: Promi
             <div>
               <h2>No payment waiting</h2>
               <p>
-                {totals.balanceCents === 0
-                  ? "This order is fully paid."
-                  : "The dealer hasn't sent a payment for this order yet. You'll get an email when they do."}
+                {totals.totalCents == null
+                  ? "No PFI has been issued for this order yet, so there is nothing to pay."
+                  : totals.balanceCents === 0
+                    ? "This order is fully paid."
+                    : "The dealer hasn't sent a payment for this order yet. Sales Person Executives get an email when they do."}
               </p>
             </div>
           </section>

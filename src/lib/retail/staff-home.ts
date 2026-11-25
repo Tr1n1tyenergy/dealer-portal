@@ -146,7 +146,8 @@ export type WaitingPaymentOrder = {
 const shortKes = (amount: string) =>
   `KES ${Number(amount).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 
-function bankShort(accountNumber: string | null) {
+/** "Equity", "KCB": the bank a manual payment went to, short. */
+export function bankShort(accountNumber: string | null) {
   const word = bankAccountByNumber(accountNumber)?.bank.split(" ")[0] ?? "bank";
   return word.length > 3 ? word[0] + word.slice(1).toLowerCase() : word;
 }

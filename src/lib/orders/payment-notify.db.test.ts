@@ -35,6 +35,7 @@ describe(
       await user("SALES_PERSON_EXECUTIVE", "ACTIVE", "spe1");
       await user("SALES_PERSON_EXECUTIVE", "ACTIVE", "spe2");
       await user("SALES_PERSON_EXECUTIVE", "DISABLED", "speoff");
+      await user("SALES_PERSON_EXECUTIVE", "ACTIVE", "spedeny", { permissions: '{"orders.act":"deny"}' });
       await user("SUPER_ADMIN", "ACTIVE", "admin");
       const dealer = await user("DEALER_ADMIN", "ACTIVE", "dealer", { accountType: "DEALER", dealerOrganizationId: orgId });
       const order = await prisma.dealerOrder.create({
@@ -52,9 +53,19 @@ describe(
       await prisma.dealerOrganization.delete({ where: { id: orgId } });
     });
 
-    it("sends one email to each active SPE, and to nobody else", async () => {
+    it("sends one email to each active SPE who may act on orders, one after another, and to nobody else", async () => {
       const sent: { to: string; subject: string; html: string }[] = [];
-      await notify.notifySalesOfPayment(paymentId, { send: async (m) => void sent.push(m), configured: () => true });
+      let inFlight = 0;
+      let mostAtOnce = 0;
+      const send = async (m: { to: string; subject: string; html: string }) => {
+        inFlight++;
+        mostAtOnce = Math.max(mostAtOnce, inFlight);
+        await new Promise((r) => setTimeout(r, 5));
+        sent.push(m);
+        inFlight--;
+      };
+      await notify.notifySalesOfPayment(paymentId, { send, configured: () => true });
+      assert.equal(mostAtOnce, 1, "one at a time, so Resend's rate limit isn't hit");
       const ours = sent.filter((m) => m.to.endsWith(`${run}@example.test`)).map((m) => m.to.split(".")[0]).sort();
       assert.deepEqual(ours, ["spe1", "spe2"]);
       assert.match(sent[0].subject, /^Payment to confirm: KES 2,193,200\.00 from Notify Dealer/);

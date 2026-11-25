@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { requireDealer, requireDepot, requireInternal } from "@/lib/session";
 import { canOperateDepot } from "@/lib/access";
-import { applyInternalOrderAction, reviewReturnPath } from "@/lib/orders/internal-order-actions";
+import { applyInternalOrderAction, returnPathAfterReview } from "@/lib/orders/internal-order-actions";
+import { notifySalesOfPayment } from "@/lib/orders/payment-notify";
 import {
   applyDepotAction,
   lookUpMpesaCode,
@@ -71,8 +73,9 @@ export async function paymentAction(_prev: ActionResult, formData: FormData): Pr
   const session = await requireDealer();
   const orderId = String(formData.get("orderId") || "");
   const method = PAYMENT_METHODS.find((m) => m === formData.get("method")) ?? "MANUAL";
+  let paymentId: string;
   try {
-    await submitPayment({
+    ({ paymentId } = await submitPayment({
       orderId,
       actorId: session.user.id,
       dealerOrganizationId: session.user.dealerOrganizationId!,
@@ -82,7 +85,7 @@ export async function paymentAction(_prev: ActionResult, formData: FormData): Pr
       bankAccountNumber: freeText(formData.get("bankAccountNumber")),
       mpesaCode: freeText(formData.get("mpesaCode")),
       note: freeText(formData.get("note")),
-    });
+    }));
   } catch (error) {
     if (error instanceof OrderInputError) return { error: error.message };
     if (error instanceof InvalidOrderTransition || error instanceof StaleOrderTransition) {
@@ -92,6 +95,8 @@ export async function paymentAction(_prev: ActionResult, formData: FormData): Pr
   }
   revalidatePath(`/dealer/orders/${orderId}`);
   revalidatePath("/dealer/dashboard");
+  // After the dealer has their answer: emailing Sales never slows or fails the payment.
+  after(() => notifySalesOfPayment(paymentId));
   return null;
 }
 
@@ -107,13 +112,13 @@ export async function checkMpesaCodeAction(code: string) {
 
 export async function internalOrderAction(formData: FormData) {
   const session = await requireInternal();
-  await applyInternalOrderAction(session.user, formData);
+  const outcome = await applyInternalOrderAction(session.user, formData);
   const orderId = String(formData.get("orderId") || "");
   revalidatePath("/intelligence/retail/orders");
   revalidatePath(`/intelligence/retail/orders/${orderId}`);
   revalidatePath(`/intelligence/retail/orders/${orderId}/payment`);
   // The payment review page sends staff back to the order once they've confirmed or flagged.
-  const back = reviewReturnPath(formData.get("returnTo"), orderId);
+  const back = returnPathAfterReview(outcome, formData.get("returnTo"), orderId);
   if (back) redirect(back);
 }
 

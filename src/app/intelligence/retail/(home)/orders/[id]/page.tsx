@@ -22,7 +22,8 @@ import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
 import { internalOrderAction } from "@/lib/orders/actions";
 import { formatKes } from "@/lib/orders/money";
-import { bankAccountByNumber, centsToAmount, paymentTotals } from "@/lib/orders/payments";
+import { centsToAmount, paymentTotals } from "@/lib/orders/payments";
+import { bankShort } from "@/lib/retail/staff-home";
 import { stageOf, statusLabel } from "@/lib/orders/stages";
 import { paymentSummary, stepCompletionTimes } from "@/lib/orders/staff-views";
 import { dealerTrackerSteps, trackerStepSecondary } from "@/lib/orders/state-machine";
@@ -199,15 +200,16 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                     <span className="sod-action__copy">
                       <span className="sod-action__title">
                         Confirm Payment <span className="sod-pay__count">{openPayments.length} waiting</span>
+                        {openPayments.some((p) => p.odooError) ? <span className="sod-pay__count sod-pay__count--error">Odoo error</span> : null}
                       </span>
                       <span className="sod-action__sub">
                         <b className="sod-pay__amt">{formatKes(waitingTotal)}</b>
                         {openPayments.length === 1
-                          ? ` · ${openPayments[0].method === "MANUAL" ? `Manual · ${bankAccountByNumber(openPayments[0].bankAccountNumber)?.bank.split(" ")[0] ?? "bank"}` : "M-PESA"} · ${shortWhen(openPayments[0].createdAt)}`
+                          ? ` · ${openPayments[0].method === "MANUAL" ? `Manual · ${bankShort(openPayments[0].bankAccountNumber)}` : "M-PESA"} · ${shortWhen(openPayments[0].createdAt)}`
                           : ` · ${openPayments.length} payments`}
                       </span>
                     </span>
-                    <span className="sod-action__cta">Review →</span>
+                    <span className="sod-action__cta">Review <span aria-hidden>→</span></span>
                   </Link>
                 ) : null}
 
@@ -236,7 +238,7 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                     <span className="sod-action__copy">
                       <span className="sod-action__title">Confirm Payment</span>
                       <span className="sod-action__sub">
-                        Waiting for the dealer to pay{pay.due ? ` · Balance ${formatKes(pay.due)}` : ""}
+                        {pay.due ? `Waiting for the dealer to pay · Balance ${formatKes(pay.due)}` : "Available once the PFI is issued and the dealer pays."}
                       </span>
                     </span>
                     <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>

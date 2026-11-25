@@ -1,5 +1,6 @@
 import type { PaymentMethod } from "@prisma/client";
 import { emailDeliveryConfigured, escapeHtml, sendEmail } from "@/lib/email";
+import { canUser } from "@/lib/permissions";
 import { formatKes } from "@/lib/orders/money";
 import { bankAccountByNumber } from "@/lib/orders/payments";
 
@@ -59,7 +60,8 @@ type Deps = {
 
 /**
  * Emails every active Sales Person Executive about a payment a dealer just sent.
- * Best effort: runs after the payment is saved and never throws, so a mail problem can't undo a payment.
+ * Best effort: runs after the dealer's request (next/server `after`) and never throws,
+ * so a slow or failing mail service can't delay or undo a payment.
  */
 export async function notifySalesOfPayment(paymentId: string, deps: Deps = {}): Promise<void> {
   const send = deps.send ?? sendEmail;
@@ -72,10 +74,13 @@ export async function notifySalesOfPayment(paymentId: string, deps: Deps = {}): 
       include: { order: { select: { id: true, reference: true, dealerOrganization: { select: { name: true } } } } },
     });
     if (!payment) return;
-    const recipients = await prisma.user.findMany({
-      where: { role: "SALES_PERSON_EXECUTIVE", status: "ACTIVE", accountType: "INTERNAL" },
-      select: { email: true },
-    });
+    // Active SPEs who may still act on orders (a per-person "deny" on Orders or Retail drops them).
+    const recipients = (
+      await prisma.user.findMany({
+        where: { role: "SALES_PERSON_EXECUTIVE", status: "ACTIVE", accountType: "INTERNAL" },
+        select: { email: true, role: true, accountType: true, permissions: true },
+      })
+    ).filter((u) => canUser(u, "orders", "act"));
     const base = (process.env.NEXTAUTH_URL ?? "http://localhost:3000").replace(/\/$/, "");
     const message = paymentEmail({
       orderReference: payment.order.reference,
@@ -88,9 +93,16 @@ export async function notifySalesOfPayment(paymentId: string, deps: Deps = {}): 
       sentAt: payment.createdAt,
       reviewUrl: `${base}/intelligence/retail/orders/${payment.order.id}/payment`,
     });
-    const results = await Promise.allSettled(recipients.map((r) => send({ to: r.email, ...message })));
-    const failed = results.filter((r) => r.status === "rejected").length;
-    if (failed) console.error(`[payments] ${failed} of ${results.length} payment emails failed for payment ${paymentId}`);
+    // One at a time: Resend limits requests per second, and each person gets their own email.
+    let failed = 0;
+    for (const r of recipients) {
+      try {
+        await send({ to: r.email, ...message });
+      } catch {
+        failed++;
+      }
+    }
+    if (failed) console.error(`[payments] ${failed} of ${recipients.length} payment emails failed for payment ${paymentId}`);
   } catch (error) {
     console.error("[payments] could not email Sales Person Executives", error);
   }

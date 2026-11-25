@@ -10,6 +10,13 @@ export function reviewReturnPath(value: FormDataEntryValue | null, orderId: stri
   return typeof value === "string" && orderId !== "" && value === wanted ? wanted : null;
 }
 
+export type StaffActionOutcome = "done" | "refused" | "odoo-failed";
+
+/** Only a review that went through sends staff back to the order; on an Odoo failure they stay and see why. */
+export function returnPathAfterReview(outcome: StaffActionOutcome, value: FormDataEntryValue | null, orderId: string): string | null {
+  return outcome === "done" ? reviewReturnPath(value, orderId) : null;
+}
+
 /**
  * Staff actions on a dealer order. Plain module, not "use server": the caller must pass the
  * signed-in user (internalOrderAction does), because the actor here is trusted.
@@ -18,7 +25,7 @@ export function reviewReturnPath(value: FormDataEntryValue | null, orderId: stri
 export async function applyInternalOrderAction(
   actor: StaffUser & { id: string; role: string },
   formData: FormData
-): Promise<"done" | "refused"> {
+): Promise<StaffActionOutcome> {
   const orderId = String(formData.get("orderId") || "");
   const action = String(formData.get("action") || "");
 
@@ -38,7 +45,8 @@ export async function applyInternalOrderAction(
   if (action === "confirm-payment" || action === "reject-payment") {
     const note = String(formData.get("note") || "").slice(0, 300);
     const paymentId = String(formData.get("paymentId") || "");
-    await ignoreStaleTransition(() => reviewPayment(paymentId, actor.id, action === "confirm-payment", note));
+    const outcome = await ignoreStaleTransition(() => reviewPayment(paymentId, actor.id, action === "confirm-payment", note));
+    if (outcome === "odoo-failed") return "odoo-failed";
   }
   if (action === "retry-payment-odoo") await retryPaymentOdoo(String(formData.get("paymentId") || ""), actor.id);
   if (action === "release") {

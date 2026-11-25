@@ -21,7 +21,6 @@ import {
   toCents,
 } from "@/lib/orders/payments";
 import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode";
-import { notifySalesOfPayment } from "@/lib/orders/payment-notify";
 import {
   OrderInputError,
   isDepotAction,
@@ -577,7 +576,6 @@ export async function submitPayment(
     meta: { paymentId, method: params.method },
   });
   if (params.method === "MANUAL") await pushPaymentToOdoo(paymentId, odoo);
-  await notifySalesOfPayment(paymentId); // never throws: a mail problem can't undo the payment
   return { paymentId };
 }
 

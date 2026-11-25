@@ -1226,21 +1226,7 @@
   color: var(--so-navy);
 }
 
-
-.sod-pay__mismatch { color: #a1272d; font-weight: 650; }
-.sod-pay__meta { color: var(--so-muted); }
-
 .sod-pay__count { margin-left: auto; padding: 0.1rem 0.5rem; border-radius: 999px; background: #fff7d6; color: #7a5a00; font-size: max(0.75rem, 12px); font-weight: 700; }
-
-
-
-
-
-
-
-
-
-
 
 .sod-fuel {
   margin: 0.25rem 1rem 0.75rem;
@@ -1414,6 +1400,7 @@
 /* ---- Compact Confirm Payment card (order page) ---- */
 .sod-action--pay .sod-action__title { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
 .sod-pay__amt { color: var(--so-navy); font-variant-numeric: tabular-nums; }
+.sod-pay__count--error { margin-left: 0; background: #fde8e6; color: #a5261d; }
 .sod-action__cta {
   flex: none;
   margin-left: auto;
