@@ -19,11 +19,11 @@ const order = (n: number, payments: Partial<WaitingPaymentOrder["payments"][numb
 });
 
 describe("paymentTasks", () => {
-  it("lists one row per order, newest waiting payment first, linking to the order", () => {
+  it("lists one row per order, newest waiting payment first, linking to its payment review page", () => {
     const tasks = paymentTasks([order(1, [{ createdAt: at(1) }]), order(2, [{ createdAt: at(5) }])]);
     assert.deepEqual(tasks.map((t) => t.key), ["pay-o2", "pay-o1"]);
     assert.equal(tasks[0].title, "DO-2026-000002 · Dealer 2 Ltd");
-    assert.equal(tasks[0].actionHref, "/intelligence/retail/orders/o2");
+    assert.equal(tasks[0].actionHref, "/intelligence/retail/orders/o2/payment");
     assert.equal(tasks[0].actionLabel, "Review →");
     assert.equal(tasks[0].badge, "1 waiting");
   });

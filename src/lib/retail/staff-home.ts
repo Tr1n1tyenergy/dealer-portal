@@ -146,7 +146,8 @@ export type WaitingPaymentOrder = {
 const shortKes = (amount: string) =>
   `KES ${Number(amount).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 
-function bankShort(accountNumber: string | null) {
+/** "Equity", "KCB": the bank a manual payment went to, short. */
+export function bankShort(accountNumber: string | null) {
   const word = bankAccountByNumber(accountNumber)?.bank.split(" ")[0] ?? "bank";
   return word.length > 3 ? word[0] + word.slice(1).toLowerCase() : word;
 }
@@ -173,7 +174,7 @@ export function paymentTasks(orders: WaitingPaymentOrder[]): StaffHomeTask[] {
         badge: odooError ? "Odoo error" : `${o.payments.length} waiting`,
         badgeTone: odooError ? "overdue" : "pending",
         actionLabel: "Review →",
-        actionHref: `/intelligence/retail/orders/${o.id}`,
+        actionHref: `/intelligence/retail/orders/${o.id}/payment`,
         actionVariant: "yellow",
         icon: "coins",
       };
