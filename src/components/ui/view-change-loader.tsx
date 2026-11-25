@@ -111,8 +111,11 @@ export function ViewChangeLoader() {
       const nextTop = headerOffset();
       flushSync(() => {
         setTop(nextTop);
-        if (target) setView({ kind: loaderFor(from, target), label: destinationLabel(target) });
-        else if (!wasShowing) setView({ kind: "page", label: destinationLabel(address()) });
+        if (target) {
+          const kind = loaderFor(from, target);
+          setView({ kind, label: destinationLabel(target, kind) });
+        }
+        else if (!wasShowing) setView({ kind: "page", label: destinationLabel(address(), "page") });
         setPending(true);
       });
     };

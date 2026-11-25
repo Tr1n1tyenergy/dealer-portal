@@ -39,7 +39,9 @@ const PAGES: Record<string, string> = {
 };
 
 /** "Retail", "Orders", "Stock Reporting"… for "Opening …" / "Loading …". */
-export function destinationLabel(href: string): string {
+export function destinationLabel(href: string, kind: LoaderKind = "portal"): string {
+  // Inside Retail, its start page is the menu's "Home"; from outside it is the Retail module.
+  if (kind === "page" && pathOf(href).replace(/\/$/, "") === "/intelligence/retail") return "Home";
   const parts = pathOf(href).split("/").filter(Boolean);
   const page = [...parts].reverse().find((p) => PAGES[p]);
   if (page) return PAGES[page];

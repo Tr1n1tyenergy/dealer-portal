@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { usePathname } from "next/navigation";
 import { destinationLabel } from "@/lib/ui/loader-routes";
 import "@/styles/century-gothic.css";
@@ -45,9 +45,15 @@ export function TrinityMark({ size = 104, className }: { size?: number; classNam
 export function PageLoader({ label: given }: { label?: string }) {
   // Route fallbacks (loading.tsx) don't pass a label: name the page from the address being loaded.
   const pathname = usePathname();
-  const label = given ?? destinationLabel(pathname ?? "/");
+  const label = given ?? destinationLabel(pathname ?? "/", "page");
+  // A route fallback under the navigation overlay stays silent, so screen readers hear one "Loading …".
+  const [underOverlay, setUnderOverlay] = useState(false);
+  useEffect(() => {
+    if (!given) setUnderOverlay(Boolean(document.querySelector(".bl-overlay")));
+  }, [given]);
+  const status = underOverlay ? {} : ({ role: "status", "aria-live": "polite", "aria-busy": true } as const);
   return (
-    <div className="bl bl-page" role="status" aria-live="polite" aria-busy="true">
+    <div className="bl bl-page" {...status}>
       <span className="bl-line" aria-hidden="true" />
       <div className="bl-sk-wrap" aria-hidden="true">
         <div className="bl-sk-label">
@@ -68,7 +74,7 @@ export function PageLoader({ label: given }: { label?: string }) {
           <div className="bl-sk" />
         </div>
       </div>
-      <span className="bl-sr">Loading {label}</span>
+      {underOverlay ? null : <span className="bl-sr">Loading {label}</span>}
     </div>
   );
 }

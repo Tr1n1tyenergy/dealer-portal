@@ -31,6 +31,13 @@ describe("which loader a navigation shows", () => {
     assert.equal(destinationLabel("/depot/dashboard"), "Depot Board");
     assert.equal(destinationLabel("/somewhere/odd-thing"), "the page");
   });
+
+  it("calls the staff Retail start page Home inside Retail, as the menu does, and Retail when opening it", () => {
+    assert.equal(destinationLabel("/intelligence/retail", "page"), "Home");
+    assert.equal(destinationLabel("/intelligence/retail?tab=x", "page"), "Home");
+    assert.equal(destinationLabel("/intelligence/retail", "portal"), "Retail");
+    assert.equal(destinationLabel("/intelligence/retail/orders", "page"), "Orders");
+  });
 });
 
 describe("where a page request is going", () => {
