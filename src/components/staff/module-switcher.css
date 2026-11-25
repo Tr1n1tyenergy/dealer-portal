@@ -28,10 +28,16 @@
   outline-offset: 2px;
 }
 
-.msw-mark {
-  width: 2.1rem;
-  height: auto;
+.msw-logo {
+  height: 2rem;
+  width: auto;
   display: block;
+}
+
+.msw-rule {
+  width: 1px;
+  height: 1.9rem;
+  background: rgba(10, 35, 91, 0.12);
 }
 
 .msw-t {
@@ -128,6 +134,12 @@
 }
 
 @media (max-width: 420px) {
+  .msw-logo {
+    height: 1.55rem;
+  }
+  .msw-btn {
+    gap: 0.5rem;
+  }
   .msw-menu {
     width: min(19rem, calc(100vw - 2rem));
   }

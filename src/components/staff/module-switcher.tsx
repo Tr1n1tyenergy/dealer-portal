@@ -38,7 +38,8 @@ export function ModuleSwitcher({ user, current }: { user: StaffUser; current: st
         aria-label={`${label}: switch module`}
         onClick={() => setOpen((v) => !v)}
       >
-        <img src="/assets2/img/trinity-mark.svg" alt="" className="msw-mark" />
+        <img src="/assets2/img/logo.png" alt="Trinity Energy" className="msw-logo" />
+        <span className="msw-rule" aria-hidden />
         <span className="msw-t">
           <small>Trinity Retail Intelligence</small>
           <b>{label}</b>
