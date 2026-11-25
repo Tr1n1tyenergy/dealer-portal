@@ -1,5 +1,5 @@
-import { TrinityWorkspaceLoader } from "@/components/ui/trinity-workspace-loader";
+import { PageLoader } from "@/components/ui/brand-loaders";
 
 export default function Loading() {
-  return <TrinityWorkspaceLoader />;
+  return <PageLoader />;
 }

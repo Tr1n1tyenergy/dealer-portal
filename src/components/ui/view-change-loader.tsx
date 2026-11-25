@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import { TrinityWorkspaceLoader } from "./trinity-workspace-loader";
+import { destinationLabel, loaderFor, rscTarget, type LoaderKind } from "@/lib/ui/loader-routes";
+import { PageLoader, PortalLoader } from "./brand-loaders";
 
 /**
- * Covers the page under the real header from the click until Next commits the next view.
+ * Covers the page under the real header from the click until Next commits the next view:
+ * the portal orbit when the click opens a different portal or module, the page skeleton otherwise.
  * Hover prefetches are ignored, so resting on a link does not bring the screen up.
  */
-type Bridge = { start: () => void; stop: () => void };
+type Bridge = { start: (target?: string) => void; stop: () => void };
 let bridge: Bridge | null = null;
 let fetchPatched = false;
 let historyPatched = false;
@@ -36,7 +38,7 @@ function installFetchWatch() {
   const original = window.fetch.bind(window);
   window.fetch = async (input, init) => {
     if (!isViewNavigation(input, init)) return original(input, init);
-    bridge?.start();
+    bridge?.start(rscTarget(input instanceof Request ? input.url : input, window.location.href));
     try {
       return await original(input, init);
     } finally {
@@ -90,6 +92,7 @@ function address() {
 export function ViewChangeLoader() {
   const [pending, setPending] = useState(false);
   const [top, setTop] = useState(0);
+  const [view, setView] = useState<{ kind: LoaderKind; label: string }>({ kind: "page", label: "the page" });
 
   useEffect(() => {
     let inflight = 0;
@@ -99,13 +102,20 @@ export function ViewChangeLoader() {
     let idle = 0;
     let stuck = 0;
 
-    const show = () => {
+    // `target` is where a click is going; fetches and tab switches don't know, so they keep the page skeleton.
+    const show = (target?: string) => {
+      const wasShowing = showing;
       if (!from) from = address();
       showing = true;
       window.clearTimeout(idle);
       const nextTop = headerOffset();
       flushSync(() => {
         setTop(nextTop);
+        if (target) {
+          const kind = loaderFor(from, target);
+          setView({ kind, label: destinationLabel(target, kind) });
+        }
+        else if (!wasShowing) setView({ kind: "page", label: destinationLabel(address(), "page") });
         setPending(true);
       });
     };
@@ -119,12 +129,13 @@ export function ViewChangeLoader() {
     };
 
     bridge = {
-      start() {
+      start(target) {
         inflight += 1;
         sawFetch = true;
         window.clearTimeout(stuck);
         stuck = window.setTimeout(hide, 12000);
-        show();
+        // A click already chose the loader; a navigation from code (router.push) chooses it from the request.
+        show(showing ? undefined : target);
       },
       stop() {
         inflight = Math.max(0, inflight - 1);
@@ -162,7 +173,8 @@ export function ViewChangeLoader() {
       const target = event.target as Element | null;
       const anchor = target?.closest?.("a[href]");
       if (anchor instanceof HTMLAnchorElement && anchor.getAttribute("role") !== "menuitem" && linkChangesView(anchor)) {
-        show();
+        const url = new URL(anchor.href, window.location.href);
+        show(`${url.pathname}${url.search}`);
         armIdle();
         return;
       }
@@ -193,8 +205,8 @@ export function ViewChangeLoader() {
   if (!pending) return null;
 
   return (
-    <div className="twl-overlay" style={{ top }}>
-      <TrinityWorkspaceLoader />
+    <div className="bl-overlay" style={{ top }}>
+      {view.kind === "portal" ? <PortalLoader label={view.label} /> : <PageLoader label={view.label} />}
     </div>
   );
 }

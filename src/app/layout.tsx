@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { A11Y_HEAD_SCRIPT } from "@/lib/a11y/preferences";
 import { AccessibilityMenu } from "@/components/a11y/accessibility-menu";
+import { SignInSplash } from "@/components/ui/sign-in-splash";
 import { ViewChangeLoader } from "@/components/ui/view-change-loader";
 import "./globals.css";
 
@@ -25,7 +26,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/png" href="/assets2/img/favicons/favicon.png" />
       </head>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <SignInSplash />
+        </AuthProvider>
         <ViewChangeLoader />
         <AccessibilityMenu variant="floating" />
       </body>

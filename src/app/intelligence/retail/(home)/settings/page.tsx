@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { TrinityWorkspaceLoader } from "@/components/ui/trinity-workspace-loader";
+import { PageLoader } from "@/components/ui/brand-loaders";
 import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
@@ -17,7 +17,7 @@ export default function PlatformSettingsPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   return (
-    <Suspense fallback={<TrinityWorkspaceLoader />}>
+    <Suspense fallback={<PageLoader label="Settings" />}>
       <PlatformSettingsContent searchParams={searchParams} />
     </Suspense>
   );

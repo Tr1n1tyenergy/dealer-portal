@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { TrinityWorkspaceLoader } from "@/components/ui/trinity-workspace-loader";
+import { PageLoader } from "@/components/ui/brand-loaders";
 import { requireDealer } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
@@ -24,7 +24,7 @@ export default function MyOrdersPage({
   searchParams: Promise<{ submitted?: string; view?: string | string[]; q?: string | string[] }>;
 }) {
   return (
-    <Suspense fallback={<TrinityWorkspaceLoader />}>
+    <Suspense fallback={<PageLoader label="Orders" />}>
       <MyOrdersContent searchParams={searchParams} />
     </Suspense>
   );
