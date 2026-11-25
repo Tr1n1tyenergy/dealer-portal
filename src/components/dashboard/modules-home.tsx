@@ -2,16 +2,9 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { TrinityLogo } from "@/components/brand/trinity-logo";
 import { SignOutButton } from "@/components/auth/sign-out-button";
-import type { TriModule } from "@/lib/modules";
+import { MODULE_PANEL as PANEL, type TriModule } from "@/lib/modules";
 import "@/styles/century-gothic.css";
 import "./modules-home.css";
-
-/** Panel copy for the modules page; other modules fall back to their own description. */
-const PANEL: Record<string, { title: string; text: string }> = {
-  reports: { title: "Retail", text: "Orders, payments, stations, stock, dealer messages and analytics." },
-  "note-taker": { title: "AI Note Taker", text: "Record a meeting, get notes and actions." },
-  presentations: { title: "Presentations", text: "Notes to deck, present full screen." },
-};
 
 export function ModulesHome({
   greeting,

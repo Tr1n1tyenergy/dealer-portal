@@ -24,6 +24,13 @@ export type TriModule = {
 };
 
 
+/** Short copy for the modules page and the header's module switcher; others use their own description. */
+export const MODULE_PANEL: Record<string, { title: string; text: string }> = {
+  reports: { title: "Retail", text: "Orders, payments, stations, stock, dealer messages and analytics." },
+  "note-taker": { title: "AI Note Taker", text: "Record a meeting, get notes and actions." },
+  presentations: { title: "Presentations", text: "Notes to deck, present full screen." },
+};
+
 /** All TRI modules available in the launcher */
 export const TRI_MODULES: TriModule[] = [
   {
