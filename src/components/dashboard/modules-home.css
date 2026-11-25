@@ -11,7 +11,6 @@
   /* Bottom room for the floating accessibility button (bottom-left, about 62px tall with its offset). */
   padding: 22px 40px 88px;
   color: #fff;
-  font-family: "Century Gothic", "TeX Gyre Adventor", sans-serif;
   background:
     radial-gradient(120% 80% at 85% 0%, rgba(44, 192, 210, 0.3), transparent 55%),
     linear-gradient(180deg, rgba(var(--mh-navy), 0.55) 0%, rgba(var(--mh-navy), 0.8) 45%, rgba(var(--mh-navy), 0.97) 100%),
