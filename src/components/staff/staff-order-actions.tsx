@@ -1,9 +1,5 @@
-"use client";
-
-import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import { useFormStatus } from "react-dom";
-import { ArrowRight, FileText, Landmark, Lock, RefreshCw, Truck, X } from "lucide-react";
+import { ArrowRight, FileText, Landmark, Lock, RefreshCw, Truck } from "lucide-react";
 import { internalOrderAction } from "@/lib/orders/actions";
 
 export type StaffWaitingPayment = {
@@ -13,6 +9,7 @@ export type StaffWaitingPayment = {
   methodKind: "manual" | "mpesa";
   accountLabel: string;
   accountValue: string;
+  accountNumber: string | null;
   refLabel: string;
   refValue: string;
   sentLabel: string;
@@ -24,9 +21,6 @@ export type StaffWaitingPayment = {
 
 export type StaffOrderActionsProps = {
   orderId: string;
-  orderReference: string;
-  pfiNumber: string | null;
-  pfiAmountLabel: string | null;
   mayAct: boolean;
   waiting: StaffWaitingPayment[];
   showPaymentPlaceholder: boolean;
@@ -41,9 +35,6 @@ export type StaffOrderActionsProps = {
 
 export function StaffOrderActions({
   orderId,
-  orderReference,
-  pfiNumber,
-  pfiAmountLabel,
   mayAct,
   waiting,
   showPaymentPlaceholder,
@@ -55,30 +46,6 @@ export function StaffOrderActions({
   pfiAction,
   showDepotNote,
 }: StaffOrderActionsProps) {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const open = waiting.find((payment) => payment.id === openId) ?? null;
-  const titleId = useId();
-  const closeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (openId && !waiting.some((payment) => payment.id === openId)) setOpenId(null);
-  }, [openId, waiting]);
-
-  useEffect(() => {
-    if (!open) return;
-    closeRef.current?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpenId(null);
-    };
-    document.addEventListener("keydown", onKey);
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previous;
-    };
-  }, [open]);
-
   return (
     <div className="sod-actions">
       {!mayAct ? <p className="so-preview__hint">Your role can view this order but not act on it.</p> : null}
@@ -142,20 +109,22 @@ export function StaffOrderActions({
                 <span className={`sod-paycard__method${payment.methodKind === "mpesa" ? " is-mpesa" : ""}`}>
                   {payment.methodLabel}
                 </span>
-                <button
-                  type="button"
+                <Link
+                  href={`/intelligence/retail/orders/${orderId}/payment?payment=${payment.id}`}
                   className="sod-paycard__review"
-                  onClick={() => setOpenId(payment.id)}
                   aria-label={`Review payment of ${payment.amountLabel}`}
                 >
                   Review payment
                   <ArrowRight size={14} strokeWidth={2.4} aria-hidden />
-                </button>
+                </Link>
               </div>
               <dl className="sod-paycard__facts">
                 <div className="sod-paycard__fact">
                   <dt>{payment.accountLabel}</dt>
-                  <dd>{payment.accountValue}</dd>
+                  <dd>
+                    {payment.accountValue}
+                    {payment.accountNumber ? <span className="sod-paycard__num">{payment.accountNumber}</span> : null}
+                  </dd>
                 </div>
                 <div className="sod-paycard__fact">
                   <dt>{payment.refLabel}</dt>
@@ -240,122 +209,6 @@ export function StaffOrderActions({
           This order is with the depot — loading, dispatch and delivery are recorded on the Depot Portal.
         </p>
       ) : null}
-
-      {open ? (
-        <div className="sod-review" role="presentation" onMouseDown={() => setOpenId(null)}>
-          <div
-            className="sod-review__panel"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header className="sod-review__head">
-              <div>
-                <h2 id={titleId}>Review payment</h2>
-                <p>
-                  {orderReference}
-                  {pfiNumber ? ` · PFI ${pfiNumber}` : ""}
-                  {pfiAmountLabel ? ` · ${pfiAmountLabel}` : ""}
-                </p>
-              </div>
-              <button ref={closeRef} type="button" className="sod-review__close" onClick={() => setOpenId(null)} aria-label="Close">
-                <X size={16} />
-              </button>
-            </header>
-
-            <div className="sod-review__amount">
-              <strong>{open.amountLabel}</strong>
-              <span className={`sod-paycard__method${open.methodKind === "mpesa" ? " is-mpesa" : ""}`}>{open.methodLabel}</span>
-            </div>
-
-            <dl className="sod-paycard__facts sod-review__facts">
-              <div className="sod-paycard__fact">
-                <dt>{open.accountLabel}</dt>
-                <dd>{open.accountValue}</dd>
-              </div>
-              <div className="sod-paycard__fact">
-                <dt>{open.refLabel}</dt>
-                <dd>{open.refValue}</dd>
-              </div>
-              <div className="sod-paycard__fact">
-                <dt>Sent</dt>
-                <dd>{open.sentLabel}</dd>
-              </div>
-            </dl>
-
-            {open.dealerNote ? (
-              <p className="sod-review__note">
-                <span>Dealer note</span>
-                {open.dealerNote}
-              </p>
-            ) : null}
-
-            <p className={`sod-review__odoo${open.odooError ? " is-error" : ""}`}>{open.odooText}</p>
-
-            {open.canRetryOdoo ? (
-              <form action={internalOrderAction} className="sod-review__retry">
-                <input type="hidden" name="orderId" value={orderId} />
-                <input type="hidden" name="paymentId" value={open.id} />
-                <button className="so-btn so-btn--line" name="action" value="retry-payment-odoo">
-                  Retry Odoo
-                </button>
-              </form>
-            ) : null}
-
-            <form action={internalOrderAction} className="sod-review__form">
-              <input type="hidden" name="orderId" value={orderId} />
-              <input type="hidden" name="paymentId" value={open.id} />
-              <label className="sod-review__field">
-                <span>Note (optional)</span>
-                <input
-                  type="text"
-                  name="note"
-                  maxLength={300}
-                  placeholder="Add a note for the payment record"
-                  aria-label="Verification note"
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") event.preventDefault();
-                  }}
-                />
-              </label>
-              <ReviewButtons />
-            </form>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function ReviewButtons() {
-  const { pending } = useFormStatus();
-  const [which, setWhich] = useState<"confirm" | "flag" | null>(null);
-
-  useEffect(() => {
-    if (!pending) setWhich(null);
-  }, [pending]);
-
-  return (
-    <div className="sod-review__actions">
-      <button
-        className="so-btn so-btn--gold"
-        name="action"
-        value="confirm-payment"
-        disabled={pending}
-        onClick={() => setWhich("confirm")}
-      >
-        {pending && which === "confirm" ? "Confirming…" : "Confirm payment"}
-      </button>
-      <button
-        className="so-btn so-btn--warn"
-        name="action"
-        value="reject-payment"
-        disabled={pending}
-        onClick={() => setWhich("flag")}
-      >
-        {pending && which === "flag" ? "Flagging…" : "Flag payment"}
-      </button>
     </div>
   );
 }

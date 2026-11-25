@@ -82,6 +82,14 @@ export class MockOdooClient implements OdooClient {
     return { ...payment };
   }
 
+  async writePaymentDraft(id: number): Promise<OdooPaymentState> {
+    return this.setPaymentState(id, "draft");
+  }
+
+  async listCurrencies() {
+    return [{ id: 92, code: "KES" }];
+  }
+
   async postPayment(id: number): Promise<OdooPaymentState> {
     return this.setPaymentState(id, "posted");
   }
@@ -126,6 +134,12 @@ export class UnconfiguredOdooClient implements OdooClient {
     this.fail();
   }
   async createPaymentDraft(): Promise<OdooPaymentState> {
+    this.fail();
+  }
+  async writePaymentDraft(): Promise<OdooPaymentState> {
+    this.fail();
+  }
+  async listCurrencies() {
     this.fail();
   }
   async postPayment(): Promise<OdooPaymentState> {

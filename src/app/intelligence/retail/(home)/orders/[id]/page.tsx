@@ -17,7 +17,7 @@ import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
 import { formatKes } from "@/lib/orders/money";
-import { bankAccountByNumber } from "@/lib/orders/payments";
+import { bankAccountByNumber, centsToAmount, paymentTotals } from "@/lib/orders/payments";
 import { odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
 import { stageOf, statusLabel } from "@/lib/orders/stages";
 import { paymentSummary, stepCompletionTimes } from "@/lib/orders/staff-views";
@@ -66,12 +66,19 @@ const shortWhen = (at: Date | null | undefined) =>
     ? at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" })
     : null;
 
-export default async function StaffOrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function StaffOrderDetailsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ paymentConfirmed?: string; amount?: string; odoo?: string }>;
+}) {
   const session = await requireInternal();
   if (!canUser(session.user, "orders", "view")) redirect("/intelligence/retail");
   const mayAct = canUser(session.user, "orders", "act");
 
   const { id } = await params;
+  const confirmedNotice = await searchParams;
   const order = await prisma.dealerOrder.findUnique({
     where: { id },
     include: {
@@ -94,6 +101,8 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
   const litres = order.lines.reduce((sum, line) => sum + line.quantityLitres, 0);
   const byProduct = order.lines.map((line) => `${line.quantityLitres.toLocaleString("en-US")} L ${line.product}`).join(" · ");
   const pay = paymentSummary(order.proforma?.amount ?? order.amountDue, order.payments);
+  const totals = paymentTotals(order.proforma?.amount ?? order.amountDue, order.payments);
+  const outstanding = totals.balanceCents == null ? "—" : formatKes(centsToAmount(totals.balanceCents));
   const openPayments = order.payments
     .filter((p) => p.status === "SUBMITTED" || p.status === "VERIFICATION")
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
@@ -124,6 +133,13 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
 
       <div className="so-wrap">
         <div className="sod-layout">
+          {confirmedNotice.paymentConfirmed === "odoo" || confirmedNotice.paymentConfirmed === "portal" ? (
+            <p className="spr-notice" role="status">
+              {confirmedNotice.paymentConfirmed === "odoo"
+                ? `Payment receipted${confirmedNotice.amount ? ` · ${confirmedNotice.amount}` : ""}${confirmedNotice.odoo ? ` · Odoo payment ${confirmedNotice.odoo}` : ""}. Outstanding ${outstanding}.`
+                : `Payment confirmed in Trinity${confirmedNotice.amount ? ` · ${confirmedNotice.amount}` : ""}. Automatic receipting is off, so this was not posted to Odoo. Outstanding ${outstanding}.`}
+            </p>
+          ) : null}
           <div className="sod-top">
             <section className="so-card sod-track-card">
               <div className="so-card__head">
@@ -185,9 +201,6 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
               <div className="so-card__head"><span className="so-ico"><Zap size={15} strokeWidth={1.75} /></span> Staff Actions</div>
               <StaffOrderActions
                 orderId={order.id}
-                orderReference={order.reference}
-                pfiNumber={order.proforma?.number ?? null}
-                pfiAmountLabel={order.proforma ? formatKes(order.proforma.amount) : null}
                 mayAct={mayAct}
                 waiting={openPayments.map((payment): StaffWaitingPayment => {
                   const account = bankAccountByNumber(payment.bankAccountNumber);
@@ -200,9 +213,10 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                     accountLabel: manual ? "Account" : "M-PESA code",
                     accountValue: manual
                       ? account
-                        ? `${account.bank.split(" ")[0]} ${account.accountNumber}`
+                        ? account.bank.split(" ")[0]
                         : "Not recorded"
                       : payment.mpesaCode || "Not recorded",
+                    accountNumber: manual && account ? account.accountNumber : null,
                     refLabel: manual ? "Bank ref" : "Paid by",
                     refValue: manual ? payment.bankReference || "Not provided" : payment.mpesaPayer || "Not recorded",
                     sentLabel: when(payment.createdAt) ?? "Not recorded",

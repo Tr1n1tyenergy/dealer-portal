@@ -580,7 +580,11 @@ export async function submitPayment(
 }
 
 /** Creates the Odoo account.payment draft for a manual payment. Never throws: failures land in odooError. */
-export async function pushPaymentToOdoo(paymentId: string, odoo: OdooClient = getOdooClient()): Promise<void> {
+export async function pushPaymentToOdoo(
+  paymentId: string,
+  odoo: OdooClient = getOdooClient(),
+  currencyId?: number
+): Promise<void> {
   if (!odooPaymentsEnabled()) return;
   const payment = await prisma.paymentRecord.findUnique({
     where: { id: paymentId },
@@ -611,6 +615,7 @@ export async function pushPaymentToOdoo(paymentId: string, odoo: OdooClient = ge
       journalId: account.odoo.journalId,
       paymentMethodLineId: account.odoo.paymentMethodLineId,
       partnerBankId: account.odoo.partnerBankId,
+      currencyId,
     });
     // Only the first writer records its draft (a retry racing the dealer's own push).
     await prisma.paymentRecord.updateMany({
@@ -621,6 +626,33 @@ export async function pushPaymentToOdoo(paymentId: string, odoo: OdooClient = ge
     const message = error instanceof Error ? error.message : String(error);
     await prisma.paymentRecord.update({ where: { id: payment.id }, data: { odooError: message.slice(0, 300) } });
   }
+}
+
+/** Puts the staff member's reviewed amount, reference, journal and bank account onto an existing draft. */
+async function writeReviewedDraft(paymentId: string, odoo: OdooClient, currencyId?: number) {
+  const payment = await prisma.paymentRecord.findUnique({
+    where: { id: paymentId },
+    include: { order: { include: { station: true, dealerOrganization: true } } },
+  });
+  const account = bankAccountByNumber(payment?.bankAccountNumber);
+  if (!payment?.odooPaymentId || !account || !payment.bankReference) {
+    throw new Error("This payment has no Odoo draft, Trinity account, or bank reference.");
+  }
+  const { order } = payment;
+  await odoo.writePaymentDraft(payment.odooPaymentId, {
+    idempotencyKey: `payment:${payment.id}`,
+    dealerCode: order.dealerOrganization.code,
+    dealerName: order.dealerOrganization.name,
+    odooPartnerExternalId: order.station.odooPartnerExternalId ?? order.dealerOrganization.odooPartnerExternalId ?? null,
+    odooPartnerId: resolveOdooPartnerId(order.station.odooPartnerId, order.dealerOrganization.odooPartnerId),
+    amount: payment.amount,
+    date: nairobiToday(),
+    reference: payment.bankReference,
+    journalId: account.odoo.journalId,
+    paymentMethodLineId: account.odoo.paymentMethodLineId,
+    partnerBankId: account.odoo.partnerBankId,
+    currencyId,
+  });
 }
 
 export async function retryPaymentOdoo(paymentId: string, actorId: string, odoo: OdooClient = getOdooClient()) {
@@ -638,7 +670,8 @@ export async function reviewPayment(
   actorId: string,
   accept: boolean,
   note?: string,
-  odoo: OdooClient = getOdooClient()
+  odoo: OdooClient = getOdooClient(),
+  options?: { forceReceipt?: boolean; currencyId?: number }
 ): Promise<"done" | "stale" | "odoo-failed"> {
   // Claim the payment first, so two staff pressing Confirm together can't post it twice. A claim older
   // than two minutes was abandoned (the server died mid-way) and may be taken again.
@@ -655,7 +688,7 @@ export async function reviewPayment(
   const release = (data: Prisma.PaymentRecordUpdateInput = {}) =>
     prisma.paymentRecord.update({ where: { id: paymentId }, data: { reviewedAt: null, reviewedById: null, ...data } });
   try {
-    return await reviewClaimedPayment(paymentId, actorId, accept, note, odoo, release);
+    return await reviewClaimedPayment(paymentId, actorId, accept, note, odoo, release, options);
   } catch (error) {
     await release().catch(() => undefined);
     throw error;
@@ -670,25 +703,31 @@ async function reviewClaimedPayment(
   accept: boolean,
   note: string | undefined,
   odoo: OdooClient,
-  release: (data?: Prisma.PaymentRecordUpdateInput) => Promise<unknown>
+  release: (data?: Prisma.PaymentRecordUpdateInput) => Promise<unknown>,
+  options?: { forceReceipt?: boolean; currencyId?: number }
 ): Promise<"done" | "odoo-failed"> {
   const payment = await prisma.paymentRecord.findUniqueOrThrow({ where: { id: paymentId } });
   // Manual payments use Odoo only if they went there (or tried to) while the switch was on: one sent
   // while it was off may already be typed into Odoo by Accounts, so a new draft would count it twice.
   const sentToOdoo = payment.odooPaymentId != null || payment.odooError != null;
+  // forceReceipt is the payment-review page: staff have just checked the mapping and asked to post it,
+  // including a payment that arrived while automatic receipting was off.
   const useOdoo =
     odooPaymentsEnabled() &&
-    (payment.method === "MPESA_CODE" || (payment.method === "MANUAL" && payment.bankAccountNumber != null && sentToOdoo));
+    (payment.method === "MPESA_CODE" ||
+      (payment.method === "MANUAL" && payment.bankAccountNumber != null && (sentToOdoo || options?.forceReceipt === true)));
 
   if (accept && useOdoo) {
     try {
       if (payment.method === "MANUAL") {
         let odooId = payment.odooPaymentId;
         if (odooId == null) {
-          await pushPaymentToOdoo(paymentId, odoo);
+          await pushPaymentToOdoo(paymentId, odoo, options?.currencyId);
           const pushed = await prisma.paymentRecord.findUniqueOrThrow({ where: { id: paymentId } });
           if (pushed.odooPaymentId == null) throw new Error(pushed.odooError ?? "The Odoo draft could not be created.");
           odooId = pushed.odooPaymentId;
+        } else {
+          await writeReviewedDraft(paymentId, odoo, options?.currencyId);
         }
         const posted = await odoo.postPayment(odooId);
         await prisma.paymentRecord.update({ where: { id: paymentId }, data: { odooState: posted.state } });
@@ -759,12 +798,38 @@ async function reviewClaimedPayment(
     }
   }
 
+  const recorded = await prisma.paymentRecord.findUnique({
+    where: { id: paymentId },
+    select: {
+      amount: true,
+      method: true,
+      bankReference: true,
+      bankAccountNumber: true,
+      odooPaymentId: true,
+      odooState: true,
+      order: { select: { reference: true, proforma: { select: { number: true } }, dealerOrganization: { select: { name: true } } } },
+    },
+  });
+  const journal = bankAccountByNumber(recorded?.bankAccountNumber);
   await logActivity({
     actorId,
     action: accept ? "PAYMENT_CONFIRMED" : "PAYMENT_REJECTED",
     entity: "DealerOrder",
     entityId: payment.orderId,
-    meta: { paymentId },
+    meta: {
+      paymentId,
+      dealer: recorded?.order.dealerOrganization.name ?? null,
+      order: recorded?.order.reference ?? null,
+      pfi: recorded?.order.proforma?.number ?? null,
+      amount: recorded?.amount ?? payment.amount,
+      currency: "KES",
+      method: recorded?.method ?? payment.method,
+      bankReference: recorded?.bankReference ?? payment.bankReference,
+      journalId: journal?.odoo.journalId ?? null,
+      odooPaymentId: recorded?.odooPaymentId ?? null,
+      odooState: recorded?.odooState ?? null,
+      outcome: accept ? (useOdoo ? "receipted" : "portal-only") : "flagged",
+    },
   });
   return "done";
 }

@@ -3,9 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { formatKes } from "@/lib/orders/money";
 import { requireDealer, requireDepot, requireInternal } from "@/lib/session";
 import { canOperateDepot } from "@/lib/access";
-import { applyInternalOrderAction, returnPathAfterReview } from "@/lib/orders/internal-order-actions";
+import { applyInternalOrderAction } from "@/lib/orders/internal-order-actions";
 import { notifySalesOfPayment } from "@/lib/orders/payment-notify";
 import {
   applyDepotAction,
@@ -114,12 +116,34 @@ export async function internalOrderAction(formData: FormData) {
   const session = await requireInternal();
   const outcome = await applyInternalOrderAction(session.user, formData);
   const orderId = String(formData.get("orderId") || "");
+  const action = String(formData.get("action") || "");
   revalidatePath("/intelligence/retail/orders");
   revalidatePath(`/intelligence/retail/orders/${orderId}`);
   revalidatePath(`/intelligence/retail/orders/${orderId}/payment`);
-  // The payment review page sends staff back to the order once they've confirmed or flagged.
-  const back = returnPathAfterReview(outcome, formData.get("returnTo"), orderId);
-  if (back) redirect(back);
+  const back = `/intelligence/retail/orders/${orderId}`;
+  if (outcome === "invalid") {
+    const paymentId = String(formData.get("paymentId") || "");
+    redirect(`${back}/payment?payment=${encodeURIComponent(paymentId)}&error=1`);
+  }
+  if (
+    outcome === "done" &&
+    (action === "confirm-payment" || action === "reject-payment") &&
+    String(formData.get("returnTo") || "") === back
+  ) {
+    if (action === "reject-payment") redirect(back);
+    const paymentId = String(formData.get("paymentId") || "");
+    const payment = paymentId
+      ? await prisma.paymentRecord.findUnique({
+          where: { id: paymentId },
+          select: { amount: true, status: true, odooState: true, odooPaymentId: true },
+        })
+      : null;
+    const mode = payment?.status === "CONFIRMED" && payment.odooState === "posted" ? "odoo" : "portal";
+    const query = new URLSearchParams({ paymentConfirmed: mode });
+    if (payment?.amount) query.set("amount", formatKes(payment.amount));
+    if (mode === "odoo" && payment?.odooPaymentId) query.set("odoo", String(payment.odooPaymentId));
+    redirect(`${back}?${query.toString()}`);
+  }
 }
 
 export async function depotOrderAction(formData: FormData) {
