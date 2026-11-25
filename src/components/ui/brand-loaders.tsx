@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { destinationLabel } from "@/lib/ui/loader-routes";
 import "@/styles/century-gothic.css";
@@ -48,7 +48,8 @@ export function PageLoader({ label: given }: { label?: string }) {
   const label = given ?? destinationLabel(pathname ?? "/", "page");
   // A route fallback under the navigation overlay stays silent, so screen readers hear one "Loading …".
   const [underOverlay, setUnderOverlay] = useState(false);
-  useEffect(() => {
+  // Before paint, so screen readers never see two status regions at once.
+  useLayoutEffect(() => {
     if (!given) setUnderOverlay(Boolean(document.querySelector(".bl-overlay")));
   }, [given]);
   const status = underOverlay ? {} : ({ role: "status", "aria-live": "polite", "aria-busy": true } as const);
