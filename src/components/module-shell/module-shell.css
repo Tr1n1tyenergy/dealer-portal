@@ -1,0 +1,83 @@
+.msh {
+  min-height: 100dvh;
+  background: #eef2f8;
+  color: #14244d;
+  font-family: "Century Gothic", "TeX Gyre Adventor", sans-serif;
+}
+
+.msh-head {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: #fff;
+  border-bottom: 1px solid rgba(10, 35, 91, 0.08);
+}
+
+.msh-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 4.25rem;
+  max-width: 105rem;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 2.2vw, 1.75rem);
+}
+
+.msh-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.msh-who {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.msh-av {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: #3853a4;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.msh-out {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(53, 81, 165, 0.18);
+  background: #fff;
+  color: #3853a4;
+  cursor: pointer;
+}
+
+.msh-out:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.msh-main {
+  max-width: 105rem;
+  margin: 0 auto;
+  padding: 1.5rem clamp(1rem, 2.2vw, 1.75rem) 3rem;
+}
+
+@media (max-width: 640px) {
+  .msh-name {
+    display: none;
+  }
+  .msh-main {
+    padding: 1rem 1rem 2.5rem;
+  }
+}
