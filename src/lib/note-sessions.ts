@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { generateStructuredNotes } from "@/lib/notes";
+import { generateStructuredNotes, type MeetingNotes } from "@/lib/notes";
+import { parseJsonObject } from "@/lib/utils";
 
 export async function completeNoteSession(sessionId: string, userId: string) {
   const existing = await prisma.noteSession.findFirst({
@@ -42,4 +43,22 @@ export async function completeNoteSession(sessionId: string, userId: string) {
       notesJson: JSON.stringify(notes),
     },
   });
+}
+
+/** Ticks or unticks one action item on the owner's notes. Returns the ticked indexes, or null if nothing changed. */
+export async function toggleNoteAction(sessionId: string, userId: string, index: number) {
+  const existing = await prisma.noteSession.findFirst({ where: { id: sessionId, userId } });
+  const notes = parseJsonObject<MeetingNotes>(existing?.notesJson ?? null);
+  if (!existing || !notes || !Number.isInteger(index) || index < 0 || index >= (notes.actionItems?.length ?? 0)) {
+    return null;
+  }
+  const done = new Set(notes.doneActions ?? []);
+  if (done.has(index)) done.delete(index);
+  else done.add(index);
+  const doneActions = [...done].sort((a, b) => a - b);
+  await prisma.noteSession.update({
+    where: { id: sessionId },
+    data: { notesJson: JSON.stringify({ ...notes, doneActions }) },
+  });
+  return doneActions;
 }

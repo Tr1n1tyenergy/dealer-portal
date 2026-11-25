@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireInternalApi, jsonError } from "@/lib/api-auth";
-import { completeNoteSession } from "@/lib/note-sessions";
+import { completeNoteSession, toggleNoteAction } from "@/lib/note-sessions";
 import { logActivity } from "@/lib/activity";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
-const patchSchema = z.object({
-  action: z.enum(["start", "pause", "resume", "stop"]),
-});
+const patchSchema = z.union([
+  z.object({ action: z.enum(["start", "pause", "resume", "stop"]) }),
+  z.object({ action: z.literal("toggleAction"), index: z.number().int().min(0).max(500) }),
+]);
 
 export async function GET(
   _req: Request,
@@ -43,6 +44,12 @@ export async function PATCH(
   if (body === undefined) return jsonError(INVALID_JSON, 400);
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError(parsed.error.flatten(), 400);
+
+  if (parsed.data.action === "toggleAction") {
+    const doneActions = await toggleNoteAction(id, auth.session.user.id, parsed.data.index);
+    if (!doneActions) return jsonError("Action not found", 404);
+    return NextResponse.json({ doneActions });
+  }
 
   const existing = await prisma.noteSession.findFirst({
     where: { id, userId: auth.session.user.id },
