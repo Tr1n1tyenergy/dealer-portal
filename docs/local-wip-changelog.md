@@ -149,6 +149,10 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-25 — Odoo client typecheck so production can build
+- The unconfigured Odoo client’s currency list had no return type, so `next build` failed after the payment review merge. It now returns the same currency list type as the live client.
+- File: `src/lib/integrations/odoo/client.ts`.
+
 ### 2026-11-25 — Waiting payment facts share the card width
 - Account, bank reference, and sent date on the Confirm Payment card each take a third of the row instead of sitting together on the left. The bank name and account number stay on one line; the number is set smaller so it fits.
 - File: `src/app/intelligence/retail/staff-orders.css`.

@@ -1,6 +1,7 @@
 import type {
   CreateQuotationInput,
   OdooClient,
+  OdooCurrency,
   OdooMpesaPayment,
   OdooPaymentState,
   OdooQuotation,
@@ -139,7 +140,7 @@ export class UnconfiguredOdooClient implements OdooClient {
   async writePaymentDraft(): Promise<OdooPaymentState> {
     this.fail();
   }
-  async listCurrencies() {
+  async listCurrencies(): Promise<OdooCurrency[]> {
     this.fail();
   }
   async postPayment(): Promise<OdooPaymentState> {
