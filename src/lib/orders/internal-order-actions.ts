@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { generatePfi, releaseToDepot, retryPaymentOdoo, reviewPayment, syncQuotation } from "@/lib/orders/service";
 import { ignoreStaleTransition } from "@/lib/orders/state-machine";
 
+/** After reviewing a payment, staff go back to that order. Only that order's page is accepted. */
+export function reviewReturnPath(value: FormDataEntryValue | null, orderId: string): string | null {
+  const wanted = `/intelligence/retail/orders/${orderId}`;
+  return typeof value === "string" && orderId !== "" && value === wanted ? wanted : null;
+}
+
 /**
  * Staff actions on a dealer order. Plain module, not "use server": the caller must pass the
  * signed-in user (internalOrderAction does), because the actor here is trusted.

@@ -78,7 +78,7 @@ export async function sendEmail(params: {
 
 /** Names are typed by people: show them as text, never as markup. */
 const HTML_ESCAPES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
-function escapeHtml(text: string) {
+export function escapeHtml(text: string) {
   return text.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch]);
 }
 

@@ -173,7 +173,7 @@ export function paymentTasks(orders: WaitingPaymentOrder[]): StaffHomeTask[] {
         badge: odooError ? "Odoo error" : `${o.payments.length} waiting`,
         badgeTone: odooError ? "overdue" : "pending",
         actionLabel: "Review →",
-        actionHref: `/intelligence/retail/orders/${o.id}`,
+        actionHref: `/intelligence/retail/orders/${o.id}/payment`,
         actionVariant: "yellow",
         icon: "coins",
       };

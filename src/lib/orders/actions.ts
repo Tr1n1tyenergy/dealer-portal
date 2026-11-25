@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireDealer, requireDepot, requireInternal } from "@/lib/session";
 import { canOperateDepot } from "@/lib/access";
-import { applyInternalOrderAction } from "@/lib/orders/internal-order-actions";
+import { applyInternalOrderAction, reviewReturnPath } from "@/lib/orders/internal-order-actions";
 import {
   applyDepotAction,
   lookUpMpesaCode,
@@ -108,8 +108,13 @@ export async function checkMpesaCodeAction(code: string) {
 export async function internalOrderAction(formData: FormData) {
   const session = await requireInternal();
   await applyInternalOrderAction(session.user, formData);
+  const orderId = String(formData.get("orderId") || "");
   revalidatePath("/intelligence/retail/orders");
-  revalidatePath(`/intelligence/retail/orders/${String(formData.get("orderId") || "")}`);
+  revalidatePath(`/intelligence/retail/orders/${orderId}`);
+  revalidatePath(`/intelligence/retail/orders/${orderId}/payment`);
+  // The payment review page sends staff back to the order once they've confirmed or flagged.
+  const back = reviewReturnPath(formData.get("returnTo"), orderId);
+  if (back) redirect(back);
 }
 
 export async function depotOrderAction(formData: FormData) {
