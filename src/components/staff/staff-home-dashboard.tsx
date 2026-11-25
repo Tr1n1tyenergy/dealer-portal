@@ -19,6 +19,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import "@/styles/century-gothic.css";
 import "@/app/intelligence/retail/staff-home.css";
 
 export type StaffHomeKpi = {
