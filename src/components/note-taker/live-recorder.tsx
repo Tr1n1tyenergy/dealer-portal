@@ -11,7 +11,7 @@ const COUNTDOWN_TOTAL = 20;
 const clock = (s: number) =>
   `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ""}${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 const WARM: [string, string] = ["#ffca05", "#ed1c24"];
-const COOL: [string, string] = ["#2dc0d1", "#3853a4"];
+const COOL: [string, string] = ["#2dc0d1", "#e6fbfd"]; // cyan into near-white: visible on the blue gradient
 
 function mix([a, b]: [string, string], t: number) {
   const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));

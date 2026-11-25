@@ -62,13 +62,62 @@
   position: relative;
 }
 .ntx .frame.dark {
+  /* brand blue gradient: Trinity blue into cyan, with a soft warm glow behind the mark */
   background:
-    radial-gradient(42% 55% at 12% 4%, rgba(255, 202, 5, 0.16), transparent 70%),
-    radial-gradient(38% 50% at 30% 96%, rgba(237, 28, 36, 0.12), transparent 70%),
-    radial-gradient(48% 60% at 96% 100%, rgba(45, 192, 209, 0.16), transparent 70%),
-    radial-gradient(50% 55% at 88% 0%, rgba(56, 83, 164, 0.38), transparent 70%),
-    radial-gradient(120% 90% at 20% 0%, #16285c 0%, var(--navy) 55%, #08112b 100%);
-  color: #e8eefc;
+    radial-gradient(40% 50% at 22% 40%, rgba(255, 202, 5, 0.14), transparent 70%),
+    radial-gradient(60% 70% at 100% 100%, rgba(45, 192, 209, 0.55), transparent 70%),
+    linear-gradient(135deg, #1b2c66 0%, #3853a4 52%, #2d8fc0 82%, #2dc0d1 100%);
+  color: #fff;
+}
+/* text that sits on the blue gradient stays readable */
+.ntx .dark .n2-back,
+.ntx .dark .limit small,
+.ntx .dark .mic-note,
+.ntx .dark .r3-end,
+.ntx .dark .r3-bar small {
+  color: rgba(255, 255, 255, 0.82);
+}
+.ntx .dark .live,
+.ntx .dark .live.off {
+  color: #fff;
+}
+.ntx .dark .live.off::before {
+  background: rgba(255, 255, 255, 0.7);
+}
+.ntx .dark .r3-side > small {
+  color: rgba(255, 255, 255, 0.78);
+}
+.ntx .dark .r3-list button {
+  color: #f1f5ff;
+}
+.ntx .dark .r3-list button::before {
+  color: rgba(255, 255, 255, 0.6);
+}
+.ntx .dark .r3-list button.on {
+  background: rgba(255, 255, 255, 0.16);
+}
+.ntx .dark .r3-clock {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ntx .dark .n2-cap {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.ntx .dark .n2-next {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.ntx .dark .n2-next ol {
+  color: #f1f5ff;
+}
+.ntx .dark .caps p {
+  opacity: 0.85;
+}
+.ntx .dark .btn.glass {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.ntx .dark .btn.glass:hover {
+  background: rgba(255, 255, 255, 0.24);
 }
 /* brand stripe: warm into cool, like the Trinity mark */
 .ntx .frame.dark::before {
@@ -134,13 +183,7 @@
 .ntx .btn.y {
   background: linear-gradient(100deg, var(--yellow), #ffb000);
 }
-.ntx .dark .btn.glass {
-  background: linear-gradient(100deg, rgba(56, 83, 164, 0.55), rgba(45, 192, 209, 0.35));
-  border-color: rgba(45, 192, 209, 0.45);
-}
-.ntx .dark .btn.glass:hover {
-  background: linear-gradient(100deg, rgba(56, 83, 164, 0.75), rgba(45, 192, 209, 0.5));
-}
+
 .ntx .btn.glass {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.24);
@@ -745,7 +788,7 @@
   animation: ntx-pop 0.45s var(--ease);
 }
 .ntx .n2-time {
-  background: linear-gradient(90deg, var(--yellow), var(--red));
+  background: linear-gradient(90deg, var(--yellow), #f7941d);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -809,8 +852,7 @@
   overflow: hidden;
   padding: 16px 18px 16px 22px;
   border-radius: 14px;
-  background: linear-gradient(120deg, rgba(56, 83, 164, 0.28), rgba(45, 192, 209, 0.08));
-  border: 1px solid rgba(45, 192, 209, 0.22);
+  border: 1px solid;
 }
 .ntx .n2-next::before {
   content: "";
