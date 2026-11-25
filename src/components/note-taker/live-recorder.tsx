@@ -34,7 +34,7 @@ function Radial({ on, analyser }: { on: boolean; analyser: MutableRefObject<Anal
     const draw = (t: number) => {
       const dpr = window.devicePixelRatio || 1;
       const w = cv.clientWidth;
-      if (cv.width !== Math.round(w * dpr)) cv.width = cv.height = Math.round(w * dpr);
+      if (cv.width !== Math.round(w * dpr) || cv.height !== cv.width) cv.width = cv.height = Math.round(w * dpr); // a new canvas is 300x150
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, w);
       const an = live.current ? analyser.current : null;
