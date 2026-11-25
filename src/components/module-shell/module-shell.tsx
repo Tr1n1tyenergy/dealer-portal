@@ -5,7 +5,6 @@ import { LogOut } from "lucide-react";
 import { ModuleSwitcher } from "@/components/staff/module-switcher";
 import { AccessibilityMenu } from "@/components/a11y/accessibility-menu";
 import type { StaffUser } from "@/lib/permissions";
-import "@/styles/century-gothic.css";
 import "./module-shell.css";
 
 /** Light header for the AI Note Taker and Presentations modules, matching the Retail staff header. */
