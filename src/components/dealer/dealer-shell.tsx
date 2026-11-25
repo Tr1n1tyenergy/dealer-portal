@@ -50,7 +50,6 @@ export function DealerShell({
             <span className="dp-topbar__divider" aria-hidden />
             <div className="dp-topbar__title">
               <div className="dp-topbar__kicker">Dealer Portal</div>
-              <div className="dp-topbar__sub">Trinity Retail Intelligence</div>
             </div>
           </div>
 

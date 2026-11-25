@@ -1,0 +1,146 @@
+/* Module switcher: the header brand, and the way back to the modules page (to-do 8.1). */
+.msw {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.msw-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 0.85rem;
+  background: transparent;
+  color: #0a235b;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.msw-btn:hover,
+.msw-btn[aria-expanded="true"] {
+  background: #f3f6fb;
+  border-color: rgba(10, 35, 91, 0.08);
+}
+
+.msw-btn:focus-visible {
+  outline: 2px solid #3853a4;
+  outline-offset: 2px;
+}
+
+.msw-logo {
+  height: 2rem;
+  width: auto;
+  display: block;
+}
+
+.msw-rule {
+  width: 1px;
+  height: 1.9rem;
+  background: rgba(10, 35, 91, 0.12);
+}
+
+.msw-t {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.msw-t small {
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.msw-t b {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.msw-menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  z-index: 70;
+  width: 19rem;
+  padding: 0.4rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid rgba(10, 35, 91, 0.08);
+  box-shadow: 0 1.25rem 3rem rgba(10, 35, 91, 0.16);
+}
+
+.msw-menu a {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.7rem;
+  color: #0a235b;
+  text-decoration: none;
+}
+
+.msw-menu a svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  color: #3853a4;
+}
+
+.msw-menu a span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.msw-menu a b {
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.msw-menu a small {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.msw-menu a:hover,
+.msw-menu a:focus-visible {
+  background: #f3f6fb;
+  outline: none;
+}
+
+.msw-menu a.is-current {
+  background: #fff8db;
+}
+
+.msw-menu .msw-all {
+  margin-bottom: 0.3rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(10, 35, 91, 0.08);
+  border-radius: 0.7rem 0.7rem 0 0;
+}
+
+@media (max-width: 860px) {
+  .msw-t small {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .msw-logo {
+    height: 1.55rem;
+  }
+  .msw-btn {
+    gap: 0.5rem;
+  }
+  .msw-menu {
+    width: min(19rem, calc(100vw - 2rem));
+  }
+}
