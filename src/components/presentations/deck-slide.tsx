@@ -16,7 +16,11 @@ export function DeckSlide({
   return (
     <div className={`sl sl-${theme}`}>
       <div className="sl-in">
-        <img src="/assets2/img/trinity-mark.svg" alt="" className="sl-mark" />
+        <img
+          src={theme === "blue" || theme === "photo" ? "/assets2/img/logo-white.svg" : "/assets2/img/logo-color.svg"}
+          alt=""
+          className="sl-logo"
+        />
         {slide.id === "title" ? (
           <div className="sl-title">
             <small>Trinity Energy · Retail</small>

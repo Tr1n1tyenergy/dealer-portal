@@ -56,6 +56,7 @@ export function PresenterView({ title, slides, theme }: { title: string; slides:
             <ArrowLeft size={15} aria-hidden /> Presentations
           </Link>
         )}
+        <img src="/assets2/img/logo-white.svg" alt="Trinity Energy" className="frame-logo" />
         <b className="r3-title">{title}</b>
         <span className="r3-clock" aria-label="Time presenting">
           <Clock size={15} aria-hidden /> {formatDuration(sec)}

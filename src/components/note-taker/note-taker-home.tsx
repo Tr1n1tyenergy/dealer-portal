@@ -114,6 +114,7 @@ export function NoteTakerHome({ sessions, deckCount, canDecks }: { sessions: Not
       <section className="tile t-hero" onPointerMove={spot}>
         <div className="t-photo" aria-hidden />
         <div className="t-hero-c">
+          <img src="/assets2/img/logo-white.svg" alt="Trinity Energy" className="t-logo" />
           <span className="eyebrow y">AI Note Taker</span>
           <h1>Meetings, written up for you</h1>
           <p>Record a meeting and get a summary, decisions and action items.</p>

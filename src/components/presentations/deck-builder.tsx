@@ -12,7 +12,7 @@ import "@/components/note-taker/note-taker-ui.css";
 export type BuilderNotes = { id: string; name: string; when: string; notes: MeetingNotes };
 const LOOKS = [
   ["light", "Light"],
-  ["navy", "Navy"],
+  ["blue", "Blue"],
   ["photo", "Station photo"],
   ["warm", "Warm"],
 ] as const;

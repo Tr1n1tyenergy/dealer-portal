@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { generatePresentationSlides, type DeckSection, type MeetingNotes } from "@/lib/notes";
 import { parseJsonObject } from "@/lib/utils";
 
-export const DECK_THEMES = ["light", "navy", "photo", "warm"] as const;
+export const DECK_THEMES = ["light", "blue", "photo", "warm"] as const;
 export type DeckTheme = (typeof DECK_THEMES)[number];
 
 /**

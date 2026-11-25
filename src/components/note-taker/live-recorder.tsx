@@ -176,9 +176,12 @@ export function LiveRecorder({ session, startNow }: { session: Session; startNow
     <div className="frame dark n2-frame">
       <div className="n2">
         <section className="n2-vis">
-          <Link href="/intelligence/note-taker" className="n2-back">
-            <ArrowLeft size={15} aria-hidden /> Note Taker
-          </Link>
+          <div className="n2-top">
+            <Link href="/intelligence/note-taker" className="n2-back">
+              <ArrowLeft size={15} aria-hidden /> Note Taker
+            </Link>
+            <img src="/assets2/img/logo-white.svg" alt="Trinity Energy" className="frame-logo" />
+          </div>
           <div className="n2-ring">
             <Radial on={status === "RECORDING" || status === "COUNTDOWN"} analyser={analyser} />
             <span className="n2-mark">{center}</span>

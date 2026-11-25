@@ -71,6 +71,7 @@ export function DecksHome({ decks, waiting, monthCount }: { decks: DeckRow[]; wa
       <section className="tile r9-new">
         {newest ? (
           <>
+            <img src="/assets2/img/logo-white.svg" alt="" className="t-logo" />
             <span className="eyebrow y">Notes ready · {format(new Date(newest.when), "d MMM")}</span>
             <h3>{newest.name}</h3>
             <p>Turn these notes into a deck.</p>
@@ -80,6 +81,7 @@ export function DecksHome({ decks, waiting, monthCount }: { decks: DeckRow[]; wa
           </>
         ) : (
           <>
+            <img src="/assets2/img/logo-white.svg" alt="" className="t-logo" />
             <span className="eyebrow y">All caught up</span>
             <h3>Every finished meeting has a deck</h3>
             <Link className="btn glass" href="/intelligence/note-taker">

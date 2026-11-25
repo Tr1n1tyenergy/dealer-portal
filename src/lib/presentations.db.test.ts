@@ -53,9 +53,9 @@ describe(
 
     it("a deck keeps the chosen sections, presenter and look", async () => {
       const s = await session(userId);
-      const r = await createDeck({ userId, isAdmin: false, defaultPresenter: "T owner" }, { noteSessionId: s.id, presenter: "Wanjiru Kamau", sections: ["decisions", "risks"], theme: "navy" });
+      const r = await createDeck({ userId, isAdmin: false, defaultPresenter: "T owner" }, { noteSessionId: s.id, presenter: "Wanjiru Kamau", sections: ["decisions", "risks"], theme: "blue" });
       assert.ok(r.presentation);
-      assert.equal(r.presentation.theme, "navy");
+      assert.equal(r.presentation.theme, "blue");
       assert.equal(r.presentation.presenter, "Wanjiru Kamau");
       assert.deepEqual(JSON.parse(r.presentation.slidesJson).map((x: { id: string }) => x.id), ["title", "decisions", "risks"]);
     });
