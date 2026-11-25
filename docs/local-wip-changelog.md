@@ -149,6 +149,12 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-25 — Staff order tracking and staff actions match the approved layout
+- The order details page keeps the same two panels over the hero. Order Tracking is about 69% of the row and Staff Actions about 31%, and both cards share one height.
+- The tracker uses the six live stages, with blue checks, a yellow current step, and pending steps. Confirm Payment shows the amount, method, and three payment facts, and Review payment opens the existing confirm and flag step instead of receipting from the card.
+- Release to Depot stays locked until payment is confirmed, then uses the existing depot release.
+- Files: `src/app/intelligence/retail/(home)/orders/[id]/page.tsx`, `src/components/staff/staff-order-actions.tsx`, `src/app/intelligence/retail/staff-orders.css`.
+
 ### 2026-11-24 — Laptop layouts match the 13.3-inch screen
 - Shorter laptop windows were cropping the forecourt hero and shrinking type. Hero height, type, and spacing now follow width only, so a short 14-inch window keeps the same photo crop as the 13.3-inch Mac.
 - Orders, Analytics, Messages, Support, stock reporting, dealer dashboard, and the other laptop pages keep that Mac column layout down to tablet width. They stack at 1024px and below, as before.
