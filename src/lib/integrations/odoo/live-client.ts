@@ -429,7 +429,7 @@ export class LiveOdooClient implements OdooClient {
         partner_type: "customer",
         partner_id: partnerId,
         amount,
-        currency_id: ODOO_KES_CURRENCY_ID,
+        currency_id: input.currencyId ?? ODOO_KES_CURRENCY_ID,
         date: input.date,
         ref: input.reference,
         journal_id: input.journalId,
@@ -438,6 +438,37 @@ export class LiveOdooClient implements OdooClient {
       },
     ]);
     return { id, state: "draft" };
+  }
+
+  async writePaymentDraft(id: number, input: PaymentDraftInput): Promise<OdooPaymentState> {
+    this.assertPaymentsEnabled();
+    const before = await this.paymentState(id);
+    if (before.state !== "draft") return before;
+    await this.execute(M.payment, "write", [
+      [id],
+      {
+        amount: Number(input.amount),
+        currency_id: input.currencyId ?? ODOO_KES_CURRENCY_ID,
+        date: input.date,
+        ref: input.reference,
+        journal_id: input.journalId,
+        payment_method_line_id: input.paymentMethodLineId,
+        partner_bank_id: input.partnerBankId,
+      },
+    ]);
+    return this.paymentState(id);
+  }
+
+  async listCurrencies() {
+    const rows = await this.execute<Array<{ id: number; name: string }>>(
+      "res.currency",
+      "search_read",
+      [[["active", "=", true]]],
+      { fields: ["name"], limit: 40 }
+    );
+    const list = rows.map((row) => ({ id: row.id, code: row.name }));
+    if (!list.some((row) => row.id === ODOO_KES_CURRENCY_ID)) list.unshift({ id: ODOO_KES_CURRENCY_ID, code: "KES" });
+    return list;
   }
 
   /** The draft's Confirm button (account.payment.action_post); the caller checks the state is "posted". */

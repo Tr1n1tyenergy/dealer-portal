@@ -149,6 +149,43 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-25 — Waiting payment facts share the card width
+- Account, bank reference, and sent date on the Confirm Payment card each take a third of the row instead of sitting together on the left. The bank name and account number stay on one line; the number is set smaller so it fits.
+- File: `src/app/intelligence/retail/staff-orders.css`.
+
+### 2026-11-25 — Review payment pulses while a payment is waiting
+- The staff Review payment button uses the same gold glow and pulse as the dealer Pay for this PFI button. It only renders when a payment is waiting to be confirmed.
+- File: `src/app/intelligence/retail/staff-orders.css`.
+
+### 2026-11-25 — Receipt dropdowns keep the arrow beside the value
+- Currency and Journal keep the choice on the right with the other mapping rows, and the dropdown arrow sits immediately to the right of that value.
+- Files: `src/components/staff/payment-review-editor.tsx`, `src/app/intelligence/retail/staff-orders.css`.
+
+### 2026-11-25 — Receipt mapping fields can be edited before confirm
+- Amount, currency, bank reference and journal can be changed on the receipt page. Internal transfer stays No, payment type stays Receive, the customer stays the dealer who paid, the date stays the day the receipt is created, and the method stays Manual. The company bank account follows the journal. The left payment details follow those choices.
+- Confirming from this page, once automatic receipting is on, posts this payment even if it was submitted while receipting was off. The switch itself stays off until `ODOO_PAYMENTS_LIVE=1`.
+- Files: `src/components/staff/payment-review-editor.tsx`, `src/app/intelligence/retail/(home)/orders/[id]/payment/page.tsx`, `src/lib/orders/receipt-preview.ts`, `src/lib/orders/service.ts`, `src/lib/orders/internal-order-actions.ts`, `src/lib/integrations/odoo/live-client.ts`, `src/lib/integrations/odoo/types.ts`, `src/lib/integrations/odoo/client.ts`.
+
+### 2026-11-25 — Payment review type matches the receipt mockup
+- On the payment review page, only the payment amount stays bold. The other payment rows and the Odoo mapping values use a regular weight, with labels in a quiet column and the mapping rows evenly spaced.
+- File: `src/app/intelligence/retail/staff-orders.css`.
+
+### 2026-11-25 — View-change loader no longer updates state inside useInsertionEffect
+- Next writes the new address from `useInsertionEffect`. The loader was hiding itself in that same turn, which React reports as “useInsertionEffect must not schedule updates.” The hide now runs on the next microtask.
+- File: `src/components/ui/view-change-loader.tsx`.
+
+### 2026-11-25 — Payment review page
+- Review payment on an order now opens a full Payment Review & Accounting Receipt page. The small review modal is no longer the review step. Cancel and Back return to the order without changing the payment. Flag payment stays on the page.
+- The mapping table is the same account.payment preview the existing writer would send: inbound customer receipt, the payment amount (not the PFI total), the journal and company bank account for the account the dealer paid, and the dealer’s bank reference in Odoo’s `ref` field. Equity and KCB stay on their own journals.
+- Automatic receipting stays off. Live Odoo is connected, and `ODOO_PAYMENTS_LIVE` is not set, so confirming still updates Trinity only and says so. No Odoo payment is created from this page while that switch is off.
+- Files: `src/app/intelligence/retail/(home)/orders/[id]/payment/page.tsx`, `src/lib/orders/receipt-preview.ts`, `src/components/staff/staff-order-actions.tsx`, `src/components/staff/pending-submit.tsx`, `src/lib/orders/actions.ts`, `src/lib/orders/internal-order-actions.ts`, `src/lib/orders/service.ts`, `src/app/intelligence/retail/(home)/orders/[id]/page.tsx`, `src/app/intelligence/retail/staff-orders.css`.
+
+### 2026-11-25 — Staff order tracking and staff actions match the approved layout
+- The order details page keeps the same two panels over the hero. Order Tracking is about 69% of the row and Staff Actions about 31%, and both cards share one height.
+- The tracker uses the six live stages, with blue checks, a yellow current step, and pending steps. Confirm Payment shows the amount, method, and three payment facts, and Review payment opens the existing confirm and flag step instead of receipting from the card.
+- Release to Depot stays locked until payment is confirmed, then uses the existing depot release.
+- Files: `src/app/intelligence/retail/(home)/orders/[id]/page.tsx`, `src/components/staff/staff-order-actions.tsx`, `src/app/intelligence/retail/staff-orders.css`.
+
 ### 2026-11-24 — Laptop layouts match the 13.3-inch screen
 - Shorter laptop windows were cropping the forecourt hero and shrinking type. Hero height, type, and spacing now follow width only, so a short 14-inch window keeps the same photo crop as the 13.3-inch Mac.
 - Orders, Analytics, Messages, Support, stock reporting, dealer dashboard, and the other laptop pages keep that Mac column layout down to tablet width. They stack at 1024px and below, as before.

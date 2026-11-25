@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
-  ArrowRight,
   Building2,
   Calendar,
   Check,
@@ -10,24 +9,21 @@ import {
   Fuel,
   Landmark,
   Layers,
-  Lock,
   MapPin,
-  RefreshCw,
   Truck,
-  Warehouse,
   Zap,
 } from "lucide-react";
 import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
-import { internalOrderAction } from "@/lib/orders/actions";
 import { formatKes } from "@/lib/orders/money";
-import { centsToAmount, paymentTotals } from "@/lib/orders/payments";
-import { bankShort } from "@/lib/retail/staff-home";
+import { bankAccountByNumber, centsToAmount, paymentTotals } from "@/lib/orders/payments";
+import { odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
 import { stageOf, statusLabel } from "@/lib/orders/stages";
 import { paymentSummary, stepCompletionTimes } from "@/lib/orders/staff-views";
 import { dealerTrackerSteps, trackerStepSecondary } from "@/lib/orders/state-machine";
 import { StaffOrderDetailGrid } from "@/components/staff/staff-order-bottom-row";
+import { StaffOrderActions, type StaffWaitingPayment } from "@/components/staff/staff-order-actions";
 import "@/app/intelligence/retail/staff-orders.css";
 
 export const maxDuration = 60;
@@ -44,17 +40,45 @@ const when = (at: Date | null | undefined, withTime = true) =>
     : null;
 
 /** "2 Nov, 15:01" — short enough for tracker columns. */
+/** The Odoo line on a waiting payment in the Confirm Payment card. */
+function odooLine(
+  payment: {
+    method: string;
+    odooState: string | null;
+    odooError: string | null;
+    odooPaymentId: number | null;
+    bankAccountNumber: string | null;
+  },
+  odooOn: boolean,
+  bank: string | undefined
+) {
+  if (payment.odooError) return `Odoo: ${payment.odooError}`;
+  if (payment.method === "MPESA_CODE") return "Already posted in Odoo (M-PESA). Confirming links it, no new entry.";
+  if (!odooOn) return "Odoo payments are off: Accounts records this in Odoo.";
+  if (!payment.bankAccountNumber) return "Sent before Odoo payments: confirming is portal-only.";
+  if (payment.odooPaymentId == null) return "Sent while Odoo payments were off: confirming is portal-only.";
+  if (payment.odooState === "draft") return `Draft created in Odoo · ${bank ?? "bank"} journal · Manual`;
+  return "Not in Odoo yet.";
+}
+
 const shortWhen = (at: Date | null | undefined) =>
   at
     ? at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" })
     : null;
 
-export default async function StaffOrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function StaffOrderDetailsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ paymentConfirmed?: string; amount?: string; odoo?: string }>;
+}) {
   const session = await requireInternal();
   if (!canUser(session.user, "orders", "view")) redirect("/intelligence/retail");
   const mayAct = canUser(session.user, "orders", "act");
 
   const { id } = await params;
+  const confirmedNotice = await searchParams;
   const order = await prisma.dealerOrder.findUnique({
     where: { id },
     include: {
@@ -77,11 +101,12 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
   const litres = order.lines.reduce((sum, line) => sum + line.quantityLitres, 0);
   const byProduct = order.lines.map((line) => `${line.quantityLitres.toLocaleString("en-US")} L ${line.product}`).join(" · ");
   const pay = paymentSummary(order.proforma?.amount ?? order.amountDue, order.payments);
+  const totals = paymentTotals(order.proforma?.amount ?? order.amountDue, order.payments);
+  const outstanding = totals.balanceCents == null ? "—" : formatKes(centsToAmount(totals.balanceCents));
   const openPayments = order.payments
     .filter((p) => p.status === "SUBMITTED" || p.status === "VERIFICATION")
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-  const paymentHref = `/intelligence/retail/orders/${order.id}/payment`;
-  const waitingTotal = centsToAmount(paymentTotals(null, openPayments).waitingCents);
+  const odooPayments = odooPaymentsEnabled();
   const contact = order.dealerOrganization.users[0] ?? null;
   const depots = mayAct && order.status === "PAYMENT_CONFIRMED" ? await prisma.depot.findMany({ orderBy: { name: "asc" } }) : [];
   const actorName = (actor: { firstName: string | null; lastName: string | null } | null) =>
@@ -108,10 +133,17 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
 
       <div className="so-wrap">
         <div className="sod-layout">
+          {confirmedNotice.paymentConfirmed === "odoo" || confirmedNotice.paymentConfirmed === "portal" ? (
+            <p className="spr-notice" role="status">
+              {confirmedNotice.paymentConfirmed === "odoo"
+                ? `Payment receipted${confirmedNotice.amount ? ` · ${confirmedNotice.amount}` : ""}${confirmedNotice.odoo ? ` · Odoo payment ${confirmedNotice.odoo}` : ""}. Outstanding ${outstanding}.`
+                : `Payment confirmed in Trinity${confirmedNotice.amount ? ` · ${confirmedNotice.amount}` : ""}. Automatic receipting is off, so this was not posted to Odoo. Outstanding ${outstanding}.`}
+            </p>
+          ) : null}
           <div className="sod-top">
             <section className="so-card sod-track-card">
               <div className="so-card__head">
-                <span className="so-ico"><Truck size={15} /></span>
+                <span className="so-ico"><Truck size={15} strokeWidth={1.75} /></span>
                 <span id="tracking">Order Tracking</span>
                 <span className="so-spacer sod-stagebadge">
                   {tracker.stopped ? "Stopped" : `Stage ${Math.min(stageNumber, tracker.steps.length)} of ${tracker.steps.length}`}
@@ -166,100 +198,51 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
             </section>
 
             <section className="so-card sod-actions-card">
-              <div className="so-card__head"><span className="so-ico"><Zap size={15} /></span> Staff Actions</div>
-              <div className="sod-actions">
-                {!mayAct ? <p className="so-preview__hint" style={{ margin: 0 }}>Your role can view this order but not act on it.</p> : null}
-
-                {mayAct && (order.status === "ODOO_SYNC_FAILED" || order.status === "ODOO_SYNC_PENDING") ? (
-                  <div className="sod-action sod-action--ready">
-                    <div className="sod-action__title"><RefreshCw size={15} /> Retry Odoo sync</div>
-                    {order.odooSyncError ? <div className="sod-action__sub">Last attempt: {order.odooSyncError}</div> : null}
-                    <form action={internalOrderAction}>
-                      <input type="hidden" name="orderId" value={order.id} />
-                      <button className="so-btn so-btn--gold" name="action" value="retry-sync">Retry sync</button>
-                    </form>
-                  </div>
-                ) : null}
-
-                {mayAct && (order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" || order.status === "PFI_ISSUED") ? (
-                  <div className="sod-action sod-action--ready">
-                    <div className="sod-action__title"><FileText size={15} /> {order.status === "PFI_ISSUED" ? "Finish PFI" : "Generate PFI"}</div>
-                    <div className="sod-action__sub">Issue the pro forma invoice so the dealer can pay.</div>
-                    <form action={internalOrderAction}>
-                      <input type="hidden" name="orderId" value={order.id} />
-                      <button className="so-btn so-btn--gold" name="action" value="generate-pfi">
-                        {order.status === "PFI_ISSUED" ? "Finish PFI" : "Generate PFI"}
-                      </button>
-                    </form>
-                  </div>
-                ) : null}
-
-                {mayAct && openPayments.length > 0 ? (
-                  <Link href={paymentHref} className="sod-action sod-action--ready sod-action--link sod-action--pay">
-                    <span className="sod-action__ico" aria-hidden><Landmark size={16} strokeWidth={1.9} /></span>
-                    <span className="sod-action__copy">
-                      <span className="sod-action__title">
-                        Confirm Payment <span className="sod-pay__count">{openPayments.length} waiting</span>
-                        {openPayments.some((p) => p.odooError) ? <span className="sod-pay__count sod-pay__count--error">Odoo error</span> : null}
-                      </span>
-                      <span className="sod-action__sub">
-                        <b className="sod-pay__amt">{formatKes(waitingTotal)}</b>
-                        {openPayments.length === 1
-                          ? ` · ${openPayments[0].method === "MANUAL" ? `Manual · ${bankShort(openPayments[0].bankAccountNumber)}` : "M-PESA"} · ${shortWhen(openPayments[0].createdAt)}`
-                          : ` · ${openPayments.length} payments`}
-                      </span>
-                    </span>
-                    <span className="sod-action__cta">Review <span aria-hidden>→</span></span>
-                  </Link>
-                ) : null}
-
-                {mayAct && order.status === "PAYMENT_CONFIRMED" ? (
-                  <div className="sod-action sod-action--ready">
-                    <div className="sod-action__title">
-                      <Warehouse size={15} /> Release to Depot
-                      <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>
-                    </div>
-                    <div className="sod-action__sub">Payment confirmed — choose the depot that will load this order.</div>
-                    <form action={internalOrderAction}>
-                      <input type="hidden" name="orderId" value={order.id} />
-                      <select name="depotId" defaultValue={depots[0]?.id} aria-label="Depot">
-                        {depots.map((depot) => (
-                          <option key={depot.id} value={depot.id}>{depot.name}</option>
-                        ))}
-                      </select>
-                      <button className="so-btn so-btn--blue" name="action" value="release">Release to depot</button>
-                    </form>
-                  </div>
-                ) : null}
-
-                {mayAct && !tracker.stopped && stageNumber <= 3 && order.status !== "PAYMENT_CONFIRMED" && openPayments.length === 0 ? (
-                  <Link href={paymentHref} className="sod-action sod-action--ready sod-action--link">
-                    <span className="sod-action__ico" aria-hidden><Landmark size={16} strokeWidth={1.9} /></span>
-                    <span className="sod-action__copy">
-                      <span className="sod-action__title">Confirm Payment</span>
-                      <span className="sod-action__sub">
-                        {pay.due ? `Waiting for the dealer to pay · Balance ${formatKes(pay.due)}` : "Available once the PFI is issued and the dealer pays."}
-                      </span>
-                    </span>
-                    <span className="sod-action__go" aria-hidden><ArrowRight size={14} strokeWidth={2.4} /></span>
-                  </Link>
-                ) : null}
-                {mayAct && !tracker.stopped && stageNumber <= 3 ? (
-                  <Link href="/intelligence/retail/orders?stage=depot" className="sod-action sod-action--locked sod-action--link">
-                    <span className="sod-action__ico" aria-hidden><Warehouse size={16} strokeWidth={1.9} /></span>
-                    <span className="sod-action__copy">
-                      <span className="sod-action__title">Release to Depot</span>
-                      <span className="sod-action__sub">Available after payment confirmation. See orders already at the depot.</span>
-                    </span>
-                    <span className="sod-action__go" aria-hidden><Lock size={13} strokeWidth={2.2} /></span>
-                  </Link>
-                ) : null}
-                {mayAct && stageNumber > 3 && !tracker.stopped ? (
-                  <p className="so-preview__hint" style={{ margin: 0 }}>
-                    This order is with the depot — loading, dispatch and delivery are recorded on the Depot Portal.
-                  </p>
-                ) : null}
-              </div>
+              <div className="so-card__head"><span className="so-ico"><Zap size={15} strokeWidth={1.75} /></span> Staff Actions</div>
+              <StaffOrderActions
+                orderId={order.id}
+                mayAct={mayAct}
+                waiting={openPayments.map((payment): StaffWaitingPayment => {
+                  const account = bankAccountByNumber(payment.bankAccountNumber);
+                  const manual = payment.method !== "MPESA_CODE";
+                  return {
+                    id: payment.id,
+                    amountLabel: formatKes(payment.amount),
+                    methodLabel: manual ? "Manual" : "M-PESA",
+                    methodKind: manual ? "manual" : "mpesa",
+                    accountLabel: manual ? "Account" : "M-PESA code",
+                    accountValue: manual
+                      ? account
+                        ? account.bank.split(" ")[0]
+                        : "Not recorded"
+                      : payment.mpesaCode || "Not recorded",
+                    accountNumber: manual && account ? account.accountNumber : null,
+                    refLabel: manual ? "Bank ref" : "Paid by",
+                    refValue: manual ? payment.bankReference || "Not provided" : payment.mpesaPayer || "Not recorded",
+                    sentLabel: when(payment.createdAt) ?? "Not recorded",
+                    dealerNote: payment.note,
+                    odooText: odooLine(payment, odooPayments, account?.bank),
+                    odooError: Boolean(payment.odooError),
+                    canRetryOdoo: Boolean(payment.odooError && payment.method === "MANUAL" && payment.odooPaymentId == null),
+                  };
+                })}
+                showPaymentPlaceholder={
+                  mayAct && !tracker.stopped && stageNumber <= 3 && order.status !== "PAYMENT_CONFIRMED" && openPayments.length === 0
+                }
+                showLockedRelease={mayAct && !tracker.stopped && stageNumber <= 3}
+                releaseReady={mayAct && order.status === "PAYMENT_CONFIRMED"}
+                depots={depots.map((depot) => ({ id: depot.id, name: depot.name }))}
+                showSync={mayAct && (order.status === "ODOO_SYNC_FAILED" || order.status === "ODOO_SYNC_PENDING")}
+                syncError={order.odooSyncError}
+                pfiAction={
+                  mayAct && (order.status === "QUOTATION_READY" || order.status === "PFI_PENDING" || order.status === "PFI_ISSUED")
+                    ? order.status === "PFI_ISSUED"
+                      ? "finish"
+                      : "generate"
+                    : null
+                }
+                showDepotNote={mayAct && stageNumber > 3 && !tracker.stopped}
+              />
             </section>
           </div>
 
@@ -296,7 +279,7 @@ export default async function StaffOrderDetailsPage({ params }: { params: Promis
                   </section>
                 </div>
 
-                <section className="so-card sod-pay-card">
+                <section className="so-card sod-pay-card" id="payment">
                   <div className="so-card__head"><span className="so-ico"><Layers size={15} /></span> Payment Summary</div>
                   <div className="sod-summary">
                     <div className="sod-summary__cell">

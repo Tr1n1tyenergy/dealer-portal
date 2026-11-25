@@ -1,226 +1,189 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, Building2, Landmark, MapPin } from "lucide-react";
+import { ArrowLeft, Building2, MapPin } from "lucide-react";
+import { PaymentReviewEditor } from "@/components/staff/payment-review-editor";
+import { resolveOdooPartnerId } from "@/lib/dealers/registry";
+import { getOdooClient } from "@/lib/integrations/odoo/client";
+import { ODOO_KES_CURRENCY_ID, odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
+import { nairobiToday } from "@/lib/orders/order-input";
+import { formatKes } from "@/lib/orders/money";
+import { buildReceiptPreview, receiptJournals } from "@/lib/orders/receipt-preview";
+import { bankAccountByNumber, paymentTotals, toCents } from "@/lib/orders/payments";
 import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
-import { internalOrderAction } from "@/lib/orders/actions";
-import { formatKes } from "@/lib/orders/money";
-import { bankAccountByNumber, centsToAmount, paymentTotals } from "@/lib/orders/payments";
-import { odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
-import { stageOf, statusLabel } from "@/lib/orders/stages";
 import "@/app/intelligence/retail/staff-orders.css";
 
-// Confirm and Retry Odoo run from this page and can call Odoo twice (draft, then post).
 export const maxDuration = 60;
 
 const when = (at: Date | null | undefined) =>
   at
-    ? at.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Nairobi" })
-    : "—";
+    ? at.toLocaleString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Africa/Nairobi",
+      })
+    : "Not recorded";
 
-const STATUS: Record<string, { label: string; tone: string }> = {
-  SUBMITTED: { label: "Waiting for Trinity", tone: "wait" },
-  VERIFICATION: { label: "Waiting for Trinity", tone: "wait" },
-  CONFIRMED: { label: "Confirmed", tone: "ok" },
-  REJECTED: { label: "Flagged", tone: "flag" },
-};
-
-/** What Odoo knows about a waiting payment. */
-function odooLine(
-  payment: { method: string; odooState: string | null; odooError: string | null; odooPaymentId: number | null; bankAccountNumber: string | null },
-  odooOn: boolean,
-  bank: string | undefined
-) {
-  if (payment.odooError) return `Odoo: ${payment.odooError}`;
-  if (payment.method === "MPESA_CODE") return "Already posted in Odoo (M-PESA). Confirming links it, no new entry.";
-  if (!odooOn) return "Odoo payments are off: Accounts records this in Odoo.";
-  if (!payment.bankAccountNumber) return "Sent before Odoo payments: confirming is portal-only.";
-  if (payment.odooPaymentId == null) return "Sent while Odoo payments were off: confirming is portal-only.";
-  if (payment.odooState === "draft") return `Draft created in Odoo · ${bank ?? "bank"} journal · Manual`;
-  return "Not in Odoo yet.";
-}
-
-/** One order's payments on their own page: what was paid, where, when, by whom, with Confirm / Flag. */
-export default async function OrderPaymentReviewPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PaymentReviewPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ payment?: string; error?: string }>;
+}) {
   const session = await requireInternal();
   if (!canUser(session.user, "orders", "view")) redirect("/intelligence/retail");
   const mayAct = canUser(session.user, "orders", "act");
-
   const { id } = await params;
+  const query = await searchParams;
+
   const order = await prisma.dealerOrder.findUnique({
     where: { id },
     include: {
-      dealerOrganization: { select: { name: true } },
-      station: { select: { name: true, tradingName: true } },
-      proforma: { select: { amount: true } },
-      payments: { orderBy: { createdAt: "desc" } },
+      dealerOrganization: { select: { name: true, odooPartnerId: true, odooPartnerExternalId: true } },
+      station: { select: { name: true, tradingName: true, odooPartnerId: true, odooPartnerExternalId: true } },
+      proforma: { select: { number: true, amount: true } },
+      payments: { orderBy: { createdAt: "asc" } },
     },
   });
   if (!order) notFound();
 
-  const senderIds = [...new Set(order.payments.map((p) => p.submittedById).filter((x): x is string => Boolean(x)))];
-  const senders = new Map(
-    (await prisma.user.findMany({ where: { id: { in: senderIds } }, select: { id: true, firstName: true, lastName: true } })).map((u) => [
-      u.id,
-      [u.firstName, u.lastName].filter(Boolean).join(" "),
-    ])
+  const waiting = order.payments.filter((payment) => payment.status === "SUBMITTED" || payment.status === "VERIFICATION");
+  const selected =
+    order.payments.find((payment) => payment.id === query.payment) ??
+    waiting[0] ??
+    order.payments[order.payments.length - 1] ??
+    null;
+  if (!selected) notFound();
+
+  const submitter = selected.submittedById
+    ? await prisma.user.findUnique({
+        where: { id: selected.submittedById },
+        select: { firstName: true, lastName: true, email: true },
+      })
+    : null;
+  const submitterName = submitter
+    ? [submitter.firstName, submitter.lastName].filter(Boolean).join(" ") || submitter.email
+    : null;
+
+  const manual = selected.method !== "MPESA_CODE";
+  const account = bankAccountByNumber(selected.bankAccountNumber);
+  const partnerId = resolveOdooPartnerId(order.station.odooPartnerId, order.dealerOrganization.odooPartnerId);
+  const partnerExternalId = order.station.odooPartnerExternalId ?? order.dealerOrganization.odooPartnerExternalId ?? null;
+  const automatic = odooPaymentsEnabled();
+  const transactionDate = selected.paymentDate
+    ? selected.paymentDate.toLocaleDateString("en-CA", { timeZone: "Africa/Nairobi" })
+    : null;
+  const preview = buildReceiptPreview({
+    method: manual ? "MANUAL" : "MPESA",
+    amount: selected.amount,
+    bankReference: manual ? selected.bankReference : selected.mpesaCode,
+    accountNumber: selected.bankAccountNumber,
+    dealerName: order.dealerOrganization.name,
+    partnerId,
+    partnerExternalId,
+    accountingDate: nairobiToday(),
+    transactionDate,
+    automaticReceipting: automatic,
+  });
+  const journals = receiptJournals();
+  const issues = preview.blockers.filter(
+    (item) => !item.startsWith("Automatic receipting is off") && !/bank reference|configured bank/i.test(item)
   );
+  const open = selected.status === "SUBMITTED" || selected.status === "VERIFICATION";
   const totals = paymentTotals(order.proforma?.amount ?? order.amountDue, order.payments);
-  const kes = (cents: number | null) => (cents == null ? "—" : formatKes(centsToAmount(cents)));
-  const waiting = order.payments.filter((p) => p.status === "SUBMITTED" || p.status === "VERIFICATION").reverse();
-  const earlier = order.payments.filter((p) => p.status === "CONFIRMED" || p.status === "REJECTED");
-  const odooOn = odooPaymentsEnabled();
-  const orderHref = `/intelligence/retail/orders/${order.id}`;
+  const thisCents = toCents(selected.amount) ?? 0;
+  const back = `/intelligence/retail/orders/${order.id}`;
+  const station = order.station.tradingName || order.station.name;
+  const mappingNote = automatic
+    ? "These values will be posted in Odoo. You can change the amount, currency, bank reference and journal before confirming."
+    : "These values are a preview. Automatic posting is currently unavailable.";
+  let currencies = [{ id: ODOO_KES_CURRENCY_ID, code: "KES" }];
+  try {
+    const loaded = await getOdooClient().listCurrencies();
+    if (loaded.length) currencies = loaded;
+  } catch {
+    currencies = [{ id: ODOO_KES_CURRENCY_ID, code: "KES" }];
+  }
 
   return (
     <div className="so">
       <header className="so-hero" aria-label="Payment review hero">
         <div className="so-hero__text">
           <div className="so-hero__crumbs">
-            <Link href="/intelligence/retail/orders">Orders</Link> › <Link href={orderHref}>{order.reference}</Link> › Payment
+            <Link href="/intelligence/retail/orders">Orders</Link>
+            {" › "}
+            <Link href={back}>{order.reference}</Link>
+            {" › Payment"}
           </div>
-          <div className="so-hero__title-row">
-            <h1>Payment review</h1>
-            <span className={`so-pill so-pill--${stageOf(order.status)}`}>{statusLabel(order.status)}</span>
-          </div>
+          <h1>Payment Review &amp; Accounting Receipt</h1>
+          <p className="spr-lede">Review the payment details and see how they will be recorded in the Accounts module (Odoo).</p>
           <div className="so-hero__meta">
-            <span><Building2 size={14} /> {order.dealerOrganization.name}</span>
-            <span><MapPin size={14} /> {order.station.tradingName || order.station.name}</span>
+            <span>
+              <Building2 size={14} /> {order.dealerOrganization.name}
+            </span>
+            <span>
+              <MapPin size={14} /> {station}
+            </span>
           </div>
         </div>
       </header>
 
-      <div className="so-wrap spr">
-        <Link href={orderHref} className="spr-back">
-          <ArrowLeft size={15} aria-hidden /> Back to order {order.reference}
-        </Link>
+      <div className="so-wrap">
+        <div className="spr">
+          <Link href={back} className="spr-back">
+            <ArrowLeft size={15} strokeWidth={2.2} aria-hidden />
+            Back to order {order.reference}
+          </Link>
 
-        <section className="spr-sum" aria-label="Payment totals">
-          <div><span>PFI total</span><b>{kes(totals.totalCents)}</b></div>
-          <div><span>Confirmed</span><b>{kes(totals.confirmedCents)}</b></div>
-          <div><span>Waiting</span><b>{kes(totals.waitingCents)}</b></div>
-          <div className="spr-sum__bal"><span>Balance if confirmed</span><b>{kes(totals.balanceCents)}</b></div>
-        </section>
-
-        {waiting.length === 0 ? (
-          <section className="so-card spr-empty">
-            <Landmark size={20} aria-hidden />
-            <div>
-              <h2>No payment waiting</h2>
-              <p>
-                {totals.totalCents == null
-                  ? "No PFI has been issued for this order yet, so there is nothing to pay."
-                  : totals.balanceCents === 0
-                    ? "This order is fully paid."
-                    : "The dealer hasn't sent a payment for this order yet. Sales Person Executives get an email when they do."}
-              </p>
+          {waiting.length > 1 ? (
+            <div className="spr-switch" aria-label="Payments waiting on this order">
+              {waiting.map((payment) => (
+                <Link
+                  key={payment.id}
+                  href={`/intelligence/retail/orders/${order.id}/payment?payment=${payment.id}`}
+                  className={payment.id === selected.id ? "is-on" : undefined}
+                >
+                  {formatKes(payment.amount)}
+                </Link>
+              ))}
             </div>
-          </section>
-        ) : (
-          waiting.map((payment) => {
-            const account = bankAccountByNumber(payment.bankAccountNumber);
-            const mpesa = payment.method !== "MANUAL";
-            const status = STATUS[payment.status] ?? STATUS.SUBMITTED;
-            return (
-              <article key={payment.id} className="so-card spr-pay" aria-label={`Payment of ${formatKes(payment.amount)}`}>
-                <div className="spr-pay__main">
-                  <div className="spr-amount">
-                    {formatKes(payment.amount)} <span className="spr-chip">{mpesa ? "M-PESA" : "Manual"}</span>
-                  </div>
-                  <span className={`spr-status spr-status--${status.tone}`}>{status.label}</span>
-                  <dl className="spr-kv">
-                    {mpesa ? (
-                      <>
-                        <dt>M-PESA code</dt>
-                        <dd>{payment.mpesaCode ?? "Not recorded"}</dd>
-                        {payment.mpesaPayer ? (
-                          <>
-                            <dt>Paid by (Odoo)</dt>
-                            <dd>{payment.mpesaPayer}</dd>
-                          </>
-                        ) : null}
-                      </>
-                    ) : (
-                      <>
-                        <dt>Paid to</dt>
-                        <dd>{account ? `${account.bank} · ${account.accountNumber}` : payment.bankAccountNumber ?? "Not recorded"}</dd>
-                        <dt>Bank reference</dt>
-                        <dd>{payment.bankReference || "Not provided"}</dd>
-                      </>
-                    )}
-                    <dt>Sent</dt>
-                    <dd>{when(payment.createdAt)}</dd>
-                    <dt>Sent by</dt>
-                    <dd>
-                      {payment.submittedById && senders.get(payment.submittedById)
-                        ? `${senders.get(payment.submittedById)} · ${order.dealerOrganization.name}`
-                        : order.dealerOrganization.name}
-                    </dd>
-                    {payment.note ? (
-                      <>
-                        <dt>Dealer&apos;s note</dt>
-                        <dd>{payment.note}</dd>
-                      </>
-                    ) : null}
-                  </dl>
-                  <div className={`spr-odoo${payment.odooError ? " is-error" : ""}`}>
-                    {odooLine(payment, odooOn, account?.bank)}
-                    {mayAct && payment.odooError && payment.method === "MANUAL" && payment.odooPaymentId == null ? (
-                      <form action={internalOrderAction}>
-                        <input type="hidden" name="orderId" value={order.id} />
-                        <input type="hidden" name="paymentId" value={payment.id} />
-                        <button className="so-btn so-btn--line" name="action" value="retry-payment-odoo">Retry Odoo</button>
-                      </form>
-                    ) : null}
-                  </div>
-                </div>
-                {mayAct ? (
-                  <form action={internalOrderAction} className="spr-pay__side">
-                    <h2>Check, then confirm</h2>
-                    <p>
-                      Match the amount and {mpesa ? "M-PESA code" : "reference"} against the {mpesa ? "M-PESA" : account ? account.bank.split(" ")[0] : "bank"} statement.
-                      Confirming marks it paid; once the PFI is covered, Release to Depot unlocks.
-                    </p>
-                    <input type="hidden" name="orderId" value={order.id} />
-                    <input type="hidden" name="paymentId" value={payment.id} />
-                    <input type="hidden" name="returnTo" value={orderHref} />
-                    <label className="spr-note">
-                      <span>Note (optional, shown to the dealer if you flag)</span>
-                      <input type="text" name="note" maxLength={300} />
-                    </label>
-                    <div className="spr-actions">
-                      <button className="so-btn so-btn--gold" name="action" value="confirm-payment">Confirm payment</button>
-                      <button className="so-btn so-btn--warn" name="action" value="reject-payment">Flag a problem</button>
-                    </div>
-                  </form>
-                ) : (
-                  <p className="spr-pay__side spr-readonly">Your role can view payments but not confirm them.</p>
-                )}
-              </article>
-            );
-          })
-        )}
+          ) : null}
 
-        {earlier.length > 0 ? (
-          <section className="so-card spr-earlier" aria-label="Earlier payments">
-            <h2>Earlier payments on this order</h2>
-            <ul>
-              {earlier.map((p) => {
-                const s = STATUS[p.status];
-                return (
-                  <li key={p.id}>
-                    <b>{formatKes(p.amount)}</b>
-                    <span>{p.method === "MANUAL" ? `Manual · ${p.bankReference || "no reference"}` : `M-PESA · ${p.mpesaCode ?? ""}`}</span>
-                    <span>{when(p.createdAt)}</span>
-                    <span className={`spr-status spr-status--${s.tone}`}>{s.label}</span>
-                    {p.status === "REJECTED" && p.reviewNote ? <span className="spr-why">“{p.reviewNote}”</span> : null}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ) : null}
+          {query.error ? <p className="spr-warn">Enter a valid amount, bank reference, currency and journal before confirming.</p> : null}
+          <PaymentReviewEditor
+            orderId={order.id}
+            paymentId={selected.id}
+            back={back}
+            open={open}
+            mayAct={mayAct}
+            automatic={automatic}
+            customerLinked={partnerId != null || Boolean(partnerExternalId)}
+            dealerName={order.dealerOrganization.name}
+            sentOn={when(selected.createdAt)}
+            submitterName={submitterName}
+            dealerNote={selected.note}
+            methodLabel={manual ? "Manual" : "M-PESA"}
+            accountingDate={preview.rows.find((row) => row.label === "Date")?.value ?? nairobiToday()}
+            amount={selected.amount}
+            bankReference={manual ? selected.bankReference ?? "" : selected.mpesaCode ?? ""}
+            journalId={account?.odoo.journalId ?? journals[0]?.journalId ?? 0}
+            currencyId={ODOO_KES_CURRENCY_ID}
+            journals={journals}
+            currencies={currencies}
+            totalCents={totals.totalCents}
+            confirmedCents={totals.confirmedCents}
+            otherWaitingCents={Math.max(0, totals.waitingCents - (open ? thisCents : 0))}
+            odooError={selected.odooError}
+            issues={issues}
+            dateNote={preview.dateNote}
+            mappingNote={mappingNote}
+          />
+        </div>
       </div>
     </div>
   );

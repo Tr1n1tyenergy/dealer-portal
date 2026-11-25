@@ -50,7 +50,13 @@ function installHistoryWatch() {
   historyPatched = true;
   const push = window.history.pushState.bind(window.history);
   const replace = window.history.replaceState.bind(window.history);
-  const notify = () => commitListeners.forEach((listener) => listener());
+  // Next writes the new address from useInsertionEffect. A setState in that turn
+  // is the "useInsertionEffect must not schedule updates" error, so hide runs after it.
+  const notify = () => {
+    queueMicrotask(() => {
+      commitListeners.forEach((listener) => listener());
+    });
+  };
   window.history.pushState = (data, unused, url) => {
     push(data, unused, url);
     notify();

@@ -57,7 +57,11 @@ export type PaymentDraftInput = {
   journalId: number;
   paymentMethodLineId: number;
   partnerBankId: number;
+  /** res.currency id. Omitted means KES. */
+  currencyId?: number;
 };
+
+export type OdooCurrency = { id: number; code: string };
 
 export type OdooPaymentState = { id: number; state: string };
 export type OdooMpesaPayment = { id: number; amount: string; date: string; state: string; ref: string };
@@ -67,6 +71,9 @@ export interface OdooClient {
   createQuotation(input: CreateQuotationInput): Promise<OdooQuotation>;
   getQuotation(quotationId: string): Promise<OdooQuotation | null>;
   createPaymentDraft(input: PaymentDraftInput): Promise<OdooPaymentState>;
+  /** Rewrites a draft with the payment the staff member just reviewed. A posted payment is left as it is. */
+  writePaymentDraft(id: number, input: PaymentDraftInput): Promise<OdooPaymentState>;
+  listCurrencies(): Promise<OdooCurrency[]>;
   postPayment(id: number): Promise<OdooPaymentState>;
   cancelPayment(id: number): Promise<OdooPaymentState>;
   /** A posted payment in Odoo's M-PESA journal whose reference ends with this code; null if none. */
