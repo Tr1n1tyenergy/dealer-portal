@@ -46,7 +46,7 @@ export type ValidatedUpload = {
 export async function validateSupportUpload(file: File): Promise<ValidatedUpload> {
   if (file.size <= 0) throw new Error("Empty file.");
   if (file.size > MAX_SUPPORT_ATTACHMENT_BYTES) {
-    throw new Error(`Each file must be ${MAX_SUPPORT_ATTACHMENT_BYTES / (1024 * 1024)} MB or smaller.`);
+    throw new Error(`Files can be ${MAX_SUPPORT_ATTACHMENT_BYTES / (1024 * 1024)} MB in total.`);
   }
   const buffer = Buffer.from(await file.arrayBuffer());
   const sniffed = sniffMime(buffer);

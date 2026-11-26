@@ -19,3 +19,12 @@ describe("attachment download errors shown to the person", () => {
     }
   });
 });
+
+it("support files must fit in one request together: 4 MB in total, not 4 MB each", async () => {
+  const { supportFilesFit } = await import("./constants");
+  const MB = 1024 * 1024;
+  assert.equal(supportFilesFit([3 * MB]), true);
+  assert.equal(supportFilesFit([2 * MB, 2 * MB]), true);
+  assert.equal(supportFilesFit([3 * MB, 2 * MB]), false); // each is small, together they pass Vercel's request cap
+  assert.equal(supportFilesFit([5 * MB]), false);
+});

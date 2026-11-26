@@ -4,7 +4,7 @@ import {
   SupportTicketStatus,
 } from "@prisma/client";
 import { jsonError, requireDealerApi } from "@/lib/api-auth";
-import { MAX_SUPPORT_ATTACHMENTS } from "@/lib/support/constants";
+import { MAX_SUPPORT_ATTACHMENT_BYTES, MAX_SUPPORT_ATTACHMENTS, supportFilesFit } from "@/lib/support/constants";
 import { createTicket, listTicketsForOrg } from "@/lib/support/service";
 import { validateSupportUpload } from "@/lib/support/storage";
 
@@ -67,6 +67,9 @@ export async function POST(req: Request) {
 
   if (files.length > MAX_SUPPORT_ATTACHMENTS) {
     return jsonError(`You can attach up to ${MAX_SUPPORT_ATTACHMENTS} files.`, 400);
+  }
+  if (!supportFilesFit(files.map((file) => file.size))) {
+    return jsonError(`Files can be ${MAX_SUPPORT_ATTACHMENT_BYTES / (1024 * 1024)} MB in total.`, 400);
   }
 
   try {

@@ -32,7 +32,7 @@ export type ValidatedRttJobCard = {
 export async function validateRttJobCard(file: File): Promise<ValidatedRttJobCard> {
   if (file.size <= 0) throw new Error("Empty file.");
   if (file.size > MAX_RTT_JOB_CARD_BYTES) {
-    throw new Error("Job card must be 10 MB or smaller.");
+    throw new Error(`Job card must be ${MAX_RTT_JOB_CARD_BYTES / (1024 * 1024)} MB or smaller.`);
   }
   const buffer = Buffer.from(await file.arrayBuffer());
   if (!sniffPdf(buffer)) {
