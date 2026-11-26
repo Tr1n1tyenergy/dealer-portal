@@ -2,7 +2,8 @@ import { canUser, type StaffUser } from "@/lib/permissions";
 import { logActivity } from "@/lib/activity";
 import { prisma } from "@/lib/prisma";
 import { parseReceiptEdits } from "@/lib/orders/receipt-preview";
-import { generatePfi, releaseToDepot, retryPaymentOdoo, reviewPayment, syncQuotation } from "@/lib/orders/service";
+import { paymentTotals, toCents } from "@/lib/orders/payments";
+import { generatePfi, releaseToDepot, reviewPayment, syncQuotation } from "@/lib/orders/service";
 import { ignoreStaleTransition } from "@/lib/orders/state-machine";
 
 /** After reviewing a payment, staff go back to that order. Only that order's page is accepted. */
@@ -56,6 +57,11 @@ export async function applyInternalOrderAction(
         currencyId: Number(formData.get("currencyId")),
       });
       if (!edited.ok) return "invalid";
+      // Like the dealer's own payment: an edited amount can't pass what is left to pay on the PFI.
+      const order = await prisma.dealerOrder.findUnique({ where: { id: orderId }, include: { proforma: true, payments: true } });
+      const others = order?.payments.filter((payment) => payment.id !== paymentId) ?? [];
+      const left = paymentTotals(order?.proforma?.amount ?? order?.amountDue, others).balanceCents;
+      if (left != null && (toCents(edited.amount) ?? 0) > left) return "invalid";
       const saved = await prisma.paymentRecord.updateMany({
         where: { id: paymentId, status: { in: ["SUBMITTED", "VERIFICATION"] } },
         data: {
@@ -74,7 +80,6 @@ export async function applyInternalOrderAction(
     if (result === "odoo-failed") return "odoo-failed";
     if (result === "stale" || result == null) return "stale";
   }
-  if (action === "retry-payment-odoo") await retryPaymentOdoo(String(formData.get("paymentId") || ""), actor.id);
   if (action === "release") {
     const depot = await prisma.depot.findFirst({ orderBy: { name: "asc" } });
     if (!depot) throw new Error("No depot is configured.");

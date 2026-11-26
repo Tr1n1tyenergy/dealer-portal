@@ -154,7 +154,7 @@ export default async function PaymentReviewPage({
             </div>
           ) : null}
 
-          {query.error ? <p className="spr-warn">Enter a valid amount, bank reference, currency and journal before confirming.</p> : null}
+          {query.error ? <p className="spr-warn">Enter a valid amount (no more than what is left to pay on the PFI), bank reference, currency and journal before confirming.</p> : null}
           <PaymentReviewEditor
             orderId={order.id}
             paymentId={selected.id}

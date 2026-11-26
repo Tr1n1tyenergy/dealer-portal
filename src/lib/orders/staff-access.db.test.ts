@@ -126,5 +126,23 @@ describe(
       assert.equal(result, "done");
       assert.equal((await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } })).status, "PAYMENT_CONFIRMED");
     });
+
+    it("refuses a staff-edited amount above what is left to pay, and takes one that fits", async () => {
+      // PFI 5,000; 1,000 already confirmed; this waiting payment may be edited up to 4,000.
+      const order = await orderAwaitingVerification();
+      await prisma.proFormaInvoice.create({ data: { orderId: order.id, number: `PFI-${run}-${sequence}`, amount: "5000.00" } });
+      await prisma.paymentRecord.create({ data: { orderId: order.id, amount: "1000.00", status: "CONFIRMED" } });
+      const spe = { id: users.spe, accountType: "INTERNAL", role: "SALES_PERSON_EXECUTIVE", permissions: "[]" };
+      const edit = (amount: string) =>
+        form({ orderId: order.id, paymentId: order.paymentId, action: "confirm-payment", receiptEdit: "1", amount, bankReference: "FT-EDIT", journalId: "6", currencyId: "92" });
+
+      assert.equal(await core.applyInternalOrderAction(spe, edit("40,000.00")), "invalid");
+      const untouched = await prisma.paymentRecord.findUniqueOrThrow({ where: { id: order.paymentId } });
+      assert.equal(untouched.amount, "1000.00");
+      assert.equal(untouched.status, "VERIFICATION");
+
+      assert.equal(await core.applyInternalOrderAction(spe, edit("4000.00")), "done");
+      assert.equal((await prisma.dealerOrder.findUniqueOrThrow({ where: { id: order.id } })).status, "PAYMENT_CONFIRMED");
+    });
   }
 );
