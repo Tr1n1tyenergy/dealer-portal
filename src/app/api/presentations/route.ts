@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireInternalApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { DECK_SECTION_KEYS } from "@/lib/notes";
 import { createDeck, DECK_THEMES } from "@/lib/presentations";
 import { logActivity } from "@/lib/activity";
@@ -15,7 +15,7 @@ const createSchema = z.object({
 });
 
 export async function GET() {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("presDecks", "view");
   if ("error" in auth) return auth.error;
 
   const isAdmin = auth.session.user.role === "SUPER_ADMIN";
@@ -29,7 +29,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("presDecks", "act");
   if ("error" in auth) return auth.error;
 
   const body = await readJson(req);

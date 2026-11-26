@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireInternalApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { completeNoteSession, toggleNoteAction } from "@/lib/note-sessions";
 import { logActivity } from "@/lib/activity";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
@@ -15,7 +15,7 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("noteSessions", "view");
   if ("error" in auth) return auth.error;
 
   const { id } = await params;
@@ -36,7 +36,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("noteSessions", "act");
   if ("error" in auth) return auth.error;
 
   const { id } = await params;

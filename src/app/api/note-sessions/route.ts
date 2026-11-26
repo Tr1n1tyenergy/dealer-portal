@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireInternalApi, jsonError } from "@/lib/api-auth";
+import { requirePermissionApi, jsonError } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { INVALID_JSON, readJson } from "@/lib/http/read-json";
 
@@ -14,7 +14,7 @@ const createSchema = z.object({
 });
 
 export async function GET() {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("noteSessions", "view");
   if ("error" in auth) return auth.error;
 
   const isAdmin = auth.session.user.role === "SUPER_ADMIN";
@@ -27,7 +27,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireInternalApi();
+  const auth = await requirePermissionApi("noteSessions", "act");
   if ("error" in auth) return auth.error;
 
   const body = await readJson(req);
