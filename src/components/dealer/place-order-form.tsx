@@ -141,8 +141,8 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
   const [submissionKey, setSubmissionKey] = useState("");
   useEffect(() => setSubmissionKey(newSubmissionKey()), []);
   const [stationId, setStationId] = useState(stations[0]?.id ?? "");
-  const [pms, setPms] = useState(20000);
-  const [ago, setAgo] = useState(10000);
+  const [pms, setPms] = useState(0);
+  const [ago, setAgo] = useState(0);
   const dateWindow = useMemo(() => deliveryWindow(), []);
   const [deliveryDate, setDeliveryDate] = useState(() => dateWindow.min);
   const [state, formAction] = useActionState(placeOrderAction, null);
