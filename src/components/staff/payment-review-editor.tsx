@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { onGroupedInput, sanitizeNumericText } from "@/lib/forms/numeric-text";
 import Link from "next/link";
 import {
@@ -111,6 +111,17 @@ export function PaymentReviewEditor({
   const [draftReference, setDraftReference] = useState(bankReference);
   const [draftJournalId, setDraftJournalId] = useState(journalId);
   const [draftCurrencyId, setDraftCurrencyId] = useState(currencyId);
+  // React clears a form after its action runs (e.g. Odoo refused the receipt). Its controlled selects
+  // then show and submit the first journal while the label shows the chosen one, so remount them.
+  // A native listener: React's own onReset does not fire for the reset React itself triggers.
+  const [resets, setResets] = useState(0);
+  const receiptForm = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const form = receiptForm.current;
+    const remount = () => setResets((n) => n + 1);
+    form?.addEventListener("reset", remount);
+    return () => form?.removeEventListener("reset", remount);
+  }, []);
 
   const journal = journals.find((item) => item.journalId === draftJournalId) ?? journals[0];
   const currency = currencies.find((item) => item.id === draftCurrencyId) ?? currencies[0];
@@ -225,7 +236,7 @@ export function PaymentReviewEditor({
             </ul>
           ) : null}
           <p className="spr-date-note">{dateNote}</p>
-          <form action={internalOrderAction}>
+          <form action={internalOrderAction} ref={receiptForm}>
             <input type="hidden" name="orderId" value={orderId} />
             <input type="hidden" name="paymentId" value={paymentId} />
             <input type="hidden" name="returnTo" value={back} />
@@ -242,7 +253,7 @@ export function PaymentReviewEditor({
                 <span className="spr-map__pick">
                   <span className="spr-map__pick-text" aria-hidden>{currency?.code ?? ""}</span>
                   <ChevronDown size={14} strokeWidth={2} aria-hidden />
-                  <select className="spr-map__input spr-map__pick-select" name="currencyId" value={currency?.id ?? ""} onChange={(event) => setDraftCurrencyId(Number(event.target.value))} aria-label="Currency">
+                  <select key={`currency-${resets}`} className="spr-map__input spr-map__pick-select" name="currencyId" value={currency?.id ?? ""} onChange={(event) => setDraftCurrencyId(Number(event.target.value))} aria-label="Currency">
                     {currencies.map((item) => <option key={item.id} value={item.id}>{item.code}</option>)}
                   </select>
                 </span>
@@ -255,7 +266,7 @@ export function PaymentReviewEditor({
                 <span className="spr-map__pick">
                   <span className="spr-map__pick-text" aria-hidden>{journal?.name ?? ""}</span>
                   <ChevronDown size={14} strokeWidth={2} aria-hidden />
-                  <select className="spr-map__input spr-map__pick-select" name="journalId" value={journal?.journalId ?? ""} onChange={(event) => setDraftJournalId(Number(event.target.value))} aria-label="Journal">
+                  <select key={`journal-${resets}`} className="spr-map__input spr-map__pick-select" name="journalId" value={journal?.journalId ?? ""} onChange={(event) => setDraftJournalId(Number(event.target.value))} aria-label="Journal">
                     {journals.map((item) => <option key={item.journalId} value={item.journalId}>{item.name}</option>)}
                   </select>
                 </span>
