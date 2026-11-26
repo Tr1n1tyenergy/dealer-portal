@@ -352,7 +352,7 @@ export function PumpMetersForm({
                 Closing Meter (L) <span className="ssw__req">*</span>
               </th>
               <th scope="col">
-                <span className="ssw__th-tip" title="RTT is automatically calculated from test-return entries recorded in the RTT & Truck Calibration module.">
+                <span className="ssw__th-tip" title="RTT is automatically calculated from test-return entries recorded in RTT & Stock Receipt.">
                   RTT Applied (L)
                   <Info size={12} strokeWidth={2.25} aria-hidden />
                 </span>
@@ -378,9 +378,6 @@ export function PumpMetersForm({
               const openingErr = fieldErrors[`${row.pumpKey}.opening`];
               const previous = index > 0 ? computed[index - 1] : null;
               const showTank = row.tankLabel != null && row.tankKey !== previous?.tankKey;
-              const tankPumps = computed.filter((item) => item.tankKey === row.tankKey);
-              const tankSales = tankPumps.reduce((sum, item) => sum + (item.sales ?? 0), 0);
-              const tankComplete = tankPumps.every((item) => item.sales != null);
               return (
                 <Fragment key={row.pumpKey}>
                 {showTank ? (
@@ -389,13 +386,6 @@ export function PumpMetersForm({
                       <span className="ssw__pump-cell">
                         <Layers size={15} strokeWidth={2.25} aria-hidden />
                         {row.tankLabel}
-                      </span>
-                      <span className={cn("ssw__badge", row.product === "PMS" ? "ssw__badge--pms" : "ssw__badge--ago")}>
-                        {row.product}
-                      </span>
-                      <span className="ssw__tank-group-count">
-                        {tankPumps.length} {tankPumps.length === 1 ? "pump" : "pumps"}
-                        {tankComplete ? ` · ${formatLitresFixed(tankSales)} L` : ""}
                       </span>
                     </td>
                   </tr>
@@ -452,7 +442,7 @@ export function PumpMetersForm({
                     {closingErr ? <span className="ssw__field-error">{closingErr}</span> : null}
                   </td>
                   <td>
-                    <span className="ssw__ro" title="From RTT & Truck Calibration module">
+                    <span className="ssw__ro" title="From RTT & Stock Receipt">
                       {formatLitresFixed(row.rtt)}
                     </span>
                   </td>

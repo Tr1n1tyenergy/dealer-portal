@@ -27,23 +27,25 @@ function revalidateSettings() {
 }
 
 async function syncStationEquipmentCounts(tx: Prisma.TransactionClient, stationId: string) {
-  const [tankCount, pumpCount] = await Promise.all([
-    tx.stationTank.count({ where: { stationId, active: true } }),
-    tx.stationPump.count({ where: { stationId, active: true } }),
-  ]);
+  const tankCount = await tx.stationTank.count({ where: { stationId, active: true } });
+  const pumpCount = await tx.stationPump.count({ where: { stationId, active: true } });
   await tx.station.update({ where: { id: stationId }, data: { tankCount, pumpCount } });
 }
 
-async function pumpHasHistory(
-  tx: Prisma.TransactionClient,
-  pump: { id: string; stationId: string; pumpKey: string; lastClosingLitres: number; meterInitialized: boolean }
+async function pumpsHaveHistory(
+  pumps: { id: string; stationId: string; pumpKey: string; lastClosingLitres: number; meterInitialized: boolean }[]
 ) {
-  if (pump.meterInitialized || pump.lastClosingLitres > 0) return true;
+  if (pumps.some((pump) => pump.meterInitialized || pump.lastClosingLitres > 0)) return true;
+  if (pumps.length === 0) return false;
+  const stationId = pumps[0].stationId;
   const [readings, rtt] = await Promise.all([
-    tx.stockSalePumpReading.count({
-      where: { pumpKey: pump.pumpKey, report: { stationId: pump.stationId } },
+    prisma.stockSalePumpReading.count({
+      where: {
+        pumpKey: { in: pumps.map((pump) => pump.pumpKey) },
+        report: { stationId },
+      },
     }),
-    tx.stationPumpRttEvent.count({ where: { pumpId: pump.id } }),
+    prisma.stationPumpRttEvent.count({ where: { pumpId: { in: pumps.map((pump) => pump.id) } } }),
   ]);
   return readings > 0 || rtt > 0;
 }
@@ -139,9 +141,10 @@ export async function createTankAction(
             active: true,
           },
         });
-        for (let index = 1; index <= pumps.count; index += 1) {
-          await tx.stationPump.create({
-            data: {
+        await tx.stationPump.createMany({
+          data: Array.from({ length: pumps.count }, (_, offset) => {
+            const index = offset + 1;
+            return {
               stationId,
               tankId: tank.id,
               pumpKey: pumpKeyForTank(next.tankKey, index),
@@ -150,9 +153,9 @@ export async function createTankAction(
               sortOrder: sortOrder * 100 + index,
               lastClosingLitres: 0,
               active: true,
-            },
-          });
-        }
+            };
+          }),
+        });
         await syncStationEquipmentCounts(tx, stationId);
         return tank;
       });
@@ -270,9 +273,9 @@ export async function updateTankAction(
         data: { active: false },
       });
     }
-    for (const index of plan.createIndexes) {
-      await tx.stationPump.create({
-        data: {
+    if (plan.createIndexes.length) {
+      await tx.stationPump.createMany({
+        data: plan.createIndexes.map((index) => ({
           stationId: tank.stationId,
           tankId,
           pumpKey: pumpKeyForTank(tank.tankKey, index),
@@ -281,7 +284,7 @@ export async function updateTankAction(
           sortOrder: tank.sortOrder * 100 + index,
           lastClosingLitres: 0,
           active: true,
-        },
+        })),
       });
     }
     if (!active) {
@@ -345,12 +348,7 @@ export async function deleteTankAction(
   const usedInRtt = await prisma.stationPumpRttEvent.count({
     where: { stationId: tank.stationId, tankKey: tank.tankKey },
   });
-  const pumpHistory = await prisma.$transaction(async (tx) => {
-    for (const pump of tank.pumps) {
-      if (await pumpHasHistory(tx, pump)) return true;
-    }
-    return false;
-  });
+  const pumpHistory = await pumpsHaveHistory(tank.pumps);
 
   if (usedInReadings > 0 || usedInRtt > 0 || tank.lastClosingLitres > 0 || pumpHistory) {
     await prisma.$transaction(async (tx) => {

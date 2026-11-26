@@ -13,6 +13,11 @@ describe("calculateTankDip", () => {
     }
   });
 
+  it("rejects opening above capacity", () => {
+    const r = calculateTankDip({ capacity: 50_000, opening: 50_001, closing: 40_000 });
+    assert.equal(r.ok, false);
+  });
+
   it("rejects closing above capacity", () => {
     const r = calculateTankDip({ capacity: 50_000, opening: 10_000, closing: 51_000 });
     assert.equal(r.ok, false);

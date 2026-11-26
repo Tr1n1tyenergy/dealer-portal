@@ -41,12 +41,18 @@ export default async function StockSaleReportingPage({
   let todaysReport = null;
   let recent: Awaited<ReturnType<typeof listRecentReports>> = [];
 
+  let linked: Awaited<ReturnType<typeof loadLinkedEquipment>> | undefined;
   if (station) {
     try {
-      [todaysReport, recent] = await Promise.all([
-        getTodaysReport({ dealerOrganizationId: orgId, stationId: station.id }),
-        listRecentReports({ dealerOrganizationId: orgId, stationId: station.id, take: 5 }),
+      const [reportPair, equipmentRows] = await Promise.all([
+        Promise.all([
+          getTodaysReport({ dealerOrganizationId: orgId, stationId: station.id }),
+          listRecentReports({ dealerOrganizationId: orgId, stationId: station.id, take: 5 }),
+        ]),
+        loadLinkedEquipment(station.id),
       ]);
+      [todaysReport, recent] = reportPair;
+      linked = equipmentRows;
     } catch (err) {
       console.error("[stock-reporting] load reports", err);
       loadError =
@@ -58,7 +64,6 @@ export default async function StockSaleReportingPage({
   const productsLabel = station
     ? formatProductChip(stationFuelProductLabels(station.products))
     : "—";
-  const linked = station ? await loadLinkedEquipment(station.id) : undefined;
   const equipment = resolveStationEquipment(station, linked);
 
   return (

@@ -48,7 +48,7 @@ export const STOCK_REPORTING_MODULE_NAV = [
   },
   {
     key: "rtt" as const,
-    label: "RTT & Truck Calibration",
+    label: "RTT & Stock Receipt",
     href: "/dealer/stock-reporting/rtt",
   },
 ] as const;

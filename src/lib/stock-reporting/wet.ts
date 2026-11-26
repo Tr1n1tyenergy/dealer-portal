@@ -54,19 +54,6 @@ export type WetResolutionChoice = "MATCH_DELIVERY" | "REVIEW_READINGS" | "RECORD
 
 export type SaveWetMode = "draft" | "complete";
 
-export async function listEligibleStockDeliveries(_params: {
-  stationId: string;
-  reportingDate: Date;
-}) {
-  /** No wet-stock receipt ledger exists yet — never invent deliveries. */
-  return [] as {
-    id: string;
-    reference: string;
-    product: "PMS" | "AGO";
-    quantityLitres: number;
-  }[];
-}
-
 export async function saveWetStockReconciliation(params: {
   dealerOrganizationId: string;
   reportId: string;
@@ -118,19 +105,8 @@ export async function saveWetStockReconciliation(params: {
       wetState = "BALANCED";
       lossReason = null;
     } else if (resolution === "MATCH_DELIVERY") {
-      const deliveries = await listEligibleStockDeliveries({
-        stationId: report.stationId,
-        reportingDate: report.reportingDate,
-      });
-      if (!deliveries.length) {
-        throw new StockReportingError(
-          "No eligible stock deliveries were found for this reporting period. Choose another option or correct readings.",
-          "VALIDATION"
-        );
-      }
-      wetState = "DELIVERY_MATCHING";
       throw new StockReportingError(
-        "Delivery matching requires a verified receipt allocation before continuing.",
+        "Stock receipts are recorded in Stock Receipt before the dip. Choose another option.",
         "VALIDATION"
       );
     } else if (resolution === "REVIEW_READINGS") {
@@ -156,7 +132,8 @@ export async function saveWetStockReconciliation(params: {
       );
     }
   } else if (resolution === "MATCH_DELIVERY") {
-    wetState = "DELIVERY_MATCHING";
+    resolution = "NONE";
+    wetState = balanced ? "BALANCED" : "VARIANCE_DETECTED";
   } else if (resolution === "REVIEW_READINGS") {
     wetState = "READINGS_UNDER_REVIEW";
   } else if (resolution === "RECORD_LOSS") {

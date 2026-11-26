@@ -29,6 +29,15 @@ export function calculateTankDip(params: {
       provisionalReceipt: false,
     };
   }
+  if (opening > capacity) {
+    return {
+      ok: false,
+      error: "Opening stock cannot exceed tank capacity.",
+      sales: null,
+      ullage: null,
+      provisionalReceipt: false,
+    };
+  }
   if (closing > capacity) {
     return {
       ok: false,

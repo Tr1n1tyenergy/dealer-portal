@@ -25,6 +25,7 @@ import {
 } from "./monetary";
 import { loadLinkedEquipment, resolveStationEquipment } from "./equipment";
 import { resetDraftReport, startTodaysReport, StockReportingError } from "./service";
+import { nairobiBusinessDate } from "./dates";
 import { prisma } from "@/lib/prisma";
 
 export type StockReportActionResult =
@@ -363,6 +364,37 @@ export async function createRttEventAction(formData: FormData): Promise<RttActio
     }
     console.error("[stock-reporting] createRttEventAction", err);
     return { ok: false, error: "Could not save RTT entry. Please try again." };
+  }
+}
+
+export async function saveStockReceiptAction(params: {
+  stationId: string;
+  orderId: string;
+  allocations: { tankKey: string; litres: number }[];
+}): Promise<StockReportActionResult> {
+  try {
+    const session = await requireDealer();
+    const orgId = session.user.dealerOrganizationId!;
+    const { saveStockReceipt } = await import("./stock-receipt");
+    await saveStockReceipt({
+      dealerOrganizationId: orgId,
+      stationId: params.stationId,
+      orderId: params.orderId,
+      userId: session.user.id,
+      reportingDate: nairobiBusinessDate(),
+      allocations: params.allocations,
+    });
+    revalidatePath("/dealer/stock-reporting/rtt");
+    revalidatePath("/dealer/stock-reporting/tank-dips");
+    revalidatePath("/dealer/stock-reporting/wet-stock");
+    revalidatePath("/intelligence/retail");
+    return { ok: true, redirectTo: "/dealer/stock-reporting/rtt" };
+  } catch (err) {
+    if (err instanceof StockReportingError) {
+      return { ok: false, error: err.message, fieldErrors: err.fieldErrors };
+    }
+    console.error("[stock-reporting] saveStockReceiptAction", err);
+    return { ok: false, error: "Could not receipt this order. Please try again." };
   }
 }
 

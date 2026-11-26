@@ -38,6 +38,7 @@ import type { StaffIntelligenceViewModel } from "@/components/staff/staff-stock-
 import type { StaffMonetaryViewModel } from "@/components/staff/staff-monetary-sales";
 import type { StaffUser } from "@/lib/permissions";
 import { ensureStationTanks } from "@/lib/stock-reporting/tanks";
+import { currentTankStockLitres } from "@/lib/stock-reporting/stock-receipt";
 import { reconcilePumpsToTanks, type TankReconLine } from "@/lib/stock-reporting/tank-recon";
 import { nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
@@ -388,7 +389,13 @@ async function loadIntelligence(params: {
     }),
   ]);
 
-  const tanks = buildTankLevels(tanksRaw);
+  const stockNow = await currentTankStockLitres(stationId, today);
+  const tanks = buildTankLevels(
+    tanksRaw.map((tank) => ({
+      ...tank,
+      lastClosingLitres: stockNow.get(tank.tankKey) ?? tank.lastClosingLitres,
+    }))
+  );
   const totalStock = sumStockByProduct(tanks, "PMS") + sumStockByProduct(tanks, "AGO");
   const latestTankAt = tanksRaw.reduce<Date | null>((acc, t) => {
     if (!acc || t.updatedAt > acc) return t.updatedAt;

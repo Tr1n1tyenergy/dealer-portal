@@ -230,8 +230,9 @@ function sumMeterSales(report: ReportReadingSlice, product: ProductCodeLite): nu
 /**
  * Build mockup-style inventory recon from CLOSED dealer reports.
  *
- * Received / Purchases: always 0 until a delivery-receipt ledger exists
- * (`listEligibleStockDeliveries` is currently empty). Expected closing =
+ * Received / Purchases on this historical reconciliation stays 0.
+ * Live tank levels in Stock Intelligence include today's stock receipts.
+ * Expected closing =
  * Opening + Received − Sales; Variance = Actual − Expected.
  *
  * Period rules:

@@ -11,6 +11,7 @@ import {
   listStationsForDealer,
   pickDefaultStation,
 } from "@/lib/stock-reporting/service";
+import { listStockReceiptWorkspace } from "@/lib/stock-reporting/stock-receipt";
 
 export default async function StockReportingRttPage({
   searchParams,
@@ -33,9 +34,14 @@ export default async function StockReportingRttPage({
     dealerOrganizationId: orgId,
     stationId: station.id,
   });
-  const [summary, events] = await Promise.all([
+  const [summary, events, receipts] = await Promise.all([
     buildRttPumpSummaries({ stationId: station.id, reportingDate }),
     listRttEventsForDate({ stationId: station.id, reportingDate }),
+    listStockReceiptWorkspace({
+      dealerOrganizationId: orgId,
+      stationId: station.id,
+      reportingDate,
+    }),
   ]);
 
   return (
@@ -53,6 +59,9 @@ export default async function StockReportingRttPage({
         totalAgo: summary.totalAgo,
         total: summary.total,
       }}
+      receiptTanks={receipts.tanks}
+      receiptOrders={receipts.orders}
+      reportClosed={receipts.reportClosed}
     />
   );
 }

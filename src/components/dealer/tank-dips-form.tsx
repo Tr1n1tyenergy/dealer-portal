@@ -19,9 +19,11 @@ import {
 import { saveTankDipsAction } from "@/lib/stock-reporting/actions";
 import {
   calculateTankDip,
+  centsToLitres,
   formatLitresExact,
   formatLitresFixed,
   formatLitresWithUnit,
+  litresToCents,
   parseLitresInput,
   sumTankSalesByProduct,
 } from "@/lib/stock-reporting/tank-calc";
@@ -29,11 +31,12 @@ import type { TankReadingRowDto } from "@/lib/stock-reporting/tanks";
 import { cn } from "@/lib/utils";
 import { StockReportingWizardShell } from "./stock-reporting-wizard-shell";
 
-type DraftRow = { tankKey: string; closing: string };
+type DraftRow = { tankKey: string; opening: string; closing: string };
 
 function toDraft(rows: TankReadingRowDto[]): DraftRow[] {
   return rows.map((r) => ({
     tankKey: r.tankKey,
+    opening: formatLitresExact(r.openingLitres),
     closing: r.closingLitres == null ? "" : formatLitresExact(r.closingLitres),
   }));
 }
@@ -90,20 +93,28 @@ export function TankDipsForm({
   const [dirty, setDirty] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  const needsOpeningInit = initialReadings.some((row) => row.needsOpeningInit);
+
   const computed = useMemo(() => {
     return initialReadings.map((row) => {
       const d = draft.find((x) => x.tankKey === row.tankKey);
+      const opening = row.needsOpeningInit
+        ? parseLitresInput(d?.opening ?? "") ?? row.openingLitres
+        : row.openingLitres;
+      const stockForDip = centsToLitres(litresToCents(opening) + litresToCents(row.receiptLitres));
       const closing = parseLitresInput(d?.closing ?? "");
       const calc =
         closing == null
           ? null
           : calculateTankDip({
               capacity: row.capacityLitres,
-              opening: row.openingLitres,
+              opening: stockForDip,
               closing,
             });
       return {
         ...row,
+        opening,
+        stockForDip,
         closing,
         sales: calc?.ok ? calc.sales : null,
         ullage: calc?.ok ? calc.ullage : null,
@@ -120,21 +131,26 @@ export function TankDipsForm({
 
   const hasProvisional = computed.some((r) => r.provisional);
 
-  function updateRow(tankKey: string, closing: string) {
+  function updateRow(tankKey: string, patch: Partial<Pick<DraftRow, "opening" | "closing">>) {
     setDirty(true);
-    setDraft((prev) => prev.map((r) => (r.tankKey === tankKey ? { ...r, closing } : r)));
+    setDraft((prev) => prev.map((r) => (r.tankKey === tankKey ? { ...r, ...patch } : r)));
     setFieldErrors((prev) => {
       const next = { ...prev };
+      delete next[`${tankKey}.opening`];
       delete next[`${tankKey}.closing`];
       return next;
     });
   }
 
   function payload() {
-    return draft.map((d) => ({
-      tankKey: d.tankKey,
-      closingLitres: parseLitresInput(d.closing),
-    }));
+    return draft.map((d) => {
+      const meta = initialReadings.find((row) => row.tankKey === d.tankKey);
+      return {
+        tankKey: d.tankKey,
+        closingLitres: parseLitresInput(d.closing),
+        openingLitres: meta?.needsOpeningInit ? parseLitresInput(d.opening) : undefined,
+      };
+    });
   }
 
   function runSave(mode: "draft" | "complete", exitToDashboard = false) {
@@ -228,8 +244,9 @@ export function TankDipsForm({
           <div>
             <h2>2. Tank Dip Readings</h2>
             <p>
-              Enter the closing stock (dip) for each tank. Tank sales and ullage are calculated
-              automatically.
+              {needsOpeningInit
+                ? "Enter each tank’s opening stock once, then today’s closing dip. Tank sales and ullage are calculated automatically."
+                : "Enter the closing stock (dip) for each tank. Opening stock comes from the previous closing. Tank sales and ullage are calculated automatically."}
             </p>
           </div>
         </div>
@@ -241,12 +258,31 @@ export function TankDipsForm({
 
       {howOpen ? (
         <div className="ssw__how-pop" role="note">
-          <strong>Opening stock</strong> carries forward from the previous validated closing.{" "}
+          <strong>Opening stock</strong> is entered on the first report. After that report is
+          submitted, it carries forward from the previous closing and cannot be edited. Fuel
+          receipted today in Stock Receipt is added to that opening before tank sales are
+          calculated.{" "}
           <strong>Closing stock</strong> is today&apos;s dip/volume and cannot exceed capacity.{" "}
           <strong>Tank sales = Opening − Closing</strong> when there are no receipts; if closing
           exceeds opening, the figure is provisional until receipts are matched in Wet Stock
           Reconciliation. <strong>Ullage = Capacity − Closing</strong>.
         </div>
+      ) : null}
+
+      {needsOpeningInit && !readOnly ? (
+        <aside className="ssw__init-note" role="note" aria-label="First-time tank opening">
+          <span className="ssw__init-note-icon" aria-hidden>
+            <Info size={20} strokeWidth={2.35} />
+          </span>
+          <span className="ssw__init-note-divider" aria-hidden />
+          <div className="ssw__init-note-copy">
+            <p className="ssw__init-note-title">First-time tank opening</p>
+            <p className="ssw__init-note-text">
+              There is no previous closing for these tanks, so enter the opening stock this once.
+              The next report will use this closing and the opening field will be locked.
+            </p>
+          </div>
+        </aside>
       ) : null}
 
       {error ? (
@@ -272,6 +308,7 @@ export function TankDipsForm({
               <th scope="col">
                 <span className="ssw__th-tip">
                   Opening Stock (L)
+                  {needsOpeningInit ? <span className="ssw__req"> *</span> : null}
                   <Info size={12} strokeWidth={2.25} aria-hidden />
                 </span>
               </th>
@@ -291,10 +328,15 @@ export function TankDipsForm({
           <tbody>
             {computed.map((row) => {
               const d = draft.find((x) => x.tankKey === row.tankKey)!;
-              const closingErr = fieldErrors[`${row.tankKey}.closing`] || row.calcError;
+              const openingErr =
+                fieldErrors[`${row.tankKey}.opening`] ||
+                (row.calcError?.startsWith("Opening") ? row.calcError : null);
+              const closingErr =
+                fieldErrors[`${row.tankKey}.closing`] ||
+                (row.calcError && !row.calcError.startsWith("Opening") ? row.calcError : null);
               return (
                 <tr key={row.tankKey}>
-                  <td>
+                  <td className="ssw__tank-name-cell">
                     <span className="ssw__pump-cell">
                       <Layers size={15} strokeWidth={2.25} aria-hidden />
                       {row.label}
@@ -314,7 +356,29 @@ export function TankDipsForm({
                     <span className="ssw__ro">{formatLitresFixed(row.capacityLitres)}</span>
                   </td>
                   <td>
-                    <span className="ssw__ro">{formatLitresFixed(row.openingLitres)}</span>
+                    {row.needsOpeningInit && !readOnly ? (
+                      <>
+                        <input
+                          className={cn("ssw__input", openingErr && "is-invalid")}
+                          inputMode="decimal"
+                          value={d.opening}
+                          disabled={pending}
+                          aria-label={`${row.label} opening stock litres`}
+                          aria-invalid={Boolean(openingErr)}
+                          onChange={onGroupedInput(true, (value) =>
+                            updateRow(row.tankKey, { opening: value })
+                          )}
+                        />
+                        {openingErr ? <span className="ssw__field-error">{openingErr}</span> : null}
+                        {row.receiptLitres > 0 ? (
+                          <span className="ssw__field-error" style={{ color: "#1e3a8a" }}>
+                            Updated stock {formatLitresFixed(row.stockForDip)} L
+                          </span>
+                        ) : null}
+                      </>
+                    ) : (
+                      <span className="ssw__ro">{formatLitresFixed(row.stockForDip)}</span>
+                    )}
                   </td>
                   <td>
                     <input
@@ -324,7 +388,9 @@ export function TankDipsForm({
                       disabled={readOnly || pending}
                       aria-label={`${row.label} closing stock litres`}
                       aria-invalid={Boolean(closingErr)}
-                      onChange={onGroupedInput(true, (value) => updateRow(row.tankKey, value))}
+                      onChange={onGroupedInput(true, (value) =>
+                        updateRow(row.tankKey, { closing: value })
+                      )}
                     />
                     {closingErr ? <span className="ssw__field-error">{closingErr}</span> : null}
                   </td>

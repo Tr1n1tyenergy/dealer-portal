@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { destinationLabel, loaderFor, markSplashPending, portalKey, rscTarget, takeSplash } from "./loader-routes";
+import { destinationLabel, loaderFor, markSplashPending, portalKey, rscTarget, takeSplash, viewHasArrived } from "./loader-routes";
 
 describe("which loader a navigation shows", () => {
   it("knows the portal or module a path belongs to", () => {
@@ -50,6 +50,61 @@ describe("where a page request is going", () => {
   it("gives nothing for requests to other sites or unreadable input", () => {
     assert.equal(rscTarget("https://elsewhere.test/x?_rsc=1", "https://portal.test/"), undefined);
     assert.equal(rscTarget("http://[bad", "https://portal.test/"), undefined);
+  });
+});
+
+describe("when the loading screen may leave", () => {
+  const base = {
+    from: "/dealer/dashboard",
+    expected: "/dealer/stock-reporting",
+    startSignature: "Dashboard|4",
+  };
+
+  it("stays while the address or the previous page has not changed", () => {
+    assert.equal(
+      viewHasArrived({ ...base, here: "/dealer/dashboard", signature: "Dashboard|4" }),
+      false
+    );
+    assert.equal(
+      viewHasArrived({ ...base, here: "/dealer/stock-reporting", signature: "Dashboard|4" }),
+      false
+    );
+  });
+
+  it("stays while the route skeleton is still the thing on screen", () => {
+    assert.equal(
+      viewHasArrived({ ...base, here: "/dealer/stock-reporting", signature: "loading" }),
+      false
+    );
+  });
+
+  it("leaves only once the destination view is the one on screen", () => {
+    assert.equal(
+      viewHasArrived({ ...base, here: "/dealer/stock-reporting", signature: "Stock Reporting|6" }),
+      true
+    );
+    assert.equal(
+      viewHasArrived({
+        ...base,
+        here: "/dealer/stock-reporting/wet-stock",
+        signature: "Wet stock|8",
+      }),
+      true
+    );
+    assert.equal(
+      viewHasArrived({ ...base, here: "/dealer/dashboard", signature: "Dashboard|5" }),
+      false
+    );
+    assert.equal(
+      viewHasArrived({
+        from: "/dealer/orders",
+        expected: null,
+        here: "/dealer/orders?tab=open",
+        startSignature: "Orders|2",
+        signature: "Orders|3",
+      }),
+      true
+    );
   });
 });
 

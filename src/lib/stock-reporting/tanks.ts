@@ -1,6 +1,8 @@
 import type { ProductCode, StockSaleTankReading } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { writeOpenTankDetails, writeTankClosingRows, writeTankDipRows } from "./bulk-litre-writes";
 import { calculateTankDip, sumTankSalesByProduct } from "./tank-calc";
+import { addLitres, onReportReceiptLitres } from "./stock-receipt";
 import { StockReportingError } from "./service";
 
 const FUEL: ProductCode[] = ["PMS", "AGO"];
@@ -57,17 +59,19 @@ export async function ensureTankReadingsForReport(reportId: string, stationId: s
   }
 
   // Refresh capacity/label/sort from settings for open readings still on active tanks.
-  for (const t of tanks) {
-    await prisma.stockSaleTankReading.updateMany({
-      where: { reportId, tankKey: t.tankKey, closingLitres: null },
-      data: {
-        label: t.label,
-        sortOrder: t.sortOrder,
-        capacityLitres: t.capacityLitres,
-        product: t.product,
-      },
-    });
-  }
+  await writeOpenTankDetails(
+    prisma,
+    reportId,
+    tanks
+      .filter((tank): tank is typeof tank & { product: "PMS" | "AGO" } => tank.product === "PMS" || tank.product === "AGO")
+      .map((tank) => ({
+        tankKey: tank.tankKey,
+        label: tank.label,
+        sortOrder: tank.sortOrder,
+        capacityLitres: tank.capacityLitres,
+        product: tank.product,
+      }))
+  );
 
   return prisma.stockSaleTankReading.findMany({
     where: { reportId },
@@ -75,9 +79,31 @@ export async function ensureTankReadingsForReport(reportId: string, stationId: s
   });
 }
 
+/**
+ * Tank keys that already have a submitted dip on another report for this station.
+ * Those openings stay locked and come from the previous closing.
+ */
+export async function tankKeysWithCompletedPriorDip(stationId: string, reportId: string) {
+  const rows = await prisma.stockSaleTankReading.findMany({
+    where: {
+      closingLitres: { not: null },
+      report: {
+        stationId,
+        id: { not: reportId },
+        tankDipsCompletedAt: { not: null },
+      },
+    },
+    select: { tankKey: true },
+    distinct: ["tankKey"],
+  });
+  return new Set(rows.map((row) => row.tankKey));
+}
+
 export type TankReadingInput = {
   tankKey: string;
   closingLitres: number | null;
+  /** Accepted only when this tank has no submitted dip on an earlier report. */
+  openingLitres?: number | null;
 };
 
 export type SaveTankDipsMode = "draft" | "complete";
@@ -109,10 +135,13 @@ export async function saveTankDipReadings(params: {
     );
   }
 
+  const priorDips = await tankKeysWithCompletedPriorDip(report.stationId, report.id);
+  const receiptByTank = await onReportReceiptLitres(report.stationId, report.reportingDate);
   const byKey = new Map(params.readings.map((r) => [r.tankKey, r]));
   const fieldErrors: Record<string, string> = {};
   const computed: {
     tankKey: string;
+    openingLitres: number;
     closingLitres: number | null;
     salesLitres: number | null;
     ullageLitres: number | null;
@@ -121,7 +150,24 @@ export async function saveTankDipReadings(params: {
 
   for (const row of report.tankReadings) {
     const input = byKey.get(row.tankKey);
+    const needsInit = !priorDips.has(row.tankKey);
     const closing = input?.closingLitres ?? null;
+    let openingBase = row.openingLitres;
+
+    if (needsInit) {
+      if (input?.openingLitres != null) openingBase = input.openingLitres;
+      const openingRequired = params.mode === "complete" || closing != null;
+      if (openingRequired && input?.openingLitres == null) {
+        fieldErrors[`${row.tankKey}.opening`] = "Opening stock is required.";
+        continue;
+      }
+      if (input?.openingLitres != null && input.openingLitres < 0) {
+        fieldErrors[`${row.tankKey}.opening`] = "Opening stock must be nonnegative.";
+        continue;
+      }
+    }
+
+    const opening = addLitres(openingBase, receiptByTank.get(row.tankKey) ?? 0);
 
     if (params.mode === "complete") {
       if (closing == null) {
@@ -130,15 +176,17 @@ export async function saveTankDipReadings(params: {
       }
       const calc = calculateTankDip({
         capacity: row.capacityLitres,
-        opening: row.openingLitres,
+        opening,
         closing,
       });
       if (!calc.ok) {
-        fieldErrors[`${row.tankKey}.closing`] = calc.error;
+        const field = calc.error.startsWith("Opening") ? "opening" : "closing";
+        fieldErrors[`${row.tankKey}.${field}`] = calc.error;
         continue;
       }
       computed.push({
         tankKey: row.tankKey,
+        openingLitres: openingBase,
         closingLitres: closing,
         salesLitres: calc.sales,
         ullageLitres: calc.ullage,
@@ -147,15 +195,17 @@ export async function saveTankDipReadings(params: {
     } else if (closing != null) {
       const calc = calculateTankDip({
         capacity: row.capacityLitres,
-        opening: row.openingLitres,
+        opening,
         closing,
       });
       if (!calc.ok) {
-        fieldErrors[`${row.tankKey}.closing`] = calc.error;
+        const field = calc.error.startsWith("Opening") ? "opening" : "closing";
+        fieldErrors[`${row.tankKey}.${field}`] = calc.error;
         continue;
       }
       computed.push({
         tankKey: row.tankKey,
+        openingLitres: openingBase,
         closingLitres: closing,
         salesLitres: calc.sales,
         ullageLitres: calc.ullage,
@@ -164,6 +214,7 @@ export async function saveTankDipReadings(params: {
     } else {
       computed.push({
         tankKey: row.tankKey,
+        openingLitres: openingBase,
         closingLitres: null,
         salesLitres: null,
         ullageLitres: null,
@@ -185,17 +236,12 @@ export async function saveTankDipReadings(params: {
   );
 
   return prisma.$transaction(async (tx) => {
-    for (const row of computed) {
-      await tx.stockSaleTankReading.update({
-        where: {
-          reportId_tankKey: { reportId: report.id, tankKey: row.tankKey },
-        },
-        data: {
-          closingLitres: row.closingLitres,
-          salesLitres: row.salesLitres,
-          ullageLitres: row.ullageLitres,
-        },
-      });
+    const written = await writeTankDipRows(tx, report.id, computed);
+    if (written !== computed.length) {
+      throw new StockReportingError(
+        "Could not save every tank dip reading. Refresh and try again.",
+        "CONFLICT"
+      );
     }
 
     const data: Record<string, unknown> = {
@@ -223,12 +269,15 @@ export async function saveTankDipReadings(params: {
 
     if (params.mode === "complete") {
       data.tankDipsCompletedAt = new Date();
-      for (const row of computed) {
-        if (row.closingLitres == null) continue;
-        await tx.stationTank.updateMany({
-          where: { stationId: report.stationId, tankKey: row.tankKey },
-          data: { lastClosingLitres: row.closingLitres },
-        });
+      const closings = computed.flatMap((row) =>
+        row.closingLitres == null ? [] : [{ tankKey: row.tankKey, closingLitres: row.closingLitres }]
+      );
+      const stamped = await writeTankClosingRows(tx, report.stationId, closings);
+      if (stamped !== closings.length) {
+        throw new StockReportingError(
+          "Could not save every tank dip reading. Refresh and try again.",
+          "CONFLICT"
+        );
       }
     }
 
@@ -250,9 +299,17 @@ export type TankReadingRowDto = {
   closingLitres: number | null;
   salesLitres: number | null;
   ullageLitres: number | null;
+  /** True only until this tank has a submitted dip on an earlier report. */
+  needsOpeningInit: boolean;
+  /** Fuel receipted today that is added on top of the start-of-day opening. */
+  receiptLitres: number;
 };
 
-export function toTankReadingDto(row: StockSaleTankReading): TankReadingRowDto {
+export function toTankReadingDto(
+  row: StockSaleTankReading,
+  needsOpeningInit = false,
+  receiptLitres = 0
+): TankReadingRowDto {
   return {
     id: row.id,
     tankKey: row.tankKey,
@@ -263,5 +320,22 @@ export function toTankReadingDto(row: StockSaleTankReading): TankReadingRowDto {
     closingLitres: row.closingLitres,
     salesLitres: row.salesLitres,
     ullageLitres: row.ullageLitres,
+    needsOpeningInit,
+    receiptLitres,
   };
+}
+
+export async function toTankReadingDtos(
+  rows: StockSaleTankReading[],
+  stationId: string,
+  reportId: string,
+  reportingDate: Date
+): Promise<TankReadingRowDto[]> {
+  const [priorDips, receipts] = await Promise.all([
+    tankKeysWithCompletedPriorDip(stationId, reportId),
+    onReportReceiptLitres(stationId, reportingDate),
+  ]);
+  return rows.map((row) =>
+    toTankReadingDto(row, !priorDips.has(row.tankKey), receipts.get(row.tankKey) ?? 0)
+  );
 }
