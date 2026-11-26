@@ -13,6 +13,15 @@ export type PfiTotals = {
 
 const toAmount = (cents: number) => (cents / 100).toFixed(2);
 
+/** n × a decimal written as text, rounded half up to a whole number. Exact: 5000 × 195.203703 in floats rounds a half cent down. */
+function timesDecimal(n: number, decimal: string): number {
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(decimal.trim());
+  if (!match) throw new Error(`Not a plain decimal: ${decimal}`);
+  const scale = BigInt("1" + "0".repeat((match[3] ?? "").length));
+  const magnitude = Number((BigInt(n) * BigInt(match[2] + (match[3] ?? "")) + scale / BigInt(2)) / scale);
+  return match[1] ? -magnitude : magnitude;
+}
+
 /**
  * PFI money, worked in whole cents: each line is litres × unit price before VAT, the subtotal is
  * the sum of the lines, VAT is the subtotal × rate, and the total is the two added together.
@@ -20,10 +29,10 @@ const toAmount = (cents: number) => (cents / 100).toFixed(2);
 export function pfiTotals(lines: PfiLineInput[], vatRate: string = PFI_VAT_RATE): PfiTotals {
   const priced = lines.map((line) => ({
     ...line,
-    cents: Math.round(line.quantityLitres * Number(line.unitPriceExVat) * 100),
+    cents: timesDecimal(line.quantityLitres * 100, line.unitPriceExVat),
   }));
   const subtotalCents = priced.reduce((sum, line) => sum + line.cents, 0);
-  const vatCents = Math.round(subtotalCents * Number(vatRate));
+  const vatCents = timesDecimal(subtotalCents, vatRate);
   return {
     lines: priced.map(({ cents, ...line }) => ({ ...line, amount: toAmount(cents) })),
     subtotal: toAmount(subtotalCents),
