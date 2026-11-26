@@ -1,88 +1,44 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { AppShell } from "@/components/layout/app-shell";
-import { RecordingStudio } from "@/components/note-taker/recording-studio";
-import { Button } from "@/components/ui/button";
-import "@/components/note-taker/recording-countdown.css";
-import "@/components/note-taker/recording-live.css";
+import { canUser } from "@/lib/permissions";
+import { ModuleShell } from "@/components/module-shell/module-shell";
+import { LiveRecorder } from "@/components/note-taker/live-recorder";
 
-export default async function NoteSessionPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function NoteSessionPage({ params }: { params: Promise<{ id: string }> }) {
   const auth = await requireSession();
+  if (!canUser(auth.user, "noteSessions", "view")) redirect("/intelligence/dashboard");
   const { id } = await params;
-  const isAdmin = auth.user.role === "SUPER_ADMIN";
-
   const session = await prisma.noteSession.findFirst({
-    where: {
-      id,
-      ...(isAdmin ? {} : { userId: auth.user.id }),
-    },
+    where: { id, ...(auth.user.role === "SUPER_ADMIN" ? {} : { userId: auth.user.id }) },
   });
-
   if (!session) notFound();
+  if (session.status === "COMPLETED") redirect(`/intelligence/note-taker/${session.id}/notes`);
 
-  if (session.status === "COMPLETED") {
-    return (
-      <AppShell>
-        <div className="card-premium p-8">
-          <h1 className="text-2xl font-black text-trinity-navy">{session.name}</h1>
-          <p className="mt-2 text-slate-500">This session is complete.</p>
-          <div className="mt-6">
-            <Link href={`/intelligence/note-taker/${session.id}/notes`}>
-              <Button>View Meeting Notes</Button>
-            </Link>
-          </div>
-        </div>
-      </AppShell>
-    );
-  }
-
-  if (session.status === "SCHEDULED") {
-    return (
-      <AppShell>
-        <div className="card-premium p-8">
-          <div className="text-xs font-bold uppercase tracking-wider text-trinity-gold">
-            Scheduled
-          </div>
-          <h1 className="mt-2 text-3xl font-black text-trinity-navy">{session.name}</h1>
-          <p className="mt-3 text-slate-500">
-            Scheduled for {session.scheduledAt?.toLocaleString() ?? "soon"}.
-          </p>
-          <form
-            className="mt-6"
-            action={async () => {
-              "use server";
-              const { redirect } = await import("next/navigation");
-              await prisma.noteSession.update({
-                where: { id: session.id },
-                data: { status: "COUNTDOWN" },
-              });
-              redirect(`/intelligence/note-taker/${session.id}`);
-            }}
-          >
-            <Button type="submit">Start Countdown</Button>
-          </form>
-        </div>
-      </AppShell>
-    );
+  async function startNow() {
+    "use server";
+    const me = await requireSession();
+    await prisma.noteSession.updateMany({
+      where: { id, userId: me.user.id, status: "SCHEDULED" },
+      data: { status: "COUNTDOWN" },
+    });
+    redirect(`/intelligence/note-taker/${id}`);
   }
 
   return (
-    <AppShell>
-      <RecordingStudio
+    <ModuleShell user={auth.user} current="note-taker">
+      <LiveRecorder
+        key={session.status}
+        startNow={session.userId === auth.user.id ? startNow : undefined}
         session={{
           id: session.id,
           name: session.name,
           status: session.status,
-          startedAt: session.startedAt?.toISOString(),
+          startedAt: session.startedAt?.toISOString() ?? null,
+          scheduledAt: session.scheduledAt?.toISOString() ?? null,
           timeLimitSeconds: session.timeLimitSeconds,
         }}
       />
-    </AppShell>
+    </ModuleShell>
   );
 }

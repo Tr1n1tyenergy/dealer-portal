@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { noteTakerStats } from "./stats";
+import { actionTally, noteTakerStats } from "./stats";
 
 const now = new Date("2026-11-20T09:00:00Z");
 const s = (startedAt: string | null, durationSeconds: number | null, notesStatus = "PENDING", status = "COMPLETED") => ({
@@ -35,4 +35,12 @@ test("counts this Nairobi month only and compares with last month", () => {
 test("nothing last month: no percentage", () => {
   const r = noteTakerStats([s("2026-11-03T07:00:00Z", 3600, "READY")], now);
   assert.deepEqual(r.trend, { meetings: null, hours: null, notes: null });
+});
+
+test("open actions: every action item in the notes, minus the ticked ones", () => {
+  const json = (actionItems: string[], doneActions?: number[]) => JSON.stringify({ actionItems, doneActions });
+  assert.deepEqual(
+    actionTally([{ notesJson: json(["a", "b", "c"], [1]) }, { notesJson: json(["d"]) }, { notesJson: null }, { notesJson: "not json" }]),
+    { open: 3, total: 4 },
+  );
 });

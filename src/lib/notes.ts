@@ -8,6 +8,8 @@ export type MeetingNotes = {
   opportunities: string[];
   followUpTasks: string[];
   summary: string;
+  /** Indexes of actionItems ticked as done on the notes page. */
+  doneActions?: number[];
 };
 
 export function generateStructuredNotes(params: {
@@ -59,7 +61,36 @@ export type PresentationSlide = {
   subtitle?: string;
 };
 
+/** The sections a deck can have after its title slide, in deck order, with the builder's labels. */
+export const DECK_SECTIONS = [
+  ["summary", "Summary"],
+  ["topics", "What we discussed"],
+  ["decisions", "Decisions"],
+  ["actions", "Actions"],
+  ["risks", "Risks"],
+  ["opportunities", "Opportunities"],
+  ["next", "Next steps"],
+] as const;
+export type DeckSection = (typeof DECK_SECTIONS)[number][0];
+export const DECK_SECTION_KEYS = DECK_SECTIONS.map(([k]) => k) as [DeckSection, ...DeckSection[]];
+
 export function generatePresentationSlides(params: {
+  meetingName: string;
+  dateLabel: string;
+  presenter: string;
+  notes: MeetingNotes;
+  /** Sections to include; all when absent. The title slide is always kept. */
+  sections?: DeckSection[];
+}): PresentationSlide[] {
+  const slides = buildSlides(params);
+  return slides.filter(
+    (s, i) =>
+      i === 0 ||
+      ((!params.sections || params.sections.includes(s.id as DeckSection)) && s.bullets.some(Boolean))
+  );
+}
+
+function buildSlides(params: {
   meetingName: string;
   dateLabel: string;
   presenter: string;

@@ -215,6 +215,8 @@ model Presentation {
   noteSession   NoteSession? @relation(fields: [noteSessionId], references: [id], onDelete: SetNull)
   slidesJson    String
   presenter     String?
+  /// Slide look chosen in the deck builder: light | blue | photo | warm.
+  theme         String      @default("light")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 

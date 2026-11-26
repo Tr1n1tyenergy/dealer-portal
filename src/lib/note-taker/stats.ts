@@ -34,3 +34,22 @@ export function noteTakerStats(sessions: SessionLike[], at: Date = new Date()) {
     trend: { meetings: change(now.meetings, before.meetings), hours: change(now.hours, before.hours), notes: change(now.notes, before.notes) },
   };
 }
+
+/** Action items across the notes, and how many are not ticked yet. */
+export function actionTally(sessions: { notesJson: string | null }[]) {
+  let open = 0;
+  let total = 0;
+  for (const s of sessions) {
+    let notes: { actionItems?: unknown; doneActions?: unknown } | null = null;
+    try {
+      notes = s.notesJson ? JSON.parse(s.notesJson) : null;
+    } catch {
+      notes = null;
+    }
+    const items = Array.isArray(notes?.actionItems) ? notes.actionItems.length : 0;
+    const done = Array.isArray(notes?.doneActions) ? new Set(notes.doneActions).size : 0;
+    total += items;
+    open += Math.max(0, items - done);
+  }
+  return { open, total };
+}
