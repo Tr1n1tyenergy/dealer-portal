@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireDealer } from "@/lib/session";
+import { requireDealerApi } from "@/lib/api-auth";
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   decimalToNumber,
@@ -30,7 +30,9 @@ function isoStamp(d: Date): string {
 
 export async function GET(req: Request) {
   try {
-    const session = await requireDealer();
+    const auth = await requireDealerApi();
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
     const orgId = session.user.dealerOrganizationId!;
     const url = new URL(req.url);
     const format = url.searchParams.get("format") === "xlsx" ? "xlsx" : "csv";

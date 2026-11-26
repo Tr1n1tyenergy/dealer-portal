@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireDealer } from "@/lib/session";
+import { requireDealerApi } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { readRttJobCard } from "@/lib/stock-reporting/rtt-storage";
 
@@ -7,7 +7,9 @@ type Ctx = { params: Promise<{ eventId: string }> };
 
 export async function GET(_req: Request, ctx: Ctx) {
   try {
-    const session = await requireDealer();
+    const auth = await requireDealerApi();
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
     const orgId = session.user.dealerOrganizationId!;
     const { eventId } = await ctx.params;
 
