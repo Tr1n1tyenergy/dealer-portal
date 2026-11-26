@@ -112,6 +112,7 @@ export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: Us
 
   return (
     <div className="space-y-6">
+      {canManage ? (
       <Card>
         <CardHeader>
           <CardTitle>Create User</CardTitle>
@@ -183,6 +184,7 @@ export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: Us
           </form>
         </CardContent>
       </Card>
+      ) : null}
 
       <div className="card-premium overflow-hidden">
         <div className="border-b border-black/5 px-6 py-4 text-lg font-bold text-trinity-navy">
@@ -211,6 +213,8 @@ export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: Us
                   <td className="px-6 py-4">{roleLabel(u.role)}</td>
                   <td className="px-6 py-4">{u.status}</td>
                   <td className="px-6 py-4">
+                    {/* View-only roles see the list; the server refuses their changes anyway (adminUsers.act). */}
+                    {canManage ? (
                     <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
@@ -230,7 +234,7 @@ export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: Us
                       >
                         Reset Invite
                       </Button>
-                      {canManage && u.accountType === "INTERNAL" ? (
+                      {u.accountType === "INTERNAL" ? (
                         <Button size="sm" variant="outline" onClick={() => setPermissionsFor(u)}>
                           Permissions
                         </Button>
@@ -239,6 +243,9 @@ export function UsersAdminClient({ initialUsers, canManage }: { initialUsers: Us
                         Delete
                       </Button>
                     </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">View only</span>
+                    )}
                   </td>
                 </tr>
               ))}
