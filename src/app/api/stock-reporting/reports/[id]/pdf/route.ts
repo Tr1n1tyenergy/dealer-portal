@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireDealer } from "@/lib/session";
+import { requireDealerApi } from "@/lib/api-auth";
 import { renderStockSaleReportPdf } from "@/lib/stock-reporting/report-pdf";
 import { getReportForDealer, StockReportingError } from "@/lib/stock-reporting/service";
 
@@ -14,7 +14,9 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await requireDealer();
+    const auth = await requireDealerApi();
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
     const { id } = await context.params;
     const report = await getReportForDealer({
       dealerOrganizationId: session.user.dealerOrganizationId!,
