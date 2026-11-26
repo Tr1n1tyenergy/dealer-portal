@@ -23,6 +23,7 @@ export function getPusherServer(): Pusher | null {
       secret: process.env.PUSHER_SECRET!,
       cluster: process.env.PUSHER_CLUSTER!,
       useTLS: true,
+      timeout: 5_000, // a hung Pusher must not hold message sends open until the function times out
     });
   }
   return client;
