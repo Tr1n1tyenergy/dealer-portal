@@ -20,3 +20,8 @@ export async function getStoredFile(key: string, legacyRoot: string): Promise<Bu
 export async function deleteStoredFile(key: string): Promise<void> {
   await prisma.storedFile.deleteMany({ where: { key } });
 }
+
+/** An uploaded file's name made safe for storage keys and download headers (ASCII, no paths). */
+export function safeFileName(name: string, fallback: string): string {
+  return name.replace(/[^\w.\-()+ ]+/g, "_").slice(0, 180) || fallback;
+}

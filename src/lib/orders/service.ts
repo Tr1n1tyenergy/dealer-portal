@@ -655,11 +655,6 @@ async function writeReviewedDraft(paymentId: string, odoo: OdooClient, currencyI
   });
 }
 
-export async function retryPaymentOdoo(paymentId: string, actorId: string, odoo: OdooClient = getOdooClient()) {
-  await pushPaymentToOdoo(paymentId, odoo);
-  await logActivity({ actorId, action: "PAYMENT_ODOO_RETRY", entity: "PaymentRecord", entityId: paymentId });
-}
-
 /**
  * Staff confirm or flag one payment. With Odoo payments on, Confirm posts the manual payment's draft
  * (or re-checks an M-PESA payment Odoo already posted) and the portal only confirms what Odoo posted;

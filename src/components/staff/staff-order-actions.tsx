@@ -16,7 +16,6 @@ export type StaffWaitingPayment = {
   dealerNote: string | null;
   odooText: string;
   odooError: boolean;
-  canRetryOdoo: boolean;
 };
 
 export type StaffOrderActionsProps = {

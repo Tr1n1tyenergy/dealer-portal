@@ -3,7 +3,7 @@ import { canUser } from "@/lib/permissions";
 import { requireInternalApi } from "@/lib/api-auth";
 import { logActivity } from "@/lib/activity";
 import { prisma } from "@/lib/prisma";
-import { sanitizeSpreadsheetText } from "@/lib/stock-reporting/records-export";
+import { csvEscape, sanitizeSpreadsheetText } from "@/lib/stock-reporting/records-export";
 import {
   aggregateStaffReconciliation,
   defaultStaffReportDate,
@@ -28,11 +28,6 @@ function parsePeriod(raw: string | null): StaffReportingPeriod {
     return raw;
   }
   return "day";
-}
-
-function csvEscape(value: string): string {
-  if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
 }
 
 function cell(value: string | number | null | undefined): string {

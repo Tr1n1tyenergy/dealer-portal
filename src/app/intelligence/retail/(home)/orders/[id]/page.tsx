@@ -223,7 +223,6 @@ export default async function StaffOrderDetailsPage({
                     dealerNote: payment.note,
                     odooText: odooLine(payment, odooPayments, account?.bank),
                     odooError: Boolean(payment.odooError),
-                    canRetryOdoo: Boolean(payment.odooError && payment.method === "MANUAL" && payment.odooPaymentId == null),
                   };
                 })}
                 showPaymentPlaceholder={

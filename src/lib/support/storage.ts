@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import path from "node:path";
-import { deleteStoredFile, getStoredFile, putStoredFile } from "@/lib/files/stored-files";
+import { deleteStoredFile, getStoredFile, putStoredFile, safeFileName } from "@/lib/files/stored-files";
 import {
   ALLOWED_SUPPORT_MIME,
   MAX_SUPPORT_ATTACHMENT_BYTES,
@@ -32,9 +32,6 @@ function sniffMime(buf: Buffer): string | null {
   return null;
 }
 
-function safeFileName(name: string) {
-  return name.replace(/[^\w.\-()+ ]+/g, "_").slice(0, 180) || "attachment";
-}
 
 export type ValidatedUpload = {
   buffer: Buffer;
@@ -59,7 +56,7 @@ export async function validateSupportUpload(file: File): Promise<ValidatedUpload
   }
   return {
     buffer,
-    fileName: safeFileName(file.name || `upload.${sniffed.split("/")[1]}`),
+    fileName: safeFileName(file.name || `upload.${sniffed.split("/")[1]}`, "attachment"),
     mimeType: sniffed,
     sizeBytes: buffer.length,
   };

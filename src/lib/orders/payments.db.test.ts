@@ -205,7 +205,7 @@ describe(
         assert.equal(payment.odooPaymentId, null);
         assert.match(payment.odooError ?? "", /could not be reached/);
 
-        await service.retryPaymentOdoo(paymentId, staffId);
+        await service.pushPaymentToOdoo(paymentId);
         const retried = await prisma.paymentRecord.findUniqueOrThrow({ where: { id: paymentId } });
         assert.equal(retried.odooState, "draft");
         assert.equal(retried.odooError, null);
@@ -339,7 +339,7 @@ describe(
             return { id: 1, state: "draft" };
           },
         });
-        await service.retryPaymentOdoo(rejected.id, staffId, counting);
+        await service.pushPaymentToOdoo(rejected.id, counting);
         assert.equal(drafts, 0);
         assert.equal((await payment(rejected.id)).odooPaymentId, null);
       });

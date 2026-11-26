@@ -53,7 +53,7 @@ function cellString(value: string | number | null | undefined): string {
   return sanitizeSpreadsheetText(String(value));
 }
 
-function csvEscape(value: string): string {
+export function csvEscape(value: string): string {
   if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
   return value;
 }

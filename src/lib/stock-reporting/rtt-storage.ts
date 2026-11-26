@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import path from "node:path";
-import { deleteStoredFile, getStoredFile, putStoredFile } from "@/lib/files/stored-files";
+import { deleteStoredFile, getStoredFile, putStoredFile, safeFileName } from "@/lib/files/stored-files";
 
 import { RTT_JOB_CARD_MAX_BYTES } from "./rtt-constants";
 
@@ -18,9 +18,6 @@ function sniffPdf(buf: Buffer): boolean {
   return buf.length >= 5 && buf.toString("ascii", 0, 5) === "%PDF-";
 }
 
-function safeFileName(name: string) {
-  return name.replace(/[^\w.\-()+ ]+/g, "_").slice(0, 180) || "job-card.pdf";
-}
 
 export type ValidatedRttJobCard = {
   buffer: Buffer;
@@ -38,7 +35,7 @@ export async function validateRttJobCard(file: File): Promise<ValidatedRttJobCar
   if (!sniffPdf(buffer)) {
     throw new Error("Job card must be a PDF file.");
   }
-  const name = safeFileName(file.name || "job-card.pdf");
+  const name = safeFileName(file.name || "job-card.pdf", "job-card.pdf");
   const withExt = name.toLowerCase().endsWith(".pdf") ? name : `${name}.pdf`;
   return {
     buffer,
