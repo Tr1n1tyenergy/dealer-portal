@@ -33,14 +33,17 @@ export default async function PumpMetersStagePage({
     redirect("/dealer/stock-reporting");
   }
 
-  const report = await startTodaysReport({
-    dealerOrganizationId: orgId,
-    stationId: station.id,
-    userId: session.user.id,
-  });
+  const [report, linked] = await Promise.all([
+    startTodaysReport({
+      dealerOrganizationId: orgId,
+      stationId: station.id,
+      userId: session.user.id,
+    }),
+    loadLinkedEquipment(station.id),
+  ]);
 
   const readings = await ensurePumpReadingsForReport(report.id, station.id);
-  const equipment = resolveStationEquipment(station, await loadLinkedEquipment(station.id));
+  const equipment = resolveStationEquipment(station, linked);
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
 
   return (

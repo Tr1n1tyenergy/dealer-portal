@@ -5,8 +5,15 @@ const globalForPrisma = globalThis as unknown as {
   prismaSchemaStamp?: string;
 };
 
-/** Bump when schema relations change so HMR drops a stale Prisma singleton. */
-const PRISMA_SCHEMA_STAMP = "tank-pumps-2026-11-26";
+/** Bump when schema relations or client options change so HMR drops a stale singleton. */
+const PRISMA_SCHEMA_STAMP = "stock-receipt-2026-11-26";
+
+/**
+ * Neon round-trips are often slower than Prisma's 2s wait and 5s body limits.
+ * Those defaults expire the transaction (P2028) once a save touches more than a
+ * few rows, and the database then rolls the whole save back.
+ */
+const TRANSACTION_OPTIONS = { maxWait: 15_000, timeout: 30_000 } as const;
 
 /**
  * Neon pooler + Turbopack HMR can exhaust default Prisma pools
@@ -39,6 +46,7 @@ function databaseUrlWithPoolDefaults(): string | undefined {
 function createPrismaClient() {
   return new PrismaClient({
     datasources: { db: { url: databaseUrlWithPoolDefaults() } },
+    transactionOptions: TRANSACTION_OPTIONS,
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 }
@@ -56,6 +64,7 @@ const REQUIRED_DELEGATES = [
   "transportCompany",
   "stationFuelPrice",
   "storedFile",
+  "stockReceipt",
 ] as const;
 
 /**
@@ -87,6 +96,7 @@ function isFreshPrismaClient(client: PrismaClient): boolean {
   if (!modelHasField(client, "StationTank", "pumps")) return false;
   if (!modelHasField(client, "StationPump", "tankId")) return false;
   if (!modelHasField(client, "StationPump", "tank")) return false;
+  if (!modelHasField(client, "DealerOrder", "stockReceipt")) return false;
   return true;
 }
 

@@ -16,7 +16,6 @@ import {
   Loader2,
   Pencil,
   Scale,
-  Truck,
 } from "lucide-react";
 import { saveWetStockAction } from "@/lib/stock-reporting/actions";
 import { formatLitresWithUnit } from "@/lib/stock-reporting/pump-calc";
@@ -61,7 +60,6 @@ export function WetStockForm({
   updatedAt,
   reportProgress,
   readOnly,
-  eligibleDeliveryCount,
 }: {
   reportId: string;
   revision: number;
@@ -85,12 +83,11 @@ export function WetStockForm({
     monetaryCompletedAt: string | null;
   };
   readOnly: boolean;
-  eligibleDeliveryCount: number;
 }) {
   const router = useRouter();
   const [revision, setRevision] = useState(initialRevision);
   const [resolution, setResolution] = useState<ResolutionUi>(
-    initialResolution === "BALANCED" ? "NONE" : initialResolution
+    initialResolution === "BALANCED" || initialResolution === "MATCH_DELIVERY" ? "NONE" : initialResolution
   );
   const [lossReason, setLossReason] = useState(initialLossReason ?? "");
   const [howOpen, setHowOpen] = useState(false);
@@ -225,9 +222,10 @@ export function WetStockForm({
           <strong>Meter sales</strong> are the pumps linked to each tank, added together.{" "}
           <strong>Tank stock sales</strong> are that tank&apos;s single dip (Opening − Closing).{" "}
           <strong>Variance = those pumps − that tank</strong>. Product totals add the tanks of the
-          same fuel. A gain on one tank does not cancel a loss on another. Match a delivery only
-          when a verified receipt exists; otherwise correct readings or acknowledge a variance for
-          review. Acknowledging does not automatically post an inventory write-off.
+          same fuel. A gain on one tank does not cancel a loss on another. Fuel received today is
+          recorded in Stock Receipt, which updates the opening used for these dips. A remaining
+          variance is corrected in the readings or acknowledged for review. Acknowledging does not
+          automatically post an inventory write-off.
         </div>
       ) : null}
 
@@ -407,26 +405,6 @@ export function WetStockForm({
           <div className="ssw__resolve-options" role="radiogroup" aria-label="Resolution method">
             <button
               type="button"
-              className={cn("ssw__opt", resolution === "MATCH_DELIVERY" && "is-selected")}
-              aria-checked={resolution === "MATCH_DELIVERY"}
-              role="radio"
-              disabled={readOnly || pending}
-              onClick={() => pick("MATCH_DELIVERY")}
-            >
-              <div className="ssw__opt-top">
-                <span className="ssw__opt-icon">
-                  <Truck size={18} strokeWidth={2.25} aria-hidden />
-                </span>
-                <span className="ssw__radio" aria-hidden>
-                  {resolution === "MATCH_DELIVERY" ? <span className="ssw__radio-dot" /> : null}
-                </span>
-              </div>
-              <strong>Match a Stock Delivery</strong>
-              <span>Reconcile using a confirmed delivery received today.</span>
-            </button>
-
-            <button
-              type="button"
               className={cn("ssw__opt", resolution === "REVIEW_READINGS" && "is-selected")}
               aria-checked={resolution === "REVIEW_READINGS"}
               role="radio"
@@ -468,20 +446,6 @@ export function WetStockForm({
               </span>
             </button>
           </div>
-
-          {resolution === "MATCH_DELIVERY" ? (
-            <div className="ssw__opt-panel">
-              <h4>Stock deliveries</h4>
-              {eligibleDeliveryCount === 0 ? (
-                <p>
-                  No eligible stock deliveries were found for this reporting period. Choose another
-                  option or correct readings. Deliveries are never invented.
-                </p>
-              ) : (
-                <p>{eligibleDeliveryCount} eligible delivery record(s) available to match.</p>
-              )}
-            </div>
-          ) : null}
 
           {resolution === "REVIEW_READINGS" ? (
             <div className="ssw__opt-panel">

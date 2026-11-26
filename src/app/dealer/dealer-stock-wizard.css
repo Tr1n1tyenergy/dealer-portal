@@ -382,19 +382,22 @@
   font-weight: 700;
 }
 
-.ssw__tank-group-count {
-  margin-left: 0.65rem;
-  color: #3551a5;
-  font-size: 0.82rem;
-  font-weight: 650;
-}
-
 .ssw__pump-cell {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   font-weight: 750;
   color: var(--ssw-ink);
+}
+
+.ssw__tank-name-cell {
+  white-space: nowrap;
+  width: 1%;
+}
+
+.ssw__tank-name-cell .ssw__pump-cell {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .ssw__pump-cell svg {
@@ -888,7 +891,7 @@
 
 .ssw__resolve-options {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 

@@ -1,5 +1,7 @@
 import type { ProductCode, StockSalePumpReading, StockSaleReport } from "@prisma/client";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
+import { writePumpClosingRows, writePumpMeterRows, writePumpReadingPatches } from "./bulk-litre-writes";
 import { defaultPumpDefinitions } from "./equipment";
 import { calculatePumpSales, sumSalesByProduct } from "./pump-calc";
 import { sumActiveRttByPumpKey } from "./rtt";
@@ -15,9 +17,11 @@ const tankSelect = {
   sortOrder: true,
 } as const;
 
-export async function ensureStationPumps(stationId: string) {
-  const existing = await prisma.stationPump.findMany({ where: { stationId } });
-  const tankCount = await prisma.stationTank.count({ where: { stationId, active: true } });
+export const ensureStationPumps = cache(async (stationId: string) => {
+  const [existing, tankCount] = await Promise.all([
+    prisma.stationPump.findMany({ where: { stationId } }),
+    prisma.stationTank.count({ where: { stationId, active: true } }),
+  ]);
   // A station with tanks reports only the pumps linked to those tanks.
   // Unlinked leftovers from the old one-pump-per-tank seed stay out of the meter list.
   if (tankCount > 0) {
@@ -74,22 +78,23 @@ export async function ensureStationPumps(stationId: string) {
     include: { tank: { select: tankSelect } },
     orderBy: { sortOrder: "asc" },
   });
-}
+});
 
 export async function ensurePumpReadingsForReport(reportId: string, stationId: string) {
   const pumps = await ensureStationPumps(stationId);
-  const report = await prisma.stockSaleReport.findUnique({
-    where: { id: reportId },
-    select: { reportingDate: true },
-  });
+  const [report, existing] = await Promise.all([
+    prisma.stockSaleReport.findUnique({
+      where: { id: reportId },
+      select: { reportingDate: true },
+    }),
+    prisma.stockSalePumpReading.findMany({ where: { reportId } }),
+  ]);
   if (!report) throw new StockReportingError("Report not found.", "NOT_FOUND");
-
-  const existing = await prisma.stockSalePumpReading.findMany({ where: { reportId } });
-  const have = new Set(existing.map((r) => r.pumpKey));
   const rttByPump = await sumActiveRttByPumpKey({
     stationId,
     reportingDate: report.reportingDate,
   });
+  const have = new Set(existing.map((row) => row.pumpKey));
 
   const activeKeys = new Set(pumps.map((p) => p.pumpKey));
   const staleOpen = existing.filter((row) => !activeKeys.has(row.pumpKey) && row.closingLitres == null);
@@ -119,26 +124,33 @@ export async function ensurePumpReadingsForReport(reportId: string, stationId: s
 
   // Keep RTT Applied in sync with live RTT module events (draft reports only).
   const rows = await prisma.stockSalePumpReading.findMany({ where: { reportId } });
+  const patches: Array<{ id: string; rttLitres: number; salesLitres: number | null; updateSales: boolean }> = [];
   for (const row of rows) {
     const rtt = rttByPump.get(row.pumpKey) ?? 0;
-    if (row.rttLitres !== rtt && row.closingLitres == null) {
-      await prisma.stockSalePumpReading.update({
-        where: { id: row.id },
-        data: { rttLitres: rtt },
-      });
-    } else if (row.rttLitres !== rtt && row.closingLitres != null) {
-      const calc = calculatePumpSales({
-        opening: row.openingLitres,
-        closing: row.closingLitres,
-        rtt,
-      });
-      await prisma.stockSalePumpReading.update({
-        where: { id: row.id },
-        data: {
-          rttLitres: rtt,
-          salesLitres: calc.ok ? calc.sales : null,
-        },
-      });
+    if (row.rttLitres === rtt) continue;
+    if (row.closingLitres == null) {
+      patches.push({ id: row.id, rttLitres: rtt, salesLitres: null, updateSales: false });
+      continue;
+    }
+    const calc = calculatePumpSales({
+      opening: row.openingLitres,
+      closing: row.closingLitres,
+      rtt,
+    });
+    patches.push({
+      id: row.id,
+      rttLitres: rtt,
+      salesLitres: calc.ok ? calc.sales : null,
+      updateSales: true,
+    });
+  }
+  if (patches.length) {
+    const written = await writePumpReadingPatches(prisma, patches);
+    if (written !== patches.length) {
+      throw new StockReportingError(
+        "Could not apply return-to-tank volumes. Refresh and try again.",
+        "CONFLICT"
+      );
     }
   }
 
@@ -286,18 +298,12 @@ export async function savePumpMeterReadings(params: {
   );
 
   const updated = await prisma.$transaction(async (tx) => {
-    for (const row of computed) {
-      await tx.stockSalePumpReading.update({
-        where: {
-          reportId_pumpKey: { reportId: report.id, pumpKey: row.pumpKey },
-        },
-        data: {
-          openingLitres: row.openingLitres,
-          closingLitres: row.closingLitres,
-          rttLitres: row.rttLitres,
-          salesLitres: row.salesLitres,
-        },
-      });
+    const written = await writePumpMeterRows(tx, report.id, computed);
+    if (written !== computed.length) {
+      throw new StockReportingError(
+        "Could not save every pump meter reading. Refresh and try again.",
+        "CONFLICT"
+      );
     }
 
     const data: Record<string, unknown> = {
@@ -329,15 +335,15 @@ export async function savePumpMeterReadings(params: {
 
     if (params.mode === "complete") {
       data.pumpMetersCompletedAt = new Date();
-      for (const row of computed) {
-        if (row.closingLitres == null) continue;
-        await tx.stationPump.updateMany({
-          where: { stationId: report.stationId, pumpKey: row.pumpKey },
-          data: {
-            lastClosingLitres: row.closingLitres,
-            meterInitialized: true,
-          },
-        });
+      const closings = computed.flatMap((row) =>
+        row.closingLitres == null ? [] : [{ pumpKey: row.pumpKey, closingLitres: row.closingLitres }]
+      );
+      const stamped = await writePumpClosingRows(tx, report.stationId, closings);
+      if (stamped !== closings.length) {
+        throw new StockReportingError(
+          "Could not save every pump meter reading. Refresh and try again.",
+          "CONFLICT"
+        );
       }
     }
 

@@ -8,7 +8,7 @@ import {
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import { isStageCompleted } from "@/lib/stock-reporting/progress";
-import { ensureTankReadingsForReport, toTankReadingDto } from "@/lib/stock-reporting/tanks";
+import { ensureTankReadingsForReport, toTankReadingDtos } from "@/lib/stock-reporting/tanks";
 import {
   listStationsForDealer,
   pickDefaultStation,
@@ -29,18 +29,21 @@ export default async function TankDipsStagePage({
     stations.find((s) => s.id === requestedStationId) ?? pickDefaultStation(stations);
   if (!station) redirect("/dealer/stock-reporting");
 
-  const report = await startTodaysReport({
-    dealerOrganizationId: orgId,
-    stationId: station.id,
-    userId: session.user.id,
-  });
+  const [report, linked] = await Promise.all([
+    startTodaysReport({
+      dealerOrganizationId: orgId,
+      stationId: station.id,
+      userId: session.user.id,
+    }),
+    loadLinkedEquipment(station.id),
+  ]);
 
   if (report.status !== "CLOSED" && !isStageCompleted(report, "PUMP_METERS")) {
     redirect("/dealer/stock-reporting/pump-meters");
   }
 
   const readings = await ensureTankReadingsForReport(report.id, station.id);
-  const equipment = resolveStationEquipment(station, await loadLinkedEquipment(station.id));
+  const equipment = resolveStationEquipment(station, linked);
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
 
   return (
@@ -51,7 +54,7 @@ export default async function TankDipsStagePage({
       reportingDateLabel={formatStockReportDate(reportingDate)}
       pumpsLabel={formatEquipmentBreakdown(equipment.pumpCount, equipment.pumpsByProduct)}
       tanksLabel={formatEquipmentBreakdown(equipment.tankCount, equipment.tanksByProduct)}
-      readings={readings.map(toTankReadingDto)}
+      readings={await toTankReadingDtos(readings, station.id, report.id, reportingDate)}
       updatedAt={report.updatedAt.toISOString()}
       reportProgress={{
         status: report.status,

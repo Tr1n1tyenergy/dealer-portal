@@ -35,11 +35,14 @@ export default async function MonetaryStagePage({
     stations.find((s) => s.id === requestedStationId) ?? pickDefaultStation(stations);
   if (!station) redirect("/dealer/stock-reporting");
 
-  const report = await startTodaysReport({
-    dealerOrganizationId: orgId,
-    stationId: station.id,
-    userId: session.user.id,
-  });
+  const [report, linked] = await Promise.all([
+    startTodaysReport({
+      dealerOrganizationId: orgId,
+      stationId: station.id,
+      userId: session.user.id,
+    }),
+    loadLinkedEquipment(station.id),
+  ]);
 
   if (report.status !== "CLOSED" && !isStageCompleted(report, "WET_STOCK")) {
     if (!isStageCompleted(report, "TANK_DIPS")) {
@@ -58,7 +61,7 @@ export default async function MonetaryStagePage({
     snapshotAgo: report.sellingPriceAgoKes,
   });
 
-  const equipment = resolveStationEquipment(station, await loadLinkedEquipment(station.id));
+  const equipment = resolveStationEquipment(station, linked);
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
 
   return (

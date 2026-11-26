@@ -300,6 +300,7 @@ model Station {
   pumps            StationPump[]
   tanks            StationTank[]
   rttEvents        StationPumpRttEvent[]
+  stockReceipts    StockReceipt[]
   stockIntelligenceConfigs StationStockIntelligenceConfig[]
   fleetTrucks      FleetTruck[]
   fuelPrices       StationFuelPrice[]
@@ -405,6 +406,46 @@ model StationPumpRttEvent {
   @@index([recordedById])
 }
 
+enum StockReceiptBalanceEffect {
+  /** Added to the tank's last closing because no dip row existed yet. */
+  ON_LAST_CLOSING
+  /** Added on top of today's dip opening. The stored opening stays the start-of-day figure. */
+  ON_REPORT
+}
+
+/** One receipt of a completed order into the station's tanks. */
+model StockReceipt {
+  id                   String                    @id @default(cuid())
+  orderId              String                    @unique
+  order                DealerOrder               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  stationId            String
+  station              Station                   @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  dealerOrganizationId String
+  /** Nairobi business day this fuel is added to stock. */
+  reportingDate        DateTime                  @db.Date
+  balanceEffect        StockReceiptBalanceEffect
+  createdById          String
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+  lines                StockReceiptLine[]
+
+  @@index([stationId, reportingDate])
+}
+
+model StockReceiptLine {
+  id        String       @id @default(cuid())
+  receiptId String
+  receipt   StockReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  tankId    String
+  tank      StationTank  @relation(fields: [tankId], references: [id], onDelete: Restrict)
+  tankKey   String
+  product   ProductCode
+  litres    Float
+
+  @@unique([receiptId, tankId])
+  @@index([tankId])
+}
+
 /** Configured storage tanks for Stock Sale Reporting (PMS / AGO). */
 model StationTank {
   id                String      @id @default(cuid())
@@ -423,6 +464,7 @@ model StationTank {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
   pumps             StationPump[]
+  receiptLines      StockReceiptLine[]
 
   @@unique([stationId, tankKey])
   @@index([stationId, active, sortOrder])
@@ -554,6 +596,7 @@ model DealerOrder {
   payments  PaymentRecord[]
   documents OrderDocument[]
   proforma  ProFormaInvoice?
+  stockReceipt StockReceipt?
 
   @@index([dealerOrganizationId])
   @@index([stationId])

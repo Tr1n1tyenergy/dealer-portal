@@ -149,6 +149,40 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-26 — Loading screen stays until the next view is on screen
+- The loading cover was closing when the address changed or after a short wait, so the previous page showed again before the next one was ready. It now stays up from the click until the destination view has replaced that page, including while the route skeleton is still showing.
+- Stock reporting loads the station equipment at the same time as the report, and pump lists share one lookup per request, so those pages wait on fewer round trips.
+- Files: `src/components/ui/view-change-loader.tsx`, `src/lib/ui/loader-routes.ts`, `src/lib/ui/loader-routes.test.ts`, `src/lib/stock-reporting/pumps.ts`, `src/app/dealer/(portal)/stock-reporting/page.tsx`, `src/app/dealer/(portal)/stock-reporting/pump-meters/page.tsx`, `src/app/dealer/(portal)/stock-reporting/tank-dips/page.tsx`, `src/app/dealer/(portal)/stock-reporting/wet-stock/page.tsx`, `src/app/dealer/(portal)/stock-reporting/monetary/page.tsx`.
+
+### 2026-11-26 — Stock receipts update tank openings
+- Completed orders are receipted on the Stock Receipt tab (renamed from Truck Calibration Reconciliation). The dealer splits the delivered PMS and AGO across the station’s tanks, up to the quantity on the order.
+- Those litres are added to today’s opening stock straight away. Tank dip sales use that updated stock minus the closing dip. Staff stock intelligence shows the same updated tank level until the dip is closed.
+- Wet stock reconciliation no longer offers Match a Stock Delivery. The two remaining choices sit side by side.
+- Files: `prisma/schema.prisma`, `prisma/migrations/20261126140000_stock_receipts/migration.sql`, `src/lib/stock-reporting/stock-receipt.ts`, `src/lib/stock-reporting/stock-receipt.test.ts`, `src/lib/stock-reporting/tanks.ts`, `src/lib/stock-reporting/actions.ts`, `src/lib/stock-reporting/wet.ts`, `src/lib/stock-reporting/constants.ts`, `src/components/dealer/stock-receipt-panel.tsx`, `src/components/dealer/rtt-calibration-page.tsx`, `src/components/dealer/tank-dips-form.tsx`, `src/components/dealer/wet-stock-form.tsx`, `src/app/dealer/dealer-stock-wizard.css`, `src/app/dealer/(portal)/stock-reporting/rtt/page.tsx`, `src/app/dealer/(portal)/stock-reporting/wet-stock/page.tsx`, `src/app/dealer/(portal)/stock-reporting/tank-dips/page.tsx`, `src/app/intelligence/retail/(home)/stock-reporting/page.tsx`.
+
+### 2026-11-26 — First tank report can enter opening stock
+- Tank dip opening stock was always locked, and a station with no earlier dip started at 0 L. That made tank sales, and then wet-stock variance, wrong on the first report.
+- Opening stock is editable only while that tank has no submitted dip on an earlier report. After the first dip is submitted, the next report copies the previous closing and the field stays locked.
+- Files: `src/lib/stock-reporting/tanks.ts`, `src/lib/stock-reporting/bulk-litre-writes.ts`, `src/lib/stock-reporting/tank-calc.ts`, `src/lib/stock-reporting/tank-calc.test.ts`, `src/components/dealer/tank-dips-form.tsx`, `src/app/dealer/(portal)/stock-reporting/tank-dips/page.tsx`.
+
+### 2026-11-26 — Tank dip names stay on one line
+- The Tank column on tank dip readings was narrow enough that “PMS Tank 1”, “PMS Tank 2”, “AGO Tank 1”, and “AGO Tank 2” wrapped onto a second line. That cell now keeps the tank name on one line.
+- Files: `src/components/dealer/tank-dips-form.tsx`, `src/app/dealer/dealer-stock-wizard.css`.
+
+### 2026-11-26 — Database saves no longer expire mid-write
+- Prisma’s default transaction lasts five seconds. On the live database that is not long enough once a station has many pumps, so the save is cancelled and nothing is stored. Every transaction in the system now waits up to 15 seconds to start and 30 seconds to finish.
+- Creating or adding pumps on a tank writes them in one statement, up to the 30-pump limit. Checking whether those pumps have history is two lookups, not one lookup per pump. Return-to-tank volumes and open tank details are written the same way, so a long list cannot stop halfway through.
+- Files: `src/lib/prisma.ts`, `src/lib/stock-reporting/bulk-litre-writes.ts`, `src/lib/stock-reporting/pumps.ts`, `src/lib/stock-reporting/tanks.ts`, `src/lib/stock-reporting/rtt.ts`, `src/lib/settings/tank-actions.ts`.
+
+### 2026-11-26 — Pump meter save no longer times out
+- Saving metre readings updated each pump in its own database call inside one short transaction. Kabati Kitui has twelve pumps, so the transaction expired and the page showed “Could not save pump meter readings.”
+- Readings for every pump are now written in one statement, and the pumps’ last closings in a second. Tank dips use the same pattern so a station with many tanks does not hit the same limit.
+- Files: `src/lib/stock-reporting/bulk-litre-writes.ts`, `src/lib/stock-reporting/pumps.ts`, `src/lib/stock-reporting/tanks.ts`.
+
+### 2026-11-26 — Meter table tank row shows the tank name only
+- The pump-meter group row no longer shows the fuel pill or the pump count beside the tank. It shows the tank name, such as PMS Tank 1 or AGO Tank 2.
+- File: `src/components/dealer/pump-meters-form.tsx`.
+
 ### 2026-11-26 — Thousands separators while typing
 - Quantity and money fields insert commas as the number grows: 227231 shows as 227,231, and 1234567.891 shows as 1,234,567.891. The digits themselves are unchanged. Parsers ignore the commas.
 - Files: `src/lib/forms/numeric-text.ts` and the litre, tank, truck, price, payment, and stock-reporting inputs that use it.

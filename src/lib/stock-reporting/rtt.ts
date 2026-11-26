@@ -4,6 +4,7 @@ import { nairobiBusinessDate } from "./dates";
 import { ensureStationPumps } from "./pumps";
 import { ensureStationTanks } from "./tanks";
 import { calculatePumpSales, litresToCents, centsToLitres, parseLitresInput } from "./pump-calc";
+import { writePumpReadingPatches } from "./bulk-litre-writes";
 import { StockReportingError } from "./service";
 import { RTT_REASON_MAX_CHARS } from "./rtt-constants";
 import type { ValidatedRttJobCard } from "./rtt-storage";
@@ -441,6 +442,7 @@ export async function syncRttIntoOpenDraftReport(params: {
   const activeKeys = new Set((await ensureStationPumps(params.stationId)).map((pump) => pump.pumpKey));
   let meterPmsC = 0;
   let meterAgoC = 0;
+  const patches: Array<{ id: string; rttLitres: number; salesLitres: number | null; updateSales: boolean }> = [];
 
   for (const row of report.pumpReadings) {
     if (!activeKeys.has(row.pumpKey)) continue;
@@ -454,10 +456,7 @@ export async function syncRttIntoOpenDraftReport(params: {
       });
       salesLitres = calc.ok ? calc.sales : null;
     }
-    await prisma.stockSalePumpReading.update({
-      where: { id: row.id },
-      data: { rttLitres: rtt, salesLitres },
-    });
+    patches.push({ id: row.id, rttLitres: rtt, salesLitres, updateSales: true });
     if (salesLitres != null) {
       const c = litresToCents(salesLitres);
       if (row.product === "AGO") meterAgoC += c;
@@ -465,18 +464,29 @@ export async function syncRttIntoOpenDraftReport(params: {
     }
   }
 
-  await prisma.stockSaleReport.update({
-    where: { id: report.id },
-    data: {
-      meterSalesPmsLitres: centsToLitres(meterPmsC),
-      meterSalesAgoLitres: centsToLitres(meterAgoC),
-      totalSalesLitres: centsToLitres(meterPmsC + meterAgoC),
-      wetStockCompletedAt: null,
-      wetResolution: "NONE",
-      wetState: "NOT_STARTED",
-      monetaryCompletedAt: null,
-      monetaryState: "NOT_STARTED",
-    },
+  await prisma.$transaction(async (tx) => {
+    if (patches.length) {
+      const written = await writePumpReadingPatches(tx, patches);
+      if (written !== patches.length) {
+        throw new StockReportingError(
+          "Could not apply return-to-tank volumes. Refresh and try again.",
+          "CONFLICT"
+        );
+      }
+    }
+    await tx.stockSaleReport.update({
+      where: { id: report.id },
+      data: {
+        meterSalesPmsLitres: centsToLitres(meterPmsC),
+        meterSalesAgoLitres: centsToLitres(meterAgoC),
+        totalSalesLitres: centsToLitres(meterPmsC + meterAgoC),
+        wetStockCompletedAt: null,
+        wetResolution: "NONE",
+        wetState: "NOT_STARTED",
+        monetaryCompletedAt: null,
+        monetaryState: "NOT_STARTED",
+      },
+    });
   });
 }
 

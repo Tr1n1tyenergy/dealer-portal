@@ -41,6 +41,8 @@ import type {
 } from "@/lib/stock-reporting/rtt";
 import { cn } from "@/lib/utils";
 import { StockReportingModuleShell } from "./stock-reporting-module-shell";
+import { StockReceiptPanel } from "./stock-receipt-panel";
+import type { StockReceiptOrderDto, StockReceiptTankDto } from "@/lib/stock-reporting/stock-receipt";
 
 function newSubmissionKey() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -91,6 +93,9 @@ export function RttCalibrationPage({
   summaries,
   events,
   totals,
+  receiptTanks,
+  receiptOrders,
+  reportClosed,
 }: {
   stationId: string;
   stationName: string;
@@ -100,6 +105,9 @@ export function RttCalibrationPage({
   summaries: RttPumpSummary[];
   events: RttEventDto[];
   totals: { eventCount: number; totalPms: number; totalAgo: number; total: number };
+  receiptTanks: StockReceiptTankDto[];
+  receiptOrders: StockReceiptOrderDto[];
+  reportClosed: boolean;
 }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -231,8 +239,8 @@ export function RttCalibrationPage({
     <StockReportingModuleShell
       module="rtt"
       kicker="STOCK SALE REPORTING"
-      title="RTT & Truck Calibration"
-      subtitle="Record pump test returns (RTT) as they happen and manage truck calibration reconciliation."
+      title="RTT & Stock Receipt"
+      subtitle="Record pump test returns as they happen, and receipt completed orders into each tank."
     >
       <section className="ssr__summary" aria-label="RTT summary">
         <article className="ssr__summary-card">
@@ -302,7 +310,7 @@ export function RttCalibrationPage({
           onClick={() => setTab("truck")}
         >
           <Truck size={16} strokeWidth={2.25} aria-hidden />
-          Truck Calibration Reconciliation
+          Stock Receipt
         </button>
       </div>
 
@@ -318,16 +326,12 @@ export function RttCalibrationPage({
       ) : null}
 
       {tab === "truck" ? (
-        <section className="ssr__card ssr-rtt__empty">
-          <span className="ssr-rtt__empty-icon">
-            <Truck size={28} strokeWidth={1.75} aria-hidden />
-          </span>
-          <h2 className="ssr__card-title">Truck Calibration Reconciliation</h2>
-          <p className="ssr__card-sub">
-            Truck calibration reconciliation will be configured in a future update. This tab is a
-            placeholder and does not affect RTT, tank dips, or monetary reconciliation.
-          </p>
-        </section>
+        <StockReceiptPanel
+          stationId={stationId}
+          tanks={receiptTanks}
+          orders={receiptOrders}
+          reportClosed={reportClosed}
+        />
       ) : (
         <>
           <div className="ssr-rtt__grid">

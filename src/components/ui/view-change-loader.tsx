@@ -2,19 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
-import { destinationLabel, loaderFor, rscTarget, type LoaderKind } from "@/lib/ui/loader-routes";
+import { destinationLabel, loaderFor, routeKey, rscTarget, viewHasArrived, type LoaderKind } from "@/lib/ui/loader-routes";
 import { PageLoader, PortalLoader } from "./brand-loaders";
 
 /**
- * Covers the page under the real header from the click until Next commits the next view:
- * the portal orbit when the click opens a different portal or module, the page skeleton otherwise.
- * Hover prefetches are ignored, so resting on a link does not bring the screen up.
+ * Covers the page under the real header from the click until the destination
+ * view is actually on screen. The overlay stays through the route skeleton
+ * and through any moment the previous page is still showing.
  */
 type Bridge = { start: (target?: string) => void; stop: () => void };
 let bridge: Bridge | null = null;
 let fetchPatched = false;
-let historyPatched = false;
-const commitListeners = new Set<() => void>();
+
+const MAX_WAIT_MS = 20_000;
 
 function headerOffset() {
   const bar = document.querySelector<HTMLElement>(".dp-topbar, .sp-header");
@@ -39,33 +39,7 @@ function installFetchWatch() {
   window.fetch = async (input, init) => {
     if (!isViewNavigation(input, init)) return original(input, init);
     bridge?.start(rscTarget(input instanceof Request ? input.url : input, window.location.href));
-    try {
-      return await original(input, init);
-    } finally {
-      bridge?.stop();
-    }
-  };
-}
-
-function installHistoryWatch() {
-  if (historyPatched || typeof window === "undefined") return;
-  historyPatched = true;
-  const push = window.history.pushState.bind(window.history);
-  const replace = window.history.replaceState.bind(window.history);
-  // Next writes the new address from useInsertionEffect. A setState in that turn
-  // is the "useInsertionEffect must not schedule updates" error, so hide runs after it.
-  const notify = () => {
-    queueMicrotask(() => {
-      commitListeners.forEach((listener) => listener());
-    });
-  };
-  window.history.pushState = (data, unused, url) => {
-    push(data, unused, url);
-    notify();
-  };
-  window.history.replaceState = (data, unused, url) => {
-    replace(data, unused, url);
-    notify();
+    return original(input, init);
   };
 }
 
@@ -89,82 +63,124 @@ function address() {
   return `${window.location.pathname}${window.location.search}`;
 }
 
+function contentRoot() {
+  return document.querySelector<HTMLElement>(".dp-content, .sp-main, .tri-main, main");
+}
+
+/** "loading" while a route skeleton is up; otherwise a fingerprint of the current view. */
+function contentSignature() {
+  const root = contentRoot();
+  if (!root) return "";
+  if (root.querySelector(".bl-page")) return "loading";
+  const heading = root.querySelector("h1, h2")?.textContent?.trim() ?? "";
+  return `${heading}|${root.childElementCount}|${root.innerText.length}`;
+}
+
 export function ViewChangeLoader() {
   const [pending, setPending] = useState(false);
   const [top, setTop] = useState(0);
   const [view, setView] = useState<{ kind: LoaderKind; label: string }>({ kind: "page", label: "the page" });
 
   useEffect(() => {
-    let inflight = 0;
     let showing = false;
-    let sawFetch = false;
     let from = "";
-    let idle = 0;
-    let stuck = 0;
+    let expected: string | null = null;
+    let startSignature = "";
+    let startedAt = 0;
+    let frames = 0;
+    let paintedBeforeWatch = false;
+    let raf = 0;
 
-    // `target` is where a click is going; fetches and tab switches don't know, so they keep the page skeleton.
+    const hide = () => {
+      showing = false;
+      from = "";
+      expected = null;
+      startSignature = "";
+      frames = 0;
+      paintedBeforeWatch = false;
+      window.cancelAnimationFrame(raf);
+      setPending(false);
+    };
+
+    const tick = () => {
+      if (!showing) return;
+      if (performance.now() - startedAt > MAX_WAIT_MS) {
+        hide();
+        return;
+      }
+      frames += 1;
+      const signature = contentSignature();
+      // A tab that stays on this page: leave once its panel has drawn, not after a timed guess.
+      if (!expected) {
+        if (signature !== "loading" && signature !== startSignature) {
+          hide();
+          return;
+        }
+        if (frames > 10 && signature !== "loading") {
+          hide();
+          return;
+        }
+        raf = window.requestAnimationFrame(tick);
+        return;
+      }
+      if (
+        viewHasArrived({
+          from,
+          expected,
+          here: address(),
+          startSignature,
+          signature,
+        })
+      ) {
+        hide();
+        return;
+      }
+      // Back and forward can paint the page before this watch starts. Leave once that page is the one showing.
+      if (
+        paintedBeforeWatch &&
+        signature !== "loading" &&
+        routeKey(address()) === routeKey(expected) &&
+        frames > 2
+      ) {
+        hide();
+        return;
+      }
+      raf = window.requestAnimationFrame(tick);
+    };
+
     const show = (target?: string) => {
-      const wasShowing = showing;
-      if (!from) from = address();
-      showing = true;
-      window.clearTimeout(idle);
+      if (!showing) {
+        from = address();
+        startSignature = contentSignature();
+        startedAt = performance.now();
+        showing = true;
+      }
+      if (target) expected = target;
       const nextTop = headerOffset();
       flushSync(() => {
         setTop(nextTop);
         if (target) {
           const kind = loaderFor(from, target);
           setView({ kind, label: destinationLabel(target, kind) });
+        } else if (!expected) {
+          setView({ kind: "page", label: destinationLabel(from, "page") });
         }
-        else if (!wasShowing) setView({ kind: "page", label: destinationLabel(address(), "page") });
         setPending(true);
       });
-    };
-    const hide = () => {
-      showing = false;
-      sawFetch = false;
-      from = "";
-      window.clearTimeout(idle);
-      window.clearTimeout(stuck);
-      setPending(false);
+      window.cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(tick);
     };
 
     bridge = {
       start(target) {
-        inflight += 1;
-        sawFetch = true;
-        window.clearTimeout(stuck);
-        stuck = window.setTimeout(hide, 12000);
-        // A click already chose the loader; a navigation from code (router.push) chooses it from the request.
         show(showing ? undefined : target);
+        if (target && !expected) expected = target;
       },
       stop() {
-        inflight = Math.max(0, inflight - 1);
+        // The request finishing is not the page appearing. The frame loop decides.
       },
     };
     installFetchWatch();
-    installHistoryWatch();
-
-    const onCommit = () => {
-      if (!showing) return;
-      if (sawFetch || address() !== from) hide();
-    };
-    commitListeners.add(onCommit);
-
-    const armIdle = () => {
-      const snapshot = from;
-      window.clearTimeout(idle);
-      idle = window.setTimeout(() => {
-        if (showing && !sawFetch && inflight === 0 && address() === snapshot) hide();
-      }, 450);
-    };
-
-    const releaseIfInstant = () => {
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          if (showing && !sawFetch && inflight === 0 && address() === from) hide();
-        });
-      });
-    };
 
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
@@ -175,7 +191,6 @@ export function ViewChangeLoader() {
       if (anchor instanceof HTMLAnchorElement && anchor.getAttribute("role") !== "menuitem" && linkChangesView(anchor)) {
         const url = new URL(anchor.href, window.location.href);
         show(`${url.pathname}${url.search}`);
-        armIdle();
         return;
       }
       const tab = target?.closest?.('[role="tab"]');
@@ -183,21 +198,18 @@ export function ViewChangeLoader() {
       if (tab.getAttribute("aria-selected") === "true" || tab.getAttribute("aria-disabled") === "true") return;
       if (tab.closest('[role="dialog"], dialog, [aria-modal="true"]')) return;
       show();
-      releaseIfInstant();
     };
     const onPop = () => {
-      show();
-      armIdle();
+      paintedBeforeWatch = true;
+      show(address());
     };
 
-    document.addEventListener("click", onClick, true);
+    document.addEventListener("click", onClick);
     window.addEventListener("popstate", onPop);
     return () => {
       bridge = null;
-      commitListeners.delete(onCommit);
-      window.clearTimeout(idle);
-      window.clearTimeout(stuck);
-      document.removeEventListener("click", onClick, true);
+      window.cancelAnimationFrame(raf);
+      document.removeEventListener("click", onClick);
       window.removeEventListener("popstate", onPop);
     };
   }, []);

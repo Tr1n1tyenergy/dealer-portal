@@ -52,6 +52,46 @@ export function destinationLabel(href: string, kind: LoaderKind = "portal"): str
  * Where a Next page-data (RSC) request is going: its path and query without the `_rsc` cache-buster.
  * Navigations started by code (router.push) have no clicked link, so this is how we know the destination.
  */
+/** Path plus query, ignoring hash and the Next `_rsc` cache buster, so two links to the same view match. */
+export function routeKey(href: string, base = "http://localhost"): string {
+  try {
+    const url = new URL(href, base);
+    url.searchParams.delete("_rsc");
+    const entries = [...url.searchParams.entries()].sort((a, b) =>
+      a[0] === b[0] ? a[1].localeCompare(b[1]) : a[0].localeCompare(b[0])
+    );
+    const path = url.pathname.replace(/\/$/, "") || "/";
+    const query = new URLSearchParams(entries).toString();
+    return query ? `${path}?${query}` : path;
+  } catch {
+    return href;
+  }
+}
+
+/**
+ * The overlay stays until the address is the destination and the page underneath
+ * is no longer the previous view or the route skeleton.
+ */
+export function viewHasArrived(params: {
+  from: string;
+  expected: string | null;
+  here: string;
+  startSignature: string;
+  signature: string;
+}): boolean {
+  const hereKey = routeKey(params.here);
+  const fromKey = routeKey(params.from);
+  // A redirect may land on a different address than the link that was clicked.
+  // Either way the address has to have moved, and the view underneath has to be the new one.
+  const addressMoved = params.expected
+    ? hereKey === routeKey(params.expected) || hereKey !== fromKey
+    : hereKey !== fromKey;
+  if (!addressMoved) return false;
+  if (params.signature === "loading" || params.signature === "") return false;
+  if (params.signature === params.startSignature) return false;
+  return true;
+}
+
 export function rscTarget(input: string | URL | { url: string }, base: string): string | undefined {
   try {
     const raw = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;

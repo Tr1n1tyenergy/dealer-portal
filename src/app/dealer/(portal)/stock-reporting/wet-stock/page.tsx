@@ -13,7 +13,7 @@ import {
   pickDefaultStation,
   startTodaysReport,
 } from "@/lib/stock-reporting/service";
-import { listEligibleStockDeliveries, loadReportTankReconciliation } from "@/lib/stock-reporting/wet";
+import { loadReportTankReconciliation } from "@/lib/stock-reporting/wet";
 import { rollupTankLines } from "@/lib/stock-reporting/tank-recon";
 
 export default async function WetStockStagePage({
@@ -30,11 +30,14 @@ export default async function WetStockStagePage({
     stations.find((s) => s.id === requestedStationId) ?? pickDefaultStation(stations);
   if (!station) redirect("/dealer/stock-reporting");
 
-  const report = await startTodaysReport({
-    dealerOrganizationId: orgId,
-    stationId: station.id,
-    userId: session.user.id,
-  });
+  const [report, linked] = await Promise.all([
+    startTodaysReport({
+      dealerOrganizationId: orgId,
+      stationId: station.id,
+      userId: session.user.id,
+    }),
+    loadLinkedEquipment(station.id),
+  ]);
 
   if (report.status !== "CLOSED" && !isStageCompleted(report, "TANK_DIPS")) {
     redirect(
@@ -44,14 +47,10 @@ export default async function WetStockStagePage({
     );
   }
 
-  const equipment = resolveStationEquipment(station, await loadLinkedEquipment(station.id));
+  const equipment = resolveStationEquipment(station, linked);
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
   const tankLines = await loadReportTankReconciliation(report.id);
   const rolled = tankLines.length ? rollupTankLines(tankLines) : null;
-  const deliveries = await listEligibleStockDeliveries({
-    stationId: station.id,
-    reportingDate,
-  });
 
   const initialResolution =
     report.wetResolution === "MATCH_DELIVERY" ||
@@ -85,7 +84,6 @@ export default async function WetStockStagePage({
         monetaryCompletedAt: report.monetaryCompletedAt?.toISOString() ?? null,
       }}
       readOnly={report.status === "CLOSED"}
-      eligibleDeliveryCount={deliveries.length}
     />
   );
 }
