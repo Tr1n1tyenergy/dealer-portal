@@ -45,7 +45,9 @@ export const STATUS_GUIDE: { status: SupportTicketStatus; description: string }[
 ];
 
 export const MAX_SUPPORT_ATTACHMENTS = 5;
-export const MAX_SUPPORT_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+/** For all of a ticket's files together: they travel in one request, and Vercel refuses requests over 4.5 MB. */
+export const MAX_SUPPORT_ATTACHMENT_BYTES = 4 * 1024 * 1024;
+export const supportFilesFit = (sizes: number[]) => sizes.reduce((sum, size) => sum + size, 0) <= MAX_SUPPORT_ATTACHMENT_BYTES;
 export const MAX_SUPPORT_SUBJECT = 160;
 export const MAX_SUPPORT_DESCRIPTION = 2000;
 export const MAX_SUPPORT_MESSAGE = 4000;

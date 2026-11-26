@@ -5,6 +5,8 @@ import { SECURITY_HEADERS } from "./src/lib/security/security-headers";
 const nextConfig: NextConfig = {
   // pdfkit reads its font metrics from disk, so it must not be bundled; the PFI route also reads assets/pfi (fonts, logo).
   serverExternalPackages: ["pdfkit"],
+  // RTT job cards (up to 4 MB) are uploaded through a server action; the default limit is 1 MB.
+  experimental: { serverActions: { bodySizeLimit: "5mb" } },
   outputFileTracingIncludes: {
     "/api/orders/[id]/pfi": ["./assets/pfi/**", "./node_modules/pdfkit/js/data/**"],
   },
