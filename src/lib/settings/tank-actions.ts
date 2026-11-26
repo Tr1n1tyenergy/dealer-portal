@@ -1,11 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { ProductCode } from "@prisma/client";
+import type { Prisma, ProductCode } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
 import { canUser } from "@/lib/permissions";
 import { requireInternal } from "@/lib/session";
+import {
+  parsePumpCount,
+  planPumpAdjustment,
+  pumpKeyForTank,
+  pumpLabelForIndex,
+  slotsFromPumps,
+} from "@/lib/settings/tank-pumps";
 
 const FUELS = new Set(["PMS", "AGO"]);
 const MAX_CAPACITY = 1_000_000;
@@ -15,6 +22,30 @@ export type TankFuel = "PMS" | "AGO";
 function revalidateSettings() {
   revalidatePath("/intelligence/retail/settings");
   revalidatePath("/intelligence/admin/settings");
+  revalidatePath("/intelligence/retail/stock-reporting");
+  revalidatePath("/dealer/stock-reporting");
+}
+
+async function syncStationEquipmentCounts(tx: Prisma.TransactionClient, stationId: string) {
+  const [tankCount, pumpCount] = await Promise.all([
+    tx.stationTank.count({ where: { stationId, active: true } }),
+    tx.stationPump.count({ where: { stationId, active: true } }),
+  ]);
+  await tx.station.update({ where: { id: stationId }, data: { tankCount, pumpCount } });
+}
+
+async function pumpHasHistory(
+  tx: Prisma.TransactionClient,
+  pump: { id: string; stationId: string; pumpKey: string; lastClosingLitres: number; meterInitialized: boolean }
+) {
+  if (pump.meterInitialized || pump.lastClosingLitres > 0) return true;
+  const [readings, rtt] = await Promise.all([
+    tx.stockSalePumpReading.count({
+      where: { pumpKey: pump.pumpKey, report: { stationId: pump.stationId } },
+    }),
+    tx.stationPumpRttEvent.count({ where: { pumpId: pump.id } }),
+  ]);
+  return readings > 0 || rtt > 0;
 }
 
 async function requireSettingsAct() {
@@ -75,9 +106,11 @@ export async function createTankAction(
   const product = String(formData.get("product") ?? "").trim().toUpperCase() as TankFuel;
   const capacityRaw = String(formData.get("capacityLitres") ?? "").replace(/,/g, "").trim();
   const capacityLitres = Number(capacityRaw);
+  const pumps = parsePumpCount(String(formData.get("pumpCount") ?? ""));
 
   if (!stationId) return { ok: false, error: "Select a station." };
   if (!FUELS.has(product)) return { ok: false, error: "Select PMS or AGO." };
+  if (!pumps.ok) return pumps;
   if (!Number.isFinite(capacityLitres) || capacityLitres <= 0) {
     return { ok: false, error: "Capacity must be a number greater than zero." };
   }
@@ -106,8 +139,21 @@ export async function createTankAction(
             active: true,
           },
         });
-        const activeCount = await tx.stationTank.count({ where: { stationId, active: true } });
-        await tx.station.update({ where: { id: stationId }, data: { tankCount: activeCount } });
+        for (let index = 1; index <= pumps.count; index += 1) {
+          await tx.stationPump.create({
+            data: {
+              stationId,
+              tankId: tank.id,
+              pumpKey: pumpKeyForTank(next.tankKey, index),
+              product: product as ProductCode,
+              label: pumpLabelForIndex(index),
+              sortOrder: sortOrder * 100 + index,
+              lastClosingLitres: 0,
+              active: true,
+            },
+          });
+        }
+        await syncStationEquipmentCounts(tx, stationId);
         return tank;
       });
       await logActivity({
@@ -120,6 +166,7 @@ export async function createTankAction(
           tankKey: next.tankKey,
           product,
           capacityLitres,
+          pumpCount: pumps.count,
           stationId,
           stationName: station.name,
         },
@@ -156,8 +203,19 @@ export async function updateTankAction(
   const capacityRaw = String(formData.get("capacityLitres") ?? "").replace(/,/g, "").trim();
   const capacityLitres = Number(capacityRaw);
   const status = String(formData.get("status") ?? "ACTIVE").toUpperCase();
+  const pumps = parsePumpCount(String(formData.get("pumpCount") ?? ""));
+  const confirmReduce = formData.get("confirmReduce") === "1";
+  const requestedDeactivate = [
+    ...new Set(
+      String(formData.get("deactivatePumpIds") ?? "")
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean)
+    ),
+  ];
 
   if (!tankId) return { ok: false, error: "Missing tank." };
+  if (!pumps.ok) return pumps;
   if (!Number.isFinite(capacityLitres) || capacityLitres <= 0) {
     return { ok: false, error: "Capacity must be a number greater than zero." };
   }
@@ -165,18 +223,78 @@ export async function updateTankAction(
     return { ok: false, error: `Capacity cannot exceed ${MAX_CAPACITY.toLocaleString()} litres.` };
   }
 
-  const tank = await prisma.stationTank.findUnique({ where: { id: tankId } });
+  const tank = await prisma.stationTank.findUnique({
+    where: { id: tankId },
+    include: { pumps: { orderBy: { sortOrder: "asc" } } },
+  });
   if (!tank) return { ok: false, error: "Tank not found." };
 
+  const slots = slotsFromPumps(tank.pumps);
+  const activeSlots = slots.filter((pump) => pump.active);
+  let deactivateIds: string[] = [];
+  if (pumps.count < activeSlots.length) {
+    const need = activeSlots.length - pumps.count;
+    const allowed = new Set(activeSlots.map((pump) => pump.id));
+    if (requestedDeactivate.length !== need || requestedDeactivate.some((id) => !allowed.has(id))) {
+      return {
+        ok: false,
+        error: `Select ${need} active ${need === 1 ? "pump" : "pumps"} to deactivate. Their meter history stays on record.`,
+      };
+    }
+    if (!confirmReduce) {
+      return { ok: false, error: "Confirm the selected pumps before saving. Their meter history stays on record." };
+    }
+    deactivateIds = requestedDeactivate;
+  }
+  const plan =
+    pumps.count > activeSlots.length
+      ? planPumpAdjustment(slots, pumps.count)
+      : { reactivateIds: [] as string[], createIndexes: [] as number[], deactivate: [] };
+
   const active = status !== "INACTIVE";
+  try {
   await prisma.$transaction(async (tx) => {
     await tx.stationTank.update({
       where: { id: tankId },
       data: { capacityLitres, active },
     });
-    const activeCount = await tx.stationTank.count({ where: { stationId: tank.stationId, active: true } });
-    await tx.station.update({ where: { id: tank.stationId }, data: { tankCount: activeCount } });
+    if (plan.reactivateIds.length) {
+      await tx.stationPump.updateMany({
+        where: { id: { in: plan.reactivateIds }, tankId },
+        data: { active: true },
+      });
+    }
+    if (deactivateIds.length) {
+      await tx.stationPump.updateMany({
+        where: { id: { in: deactivateIds }, tankId },
+        data: { active: false },
+      });
+    }
+    for (const index of plan.createIndexes) {
+      await tx.stationPump.create({
+        data: {
+          stationId: tank.stationId,
+          tankId,
+          pumpKey: pumpKeyForTank(tank.tankKey, index),
+          product: tank.product,
+          label: pumpLabelForIndex(index),
+          sortOrder: tank.sortOrder * 100 + index,
+          lastClosingLitres: 0,
+          active: true,
+        },
+      });
+    }
+    if (!active) {
+      await tx.stationPump.updateMany({ where: { tankId }, data: { active: false } });
+    }
+    await syncStationEquipmentCounts(tx, tank.stationId);
   });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && (err as { code?: string }).code === "P2002") {
+      return { ok: false, error: "A pump with that identity already exists at this station. No change was saved." };
+    }
+    return { ok: false, error: "Could not update the tank. No change was saved." };
+  }
 
   await logActivity({
     actorId: session.user.id,
@@ -186,8 +304,14 @@ export async function updateTankAction(
     meta: {
       label: tank.label,
       stationId: tank.stationId,
-      before: { capacityLitres: tank.capacityLitres, active: tank.active },
-      after: { capacityLitres, active },
+      before: {
+        capacityLitres: tank.capacityLitres,
+        active: tank.active,
+        pumpCount: slots.filter((pump) => pump.active).length,
+      },
+      after: { capacityLitres, active, pumpCount: pumps.count },
+      deactivatedPumps: slots.filter((pump) => deactivateIds.includes(pump.id)).map((pump) => pump.pumpKey),
+      createdPumps: plan.createIndexes.map((index) => pumpKeyForTank(tank.tankKey, index)),
     },
   });
 
@@ -208,7 +332,10 @@ export async function deleteTankAction(
   const tankId = String(formData.get("tankId") ?? "").trim();
   if (!tankId) return { ok: false, error: "Missing tank." };
 
-  const tank = await prisma.stationTank.findUnique({ where: { id: tankId } });
+  const tank = await prisma.stationTank.findUnique({
+    where: { id: tankId },
+    include: { pumps: true },
+  });
   if (!tank) return { ok: false, error: "Tank not found." };
 
   // Tank readings / RTT reference tankKey by string — soft-deactivate to preserve history.
@@ -218,28 +345,34 @@ export async function deleteTankAction(
   const usedInRtt = await prisma.stationPumpRttEvent.count({
     where: { stationId: tank.stationId, tankKey: tank.tankKey },
   });
+  const pumpHistory = await prisma.$transaction(async (tx) => {
+    for (const pump of tank.pumps) {
+      if (await pumpHasHistory(tx, pump)) return true;
+    }
+    return false;
+  });
 
-  if (usedInReadings > 0 || usedInRtt > 0 || tank.lastClosingLitres > 0) {
+  if (usedInReadings > 0 || usedInRtt > 0 || tank.lastClosingLitres > 0 || pumpHistory) {
     await prisma.$transaction(async (tx) => {
       await tx.stationTank.update({ where: { id: tankId }, data: { active: false } });
-      const activeCount = await tx.stationTank.count({ where: { stationId: tank.stationId, active: true } });
-      await tx.station.update({ where: { id: tank.stationId }, data: { tankCount: activeCount } });
+      await tx.stationPump.updateMany({ where: { tankId }, data: { active: false } });
+      await syncStationEquipmentCounts(tx, tank.stationId);
     });
     await logActivity({
       actorId: session.user.id,
       action: "TANK_DEACTIVATED",
       entity: "StationTank",
       entityId: tankId,
-      meta: { label: tank.label, stationId: tank.stationId },
+      meta: { label: tank.label, stationId: tank.stationId, pumpsDeactivated: tank.pumps.length },
     });
     revalidateSettings();
     return { ok: true, mode: "deactivated" };
   }
 
   await prisma.$transaction(async (tx) => {
+    await tx.stationPump.deleteMany({ where: { tankId } });
     await tx.stationTank.delete({ where: { id: tankId } });
-    const activeCount = await tx.stationTank.count({ where: { stationId: tank.stationId, active: true } });
-    await tx.station.update({ where: { id: tank.stationId }, data: { tankCount: activeCount } });
+    await syncStationEquipmentCounts(tx, tank.stationId);
   });
   await logActivity({
     actorId: session.user.id,

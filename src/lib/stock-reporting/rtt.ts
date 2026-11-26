@@ -101,18 +101,24 @@ export async function listRttStationContext(params: {
 
 /**
  * Authoritative pump → tank link for the station.
- * Prefer matching tankKey to pumpKey (e.g. PMS-1 → PMS-1 / "PMS Tank 1").
+ * Prefer the stored tankId. Legacy pumps created before that link still match
+ * when their key is exactly the tank key (PMS-1 → PMS Tank 1).
+ * A multi-pump key such as PMS-3-P1 must not fall through to PMS-1.
  */
 export function linkedTankForPump(
-  pump: Pick<StationPump, "pumpKey" | "product">,
+  pump: Pick<StationPump, "pumpKey" | "product"> & { tankId?: string | null },
   tanks: Pick<StationTank, "id" | "tankKey" | "label" | "product" | "sortOrder">[]
 ) {
+  if (pump.tankId) {
+    const linked = tanks.find((tank) => tank.id === pump.tankId);
+    if (linked) return linked;
+  }
   const sameProduct = tanks
     .filter((t) => t.product === pump.product)
     .sort((a, b) => a.sortOrder - b.sortOrder);
   const exact = sameProduct.find((t) => t.tankKey === pump.pumpKey);
   if (exact) return exact;
-  const suffix = pump.pumpKey.match(/-(\d+)$/)?.[1];
+  const suffix = pump.pumpKey.match(/^[A-Za-z]+-(\d+)$/)?.[1];
   if (suffix) {
     const bySuffix = sameProduct.find((t) => t.tankKey.endsWith(`-${suffix}`));
     if (bySuffix) return bySuffix;
@@ -432,10 +438,12 @@ export async function syncRttIntoOpenDraftReport(params: {
     reportingDate: params.reportingDate,
   });
 
+  const activeKeys = new Set((await ensureStationPumps(params.stationId)).map((pump) => pump.pumpKey));
   let meterPmsC = 0;
   let meterAgoC = 0;
 
   for (const row of report.pumpReadings) {
+    if (!activeKeys.has(row.pumpKey)) continue;
     const rtt = rttByPump.get(row.pumpKey) ?? 0;
     let salesLitres = row.salesLitres;
     if (row.closingLitres != null) {

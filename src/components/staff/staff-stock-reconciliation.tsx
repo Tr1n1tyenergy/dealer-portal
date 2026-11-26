@@ -39,6 +39,7 @@ import {
   type StaffMonetaryViewModel,
 } from "@/components/staff/staff-monetary-sales";
 import type { PeriodKey } from "@/lib/stock-reporting/staff-stock-intelligence";
+import type { TankReconLine } from "@/lib/stock-reporting/tank-recon";
 import "@/app/intelligence/retail/staff-stock-reporting.css";
 
 export type StaffStationOption = {
@@ -71,6 +72,7 @@ export type StaffReconViewModel = {
   netVariance: number;
   netVariancePct: number | null;
   receiptsRecorded: boolean;
+  tankLines: TankReconLine[];
   stations: StaffStationOption[];
   intelligence: StaffIntelligenceViewModel | null;
   monetary: StaffMonetaryViewModel | null;
@@ -572,6 +574,47 @@ export function StaffStockReconciliationDashboard(props: StaffReconViewModel) {
                   </tbody>
                 </table>
               </div>
+              {props.tankLines.length ? (
+                <>
+                  <p className="ssr-table-caption">Pumps reconciled to their tank ({props.periodLabel})</p>
+                  <div className="ssr-table-wrap">
+                    <table className="ssr-table">
+                      <thead>
+                        <tr>
+                          <th>Tank</th>
+                          <th>Product</th>
+                          <th className="num">Pumps</th>
+                          <th className="num">Meter sales (L)</th>
+                          <th className="num">Tank dip sales (L)</th>
+                          <th className="num">Variance (L)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {props.tankLines.map((line) => (
+                          <tr key={line.tankKey}>
+                            <td>{line.tankLabel}</td>
+                            <td>{line.product}</td>
+                            <td className="num">
+                              {line.pumpCount} {line.pumpCount === 1 ? "pump" : "pumps"}
+                            </td>
+                            <td className="num">{formatLitresCell(line.meterSales)}</td>
+                            <td className="num">{formatLitresCell(line.tankSales)}</td>
+                            <td className="num">
+                              <span className={`ssr-pill ssr-pill--${varianceTone(line.variance)}`}>
+                                {formatSignedLitres(line.variance)}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="ssr-note">
+                    Each row adds the meter sales of the pumps linked to that tank and compares them with that
+                    tank&apos;s own dip. Pumps are not matched one-to-one with a tank of the same number.
+                  </p>
+                </>
+              ) : null}
               <p className="ssr-note">
                 Completeness: {props.closedDays} of {props.expectedDays} expected daily report
                 {props.expectedDays === 1 ? "" : "s"} CLOSED

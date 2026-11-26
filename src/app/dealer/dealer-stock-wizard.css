@@ -376,6 +376,19 @@
   border-bottom: 0;
 }
 
+.ssw__tank-group td {
+  background: #eef3ff;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.ssw__tank-group-count {
+  margin-left: 0.65rem;
+  color: #3551a5;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
 .ssw__pump-cell {
   display: inline-flex;
   align-items: center;

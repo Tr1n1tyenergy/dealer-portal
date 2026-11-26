@@ -10,6 +10,7 @@ import {
   useCallback,
 } from "react";
 import { createPortal } from "react-dom";
+import { keepNumeric, onGroupedInput, sanitizeNumericText } from "@/lib/forms/numeric-text";
 import {
   ArrowLeftRight,
   ArrowRight,
@@ -150,7 +151,7 @@ function PayPfiModal({
   const [phone, setPhone] = useState("");
   const balanceCents = toCents(balance) ?? 0;
   const mpesaMaxCents = Math.min(balanceCents, MPESA_MAX_PER_PAYMENT * 100);
-  const [promptAmount, setPromptAmount] = useState((mpesaMaxCents / 100).toFixed(2));
+  const [promptAmount, setPromptAmount] = useState(sanitizeNumericText((mpesaMaxCents / 100).toFixed(2), true));
   const [code, setCode] = useState("");
   const [found, setFound] = useState<Found | null>(null);
   const [codeError, setCodeError] = useState<string | null>(null);
@@ -387,7 +388,7 @@ function PayPfiModal({
                     </span>
                     <input
                       value={promptAmount}
-                      onChange={(e) => setPromptAmount(e.target.value)}
+                      onChange={onGroupedInput(true, setPromptAmount)}
                       inputMode="decimal"
                       aria-invalid={Boolean(promptAmountError)}
                     />
@@ -498,7 +499,7 @@ function PayPfiModal({
                   <span>
                     Amount paid <span aria-hidden>*</span>
                   </span>
-                  <input name="amount" defaultValue={formatMoney(balance)} inputMode="decimal" required />
+                  <input name="amount" defaultValue={formatMoney(balance)} inputMode="decimal" onInput={keepNumeric(true)} required />
                   <small className="pay-modal__hint">Filled with the balance. Change it if you paid part of it.</small>
                 </label>
               </section>

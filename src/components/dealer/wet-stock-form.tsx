@@ -24,6 +24,7 @@ import {
   computeWetVariances,
   formatVarianceLitres,
 } from "@/lib/stock-reporting/wet-calc";
+import { tankLinesBalanced, type TankReconLine } from "@/lib/stock-reporting/tank-recon";
 import type { WetResolutionChoice } from "@/lib/stock-reporting/wet";
 import { cn } from "@/lib/utils";
 import { StockReportingWizardShell } from "./stock-reporting-wizard-shell";
@@ -54,6 +55,7 @@ export function WetStockForm({
   meterAgo,
   tankPms,
   tankAgo,
+  tankLines,
   initialResolution,
   initialLossReason,
   updatedAt,
@@ -71,6 +73,7 @@ export function WetStockForm({
   meterAgo: number;
   tankPms: number;
   tankAgo: number;
+  tankLines: TankReconLine[];
   initialResolution: ResolutionUi;
   initialLossReason: string | null;
   updatedAt: string;
@@ -107,6 +110,7 @@ export function WetStockForm({
       }),
     [meterPms, meterAgo, tankPms, tankAgo]
   );
+  const balanced = tankLines.length > 0 ? tankLinesBalanced(tankLines) : summary.balanced;
 
   function pick(next: ResolutionUi) {
     if (readOnly) return;
@@ -122,7 +126,7 @@ export function WetStockForm({
       const result = await saveWetStockAction({
         reportId,
         expectedRevision: revision,
-        resolution: summary.balanced ? "BALANCED" : resolution,
+        resolution: balanced ? "BALANCED" : resolution,
         lossReason: resolution === "RECORD_LOSS" ? lossReason : null,
         mode,
         exitToDashboard,
@@ -218,11 +222,12 @@ export function WetStockForm({
 
       {howOpen ? (
         <div className="ssw__how-pop" role="note">
-          <strong>Meter sales</strong> come from Step 1. <strong>Tank stock sales</strong> come from
-          Step 2 (Opening − Closing, adjusted for verified receipts when available).{" "}
-          <strong>Variance = Meter − Tank</strong> per product (signed). Match a delivery only when a
-          verified receipt exists; otherwise correct readings or acknowledge a variance for review.
-          Acknowledging does not automatically post an inventory write-off.
+          <strong>Meter sales</strong> are the pumps linked to each tank, added together.{" "}
+          <strong>Tank stock sales</strong> are that tank&apos;s single dip (Opening − Closing).{" "}
+          <strong>Variance = those pumps − that tank</strong>. Product totals add the tanks of the
+          same fuel. A gain on one tank does not cancel a loss on another. Match a delivery only
+          when a verified receipt exists; otherwise correct readings or acknowledge a variance for
+          review. Acknowledging does not automatically post an inventory write-off.
         </div>
       ) : null}
 
@@ -232,11 +237,46 @@ export function WetStockForm({
         </p>
       ) : null}
 
-      {summary.balanced ? (
+      {balanced ? (
         <p className="ssw__balanced" role="status">
           Meter and tank figures are balanced (no actionable variance). You can continue to Monetary
           Reconciliation.
         </p>
+      ) : null}
+
+      {tankLines.length ? (
+        <div className="ssw__table-wrap" style={{ marginBottom: "1rem" }}>
+          <table className="ssw__table">
+            <thead>
+              <tr>
+                <th scope="col">Tank</th>
+                <th scope="col">Product</th>
+                <th scope="col">Pumps</th>
+                <th scope="col">Meter sales (L)</th>
+                <th scope="col">Tank dip sales (L)</th>
+                <th scope="col">Variance (L)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tankLines.map((line) => (
+                <tr key={line.tankKey}>
+                  <td>{line.tankLabel}</td>
+                  <td>
+                    <span className={cn("ssw__badge", line.product === "PMS" ? "ssw__badge--pms" : "ssw__badge--ago")}>
+                      {line.product}
+                    </span>
+                  </td>
+                  <td>
+                    {line.pumpCount} {line.pumpCount === 1 ? "pump" : "pumps"}
+                  </td>
+                  <td>{formatVarianceLitres(line.meterSales)}</td>
+                  <td>{formatVarianceLitres(line.tankSales)}</td>
+                  <td>{formatVarianceLitres(line.variance)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : null}
 
       <div className="ssw__compare" aria-label="Wet stock comparison">
@@ -340,7 +380,7 @@ export function WetStockForm({
               </tr>
             </tbody>
           </table>
-          {!summary.balanced && summary.absoluteVariance !== Math.abs(summary.varianceTotal) ? (
+          {!balanced && summary.absoluteVariance !== Math.abs(summary.varianceTotal) ? (
             <p style={{ margin: "0.55rem 0 0", fontSize: "0.74rem", color: "#64748b" }}>
               Absolute product variance: {formatLitresWithUnit(summary.absoluteVariance)} (net{" "}
               {formatVarianceLitres(summary.varianceTotal)} L)
@@ -349,7 +389,7 @@ export function WetStockForm({
         </article>
       </div>
 
-      {!summary.balanced ? (
+      {!balanced ? (
         <section className="ssw__resolve" aria-label="Variance resolution">
           <div className="ssw__resolve-head">
             <span className="ssw__section-icon">

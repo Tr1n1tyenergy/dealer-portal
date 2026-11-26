@@ -20,7 +20,7 @@ type FuelKey = "PMS" | "AGO";
 
 function parseOptionalNumber(raw: FormDataEntryValue | null, label: string): number | null | { error: string } {
   if (raw == null) return null;
-  const text = String(raw).trim();
+  const text = String(raw).replace(/,/g, "").trim();
   if (!text) return null;
   const n = Number(text);
   if (!Number.isFinite(n)) return { error: `${label} must be a number.` };

@@ -23,7 +23,7 @@ import {
   type SaveMonetaryMode,
   saveMonetaryReconciliation,
 } from "./monetary";
-import { resolveStationEquipment } from "./equipment";
+import { loadLinkedEquipment, resolveStationEquipment } from "./equipment";
 import { resetDraftReport, startTodaysReport, StockReportingError } from "./service";
 import { prisma } from "@/lib/prisma";
 
@@ -242,6 +242,7 @@ export async function saveMonetaryAction(params: {
         station: {
           select: {
             code: true,
+            id: true,
             pumpCount: true,
             tankCount: true,
             products: true,
@@ -253,7 +254,10 @@ export async function saveMonetaryAction(params: {
       return { ok: false, error: "Report not found." };
     }
 
-    const equipment = resolveStationEquipment(reportMeta.station);
+    const equipment = resolveStationEquipment(
+      reportMeta.station,
+      await loadLinkedEquipment(reportMeta.station.id)
+    );
     const report = await saveMonetaryReconciliation({
       dealerOrganizationId: orgId,
       reportId: params.reportId,

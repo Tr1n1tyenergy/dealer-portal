@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { onGroupedInput, sanitizeNumericText } from "@/lib/forms/numeric-text";
 import {
   AlertTriangle,
   BarChart3,
@@ -107,7 +108,14 @@ function configsEqual(a: IntelligenceConfigValues, b: IntelligenceConfigValues) 
   );
 }
 
-function numInput(opts: {
+function NumInput({
+  value,
+  display,
+  onChange,
+  emphasized,
+  ariaLabel,
+  placeholder,
+}: {
   value: number | null;
   display?: number | null;
   onChange: (v: number | null) => void;
@@ -115,25 +123,29 @@ function numInput(opts: {
   ariaLabel: string;
   placeholder?: string;
 }) {
-  const shown = opts.value ?? opts.display ?? null;
+  const [text, setText] = useState<string | null>(null);
+  const shown =
+    text ??
+    (value == null && (display == null || display === undefined)
+      ? ""
+      : sanitizeNumericText(String(value ?? display ?? ""), true));
   return (
     <input
-      type="number"
-      min={0}
-      step="any"
-      className={opts.emphasized ? "is-period-focus" : undefined}
-      aria-label={opts.ariaLabel}
-      placeholder={opts.placeholder}
-      value={shown ?? ""}
-      onChange={(e) => {
-        const raw = e.target.value;
-        if (raw === "") {
-          opts.onChange(null);
+      inputMode="decimal"
+      className={emphasized ? "is-period-focus" : undefined}
+      aria-label={ariaLabel}
+      placeholder={placeholder}
+      value={shown}
+      onChange={onGroupedInput(true, (raw) => {
+        setText(raw);
+        const digits = raw.replace(/,/g, "");
+        if (digits === "" || digits === ".") {
+          onChange(null);
           return;
         }
-        const n = Number(raw);
-        opts.onChange(Number.isFinite(n) && n >= 0 ? n : null);
-      }}
+        const n = Number(digits);
+        if (Number.isFinite(n) && n >= 0) onChange(n);
+      })}
     />
   );
 }
@@ -821,12 +833,12 @@ export function StaffStockIntelligencePanel({
                             ] as const
                           ).map(([period, label]) => (
                             <td key={period} className="num">
-                              {numInput({
-                                value: targetFieldValue(product, period),
-                                emphasized: focusPeriod === period,
-                                ariaLabel: `${product} ${label} target litres`,
-                                onChange: (v) => onTargetPeriodEdit(product, period, v),
-                              })}
+                              <NumInput
+                                value={targetFieldValue(product, period)}
+                                emphasized={focusPeriod === period}
+                                ariaLabel={`${product} ${label} target litres`}
+                                onChange={(v) => onTargetPeriodEdit(product, period, v)}
+                              />
                             </td>
                           ))}
                         </tr>
@@ -884,10 +896,10 @@ export function StaffStockIntelligencePanel({
                               <ProductBadge product={product} />
                             </td>
                             <td className="num">
-                              {numInput({
-                                value: cfg[minKey],
-                                ariaLabel: `${product} minimum daily holding litres`,
-                                onChange: (v) => {
+                              <NumInput
+                                value={cfg[minKey]}
+                                ariaLabel={`${product} minimum daily holding litres`}
+                                onChange={(v) => {
                                   const prevMin = cfg[minKey];
                                   const prevTwo = cfg[twoKey];
                                   const wasDerived =
@@ -899,16 +911,16 @@ export function StaffStockIntelligencePanel({
                                     [minKey]: v,
                                     [twoKey]: wasDerived && v != null ? null : cfg[twoKey],
                                   });
-                                },
-                              })}
+                                }}
+                              />
                             </td>
                             <td className="num">
-                              {numInput({
-                                value: cfg[twoKey],
-                                display: twoDayDisplay(product),
-                                ariaLabel: `${product} two-day holding litres`,
-                                onChange: (v) => setCfg({ ...cfg, [twoKey]: v }),
-                              })}
+                              <NumInput
+                                value={cfg[twoKey]}
+                                display={twoDayDisplay(product)}
+                                ariaLabel={`${product} two-day holding litres`}
+                                onChange={(v) => setCfg({ ...cfg, [twoKey]: v })}
+                              />
                             </td>
                             <td>
                               <AlertLevelPreview status={previewAlert(product)} />

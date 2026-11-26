@@ -1,7 +1,54 @@
 import type { WetStockResolution, WetStockState } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import {
+  reconcilePumpsToTanks,
+  rollupTankLines,
+  tankLinesBalanced,
+  type TankReconLine,
+} from "./tank-recon";
 import { computeWetVariances } from "./wet-calc";
 import { StockReportingError } from "./service";
+
+export type { TankReconLine };
+
+/** Pumps on each tank, compared with that tank's dip for this report. */
+export async function loadReportTankReconciliation(reportId: string): Promise<TankReconLine[]> {
+  const report = await prisma.stockSaleReport.findUnique({
+    where: { id: reportId },
+    select: {
+      stationId: true,
+      pumpReadings: { select: { pumpKey: true, salesLitres: true } },
+      tankReadings: { select: { tankKey: true, salesLitres: true } },
+    },
+  });
+  if (!report) return [];
+
+  const [tanks, pumps] = await Promise.all([
+    prisma.stationTank.findMany({
+      where: { stationId: report.stationId, active: true },
+      orderBy: [{ sortOrder: "asc" }, { tankKey: "asc" }],
+      select: { tankKey: true, label: true, product: true },
+    }),
+    prisma.stationPump.findMany({
+      where: { stationId: report.stationId, active: true, tank: { active: true } },
+      select: { pumpKey: true, tank: { select: { tankKey: true } } },
+    }),
+  ]);
+  const tankKeyByPump = new Map(
+    pumps.flatMap((pump) => (pump.tank ? [[pump.pumpKey, pump.tank.tankKey] as const] : []))
+  );
+  const salesByPump = new Map(report.pumpReadings.map((row) => [row.pumpKey, row.salesLitres]));
+
+  return reconcilePumpsToTanks({
+    tanks,
+    pumps: pumps.flatMap((pump) => (pump.tank ? [{ tankKey: pump.tank.tankKey }] : [])),
+    meterSales: pumps.flatMap((pump) => {
+      const tankKey = pump.tank ? tankKeyByPump.get(pump.pumpKey) : null;
+      return tankKey ? [{ tankKey, sales: salesByPump.get(pump.pumpKey) ?? null }] : [];
+    }),
+    tankSales: report.tankReadings.map((row) => ({ tankKey: row.tankKey, sales: row.salesLitres })),
+  });
+}
 
 export type WetResolutionChoice = "MATCH_DELIVERY" | "REVIEW_READINGS" | "RECORD_LOSS" | "BALANCED";
 
@@ -49,21 +96,24 @@ export async function saveWetStockReconciliation(params: {
     );
   }
 
+  const tankLines = await loadReportTankReconciliation(report.id);
+  const rolled = tankLines.length ? rollupTankLines(tankLines) : null;
   const summary = computeWetVariances({
-    meterPms: report.meterSalesPmsLitres ?? 0,
-    meterAgo: report.meterSalesAgoLitres ?? 0,
-    tankPms: report.tankSalesPmsLitres ?? 0,
-    tankAgo: report.tankSalesAgoLitres ?? 0,
+    meterPms: rolled?.meterPms ?? report.meterSalesPmsLitres ?? 0,
+    meterAgo: rolled?.meterAgo ?? report.meterSalesAgoLitres ?? 0,
+    tankPms: rolled?.tankPms ?? report.tankSalesPmsLitres ?? 0,
+    tankAgo: rolled?.tankAgo ?? report.tankSalesAgoLitres ?? 0,
   });
+  const balanced = tankLines.length ? tankLinesBalanced(tankLines) : summary.balanced;
 
   let resolution: WetStockResolution = params.resolution === "NONE" ? "NONE" : params.resolution;
-  let wetState: WetStockState = summary.balanced ? "BALANCED" : "VARIANCE_DETECTED";
+  let wetState: WetStockState = balanced ? "BALANCED" : "VARIANCE_DETECTED";
   let lossReason = params.lossReason?.trim() || null;
   let lossAt: Date | null = null;
   let lossBy: string | null = null;
 
   if (params.mode === "complete") {
-    if (summary.balanced) {
+    if (balanced) {
       resolution = "BALANCED";
       wetState = "BALANCED";
       lossReason = null;
@@ -110,8 +160,8 @@ export async function saveWetStockReconciliation(params: {
   } else if (resolution === "REVIEW_READINGS") {
     wetState = "READINGS_UNDER_REVIEW";
   } else if (resolution === "RECORD_LOSS") {
-    wetState = summary.balanced ? "BALANCED" : "VARIANCE_DETECTED";
-  } else if (summary.balanced) {
+    wetState = balanced ? "BALANCED" : "VARIANCE_DETECTED";
+  } else if (balanced) {
     resolution = "BALANCED";
     wetState = "BALANCED";
   }

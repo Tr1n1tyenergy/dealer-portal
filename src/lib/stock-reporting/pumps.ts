@@ -7,54 +7,71 @@ import { StockReportingError } from "./service";
 
 const FUEL: ProductCode[] = ["PMS", "AGO"];
 
+const tankSelect = {
+  id: true,
+  tankKey: true,
+  label: true,
+  product: true,
+  sortOrder: true,
+} as const;
+
 export async function ensureStationPumps(stationId: string) {
-  const defs = defaultPumpDefinitions();
   const existing = await prisma.stationPump.findMany({ where: { stationId } });
+  const tankCount = await prisma.stationTank.count({ where: { stationId, active: true } });
+  // A station with tanks reports only the pumps linked to those tanks.
+  // Unlinked leftovers from the old one-pump-per-tank seed stay out of the meter list.
+  if (tankCount > 0) {
+    return prisma.stationPump.findMany({
+      where: { stationId, active: true, tankId: { not: null }, tank: { active: true } },
+      include: { tank: { select: tankSelect } },
+      orderBy: [{ tank: { sortOrder: "asc" } }, { sortOrder: "asc" }],
+    });
+  }
+  // Stations already configured in Tank Management own their pumps.
+  // Do not invent the old four defaults, and do not turn a deactivated pump back on.
+  if (existing.length > 0) {
+    return prisma.stationPump.findMany({
+      where: { stationId, active: true },
+      include: { tank: { select: tankSelect } },
+      orderBy: { sortOrder: "asc" },
+    });
+  }
+
+  const defs = defaultPumpDefinitions();
   const byKey = new Map(existing.map((p) => [p.pumpKey, p]));
 
   for (const d of defs) {
-    const row = byKey.get(d.pumpKey);
-    if (!row) {
-      try {
-        await prisma.stationPump.create({
-          data: {
-            stationId,
-            pumpKey: d.pumpKey,
-            product: d.product,
-            label: d.label,
-            sortOrder: d.sortOrder,
-            lastClosingLitres: 0,
-            active: true,
-          },
-        });
-      } catch (err) {
-        // Concurrent ensure — unique (stationId, pumpKey) already satisfied.
-        if (
-          !(
-            err &&
-            typeof err === "object" &&
-            "code" in err &&
-            (err as { code?: string }).code === "P2002"
-          )
-        ) {
-          throw err;
-        }
-      }
-    } else if (!row.active) {
-      await prisma.stationPump.update({
-        where: { id: row.id },
+    if (byKey.has(d.pumpKey)) continue;
+    try {
+      await prisma.stationPump.create({
         data: {
-          active: true,
+          stationId,
+          pumpKey: d.pumpKey,
           product: d.product,
           label: d.label,
           sortOrder: d.sortOrder,
+          lastClosingLitres: 0,
+          active: true,
         },
       });
+    } catch (err) {
+      // Concurrent ensure — unique (stationId, pumpKey) already satisfied.
+      if (
+        !(
+          err &&
+          typeof err === "object" &&
+          "code" in err &&
+          (err as { code?: string }).code === "P2002"
+        )
+      ) {
+        throw err;
+      }
     }
   }
 
   return prisma.stationPump.findMany({
     where: { stationId, active: true },
+    include: { tank: { select: tankSelect } },
     orderBy: { sortOrder: "asc" },
   });
 }
@@ -73,6 +90,14 @@ export async function ensurePumpReadingsForReport(reportId: string, stationId: s
     stationId,
     reportingDate: report.reportingDate,
   });
+
+  const activeKeys = new Set(pumps.map((p) => p.pumpKey));
+  const staleOpen = existing.filter((row) => !activeKeys.has(row.pumpKey) && row.closingLitres == null);
+  if (staleOpen.length) {
+    await prisma.stockSalePumpReading.deleteMany({
+      where: { id: { in: staleOpen.map((row) => row.id) } },
+    });
+  }
 
   const missing = pumps.filter((p) => FUEL.includes(p.product) && !have.has(p.pumpKey));
   if (missing.length) {
@@ -118,7 +143,7 @@ export async function ensurePumpReadingsForReport(reportId: string, stationId: s
   }
 
   return prisma.stockSalePumpReading.findMany({
-    where: { reportId },
+    where: { reportId, pumpKey: { in: [...activeKeys] } },
     orderBy: { sortOrder: "asc" },
   });
 }
@@ -160,6 +185,8 @@ export async function savePumpMeterReadings(params: {
 
   const pumps = await ensureStationPumps(report.stationId);
   const pumpMeta = new Map(pumps.map((p) => [p.pumpKey, p]));
+  await ensurePumpReadingsForReport(report.id, report.stationId);
+  const readings = await prisma.stockSalePumpReading.findMany({ where: { reportId: report.id } });
   const rttByPump = await sumActiveRttByPumpKey({
     stationId: report.stationId,
     reportingDate: report.reportingDate,
@@ -177,10 +204,12 @@ export async function savePumpMeterReadings(params: {
     initializeMeter: boolean;
   }[] = [];
 
-  for (const row of report.pumpReadings) {
-    const input = byKey.get(row.pumpKey);
+  for (const row of readings) {
     const meta = pumpMeta.get(row.pumpKey);
-    const needsInit = !(meta?.meterInitialized ?? true);
+    // Leftover readings for pumps that are not on a tank stay out of the totals.
+    if (!meta) continue;
+    const input = byKey.get(row.pumpKey);
+    const needsInit = !meta.meterInitialized;
     const opening =
       needsInit && input?.openingLitres != null ? input.openingLitres : row.openingLitres;
     const closing = input?.closingLitres ?? null;
@@ -327,6 +356,9 @@ export type PumpReadingRowDto = {
   pumpKey: string;
   product: "PMS" | "AGO";
   label: string;
+  tankId: string | null;
+  tankKey: string | null;
+  tankLabel: string | null;
   openingLitres: number;
   closingLitres: number | null;
   rttLitres: number;
@@ -336,13 +368,17 @@ export type PumpReadingRowDto = {
 
 export function toPumpReadingDto(
   row: StockSalePumpReading,
-  needsOpeningInit = false
+  needsOpeningInit = false,
+  tank?: { id: string; tankKey: string; label: string } | null
 ): PumpReadingRowDto {
   return {
     id: row.id,
     pumpKey: row.pumpKey,
     product: row.product === "AGO" ? "AGO" : "PMS",
     label: row.label,
+    tankId: tank?.id ?? null,
+    tankKey: tank?.tankKey ?? null,
+    tankLabel: tank?.label ?? null,
     openingLitres: row.openingLitres,
     closingLitres: row.closingLitres,
     rttLitres: row.rttLitres,
@@ -356,8 +392,14 @@ export async function toPumpReadingDtos(
   stationId: string
 ): Promise<PumpReadingRowDto[]> {
   const pumps = await ensureStationPumps(stationId);
-  const initMap = new Map(pumps.map((p) => [p.pumpKey, !p.meterInitialized]));
-  return rows.map((r) => toPumpReadingDto(r, initMap.get(r.pumpKey) ?? false));
+  const byKey = new Map(pumps.map((pump) => [pump.pumpKey, pump]));
+  const order = new Map(pumps.map((pump, index) => [pump.pumpKey, index]));
+  return rows
+    .map((row) => {
+      const pump = byKey.get(row.pumpKey);
+      return toPumpReadingDto(row, pump ? !pump.meterInitialized : false, pump?.tank ?? null);
+    })
+    .sort((a, b) => (order.get(a.pumpKey) ?? 0) - (order.get(b.pumpKey) ?? 0));
 }
 
 export type PumpMetersPageModel = {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { onGroupedInput } from "@/lib/forms/numeric-text";
 import {
   Beaker,
   ClipboardList,
@@ -397,7 +398,7 @@ export function RttCalibrationPage({
                   <input
                     inputMode="decimal"
                     value={volume}
-                    onChange={(e) => setVolume(e.target.value)}
+                    onChange={onGroupedInput(true, setVolume)}
                     disabled={pending}
                     placeholder="e.g. 10.00"
                   />
@@ -812,7 +813,7 @@ export function RttCalibrationPage({
               <input
                 inputMode="decimal"
                 value={editVolume}
-                onChange={(e) => setEditVolume(e.target.value)}
+                onChange={onGroupedInput(true, setEditVolume)}
                 disabled={pending}
               />
             </label>

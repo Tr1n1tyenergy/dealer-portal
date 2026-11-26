@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import { onGroupedInput, sanitizeNumericText } from "@/lib/forms/numeric-text";
 import {
   Briefcase,
   Check,
@@ -75,7 +76,7 @@ function money(n: number | null | undefined, digits = 2): string {
 
 function numInput(n: number | null | undefined): string {
   if (n == null || !Number.isFinite(n)) return "";
-  return String(n);
+  return sanitizeNumericText(String(n), true);
 }
 
 /** Settings dealer price = (base − dealer margin − transport margin) / 1.08, truncated to 6 dp. */
@@ -84,9 +85,9 @@ function dealerPriceFromDraft(draft: FuelDraft | undefined): number | null {
   if (!draft.basePriceKes.trim() || !draft.dealerMarginKes.trim() || !draft.transportMarginKes.trim()) {
     return null;
   }
-  const base = Number(draft.basePriceKes);
-  const margin = Number(draft.dealerMarginKes);
-  const transport = Number(draft.transportMarginKes);
+  const base = Number(draft.basePriceKes.replace(/,/g, ""));
+  const margin = Number(draft.dealerMarginKes.replace(/,/g, ""));
+  const transport = Number(draft.transportMarginKes.replace(/,/g, ""));
   return dealerPriceFromParts(base, margin, transport);
 }
 
@@ -437,7 +438,7 @@ export function PlatformSettingsClient({
         setError(`${fuelKey} base price is required.`);
         return;
       }
-      if (!Number.isFinite(Number(row.basePriceKes))) {
+      if (!Number.isFinite(Number(row.basePriceKes.replace(/,/g, "")))) {
         setError(`${fuelKey} base price must be a number.`);
         return;
       }
@@ -445,7 +446,7 @@ export function PlatformSettingsClient({
         ["dealer margin", row.dealerMarginKes],
         ["transport margin", row.transportMarginKes],
       ] as const) {
-        if (val.trim() && !Number.isFinite(Number(val))) {
+        if (val.trim() && !Number.isFinite(Number(val.replace(/,/g, "")))) {
           setError(`${fuelKey} ${label} must be a number.`);
           return;
         }
@@ -1007,7 +1008,7 @@ export function PlatformSettingsClient({
                             value={row.basePriceKes}
                             required
                             disabled={pending}
-                            onChange={(e) => patchFuel(fuelKey, { basePriceKes: e.target.value })}
+                            onChange={onGroupedInput(true, (value) => patchFuel(fuelKey, { basePriceKes: value }))}
                           />
                         </label>
                         <label className="sp-field">
@@ -1017,7 +1018,7 @@ export function PlatformSettingsClient({
                             value={row.dealerMarginKes}
                             placeholder="Not configured"
                             disabled={pending}
-                            onChange={(e) => patchFuel(fuelKey, { dealerMarginKes: e.target.value })}
+                            onChange={onGroupedInput(true, (value) => patchFuel(fuelKey, { dealerMarginKes: value }))}
                           />
                         </label>
                         <label className="sp-field">
@@ -1027,7 +1028,7 @@ export function PlatformSettingsClient({
                             value={row.transportMarginKes}
                             placeholder="Not configured"
                             disabled={pending}
-                            onChange={(e) => patchFuel(fuelKey, { transportMarginKes: e.target.value })}
+                            onChange={onGroupedInput(true, (value) => patchFuel(fuelKey, { transportMarginKes: value }))}
                           />
                         </label>
                       </div>

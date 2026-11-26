@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { onGroupedInput } from "@/lib/forms/numeric-text";
 import {
   ArrowLeft,
   Banknote,
@@ -255,7 +256,8 @@ export function MonetaryForm({
 
       {howOpen ? (
         <div className="ssw__how-pop" role="note">
-          <strong>Expected sales</strong> = meter volume × snapshotted pump selling price per litre.{" "}
+          <strong>Expected sales</strong> = the combined meter volume of the pumps on each tank, by fuel, ×
+          the snapshotted pump selling price per litre.{" "}
           <strong>Collections</strong> are manual Cash, M-Pesa, and Visa/Card totals for the day
           (not verified payment imports). <strong>Difference</strong> = Total Collections − Expected
           Sales (signed). Exact balance is required to close the shift; shortage/overage approval
@@ -405,7 +407,7 @@ export function MonetaryForm({
                 aria-invalid={Boolean(fieldErrors.cash)}
                 onChange={(e) => {
                   markDirty();
-                  setCash(e.target.value);
+                  onGroupedInput(true, setCash)(e);
                 }}
                 placeholder="0.00"
               />
@@ -427,7 +429,7 @@ export function MonetaryForm({
                 aria-invalid={Boolean(fieldErrors.mpesa)}
                 onChange={(e) => {
                   markDirty();
-                  setMpesa(e.target.value);
+                  onGroupedInput(true, setMpesa)(e);
                 }}
                 placeholder="0.00"
               />
@@ -449,7 +451,7 @@ export function MonetaryForm({
                 aria-invalid={Boolean(fieldErrors.card)}
                 onChange={(e) => {
                   markDirty();
-                  setCard(e.target.value);
+                  onGroupedInput(true, setCard)(e);
                 }}
                 placeholder="0.00"
               />

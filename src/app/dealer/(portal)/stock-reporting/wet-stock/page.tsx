@@ -4,7 +4,7 @@ import { WetStockForm } from "@/components/dealer/wet-stock-form";
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   formatEquipmentBreakdown,
-  loadActiveTankEquipment,
+  loadLinkedEquipment,
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import { isStageCompleted } from "@/lib/stock-reporting/progress";
@@ -13,7 +13,8 @@ import {
   pickDefaultStation,
   startTodaysReport,
 } from "@/lib/stock-reporting/service";
-import { listEligibleStockDeliveries } from "@/lib/stock-reporting/wet";
+import { listEligibleStockDeliveries, loadReportTankReconciliation } from "@/lib/stock-reporting/wet";
+import { rollupTankLines } from "@/lib/stock-reporting/tank-recon";
 
 export default async function WetStockStagePage({
   searchParams,
@@ -43,9 +44,10 @@ export default async function WetStockStagePage({
     );
   }
 
-  const tankEq = await loadActiveTankEquipment(station.id);
-  const equipment = resolveStationEquipment(station, tankEq);
+  const equipment = resolveStationEquipment(station, await loadLinkedEquipment(station.id));
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
+  const tankLines = await loadReportTankReconciliation(report.id);
+  const rolled = tankLines.length ? rollupTankLines(tankLines) : null;
   const deliveries = await listEligibleStockDeliveries({
     stationId: station.id,
     reportingDate,
@@ -67,10 +69,11 @@ export default async function WetStockStagePage({
       reportingDateLabel={formatStockReportDate(reportingDate)}
       pumpsLabel={formatEquipmentBreakdown(equipment.pumpCount, equipment.pumpsByProduct)}
       tanksLabel={formatEquipmentBreakdown(equipment.tankCount, equipment.tanksByProduct)}
-      meterPms={report.meterSalesPmsLitres ?? 0}
-      meterAgo={report.meterSalesAgoLitres ?? 0}
-      tankPms={report.tankSalesPmsLitres ?? 0}
-      tankAgo={report.tankSalesAgoLitres ?? 0}
+      meterPms={rolled?.meterPms ?? report.meterSalesPmsLitres ?? 0}
+      meterAgo={rolled?.meterAgo ?? report.meterSalesAgoLitres ?? 0}
+      tankPms={rolled?.tankPms ?? report.tankSalesPmsLitres ?? 0}
+      tankAgo={rolled?.tankAgo ?? report.tankSalesAgoLitres ?? 0}
+      tankLines={tankLines}
       initialResolution={initialResolution}
       initialLossReason={report.wetLossReason}
       updatedAt={report.updatedAt.toISOString()}

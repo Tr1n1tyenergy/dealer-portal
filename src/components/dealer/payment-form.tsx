@@ -2,6 +2,7 @@
 
 import { startTransition, useActionState } from "react";
 import { paymentAction } from "@/lib/orders/actions";
+import { keepNumeric } from "@/lib/forms/numeric-text";
 
 /** Dealer payment details; shows the server's message (e.g. an invalid amount) next to the field. */
 export function PaymentForm({ orderId, amountDue }: { orderId: string; amountDue: string | null }) {
@@ -25,6 +26,7 @@ export function PaymentForm({ orderId, amountDue }: { orderId: string; amountDue
           name="amount"
           required
           inputMode="decimal"
+          onInput={keepNumeric(true)}
           defaultValue={amountDue ?? ""}
           aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? "pay-error" : undefined}

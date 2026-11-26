@@ -86,25 +86,61 @@ export function resolveStationEquipment(
   overrides?: {
     tankCount?: number;
     tanksByProduct?: { PMS: number; AGO: number };
+    pumpCount?: number;
+    pumpsByProduct?: { PMS: number; AGO: number };
   }
 ) {
   if (!station) {
     return {
-      pumpCount: DEFAULT_STATION_EQUIPMENT.pumpCount,
+      pumpCount: overrides?.pumpCount ?? DEFAULT_STATION_EQUIPMENT.pumpCount,
       tankCount: overrides?.tankCount ?? DEFAULT_STATION_EQUIPMENT.tankCount,
-      pumpsByProduct: { ...DEFAULT_STATION_EQUIPMENT.pumpsByProduct },
+      pumpsByProduct: overrides?.pumpsByProduct ?? { ...DEFAULT_STATION_EQUIPMENT.pumpsByProduct },
       tanksByProduct: overrides?.tanksByProduct ?? { ...DEFAULT_STATION_EQUIPMENT.tanksByProduct },
       fromDefault: true,
     };
   }
-  const missingPumps = station.pumpCount == null;
+  const missingPumps = station.pumpCount == null && overrides?.pumpCount == null;
   const tankCount = overrides?.tankCount ?? station.tankCount ?? 0;
   return {
-    pumpCount: station.pumpCount ?? DEFAULT_STATION_EQUIPMENT.pumpCount,
+    pumpCount: overrides?.pumpCount ?? station.pumpCount ?? DEFAULT_STATION_EQUIPMENT.pumpCount,
     tankCount,
-    pumpsByProduct: { ...DEFAULT_STATION_EQUIPMENT.pumpsByProduct },
+    pumpsByProduct: overrides?.pumpsByProduct ?? { ...DEFAULT_STATION_EQUIPMENT.pumpsByProduct },
     tanksByProduct: overrides?.tanksByProduct ?? { PMS: 0, AGO: 0 },
     fromDefault: missingPumps && overrides?.tankCount == null,
+  };
+}
+
+/** Active tanks, and the pumps actually linked to them. */
+export async function loadLinkedEquipment(stationId: string): Promise<{
+  tankCount: number;
+  tanksByProduct: { PMS: number; AGO: number };
+  pumpCount: number;
+  pumpsByProduct: { PMS: number; AGO: number };
+}> {
+  const tanks = await prisma.stationTank.findMany({
+    where: { stationId, active: true },
+    select: { product: true },
+  });
+  const pumps = await prisma.stationPump.findMany({
+    where:
+      tanks.length > 0
+        ? { stationId, active: true, tankId: { not: null }, tank: { active: true } }
+        : { stationId, active: true },
+    select: { product: true },
+  });
+  const tanksByProduct = { PMS: 0, AGO: 0 };
+  const pumpsByProduct = { PMS: 0, AGO: 0 };
+  for (const tank of tanks) {
+    if (tank.product === "PMS" || tank.product === "AGO") tanksByProduct[tank.product] += 1;
+  }
+  for (const pump of pumps) {
+    if (pump.product === "PMS" || pump.product === "AGO") pumpsByProduct[pump.product] += 1;
+  }
+  return {
+    tankCount: tanks.length,
+    tanksByProduct,
+    pumpCount: pumps.length,
+    pumpsByProduct,
   };
 }
 

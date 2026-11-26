@@ -31,6 +31,13 @@ export type StationFuelPricing = {
   dealerPriceKes: number | null;
 };
 
+export type StationTankPump = {
+  id: string;
+  pumpKey: string;
+  label: string;
+  active: boolean;
+};
+
 export type StationTankSummary = {
   id: string;
   tankKey: string;
@@ -39,6 +46,9 @@ export type StationTankSummary = {
   capacityLitres: number;
   active: boolean;
   createdAt: string;
+  /** Active pumps linked to this tank. */
+  pumpCount: number;
+  pumps: StationTankPump[];
 };
 
 export type StationPricingRow = {
@@ -91,6 +101,10 @@ export async function listStationsForPricing(): Promise<StationPricingRow[]> {
           capacityLitres: true,
           active: true,
           createdAt: true,
+          pumps: {
+            orderBy: { sortOrder: "asc" },
+            select: { id: true, pumpKey: true, label: true, active: true },
+          },
         },
       },
       fuelPrices: {
@@ -148,6 +162,8 @@ export async function listStationsForPricing(): Promise<StationPricingRow[]> {
         capacityLitres: t.capacityLitres,
         active: t.active,
         createdAt: t.createdAt.toISOString(),
+        pumpCount: t.pumps.filter((pump) => pump.active).length,
+        pumps: t.pumps,
       })),
       fuels,
       epraTown: town,

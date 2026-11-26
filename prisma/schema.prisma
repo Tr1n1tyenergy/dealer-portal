@@ -346,12 +346,16 @@ model StationPump {
   /** False until the first accepted closing (or authorized opening init) is saved. */
   meterInitialized  Boolean     @default(false)
   active            Boolean     @default(true)
+  /** Parent tank. Null only for pumps created before tanks owned their pumps. */
+  tankId            String?
+  tank              StationTank? @relation(fields: [tankId], references: [id], onDelete: Restrict)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
   rttEvents         StationPumpRttEvent[]
 
   @@unique([stationId, pumpKey])
   @@index([stationId, active, sortOrder])
+  @@index([tankId])
 }
 
 enum StationPumpRttStatus {
@@ -418,6 +422,7 @@ model StationTank {
   active            Boolean     @default(true)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+  pumps             StationPump[]
 
   @@unique([stationId, tankKey])
   @@index([stationId, active, sortOrder])

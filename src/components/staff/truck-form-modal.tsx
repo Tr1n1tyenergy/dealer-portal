@@ -14,6 +14,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import { onGroupedInput, sanitizeNumericText } from "@/lib/forms/numeric-text";
 import type { FleetTruckRow, FleetTruckStatusValue } from "@/lib/settings/fleet-truck-types";
 import {
   formatCapacityDisplay,
@@ -51,20 +52,18 @@ export function TruckFormModal({
   const [transportCompanyName, setTransportCompanyName] = useState("");
   const [plates, setPlates] = useState("");
   const [capacityRaw, setCapacityRaw] = useState("");
-  const [capacityFocused, setCapacityFocused] = useState(false);
   const [driverName, setDriverName] = useState("");
   const [driverId, setDriverId] = useState("");
   const [status, setStatus] = useState<FleetTruckStatusValue>("ACTIVE");
   const [compartmentCount, setCompartmentCount] = useState(4);
   const [editableCaps, setEditableCaps] = useState<string[]>(["", "", ""]);
-  const [focusedComp, setFocusedComp] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
     if (mode === "edit" && truck) {
       setTransportCompanyName(truck.transportCompanyName !== "—" ? truck.transportCompanyName : "");
       setPlates(truck.registrationNumber);
-      setCapacityRaw(String(truck.capacityLitres));
+      setCapacityRaw(sanitizeNumericText(String(truck.capacityLitres), true));
       setDriverName(truck.driverName ?? "");
       setDriverId(truck.driverId ?? "");
       setStatus(truck.status);
@@ -74,16 +73,16 @@ export function TruckFormModal({
           : [{ compartmentNumber: 1, capacityLitres: truck.capacityLitres, id: "" }];
       const n = Math.min(MAX_COMPARTMENTS, Math.max(MIN_COMPARTMENTS, comps.length));
       setCompartmentCount(n);
-      setEditableCaps(comps.slice(0, Math.max(0, n - 1)).map((c) => String(c.capacityLitres)));
+      setEditableCaps(comps.slice(0, Math.max(0, n - 1)).map((c) => sanitizeNumericText(String(c.capacityLitres), true)));
     } else {
       setTransportCompanyName("");
       setPlates("");
-      setCapacityRaw("10000");
+      setCapacityRaw("10,000");
       setDriverName("");
       setDriverId("");
       setStatus("ACTIVE");
       setCompartmentCount(4);
-      setEditableCaps(["2000", "3000", "2000"]);
+      setEditableCaps(["2,000", "3,000", "2,000"]);
     }
     setDirty(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,16 +138,13 @@ export function TruckFormModal({
     markDirty();
   }
 
-  function onCapacityChange(value: string) {
-    setCapacityRaw(value.replace(/[^\d.,]/g, ""));
+  const onCapacityChange = onGroupedInput(true, (value) => {
+    setCapacityRaw(value);
     markDirty();
-  }
+  });
 
   function capacityDisplayValue() {
-    if (capacityFocused) return capacityRaw;
-    const n = parseLitresInput(capacityRaw);
-    if (n == null || n <= 0) return capacityRaw;
-    return formatCapacityDisplay(n);
+    return capacityRaw;
   }
 
   function submit(e: React.FormEvent) {
@@ -240,13 +236,7 @@ export function TruckFormModal({
                   required
                   disabled={pending}
                   placeholder="10,000 L (10 m³)"
-                  onFocus={() => {
-                    setCapacityFocused(true);
-                    const n = parseLitresInput(capacityRaw);
-                    if (n != null) setCapacityRaw(String(n));
-                  }}
-                  onBlur={() => setCapacityFocused(false)}
-                  onChange={(e) => onCapacityChange(e.target.value)}
+                  onChange={onCapacityChange}
                 />
               </span>
             </label>
@@ -385,17 +375,11 @@ export function TruckFormModal({
                 <tbody>
                   {Array.from({ length: compartmentCount }, (_, index) => {
                     const isLast = index === compartmentCount - 1;
-                    const parsed = parseLitresInput(editableCaps[index] ?? "");
-                    let value = "";
-                    if (isLast) {
-                      value = allocation.lastLitres > 0 ? formatCapacityDisplay(allocation.lastLitres) : "";
-                    } else if (focusedComp === index) {
-                      value = editableCaps[index] ?? "";
-                    } else if (parsed != null && parsed > 0) {
-                      value = formatCapacityDisplay(parsed);
-                    } else {
-                      value = editableCaps[index] ?? "";
-                    }
+                    const value = isLast
+                      ? allocation.lastLitres > 0
+                        ? formatCapacityDisplay(allocation.lastLitres)
+                        : ""
+                      : (editableCaps[index] ?? "");
                     return (
                       <tr key={index}>
                         <td>
@@ -420,21 +404,12 @@ export function TruckFormModal({
                                 disabled={pending}
                                 placeholder="2,000 L (2 m³)"
                                 aria-label={`Compartment ${index + 1} capacity`}
-                                onFocus={() => {
-                                  setFocusedComp(index);
-                                  if (parsed != null) {
-                                    const next = [...editableCaps];
-                                    next[index] = String(parsed);
-                                    setEditableCaps(next);
-                                  }
-                                }}
-                                onBlur={() => setFocusedComp(null)}
-                                onChange={(e) => {
+                                onChange={onGroupedInput(true, (value) => {
                                   const next = [...editableCaps];
-                                  next[index] = e.target.value.replace(/[^\d.,]/g, "");
+                                  next[index] = value;
                                   setEditableCaps(next);
                                   markDirty();
-                                }}
+                                })}
                               />
                             )}
                           </span>

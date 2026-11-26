@@ -38,6 +38,7 @@ import type { StaffIntelligenceViewModel } from "@/components/staff/staff-stock-
 import type { StaffMonetaryViewModel } from "@/components/staff/staff-monetary-sales";
 import type { StaffUser } from "@/lib/permissions";
 import { ensureStationTanks } from "@/lib/stock-reporting/tanks";
+import { reconcilePumpsToTanks, type TankReconLine } from "@/lib/stock-reporting/tank-recon";
 import { nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   aggregateStaffMonetary,
@@ -730,6 +731,7 @@ async function loadView(
       netVariance: 0,
       netVariancePct: null,
       receiptsRecorded: false,
+      tankLines: [] as TankReconLine[],
       stations: [],
       intelligence: null,
       monetary: null,
@@ -766,13 +768,16 @@ async function loadView(
       include: {
         tankReadings: {
           select: {
+            tankKey: true,
             product: true,
             openingLitres: true,
             closingLitres: true,
+            salesLitres: true,
           },
         },
         pumpReadings: {
           select: {
+            pumpKey: true,
             product: true,
             salesLitres: true,
           },
@@ -809,6 +814,34 @@ async function loadView(
     expectedDays,
     closedDays: closedDayKeys.size,
     hasDraft,
+  });
+
+  const [stationTanks, stationPumps] = await Promise.all([
+    prisma.stationTank.findMany({
+      where: { stationId, active: true },
+      orderBy: [{ sortOrder: "asc" }, { tankKey: "asc" }],
+      select: { tankKey: true, label: true, product: true },
+    }),
+    prisma.stationPump.findMany({
+      where: { stationId, active: true, tank: { active: true } },
+      select: { pumpKey: true, tank: { select: { tankKey: true } } },
+    }),
+  ]);
+  const tankKeyByPump = new Map(
+    stationPumps.flatMap((pump) => (pump.tank ? [[pump.pumpKey, pump.tank.tankKey] as const] : []))
+  );
+  const tankLines = reconcilePumpsToTanks({
+    tanks: stationTanks,
+    pumps: stationPumps.flatMap((pump) => (pump.tank ? [{ tankKey: pump.tank.tankKey }] : [])),
+    meterSales: closed.flatMap((report) =>
+      report.pumpReadings.flatMap((reading) => {
+        const tankKey = tankKeyByPump.get(reading.pumpKey);
+        return tankKey ? [{ tankKey, sales: reading.salesLitres }] : [];
+      })
+    ),
+    tankSales: closed.flatMap((report) =>
+      report.tankReadings.map((reading) => ({ tankKey: reading.tankKey, sales: reading.salesLitres }))
+    ),
   });
 
   const summary = aggregateStaffReconciliation(
@@ -879,6 +912,7 @@ async function loadView(
     netVariance: summary.netVariance,
     netVariancePct: summary.netVariancePct,
     receiptsRecorded: summary.receiptsRecorded,
+    tankLines,
     stations: stationOptions,
     intelligence,
     monetary,

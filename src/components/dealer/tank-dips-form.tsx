@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { onGroupedInput } from "@/lib/forms/numeric-text";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -18,6 +19,7 @@ import {
 import { saveTankDipsAction } from "@/lib/stock-reporting/actions";
 import {
   calculateTankDip,
+  formatLitresExact,
   formatLitresFixed,
   formatLitresWithUnit,
   parseLitresInput,
@@ -32,7 +34,7 @@ type DraftRow = { tankKey: string; closing: string };
 function toDraft(rows: TankReadingRowDto[]): DraftRow[] {
   return rows.map((r) => ({
     tankKey: r.tankKey,
-    closing: r.closingLitres == null ? "" : formatLitresFixed(r.closingLitres),
+    closing: r.closingLitres == null ? "" : formatLitresExact(r.closingLitres),
   }));
 }
 
@@ -322,7 +324,7 @@ export function TankDipsForm({
                       disabled={readOnly || pending}
                       aria-label={`${row.label} closing stock litres`}
                       aria-invalid={Boolean(closingErr)}
-                      onChange={(e) => updateRow(row.tankKey, e.target.value)}
+                      onChange={onGroupedInput(true, (value) => updateRow(row.tankKey, value))}
                     />
                     {closingErr ? <span className="ssw__field-error">{closingErr}</span> : null}
                   </td>

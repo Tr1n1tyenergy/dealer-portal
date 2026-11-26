@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { onGroupedInput, sanitizeNumericText } from "@/lib/forms/numeric-text";
 import Link from "next/link";
 import {
   ArrowDownLeft,
@@ -106,7 +107,7 @@ export function PaymentReviewEditor({
   dateNote: string;
   mappingNote: string;
 }) {
-  const [draftAmount, setDraftAmount] = useState(amount);
+  const [draftAmount, setDraftAmount] = useState(() => sanitizeNumericText(amount, true));
   const [draftReference, setDraftReference] = useState(bankReference);
   const [draftJournalId, setDraftJournalId] = useState(journalId);
   const [draftCurrencyId, setDraftCurrencyId] = useState(currencyId);
@@ -235,7 +236,7 @@ export function PaymentReviewEditor({
               <MapRow label="Payment Type" value="Receive" tone="good" />
               <MapRow label="Customer" value={customerLinked ? dealerName : "Not linked to an Odoo customer"} tone={customerLinked ? "plain" : "bad"} />
               <MapRow label="Amount">
-                <input className="spr-map__input" name="amount" inputMode="decimal" value={draftAmount} onChange={(event) => setDraftAmount(event.target.value)} aria-label="Amount" />
+                <input className="spr-map__input" name="amount" inputMode="decimal" value={draftAmount} onChange={onGroupedInput(true, setDraftAmount)} aria-label="Amount" />
               </MapRow>
               <MapRow label="Currency">
                 <span className="spr-map__pick">
