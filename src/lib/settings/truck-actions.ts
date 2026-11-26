@@ -44,7 +44,7 @@ function parseCapacityLitres(raw: string): number | null {
   if (!cleaned) return null;
   const n = Number(cleaned);
   if (!Number.isFinite(n)) return null;
-  return Math.round(n * 1000) / 1000;
+  return n;
 }
 
 function parseCompartmentJson(raw: string): number[] | null {
@@ -55,7 +55,7 @@ function parseCompartmentJson(raw: string): number[] | null {
     for (const item of parsed) {
       const n = typeof item === "number" ? item : Number(item);
       if (!Number.isFinite(n)) return null;
-      out.push(Math.round(n * 1000) / 1000);
+      out.push(n);
     }
     return out;
   } catch {

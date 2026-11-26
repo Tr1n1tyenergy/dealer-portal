@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { Fragment, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -17,12 +17,13 @@ import { savePumpMetersAction } from "@/lib/stock-reporting/actions";
 import {
   calculatePumpSales,
   commitLitresField,
+  formatLitresExact,
   formatLitresFixed,
   formatLitresWithUnit,
   parseLitresInput,
-  sanitizeNumericLitresDraft,
   sumSalesByProduct,
 } from "@/lib/stock-reporting/pump-calc";
+import { onGroupedInput } from "@/lib/forms/numeric-text";
 import type { PumpReadingRowDto } from "@/lib/stock-reporting/pumps";
 import { cn } from "@/lib/utils";
 import { StockReportingWizardShell } from "./stock-reporting-wizard-shell";
@@ -38,8 +39,8 @@ type DraftRow = {
 function toDraft(rows: PumpReadingRowDto[]): DraftRow[] {
   return rows.map((r) => ({
     pumpKey: r.pumpKey,
-    opening: formatLitresFixed(r.openingLitres),
-    closing: r.closingLitres == null ? "" : formatLitresFixed(r.closingLitres),
+    opening: formatLitresExact(r.openingLitres),
+    closing: r.closingLitres == null ? "" : formatLitresExact(r.closingLitres),
   }));
 }
 
@@ -138,12 +139,12 @@ export function PumpMetersForm({
     });
   }
 
-  function onLitresChange(pumpKey: string, field: "opening" | "closing", raw: string) {
-    updateRow(pumpKey, { [field]: sanitizeNumericLitresDraft(raw) });
+  function onLitresChange(pumpKey: string, field: "opening" | "closing") {
+    return onGroupedInput(true, (value) => updateRow(pumpKey, { [field]: value }));
   }
 
   function onLitresBlur(pumpKey: string, field: "opening" | "closing", raw: string) {
-    const committed = commitLitresField(raw, 4);
+    const committed = commitLitresField(raw);
     if (committed !== raw) updateRow(pumpKey, { [field]: committed });
   }
 
@@ -363,12 +364,43 @@ export function PumpMetersForm({
             </tr>
           </thead>
           <tbody>
-            {computed.map((row) => {
+            {computed.length === 0 ? (
+              <tr>
+                <td colSpan={6}>
+                  No pumps are linked to this station&apos;s tanks yet. Set the number of pumps for each tank in
+                  Platform Settings → Tank Management.
+                </td>
+              </tr>
+            ) : null}
+            {computed.map((row, index) => {
               const d = draft.find((x) => x.pumpKey === row.pumpKey)!;
               const closingErr = fieldErrors[`${row.pumpKey}.closing`] || row.calcError;
               const openingErr = fieldErrors[`${row.pumpKey}.opening`];
+              const previous = index > 0 ? computed[index - 1] : null;
+              const showTank = row.tankLabel != null && row.tankKey !== previous?.tankKey;
+              const tankPumps = computed.filter((item) => item.tankKey === row.tankKey);
+              const tankSales = tankPumps.reduce((sum, item) => sum + (item.sales ?? 0), 0);
+              const tankComplete = tankPumps.every((item) => item.sales != null);
               return (
-                <tr key={row.pumpKey}>
+                <Fragment key={row.pumpKey}>
+                {showTank ? (
+                  <tr className="ssw__tank-group">
+                    <td colSpan={6}>
+                      <span className="ssw__pump-cell">
+                        <Layers size={15} strokeWidth={2.25} aria-hidden />
+                        {row.tankLabel}
+                      </span>
+                      <span className={cn("ssw__badge", row.product === "PMS" ? "ssw__badge--pms" : "ssw__badge--ago")}>
+                        {row.product}
+                      </span>
+                      <span className="ssw__tank-group-count">
+                        {tankPumps.length} {tankPumps.length === 1 ? "pump" : "pumps"}
+                        {tankComplete ? ` · ${formatLitresFixed(tankSales)} L` : ""}
+                      </span>
+                    </td>
+                  </tr>
+                ) : null}
+                <tr>
                   <td>
                     <span className="ssw__pump-cell">
                       <Fuel size={15} strokeWidth={2.25} aria-hidden />
@@ -396,7 +428,7 @@ export function PumpMetersForm({
                           disabled={pending}
                           aria-label={`${row.label} initial opening meter litres`}
                           aria-invalid={Boolean(openingErr)}
-                          onChange={(e) => onLitresChange(row.pumpKey, "opening", e.target.value)}
+                          onChange={onLitresChange(row.pumpKey, "opening")}
                           onBlur={(e) => onLitresBlur(row.pumpKey, "opening", e.target.value)}
                         />
                         {openingErr ? <span className="ssw__field-error">{openingErr}</span> : null}
@@ -414,7 +446,7 @@ export function PumpMetersForm({
                       disabled={readOnly || pending}
                       aria-label={`${row.label} closing meter litres`}
                       aria-invalid={Boolean(closingErr)}
-                      onChange={(e) => onLitresChange(row.pumpKey, "closing", e.target.value)}
+                      onChange={onLitresChange(row.pumpKey, "closing")}
                       onBlur={(e) => onLitresBlur(row.pumpKey, "closing", e.target.value)}
                     />
                     {closingErr ? <span className="ssw__field-error">{closingErr}</span> : null}
@@ -430,6 +462,7 @@ export function PumpMetersForm({
                     </span>
                   </td>
                 </tr>
+                </Fragment>
               );
             })}
           </tbody>

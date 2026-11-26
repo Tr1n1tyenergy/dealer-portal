@@ -4,7 +4,7 @@ import { PumpMetersForm } from "@/components/dealer/pump-meters-form";
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   formatEquipmentBreakdown,
-  loadActiveTankEquipment,
+  loadLinkedEquipment,
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import {
@@ -40,8 +40,7 @@ export default async function PumpMetersStagePage({
   });
 
   const readings = await ensurePumpReadingsForReport(report.id, station.id);
-  const tankEq = await loadActiveTankEquipment(station.id);
-  const equipment = resolveStationEquipment(station, tankEq);
+  const equipment = resolveStationEquipment(station, await loadLinkedEquipment(station.id));
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
 
   return (

@@ -27,7 +27,7 @@ export function parseLitresInput(raw: string): number | null {
   if (!cleaned) return null;
   const n = Number(cleaned);
   if (!Number.isFinite(n) || n < 0) return null;
-  return Math.round(n * 1000) / 1000;
+  return n;
 }
 
 /**

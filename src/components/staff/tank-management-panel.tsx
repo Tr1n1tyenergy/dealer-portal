@@ -7,13 +7,16 @@ import {
   Cylinder,
   FileText,
   Fuel,
+  Info,
   MapPin,
   Pencil,
   Plus,
   Trash2,
   X,
 } from "lucide-react";
+import { onGroupedInput, sanitizeNumericText } from "@/lib/forms/numeric-text";
 import type { StationPricingRow, StationTankSummary } from "@/lib/settings/stations-pricing";
+import { pumpCountSentence } from "@/lib/settings/tank-pumps";
 import {
   createTankAction,
   deleteTankAction,
@@ -21,20 +24,45 @@ import {
   type TankFuel,
 } from "@/lib/settings/tank-actions";
 
-function formatWhen(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  const date = d.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-  const time = d.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-  return `${date}, ${time}`;
+function pumpBadgeLabel(count: number) {
+  return `${count} ${count === 1 ? "Pump" : "Pumps"}`;
+}
+
+function PumpCountField({
+  id,
+  value,
+  disabled,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  disabled?: boolean;
+  onChange: (next: string) => void;
+}) {
+  function step(delta: number) {
+    const digits = value.replace(/,/g, "");
+    const current = /^\d+$/.test(digits) ? Number(digits) : 1;
+    onChange(String(Math.min(30, Math.max(1, current + delta))));
+  }
+  return (
+    <div className="tm-stepper">
+      <button type="button" aria-label="Fewer pumps" disabled={disabled} onClick={() => step(-1)}>
+        −
+      </button>
+      <input
+        id={id}
+        inputMode="numeric"
+        autoComplete="off"
+        value={value}
+        disabled={disabled}
+        required
+        onChange={onGroupedInput(false, onChange)}
+      />
+      <button type="button" aria-label="More pumps" disabled={disabled} onClick={() => step(1)}>
+        +
+      </button>
+    </div>
+  );
 }
 
 function nextPreviewLabel(tanks: StationTankSummary[], product: TankFuel) {
@@ -70,8 +98,12 @@ export function TankManagementPanel({
   const [modal, setModal] = useState<"create" | "edit" | "delete" | null>(null);
   const [editTank, setEditTank] = useState<StationTankSummary | null>(null);
   const [fuel, setFuel] = useState<TankFuel>("PMS");
-  const [capacity, setCapacity] = useState("30000");
+  const [capacity, setCapacity] = useState("30,000");
+  const [pumpCount, setPumpCount] = useState("1");
   const [editCapacity, setEditCapacity] = useState("");
+  const [editPumpCount, setEditPumpCount] = useState("1");
+  const [deactivateIds, setDeactivateIds] = useState<string[]>([]);
+  const [confirmReduce, setConfirmReduce] = useState(false);
   const [editStatus, setEditStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -105,12 +137,17 @@ export function TankManagementPanel({
   const pmsCount = activeTanks.filter((t) => t.product === "PMS").length;
   const agoCount = activeTanks.filter((t) => t.product === "AGO").length;
   const previewName = station ? nextPreviewLabel(tanks, fuel) : "—";
+  const createPumpCount = /^\d+$/.test(pumpCount) ? Number(pumpCount) : 0;
+  const editActivePumps = editTank?.pumps.filter((pump) => pump.active) ?? [];
+  const editDesired = /^\d+$/.test(editPumpCount) ? Number(editPumpCount) : 0;
+  const pumpsToRetire = editDesired >= 1 ? Math.max(0, editActivePumps.length - editDesired) : 0;
 
   function openCreate() {
     if (!canAct || !station) return;
     setError(null);
     setFuel("PMS");
-    setCapacity("30000");
+    setCapacity("30,000");
+    setPumpCount("1");
     setDirty(false);
     setModal("create");
   }
@@ -118,7 +155,10 @@ export function TankManagementPanel({
   function openEdit(t: StationTankSummary) {
     if (!canAct) return;
     setEditTank(t);
-    setEditCapacity(String(Math.round(t.capacityLitres)));
+    setEditCapacity(sanitizeNumericText(String(t.capacityLitres), true));
+    setEditPumpCount(String(t.pumpCount));
+    setDeactivateIds([]);
+    setConfirmReduce(false);
     setEditStatus(t.active ? "ACTIVE" : "INACTIVE");
     setError(null);
     setDirty(false);
@@ -150,6 +190,7 @@ export function TankManagementPanel({
     fd.set("stationId", station.id);
     fd.set("product", fuel);
     fd.set("capacityLitres", capacity.replace(/,/g, ""));
+    fd.set("pumpCount", pumpCount);
     startTransition(async () => {
       const result = await createTankAction(fd);
       if (!result.ok) {
@@ -168,9 +209,24 @@ export function TankManagementPanel({
     if (!editTank) return;
     setError(null);
     const fd = new FormData();
+    if (pumpsToRetire > 0 && deactivateIds.length !== pumpsToRetire) {
+      setError(
+        `Select ${pumpsToRetire} active ${pumpsToRetire === 1 ? "pump" : "pumps"} to deactivate. Their meter history stays on record.`
+      );
+      return;
+    }
+    if (pumpsToRetire > 0 && !confirmReduce) {
+      setError("Confirm the selected pumps before saving. Their meter history stays on record.");
+      return;
+    }
     fd.set("tankId", editTank.id);
     fd.set("capacityLitres", editCapacity.replace(/,/g, ""));
+    fd.set("pumpCount", editPumpCount);
     fd.set("status", editStatus);
+    if (pumpsToRetire > 0) {
+      fd.set("deactivatePumpIds", deactivateIds.join(","));
+      fd.set("confirmReduce", "1");
+    }
     startTransition(async () => {
       const result = await updateTankAction(fd);
       if (!result.ok) {
@@ -368,7 +424,7 @@ export function TankManagementPanel({
                 <th>Fuel Type</th>
                 <th>Capacity (Liters)</th>
                 <th>Status</th>
-                <th>Created On</th>
+                <th>Pumps</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -392,8 +448,11 @@ export function TankManagementPanel({
                       {t.active ? "Active" : "Inactive"}
                     </span>
                   </td>
-                  <td className="ps-num--muted" style={{ whiteSpace: "nowrap" }}>
-                    {formatWhen(t.createdAt)}
+                  <td>
+                    <span className="tm-pumps">
+                      <Fuel size={13} strokeWidth={2.1} aria-hidden />
+                      {pumpBadgeLabel(t.pumpCount)}
+                    </span>
                   </td>
                   <td>
                     <div className="ps-actions">
@@ -463,25 +522,48 @@ export function TankManagementPanel({
                   ))}
                 </div>
               </fieldset>
-              <label className="tm-field">
-                <span className="tm-field__label">
-                  Capacity (Liters) <span className="sp-req">*</span>
-                </span>
-                <input
-                  className="tm-field__control"
-                  inputMode="numeric"
-                  value={capacity}
-                  onChange={(e) => {
-                    setCapacity(e.target.value);
-                    setDirty(true);
-                  }}
-                  required
-                  disabled={pending}
-                />
-              </label>
+              <div className="tm-split">
+                <label className="tm-field" htmlFor="tm-create-capacity">
+                  <span className="tm-field__label">
+                    Capacity (Liters) <span className="sp-req">*</span>
+                  </span>
+                  <input
+                    id="tm-create-capacity"
+                    className="tm-field__control"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={capacity}
+                    onChange={onGroupedInput(true, (value) => {
+                      setCapacity(value);
+                      setDirty(true);
+                    })}
+                    required
+                    disabled={pending}
+                  />
+                </label>
+                <label className="tm-field" htmlFor="tm-create-pumps">
+                  <span className="tm-field__label">
+                    Number of Pumps <span className="sp-req">*</span>
+                  </span>
+                  <PumpCountField
+                    id="tm-create-pumps"
+                    value={pumpCount}
+                    disabled={pending}
+                    onChange={(next) => {
+                      setPumpCount(next);
+                      setDirty(true);
+                    }}
+                  />
+                </label>
+              </div>
               <div className="tm-info" role="note">
-                The tank will be automatically named <strong>{previewName}</strong> (the next available {fuel}{" "}
-                tank for {station.name}).
+                <Info size={16} strokeWidth={2.1} aria-hidden />
+                <p>
+                  The tank will be automatically named <strong>{previewName}</strong>.{" "}
+                  {createPumpCount >= 1
+                    ? pumpCountSentence(createPumpCount)
+                    : "Enter how many pumps this tank supplies."}
+                </p>
               </div>
               <div className="ps-modal__actions tm-modal__actions">
                 <button type="button" className="ps-btn ps-btn--line" onClick={requestCloseModal} disabled={pending}>
@@ -516,22 +598,87 @@ export function TankManagementPanel({
             </div>
             {error ? <p className="ps-modal__err">{error}</p> : null}
             <form className="tm-modal__form" onSubmit={onEdit}>
-              <label className="tm-field">
-                <span className="tm-field__label">
-                  Capacity (Liters) <span className="sp-req">*</span>
-                </span>
-                <input
-                  className="tm-field__control"
-                  inputMode="numeric"
-                  value={editCapacity}
-                  onChange={(e) => {
-                    setEditCapacity(e.target.value);
-                    setDirty(true);
-                  }}
-                  required
-                  disabled={pending}
-                />
-              </label>
+              <div className="tm-split">
+                <label className="tm-field" htmlFor="tm-edit-capacity">
+                  <span className="tm-field__label">
+                    Capacity (Liters) <span className="sp-req">*</span>
+                  </span>
+                  <input
+                    id="tm-edit-capacity"
+                    className="tm-field__control"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={editCapacity}
+                    onChange={onGroupedInput(true, (value) => {
+                      setEditCapacity(value);
+                      setDirty(true);
+                    })}
+                    required
+                    disabled={pending}
+                  />
+                </label>
+                <label className="tm-field" htmlFor="tm-edit-pumps">
+                  <span className="tm-field__label">
+                    Number of Pumps <span className="sp-req">*</span>
+                  </span>
+                  <PumpCountField
+                    id="tm-edit-pumps"
+                    value={editPumpCount}
+                    disabled={pending}
+                    onChange={(next) => {
+                      setEditPumpCount(next);
+                      setDeactivateIds([]);
+                      setConfirmReduce(false);
+                      setDirty(true);
+                    }}
+                  />
+                </label>
+              </div>
+              {pumpsToRetire > 0 ? (
+                <fieldset className="tm-reduce" disabled={pending}>
+                  <legend>
+                    Select {pumpsToRetire} {pumpsToRetire === 1 ? "pump" : "pumps"} to deactivate. Meter history stays
+                    on record.
+                  </legend>
+                  {editActivePumps.map((pump) => (
+                    <label key={pump.id}>
+                      <input
+                        type="checkbox"
+                        checked={deactivateIds.includes(pump.id)}
+                        onChange={(e) => {
+                          setDeactivateIds((current) => {
+                            if (e.target.checked) return [...current, pump.id].slice(0, pumpsToRetire);
+                            return current.filter((id) => id !== pump.id);
+                          });
+                          setConfirmReduce(false);
+                          setDirty(true);
+                        }}
+                      />
+                      <span>{pump.label}</span>
+                    </label>
+                  ))}
+                  <label className="tm-reduce__confirm">
+                    <input
+                      type="checkbox"
+                      checked={confirmReduce}
+                      onChange={(e) => {
+                        setConfirmReduce(e.target.checked);
+                        setDirty(true);
+                      }}
+                    />
+                    <span>Deactivate the selected pumps. Their readings stay on record.</span>
+                  </label>
+                </fieldset>
+              ) : editDesired > editActivePumps.length ? (
+                <div className="tm-info" role="note">
+                  <Info size={16} strokeWidth={2.1} aria-hidden />
+                  <p>
+                    {editDesired - editActivePumps.length === 1
+                      ? "One additional pump will be created and linked to this tank."
+                      : `${editDesired - editActivePumps.length} additional pumps will be created and linked to this tank.`}
+                  </p>
+                </div>
+              ) : null}
               <label className="tm-field">
                 <span className="tm-field__label">Status</span>
                 <span className="tm-field__select-wrap">
@@ -573,8 +720,9 @@ export function TankManagementPanel({
               <div className="tm-modal__titles">
                 <h3 id="tm-del-title">Delete {editTank.label}?</h3>
                 <p>
-                  This may affect station configuration and stock reporting. If the tank is linked to operational
-                  records, it will be deactivated instead of permanently removed.
+                  This may affect station configuration and stock reporting. If the tank or its pumps are linked to
+                  operational records, they will be deactivated instead of permanently removed. Meter history stays
+                  on record.
                 </p>
               </div>
               <button

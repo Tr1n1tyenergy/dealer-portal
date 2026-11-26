@@ -1,6 +1,6 @@
-import { litresToCents, centsToLitres, parseLitresInput, formatLitresFixed, formatLitresWithUnit } from "./pump-calc";
+import { litresToCents, centsToLitres, parseLitresInput, formatLitresExact, formatLitresFixed, formatLitresWithUnit } from "./pump-calc";
 
-export { parseLitresInput, formatLitresFixed, formatLitresWithUnit, litresToCents, centsToLitres };
+export { parseLitresInput, formatLitresExact, formatLitresFixed, formatLitresWithUnit, litresToCents, centsToLitres };
 
 export type TankDipCalcResult =
   | { ok: true; sales: number; ullage: number; provisionalReceipt: boolean }

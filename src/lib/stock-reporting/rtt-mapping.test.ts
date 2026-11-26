@@ -25,4 +25,15 @@ describe("linkedTankForPump", () => {
     const tank = linkedTankForPump({ pumpKey: "PMS-9", product: "PMS" }, tanks);
     assert.equal(tank, null);
   });
+
+  it("does not treat a multi-pump key as the legacy tank with the same suffix", () => {
+    const tank = linkedTankForPump({ pumpKey: "PMS-3-P1", product: "PMS" }, tanks);
+    assert.equal(tank, null);
+  });
+
+  it("uses the stored tank link ahead of the key", () => {
+    const tank = linkedTankForPump({ pumpKey: "PMS-3-P1", product: "PMS", tankId: "t2" }, tanks);
+    assert.equal(tank?.id, "t2");
+    assert.equal(tank?.label, "PMS Tank 2");
+  });
 });

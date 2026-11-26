@@ -149,7 +149,28 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
-### 2026-11-25 — Odoo client typecheck so production can build
+### 2026-11-26 — Thousands separators while typing
+- Quantity and money fields insert commas as the number grows: 227231 shows as 227,231, and 1234567.891 shows as 1,234,567.891. The digits themselves are unchanged. Parsers ignore the commas.
+- Files: `src/lib/forms/numeric-text.ts` and the litre, tank, truck, price, payment, and stock-reporting inputs that use it.
+
+### 2026-11-26 — Numeric fields keep the exact digits entered
+- Pump meter readings no longer round to four significant figures when the field is left. 227,220 stays 227,220, and 227,250 stays 227,250.
+- The same rule applies to the other number boxes: the typed digits stay in the field. Saving no longer snaps litres to two or three decimal places.
+- Files: `src/lib/stock-reporting/pump-calc.ts`, `src/components/dealer/pump-meters-form.tsx`, `src/components/dealer/tank-dips-form.tsx`, `src/components/staff/truck-form-modal.tsx`, `src/components/staff/staff-stock-intelligence.tsx`, `src/lib/settings/truck-compartments.ts`, `src/lib/settings/truck-actions.ts`.
+
+### 2026-11-26 — Stock reporting follows the pumps on each tank
+- Dealer meter readings list each pump under the tank that feeds it. Tank dips stay one row per physical tank. Wet stock adds the pumps on a tank and compares that total with that tank’s dip. A gain on one tank does not cancel a loss on another. Monetary expected sales use those same pump totals. Staff reconciliation shows the same tank rows.
+- Stations that already have tanks no longer report leftover pumps that are not linked to a tank. Saving meters and applying RTT only total those linked pumps, so monetary expected sales follow the same litres.
+- Kitanga is configured to that layout: PMS Tank 1 has four pumps, and each AGO tank has two. The old unlinked PMS 2 pump was deactivated, not deleted.
+- Files: `src/lib/stock-reporting/pumps.ts`, `src/lib/stock-reporting/tank-recon.ts`, `src/lib/stock-reporting/wet.ts`, `src/lib/stock-reporting/equipment.ts`, `src/components/dealer/pump-meters-form.tsx`, `src/components/dealer/wet-stock-form.tsx`, `src/components/staff/staff-stock-reconciliation.tsx`, and the dealer and staff stock-reporting pages.
+- The dev server had to be restarted after `prisma generate`, because a process started earlier did not know the pump-to-tank relation and rejected the meter page.
+
+### 2026-11-25 — A tank can supply more than one pump
+- Tank Management creates one tank and the number of pumps entered with it. Each pump is its own record, named Pump 1, Pump 2, and so on, and linked to that tank. Capacity stays the tank’s own capacity.
+- The tanks table shows a Pumps badge instead of Created On. Created On remains stored. Editing can add pumps, or deactivate pumps the administrator selects. Pumps with meter history are deactivated, not deleted. Deleting a tank with history deactivates the tank and its pumps.
+- Existing pumps are linked only when their key already matches a tank at the same station. No extra pumps are created for current stations. Stock reporting still uses its current screens. A pump is matched by its stored tank link, and a key such as PMS-3-P1 is no longer treated as PMS Tank 1. Stations that already have tanks or pumps are no longer refilled with the old four default pumps.
+- Numeric fields across the portal accept digits only, or digits and one decimal point.
+- Files: `prisma/schema.prisma`, `prisma/migrations/20261125180000_tank_pump_link/migration.sql`, `src/lib/settings/tank-actions.ts`, `src/lib/settings/tank-pumps.ts`, `src/lib/settings/stations-pricing.ts`, `src/components/staff/tank-management-panel.tsx`, `src/app/intelligence/retail/platform-settings.css`, `src/lib/stock-reporting/pumps.ts`, `src/lib/stock-reporting/rtt.ts`, `src/lib/forms/numeric-text.ts`, `src/components/forms/numeric-input.tsx`, and the numeric inputs in payment review, depot loading, pricing, orders, fleet, and stock reporting forms.
 - The unconfigured Odoo client’s currency list had no return type, so `next build` failed after the payment review merge. It now returns the same currency list type as the live client.
 - File: `src/lib/integrations/odoo/client.ts`.
 

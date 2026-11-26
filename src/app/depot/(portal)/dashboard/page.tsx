@@ -1,10 +1,10 @@
 import type { DealerOrderStatus } from "@prisma/client";
 import { depotOrderScope } from "@/lib/access";
-import { MAX_LITRES } from "@/lib/orders/order-input";
 import { requireDepot } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { depotOrderAction } from "@/lib/orders/actions";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { NumericInput } from "@/components/forms/numeric-input";
 import "../../../dealer/dealer-portal.css";
 
 const queues: { title: string; statuses: DealerOrderStatus[] }[] = [
@@ -64,8 +64,8 @@ export default async function DepotDashboardPage() {
                 ) : null}
                 {order.status === "LOADING" ? (
                   <>
-                    <label>Loaded PMS<input name="loadedPmsLitres" type="number" min={0} max={MAX_LITRES} step={1} /></label>
-                    <label>Loaded AGO<input name="loadedAgoLitres" type="number" min={0} max={MAX_LITRES} step={1} /></label>
+                    <label>Loaded PMS<NumericInput name="loadedPmsLitres" /></label>
+                    <label>Loaded AGO<NumericInput name="loadedAgoLitres" /></label>
                     <label>Loading reference<input name="loadingReference" maxLength={500} /></label>
                     <button name="action" value="complete" type="submit">Loading complete</button>
                   </>

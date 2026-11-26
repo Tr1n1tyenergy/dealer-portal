@@ -1,3 +1,5 @@
+import { sanitizeNumericText } from "@/lib/forms/numeric-text";
+
 /** Decimal-safe litres math at 2dp (centilitres stored as integer). */
 
 export function litresToCents(value: number): number {
@@ -14,40 +16,29 @@ export function parseLitresInput(raw: string | number | null | undefined): numbe
   if (!s) return null;
   const n = Number(s);
   if (!Number.isFinite(n)) return null;
-  return centsToLitres(litresToCents(n));
+  return n;
 }
 
-/** Keep only digits and at most one decimal point while typing. */
+/** Keep digits and one decimal point, and group thousands, without rounding. */
 export function sanitizeNumericLitresDraft(raw: string): string {
-  const cleaned = raw.replace(/[^\d.]/g, "");
-  const dot = cleaned.indexOf(".");
-  if (dot === -1) return cleaned;
-  return cleaned.slice(0, dot + 1) + cleaned.slice(dot + 1).replace(/\./g, "");
+  return sanitizeNumericText(raw, true);
 }
 
-/**
- * Round to `sigFigs` significant figures (e.g. 1254.7 → 1255 at 4 s.f.).
- * Zero stays zero. Used for meter field commit/blur.
- */
-export function roundToSignificantFigures(value: number, sigFigs = 4): number {
-  if (!Number.isFinite(value) || value === 0) return 0;
-  const order = Math.floor(Math.log10(Math.abs(value)));
-  const scale = 10 ** (sigFigs - 1 - order);
-  return Math.round(value * scale) / scale;
-}
-
-/** Format a draft field after blur: numeric only, 4 significant figures. */
-export function commitLitresField(raw: string, sigFigs = 4): string {
+/** Keep the typed litres exactly. Letters are already stripped; the digits are not rounded. */
+export function commitLitresField(raw: string): string {
   const cleaned = sanitizeNumericLitresDraft(raw).trim();
   if (!cleaned || cleaned === ".") return "";
-  const n = Number(cleaned);
-  if (!Number.isFinite(n)) return "";
-  const rounded = roundToSignificantFigures(n, sigFigs);
-  // Prefer plain numeric string (no thousands separators) for editable fields.
-  const asFixed = rounded.toPrecision(sigFigs);
-  const asNumber = Number(asFixed);
-  if (!Number.isFinite(asNumber)) return "";
-  return String(asNumber);
+  return cleaned;
+}
+
+/** Editable litres: exact digits, with thousands separators and no forced decimals. */
+export function formatLitresExact(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return "";
+  const text = Object.is(value, -0) ? "0" : String(value);
+  const plain = /[eE]/.test(text)
+    ? value.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 20 })
+    : text;
+  return sanitizeNumericText(plain, true);
 }
 
 export function formatLitresFixed(value: number | null | undefined): string {

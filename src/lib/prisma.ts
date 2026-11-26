@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 /** Bump when schema relations change so HMR drops a stale Prisma singleton. */
-const PRISMA_SCHEMA_STAMP = "stored-files-2026-11-20";
+const PRISMA_SCHEMA_STAMP = "tank-pumps-2026-11-26";
 
 /**
  * Neon pooler + Turbopack HMR can exhaust default Prisma pools
@@ -84,6 +84,9 @@ function isFreshPrismaClient(client: PrismaClient): boolean {
   if (!modelHasField(client, "Station", "fuelPrices")) return false;
   if (!modelHasField(client, "FleetTruck", "transportCompany")) return false;
   if (!modelHasField(client, "FleetTruck", "compartments")) return false;
+  if (!modelHasField(client, "StationTank", "pumps")) return false;
+  if (!modelHasField(client, "StationPump", "tankId")) return false;
+  if (!modelHasField(client, "StationPump", "tank")) return false;
   return true;
 }
 

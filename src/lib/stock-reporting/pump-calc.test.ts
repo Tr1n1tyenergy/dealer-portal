@@ -3,7 +3,6 @@ import { describe, it } from "node:test";
 import {
   calculatePumpSales,
   commitLitresField,
-  roundToSignificantFigures,
   sanitizeNumericLitresDraft,
   sumSalesByProduct,
 } from "./pump-calc";
@@ -43,16 +42,14 @@ describe("sumSalesByProduct", () => {
 describe("numeric litres field helpers", () => {
   it("strips non-numeric characters while typing", () => {
     assert.equal(sanitizeNumericLitresDraft("12a3.4b5..6"), "123.456");
+    assert.equal(sanitizeNumericLitresDraft("227231"), "227,231");
   });
 
-  it("rounds to 4 significant figures", () => {
-    assert.equal(roundToSignificantFigures(1254.7, 4), 1255);
-    assert.equal(roundToSignificantFigures(10.567, 4), 10.57);
-    assert.equal(roundToSignificantFigures(0, 4), 0);
-  });
-
-  it("commits draft strings to 4 significant figures", () => {
-    assert.equal(commitLitresField("10.56789"), "10.57");
+  it("keeps the exact digits that were typed", () => {
+    assert.equal(commitLitresField("227220"), "227,220");
+    assert.equal(commitLitresField("227,250"), "227,250");
+    assert.equal(commitLitresField("10.56789"), "10.56789");
+    assert.equal(commitLitresField("1234.321"), "1,234.321");
     assert.equal(commitLitresField("abc"), "");
   });
 });

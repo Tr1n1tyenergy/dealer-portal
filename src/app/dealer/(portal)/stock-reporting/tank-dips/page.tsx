@@ -4,7 +4,7 @@ import { TankDipsForm } from "@/components/dealer/tank-dips-form";
 import { formatStockReportDate, nairobiBusinessDate } from "@/lib/stock-reporting/dates";
 import {
   formatEquipmentBreakdown,
-  loadActiveTankEquipment,
+  loadLinkedEquipment,
   resolveStationEquipment,
 } from "@/lib/stock-reporting/equipment";
 import { isStageCompleted } from "@/lib/stock-reporting/progress";
@@ -40,7 +40,7 @@ export default async function TankDipsStagePage({
   }
 
   const readings = await ensureTankReadingsForReport(report.id, station.id);
-  const equipment = resolveStationEquipment(station);
+  const equipment = resolveStationEquipment(station, await loadLinkedEquipment(station.id));
   const reportingDate = report.reportingDate ?? nairobiBusinessDate();
 
   return (
