@@ -101,7 +101,7 @@ function trackerHeadline(status: DealerOrderStatus, steps: DealerTrackerStep[]) 
     case "AWAITING_PAYMENT":
       return {
         title: "Payment pending",
-        detail: "Your Pro Forma Invoice is ready. Complete payment to release the order to depot.",
+        detail: "Your Pro Forma Invoice is ready. Complete payment and Trinity will book the order.",
       };
     case "PAYMENT_SUBMITTED":
     case "PAYMENT_VERIFICATION":
@@ -115,16 +115,32 @@ function trackerHeadline(status: DealerOrderStatus, steps: DealerTrackerStep[]) 
         detail: "Trinity finance couldn't verify your payment. Check the details below and submit them again.",
       };
     case "PAYMENT_CONFIRMED":
+    case "ORDER_BOOKED":
       return {
-        title: "Payment confirmed",
-        detail: "Payment is confirmed. Trinity will release this order to the depot shortly.",
+        title: "Order booked",
+        detail: "Payment is confirmed and Trinity is booking this order.",
+      };
+    case "WAITING_KRA_INVOICE":
+      return {
+        title: "Waiting for KRA invoice",
+        detail: "The invoice has been sent to KRA. It will appear in your documents when KRA returns it.",
+      };
+    case "KRA_INVOICE_RECEIVED":
+      return {
+        title: "KRA invoice received",
+        detail: "Your eTIMS invoice is in Documents, with the sale order and Pro Forma Invoice.",
+      };
+    case "DEPOT_DOCS_RECEIVED":
+      return {
+        title: "Depot received documents",
+        detail: "The depot has the loading order, gate pass and sale order. Loading starts next.",
       };
     case "RELEASED_TO_DEPOT":
     case "LOADING":
     case "LOADED":
       return {
-        title: "Released to depot",
-        detail: "Your order has been released to the depot and will move to transit when dispatch begins.",
+        title: "Loading",
+        detail: "The depot is loading this order. It moves to On the way when the truck is released.",
       };
     case "DISPATCHED":
     case "IN_TRANSIT":
@@ -135,8 +151,8 @@ function trackerHeadline(status: DealerOrderStatus, steps: DealerTrackerStep[]) 
     case "DELIVERED":
     case "CLOSED":
       return {
-        title: "Order delivered",
-        detail: "Fuel has been delivered to your station.",
+        title: "Completed",
+        detail: "This order was receipted at the station.",
       };
     case "CANCELLED":
       return { title: "Order cancelled", detail: "This order was cancelled and will not progress further." };
@@ -214,7 +230,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
   const [order, siblings] = await Promise.all([
     prisma.dealerOrder.findFirst({
       where: { id, dealerOrganizationId: orgId },
-      include: { station: true, lines: true, proforma: true, payments: true },
+      include: { station: true, lines: true, proforma: true, payments: true, documents: true },
     }),
     prisma.dealerOrder.findMany({
       where: { dealerOrganizationId: orgId },
@@ -258,25 +274,42 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
             : "ok";
   const stageLabel = stageBadge(tracker.steps, tracker.stopped);
 
+  const stored = new Map(order.documents.map((document) => [document.kind, document]));
+  const fileDoc = (kind: string, title: string) => {
+    const ready = stored.has(kind);
+    return {
+      key: kind,
+      title,
+      href: ready ? `/api/orders/${order.id}/documents/${kind}` : null,
+      label: ready ? "Ready" : "Pending",
+      tone: ready ? ("ready" as const) : ("pending" as const),
+    };
+  };
   const docs = [
     {
       key: "quotation" as const,
       title: "Sales quotation",
+      href: null as string | null,
       ...docState("quotation", tracker.steps, order.status, Boolean(order.proforma)),
     },
+    fileDoc("sale-order", "Sale order"),
     {
       key: "pfi" as const,
       title: "Pro Forma Invoice (PFI)",
+      href: order.proforma ? `/api/orders/${order.id}/pfi` : null,
       ...docState("pfi", tracker.steps, order.status, Boolean(order.proforma)),
     },
+    fileDoc("etims-invoice", "eTIMS invoice"),
     {
       key: "payment" as const,
       title: "Payment confirmation",
+      href: null as string | null,
       ...docState("payment", tracker.steps, order.status, Boolean(order.proforma)),
     },
     {
       key: "delivery" as const,
       title: "Delivery note",
+      href: null as string | null,
       ...docState("delivery", tracker.steps, order.status, Boolean(order.proforma)),
     },
   ];
@@ -517,8 +550,6 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
 
               <ul className="ot__docs">
                 {docs.map((doc) => {
-                  const isPfiReady = doc.key === "pfi" && Boolean(order.proforma);
-
                   return (
                     <li key={doc.key} className="ot__doc">
                       <span className="ot__doc-icon" aria-hidden>
@@ -526,18 +557,18 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                       </span>
                       <div className="ot__doc-copy">
                         <strong>{doc.title}</strong>
-                        {isPfiReady ? null : (
+                        {doc.href ? null : (
                           <em className={`ot__pill is-${doc.tone}`}>{doc.label}</em>
                         )}
                       </div>
-                      {isPfiReady ? (
+                      {doc.href ? (
                         <a
                           className="ot__doc-action"
-                          href={`/api/orders/${order.id}/pfi`}
+                          href={doc.href}
                           target="_blank"
                           rel="noopener"
                         >
-                          View PFI
+                          View
                           <ExternalLink size={14} strokeWidth={2.2} aria-hidden />
                         </a>
                       ) : (

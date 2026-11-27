@@ -80,6 +80,10 @@ enum DealerOrderStatus {
   PAYMENT_SUBMITTED
   PAYMENT_VERIFICATION
   PAYMENT_CONFIRMED
+  ORDER_BOOKED
+  WAITING_KRA_INVOICE
+  KRA_INVOICE_RECEIVED
+  DEPOT_DOCS_RECEIVED
   RELEASED_TO_DEPOT
   LOADING
   LOADED
@@ -574,6 +578,15 @@ model DealerOrder {
   submissionKey        String?           @unique
   odooQuotationId      String?
   odooQuotationNumber  String?
+  /// account.move created after the paid order is booked
+  odooInvoiceId        Int?
+  odooInvoiceNumber    String?
+  /// stock.picking that carries the loading order and gate pass
+  odooPickingId        Int?
+  etimsInvoiceNumber   String?
+  etimsReceiptNumber   String?
+  /// Last booking / KRA / document error. Cleared when that step succeeds.
+  fulfillmentError     String?
   /// When the quotation was saved; the PFI's "SO DATE"
   quotedAt             DateTime?
   odooSyncError        String?

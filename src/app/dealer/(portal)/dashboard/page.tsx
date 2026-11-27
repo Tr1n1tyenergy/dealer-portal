@@ -36,9 +36,9 @@ import "../../dealer-portal-hero.css";
 
 const PAYABLE: DealerOrderStatus[] = DEALER_PAYABLE_STATUSES;
 const ON_THE_WAY: DealerOrderStatus[] = [
-  "RELEASED_TO_DEPOT",
   "LOADING",
   "LOADED",
+  "RELEASED_TO_DEPOT",
   "DISPATCHED",
   "IN_TRANSIT",
   "DELIVERY_EXCEPTION",
@@ -48,6 +48,10 @@ const TRACKABLE: DealerOrderStatus[] = [
   "PAYMENT_SUBMITTED",
   "PAYMENT_VERIFICATION",
   "PAYMENT_CONFIRMED",
+  "ORDER_BOOKED",
+  "WAITING_KRA_INVOICE",
+  "KRA_INVOICE_RECEIVED",
+  "DEPOT_DOCS_RECEIVED",
   ...ON_THE_WAY,
 ];
 
@@ -84,8 +88,8 @@ function monthLabel(year: number, month: number) {
 
 function statusPillTone(status: DealerOrderStatus) {
   const label = dealerStatusLabel(status);
-  if (label === "Delivered" || label === "Closed") return "delivered";
-  if (label === "In Transit" || label === "Dispatched" || label === "Loaded") return "transit";
+  if (label === "Completed" || label === "Delivered" || label === "Closed") return "delivered";
+  if (label === "On the way" || label === "In Transit" || label === "Loading" || label === "Loaded") return "transit";
   if (label.includes("Payment") || label === "PFI Ready" || label === "Awaiting Payment") return "payment";
   return "processing";
 }
@@ -110,7 +114,7 @@ function trackerHeadline(status: DealerOrderStatus) {
     case "AWAITING_PAYMENT":
       return {
         title: "Payment pending",
-        detail: "Your Pro Forma Invoice is ready. Complete payment to release the order to depot.",
+        detail: "Your Pro Forma Invoice is ready. Complete payment and Trinity will book the order.",
       };
     case "PAYMENT_SUBMITTED":
     case "PAYMENT_VERIFICATION":
@@ -123,12 +127,24 @@ function trackerHeadline(status: DealerOrderStatus) {
         title: "Payment needs attention",
         detail: "Trinity finance couldn't verify your payment. Open the order to resubmit details.",
       };
+    case "PAYMENT_CONFIRMED":
+    case "ORDER_BOOKED":
+      return { title: "Order booked", detail: "Payment is confirmed and Trinity is booking this order." };
+    case "WAITING_KRA_INVOICE":
+      return { title: "Waiting for KRA invoice", detail: "The invoice has been sent to KRA." };
+    case "KRA_INVOICE_RECEIVED":
+      return { title: "KRA invoice received", detail: "Your eTIMS invoice is on the order." };
+    case "DEPOT_DOCS_RECEIVED":
+      return {
+        title: "Depot received documents",
+        detail: "The depot has the loading order, gate pass and sale order.",
+      };
     case "RELEASED_TO_DEPOT":
     case "LOADING":
     case "LOADED":
       return {
-        title: "Released to depot",
-        detail: "Your order has been released to the depot and will move to transit when dispatch begins.",
+        title: "Loading",
+        detail: "The depot is loading this order. It moves to On the way when the truck is released.",
       };
     case "DISPATCHED":
     case "IN_TRANSIT":
@@ -138,7 +154,7 @@ function trackerHeadline(status: DealerOrderStatus) {
       };
     case "DELIVERED":
     case "CLOSED":
-      return { title: "Order delivered", detail: "Fuel has been delivered to your station." };
+      return { title: "Completed", detail: "This order was receipted at the station." };
     default:
       return {
         title: dealerStatusLabel(status),

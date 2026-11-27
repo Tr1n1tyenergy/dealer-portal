@@ -19,8 +19,12 @@ export const ORDER_STAGES: { key: StageKey; label: string; statuses: DealerOrder
   },
   { key: "awaiting-payment", label: "Awaiting Payment", statuses: ["PFI_ISSUED", "AWAITING_PAYMENT"] },
   { key: "checking-payment", label: "Checking Payment", statuses: ["PAYMENT_SUBMITTED", "PAYMENT_VERIFICATION"] },
-  { key: "payment-confirmed", label: "Payment Confirmed", statuses: ["PAYMENT_CONFIRMED"] },
-  { key: "depot", label: "At Depot", statuses: ["RELEASED_TO_DEPOT", "LOADING", "LOADED"] },
+  {
+    key: "payment-confirmed",
+    label: "Payment Confirmed",
+    statuses: ["PAYMENT_CONFIRMED", "ORDER_BOOKED", "WAITING_KRA_INVOICE", "KRA_INVOICE_RECEIVED"],
+  },
+  { key: "depot", label: "At Depot", statuses: ["DEPOT_DOCS_RECEIVED", "RELEASED_TO_DEPOT", "LOADING", "LOADED"] },
   { key: "transit", label: "In Transit", statuses: ["DISPATCHED", "IN_TRANSIT"] },
   { key: "complete", label: "Completed", statuses: ["DELIVERED", "CLOSED"] },
   {
@@ -53,7 +57,11 @@ export function parseStage(value: unknown): StaffStageFilter {
 
 /** PAYMENT_VERIFICATION → "Payment verification"; keeps Odoo and PFI readable. */
 export function statusLabel(status: string): string {
-  const words = status.toLowerCase().split("_").map((word) => (word === "odoo" ? "Odoo" : word === "pfi" ? "PFI" : word));
+  if (status === "ORDER_BOOKED") return "Order booked";
+  if (status === "WAITING_KRA_INVOICE") return "Waiting for KRA invoice";
+  if (status === "KRA_INVOICE_RECEIVED") return "KRA invoice received";
+  if (status === "DEPOT_DOCS_RECEIVED") return "Depot received documents";
+  const words = status.toLowerCase().split("_").map((word) => (word === "odoo" ? "Odoo" : word === "pfi" ? "PFI" : word === "kra" ? "KRA" : word));
   const text = words.join(" ");
   return text.charAt(0).toUpperCase() + text.slice(1);
 }

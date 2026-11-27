@@ -57,12 +57,12 @@ const NEXT_STEPS = [
     text: "You pay against the PFI and Trinity confirms it.",
   },
   {
-    title: "Released to depot",
-    text: "The depot loads and dispatches your fuel.",
+    title: "Order booked",
+    text: "Trinity books the order and the KRA invoice appears here.",
   },
   {
-    title: "Delivered",
-    text: "You can follow the delivery to your station.",
+    title: "Completed",
+    text: "The depot loads the truck, then you receipt it at the station.",
   },
 ] as const;
 

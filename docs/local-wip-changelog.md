@@ -149,6 +149,12 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-27 — A cleared payment books the order and collects the KRA invoice
+- Confirming the payment that brings an order's balance to zero now books and approves the fuel order in Odoo, posts the invoice so KRA can brand it, and stores the eTIMS invoice and sale order on that order for the dealer. The loading order and gate pass are stored with the order and held for the depot.
+- The tracker step that was "Released to Depot" is now "Order booked", then the same step reads Waiting for KRA invoice, KRA invoice received, and Depot received Loading order, gate pass and sales order. Loading becomes active after that, and the depot can release the truck so the step reads On the way. Receipting that delivery in Stock Receipt completes the order.
+- Staff no longer release an order to a depot. An order that is already paid shows Book order, which continues the same chain. Depot Start loading and Release to station are in place for the depot work that follows.
+- Files: `prisma/schema.prisma`, `prisma/migrations/20261127120000_order_booking_kra/migration.sql`, `src/lib/integrations/odoo/live-client.ts`, `src/lib/integrations/odoo/types.ts`, `src/lib/integrations/odoo/client.ts`, `src/lib/orders/service.ts`, `src/lib/orders/state-machine.ts`, `src/lib/orders/internal-order-actions.ts`, `src/lib/orders/document-access.ts`, `src/app/api/orders/[id]/documents/[kind]/route.ts`, `src/components/staff/staff-order-actions.tsx`, `src/app/intelligence/retail/(home)/orders/[id]/page.tsx`, `src/app/dealer/(portal)/orders/[id]/page.tsx`, `src/app/dealer/(portal)/dashboard/page.tsx`, `src/app/depot/(portal)/dashboard/page.tsx`, `src/lib/stock-reporting/stock-receipt.ts`.
+
 ### 2026-11-26 — Loading screen stays until the next view is on screen
 - The loading cover was closing when the address changed or after a short wait, so the previous page showed again before the next one was ready. It now stays up from the click until the destination view has replaced that page, including while the route skeleton is still showing.
 - Stock reporting loads the station equipment at the same time as the report, and pump lists share one lookup per request, so those pages wait on fewer round trips.

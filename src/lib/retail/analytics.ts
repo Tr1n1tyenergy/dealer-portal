@@ -36,6 +36,10 @@ export function analyticsStatusBucket(status: DealerOrderStatus): AnalyticsStatu
     case "PAYMENT_EXCEPTION":
       return "Awaiting Payment";
     case "PAYMENT_CONFIRMED":
+    case "ORDER_BOOKED":
+    case "WAITING_KRA_INVOICE":
+    case "KRA_INVOICE_RECEIVED":
+    case "DEPOT_DOCS_RECEIVED":
     case "RELEASED_TO_DEPOT":
     case "LOADING":
     case "LOADED":
