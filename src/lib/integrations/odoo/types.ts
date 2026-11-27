@@ -66,6 +66,27 @@ export type OdooCurrency = { id: number; code: string };
 export type OdooPaymentState = { id: number; state: string };
 export type OdooMpesaPayment = { id: number; amount: string; date: string; state: string; ref: string };
 
+export type OdooOrderDocumentKind = "etims-invoice" | "sale-order" | "loading-order" | "gate-pass";
+
+export type OdooOrderDocument = {
+  kind: OdooOrderDocumentKind;
+  fileName: string;
+  bytes: Buffer;
+};
+
+/** What Odoo holds after a paid fuel order is booked, approved and invoiced. */
+export type PaidOrderFulfillment = {
+  approvalStatus: string;
+  saleState: string;
+  invoiceId: number | null;
+  invoiceNumber: string | null;
+  pickingId: number | null;
+  etimsInvoiceNumber: string | null;
+  etimsReceiptNumber: string | null;
+  documents: OdooOrderDocument[];
+  documentError: string | null;
+};
+
 export interface OdooClient {
   readonly mode: "mock" | "live";
   createQuotation(input: CreateQuotationInput): Promise<OdooQuotation>;
@@ -78,4 +99,9 @@ export interface OdooClient {
   cancelPayment(id: number): Promise<OdooPaymentState>;
   /** A posted payment in Odoo's M-PESA journal whose reference ends with this code; null if none. */
   findMpesaPayment(code: string): Promise<OdooMpesaPayment | null>;
+  /**
+   * Book a paid fuel quotation, approve it, create the invoice and post it so KRA can brand it.
+   * Safe to call again: a step Odoo has already passed is not repeated.
+   */
+  fulfillPaidOrder(saleOrderId: number): Promise<PaidOrderFulfillment>;
 }

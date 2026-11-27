@@ -2,8 +2,10 @@ import type {
   CreateQuotationInput,
   OdooClient,
   OdooMpesaPayment,
+  OdooOrderDocument,
   OdooPaymentState,
   OdooQuotation,
+  PaidOrderFulfillment,
   PaymentDraftInput,
 } from "./types";
 import {
@@ -511,5 +513,209 @@ export class LiveOdooClient implements OdooClient {
     return row
       ? { id: row.id, amount: Number(row.amount).toFixed(2), date: row.date, state: row.state, ref: String(row.ref).trim() }
       : null;
+  }
+
+  private async sessionCookie(): Promise<string> {
+    const res = await fetch(`${this.env.baseUrl}/web/session/authenticate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "call",
+        params: { db: this.env.database, login: this.env.username, password: this.env.apiKey },
+      }),
+      cache: "no-store",
+    });
+    const cookie = res.headers.get("set-cookie") ?? "";
+    const session = cookie.match(/session_id=([^;]+)/)?.[1];
+    if (!session) throw new Error("Odoo did not open a session for the document.");
+    return `session_id=${session}`;
+  }
+
+  private async renderPdf(reportName: string, ids: number[], cookie: string): Promise<Buffer> {
+    const res = await fetch(`${this.env.baseUrl}/report/pdf/${reportName}/${ids.join(",")}`, {
+      headers: { Cookie: cookie },
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`Odoo report ${reportName} returned HTTP ${res.status}.`);
+    const bytes = Buffer.from(await res.arrayBuffer());
+    if (bytes.subarray(0, 5).toString() !== "%PDF-") throw new Error(`Odoo report ${reportName} was not a PDF.`);
+    return bytes;
+  }
+
+  private async readSale(id: number) {
+    const rows = await this.execute<
+      Array<{
+        id: number;
+        name: string;
+        state: string;
+        approval_status: string;
+        invoice_ids: number[];
+        picking_ids: number[];
+      }>
+    >(M.saleOrder, "read", [[id], ["name", "state", "approval_status", "invoice_ids", "picking_ids"]]);
+    const row = rows[0];
+    if (!row) throw new Error(`Odoo sales order ${id} was not found.`);
+    return row;
+  }
+
+  private async readInvoice(id: number) {
+    const rows = await this.execute<
+      Array<{
+        id: number;
+        name: string;
+        state: string;
+        reviewed_by_id: [number, string] | false;
+        approved_by_id: [number, string] | false;
+        l10n_ke_oscu_invoice_number: string | false;
+        l10n_ke_oscu_receipt_number: string | false;
+        l10n_ke_validation_message: string | false;
+      }>
+    >("account.move", "read", [
+      [id],
+      [
+        "name",
+        "state",
+        "reviewed_by_id",
+        "approved_by_id",
+        "l10n_ke_oscu_invoice_number",
+        "l10n_ke_oscu_receipt_number",
+        "l10n_ke_validation_message",
+      ],
+    ]);
+    const row = rows[0];
+    if (!row) throw new Error(`Odoo invoice ${id} was not found.`);
+    return row;
+  }
+
+  /**
+   * Walk the fuel buttons this API user can press: send for approval, approve the quotation,
+   * book, submit to the CS manager, then approve and confirm. Each call is skipped once Odoo
+   * has moved past that status.
+   */
+  private async advanceFuelOrder(saleOrderId: number) {
+    for (let step = 0; step < 6; step += 1) {
+      const order = await this.readSale(saleOrderId);
+      if (order.state === "cancel") {
+        throw new Error(`Odoo quotation ${order.name} is cancelled, so it cannot be booked.`);
+      }
+      if (order.approval_status === "approved" && (order.state === "sale" || order.state === "done")) return order;
+      const before = `${order.state}:${order.approval_status}`;
+      let method: string | null = null;
+      if (order.approval_status === "draft") method = "action_submit_for_approval";
+      else if (order.approval_status === "pending_hod") method = "action_hod_approve_quotation";
+      else if (order.approval_status === "hod_approved" || order.approval_status === "hold") method = "action_book_order";
+      else if (order.approval_status === "order_booking" || order.approval_status === "cs_review") {
+        method = "action_submit_to_hod_marketing";
+      } else if (order.approval_status === "pending_hod_marketing") method = "action_hod_marketing_approve";
+      if (!method) {
+        throw new Error(`Odoo left ${order.name} in “${order.approval_status}”, which the portal cannot move.`);
+      }
+      await this.execute(M.saleOrder, method, [[saleOrderId]]);
+      const after = await this.readSale(saleOrderId);
+      if (`${after.state}:${after.approval_status}` === before) {
+        throw new Error(`Odoo did not move ${order.name} when ${method} ran (still ${order.approval_status}).`);
+      }
+    }
+    return this.readSale(saleOrderId);
+  }
+
+  async fulfillPaidOrder(saleOrderId: number): Promise<PaidOrderFulfillment> {
+    let order = await this.advanceFuelOrder(saleOrderId);
+    if (order.approval_status !== "approved") {
+      throw new Error(`Odoo did not confirm ${order.name}. It is still “${order.approval_status}”.`);
+    }
+
+    if (order.invoice_ids.length === 0) {
+      const wizardId = await this.execute<number>("sale.advance.payment.inv", "create", [
+        {
+          advance_payment_method: "delivered",
+          sale_order_ids: [[6, 0, [saleOrderId]]],
+        },
+      ]);
+      await this.execute("sale.advance.payment.inv", "create_invoices", [[wizardId]]);
+      order = await this.readSale(saleOrderId);
+    }
+    const invoiceId = order.invoice_ids[0] ?? null;
+    if (invoiceId == null) throw new Error(`Odoo confirmed ${order.name} but did not create an invoice.`);
+
+    let invoice = await this.readInvoice(invoiceId);
+    if (invoice.state !== "posted") {
+      if (!invoice.reviewed_by_id) await this.execute("account.move", "action_trinity_review", [[invoiceId]]);
+      invoice = await this.readInvoice(invoiceId);
+      if (!invoice.approved_by_id) await this.execute("account.move", "action_trinity_approve", [[invoiceId]]);
+      invoice = await this.readInvoice(invoiceId);
+      if (invoice.state !== "posted") await this.execute("account.move", "action_post", [[invoiceId]]);
+    }
+    for (let attempt = 0; attempt < 4 && !invoice.l10n_ke_oscu_invoice_number; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      invoice = await this.readInvoice(invoiceId);
+    }
+    order = await this.readSale(saleOrderId);
+    const pickingId = order.picking_ids[0] ?? null;
+    const etimsInvoiceNumber = invoice.l10n_ke_oscu_invoice_number || null;
+    const documents: OdooOrderDocument[] = [];
+    const problems: string[] = [];
+    if (etimsInvoiceNumber) {
+      try {
+        const cookie = await this.sessionCookie();
+        const jobs: Array<{ kind: OdooOrderDocument["kind"]; report: string; ids: number[]; fileName: string }> = [
+          {
+            kind: "etims-invoice",
+            report: "account.report_invoice_with_payments",
+            ids: [invoiceId],
+            fileName: `eTIMS-${invoice.name || invoiceId}.pdf`,
+          },
+          {
+            kind: "sale-order",
+            report: "delivery_report.sale_order_report",
+            ids: [saleOrderId],
+            fileName: `Sale-order-${order.name}.pdf`,
+          },
+        ];
+        if (pickingId != null) {
+          jobs.push(
+            {
+              kind: "loading-order",
+              report: "delivery_report.loading_order_report",
+              ids: [pickingId],
+              fileName: `Loading-order-${order.name}.pdf`,
+            },
+            {
+              kind: "gate-pass",
+              report: "delivery_report.gate_pass_report",
+              ids: [pickingId],
+              fileName: `Gate-pass-${order.name}.pdf`,
+            },
+          );
+        } else {
+          problems.push("Odoo has not created the delivery yet, so the loading order and gate pass are not ready.");
+        }
+        for (const job of jobs) {
+          try {
+            documents.push({ kind: job.kind, fileName: job.fileName, bytes: await this.renderPdf(job.report, job.ids, cookie) });
+          } catch (error) {
+            problems.push(error instanceof Error ? error.message : String(error));
+          }
+        }
+      } catch (error) {
+        problems.push(error instanceof Error ? error.message : String(error));
+      }
+    }
+    const validation = invoice.l10n_ke_validation_message
+      ? String(invoice.l10n_ke_validation_message).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+      : "";
+    if (!etimsInvoiceNumber && validation) problems.push(validation);
+    return {
+      approvalStatus: order.approval_status,
+      saleState: order.state,
+      invoiceId,
+      invoiceNumber: invoice.name || null,
+      pickingId,
+      etimsInvoiceNumber,
+      etimsReceiptNumber: invoice.l10n_ke_oscu_receipt_number || null,
+      documents,
+      documentError: problems.length ? problems.join(" ") : null,
+    };
   }
 }

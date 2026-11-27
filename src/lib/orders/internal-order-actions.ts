@@ -2,7 +2,7 @@ import { canUser, type StaffUser } from "@/lib/permissions";
 import { logActivity } from "@/lib/activity";
 import { prisma } from "@/lib/prisma";
 import { parseReceiptEdits } from "@/lib/orders/receipt-preview";
-import { generatePfi, releaseToDepot, retryPaymentOdoo, reviewPayment, syncQuotation } from "@/lib/orders/service";
+import { continuePaidOrder, generatePfi, releaseToDepot, retryPaymentOdoo, reviewPayment, syncQuotation } from "@/lib/orders/service";
 import { ignoreStaleTransition } from "@/lib/orders/state-machine";
 
 /** After reviewing a payment, staff go back to that order. Only that order's page is accepted. */
@@ -75,6 +75,7 @@ export async function applyInternalOrderAction(
     if (result === "stale" || result == null) return "stale";
   }
   if (action === "retry-payment-odoo") await retryPaymentOdoo(String(formData.get("paymentId") || ""), actor.id);
+  if (action === "continue-booking") await continuePaidOrder(orderId, actor.id);
   if (action === "release") {
     const depot = await prisma.depot.findFirst({ orderBy: { name: "asc" } });
     if (!depot) throw new Error("No depot is configured.");

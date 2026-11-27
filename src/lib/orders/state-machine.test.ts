@@ -22,7 +22,9 @@ describe("order state machine", () => {
     assert.equal(canTransition("ODOO_SYNC_PENDING", "QUOTATION_READY"), true);
     assert.equal(canTransition("QUOTATION_READY", "PFI_PENDING"), true);
     assert.equal(canTransition("PFI_ISSUED", "AWAITING_PAYMENT"), true);
-    assert.equal(canTransition("PAYMENT_CONFIRMED", "RELEASED_TO_DEPOT"), true);
+    assert.equal(canTransition("PAYMENT_CONFIRMED", "ORDER_BOOKED"), true);
+    assert.equal(canTransition("KRA_INVOICE_RECEIVED", "DEPOT_DOCS_RECEIVED"), true);
+    assert.equal(canTransition("LOADING", "IN_TRANSIT"), true);
   });
 
   it("blocks dispatch before loading is complete", () => {
@@ -30,9 +32,9 @@ describe("order state machine", () => {
     assert.equal(canTransition("LOADED", "DISPATCHED"), true);
   });
 
-  it("blocks depot release before payment is confirmed", () => {
-    assert.equal(canTransition("AWAITING_PAYMENT", "RELEASED_TO_DEPOT"), false);
-    assert.equal(canTransition("PAYMENT_CONFIRMED", "RELEASED_TO_DEPOT"), true);
+  it("blocks booking before payment is confirmed", () => {
+    assert.equal(canTransition("AWAITING_PAYMENT", "ORDER_BOOKED"), false);
+    assert.equal(canTransition("PAYMENT_CONFIRMED", "ORDER_BOOKED"), true);
   });
 
   it("hides internal sync statuses from dealers", () => {
@@ -72,7 +74,7 @@ describe("dealerTrackerSteps", () => {
   it("has six tracker steps without a separate Loading stage", () => {
     assert.deepEqual(
       DEALER_TRACKER_STEPS.map((step) => step.label),
-      ["Order Submitted", "Quotation & PFI", "Payment", "Released to Depot", "On the Way", "Delivered"],
+      ["Order Submitted", "Quotation & PFI", "Payment", "Order booked", "Loading", "Completed"],
     );
   });
 
@@ -97,15 +99,23 @@ describe("dealerTrackerSteps", () => {
     }
   });
 
-  it("keeps RELEASED / LOADING / LOADED on Released to Depot until transit", () => {
+  it("walks booking, KRA, then loading, and renames loading once the truck is released", () => {
     assert.deepEqual(states("PAYMENT_CONFIRMED"), ["done", "done", "done", "active", "pending", "pending"]);
-    assert.equal(noteOf("PAYMENT_CONFIRMED"), "Awaiting release");
+    const labelOf = (status: Parameters<typeof dealerTrackerSteps>[0]) =>
+      dealerTrackerSteps(status).steps.find((step) => step.state === "active")?.label;
+    assert.equal(labelOf("PAYMENT_CONFIRMED"), "Order booked");
+    assert.equal(noteOf("PAYMENT_CONFIRMED"), "Booking the order");
+    assert.equal(labelOf("ORDER_BOOKED"), "Order booked");
+    assert.equal(labelOf("WAITING_KRA_INVOICE"), "Waiting for KRA invoice");
+    assert.equal(labelOf("KRA_INVOICE_RECEIVED"), "KRA invoice received");
+    assert.equal(labelOf("DEPOT_DOCS_RECEIVED"), "Depot received Loading order, gate pass and sales order");
     for (const status of ["RELEASED_TO_DEPOT", "LOADING", "LOADED"] as const) {
-      assert.deepEqual(states(status), ["done", "done", "done", "active", "pending", "pending"], status);
-      assert.equal(noteOf(status), "At depot", status);
+      assert.deepEqual(states(status), ["done", "done", "done", "done", "active", "pending"], status);
+      assert.equal(labelOf(status), "Loading", status);
     }
     assert.deepEqual(states("DISPATCHED"), ["done", "done", "done", "done", "active", "pending"]);
     assert.deepEqual(states("IN_TRANSIT"), ["done", "done", "done", "done", "active", "pending"]);
+    assert.equal(labelOf("IN_TRANSIT"), "On the way");
   });
 
   it("marks every step done once delivered or closed", () => {
@@ -118,7 +128,7 @@ describe("dealerTrackerSteps", () => {
   it("flags the affected step instead of jumping back to the start", () => {
     assert.deepEqual(states("ODOO_SYNC_FAILED"), ["done", "attention", "pending", "pending", "pending", "pending"]);
     assert.deepEqual(states("PAYMENT_EXCEPTION"), ["done", "done", "attention", "pending", "pending", "pending"]);
-    assert.deepEqual(states("STOCK_EXCEPTION"), ["done", "done", "done", "attention", "pending", "pending"]);
+    assert.deepEqual(states("STOCK_EXCEPTION"), ["done", "done", "done", "done", "attention", "pending"]);
     assert.deepEqual(states("DELIVERY_EXCEPTION"), ["done", "done", "done", "done", "attention", "pending"]);
     assert.deepEqual(states("REQUIRES_AMENDMENT"), ["attention", "pending", "pending", "pending", "pending", "pending"]);
     assert.equal(noteOf("PAYMENT_EXCEPTION"), "Needs attention");

@@ -6,6 +6,11 @@ export type DealerOrderView = "all" | "payment" | "documents" | "deliveries";
 
 const PAYMENT_STATUSES: DealerOrderStatus[] = ["PFI_ISSUED", "AWAITING_PAYMENT", "PAYMENT_EXCEPTION"];
 const DELIVERY_STATUSES: DealerOrderStatus[] = [
+  "PAYMENT_CONFIRMED",
+  "ORDER_BOOKED",
+  "WAITING_KRA_INVOICE",
+  "KRA_INVOICE_RECEIVED",
+  "DEPOT_DOCS_RECEIVED",
   "RELEASED_TO_DEPOT",
   "LOADING",
   "LOADED",
@@ -58,8 +63,8 @@ export type RecentOrderRow = {
 
 function statusTone(status: DealerOrderStatus) {
   const label = dealerStatusLabel(status);
-  if (label === "Delivered" || label === "Closed") return "delivered";
-  if (label === "In Transit" || label === "Dispatched" || label === "Loaded") return "transit";
+  if (label === "Completed" || label === "Delivered" || label === "Closed") return "delivered";
+  if (label === "On the way" || label === "In Transit" || label === "Loading" || label === "Loaded") return "transit";
   if (label === "PFI Ready") return "pfi";
   if (label === "Awaiting Payment" || label.includes("Payment")) return "payment";
   return "processing";

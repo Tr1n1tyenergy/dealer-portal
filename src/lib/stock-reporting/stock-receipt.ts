@@ -158,7 +158,7 @@ export async function listStockReceiptWorkspace(params: {
       where: {
         stationId: params.stationId,
         dealerOrganizationId: params.dealerOrganizationId,
-        status: { in: ["DELIVERED", "CLOSED"] },
+        status: { in: ["IN_TRANSIT", "DELIVERED", "CLOSED"] },
         OR: [{ stockReceipt: { is: null } }, { stockReceipt: { is: { reportingDate: params.reportingDate } } }],
       },
       include: { lines: true, stockReceipt: { include: { lines: true } } },
@@ -337,11 +337,11 @@ export async function saveStockReceipt(params: {
       id: params.orderId,
       stationId: params.stationId,
       dealerOrganizationId: params.dealerOrganizationId,
-      status: { in: ["DELIVERED", "CLOSED"] },
+      status: { in: ["IN_TRANSIT", "DELIVERED", "CLOSED"] },
     },
     include: { lines: true, stockReceipt: { include: { lines: true } } },
   });
-  if (!order) throw new StockReportingError("That completed order was not found for this station.", "NOT_FOUND");
+  if (!order) throw new StockReportingError("That order was not found for this station.", "NOT_FOUND");
   if (order.stockReceipt && order.stockReceipt.reportingDate.getTime() !== params.reportingDate.getTime()) {
     throw new StockReportingError("This order was already receipted on another day.", "CONFLICT");
   }
@@ -464,4 +464,8 @@ export async function saveStockReceipt(params: {
   });
 
   if (report) await refreshReportForReceipts(report.id, params.stationId, params.reportingDate);
+  if (order.status === "IN_TRANSIT") {
+    const { completeOrderFromStationReceipt } = await import("@/lib/orders/service");
+    await completeOrderFromStationReceipt(order.id, params.userId);
+  }
 }

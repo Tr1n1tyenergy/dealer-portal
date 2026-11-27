@@ -13,9 +13,13 @@ export const ORDER_TRANSITIONS: Record<DealerOrderStatus, DealerOrderStatus[]> =
   AWAITING_PAYMENT: ["PAYMENT_SUBMITTED", "CANCELLED"],
   PAYMENT_SUBMITTED: ["PAYMENT_VERIFICATION", "PAYMENT_EXCEPTION"],
   PAYMENT_VERIFICATION: ["PAYMENT_CONFIRMED", "PAYMENT_EXCEPTION", "AWAITING_PAYMENT"],
-  PAYMENT_CONFIRMED: ["RELEASED_TO_DEPOT"],
+  PAYMENT_CONFIRMED: ["ORDER_BOOKED"],
+  ORDER_BOOKED: ["WAITING_KRA_INVOICE"],
+  WAITING_KRA_INVOICE: ["KRA_INVOICE_RECEIVED"],
+  KRA_INVOICE_RECEIVED: ["DEPOT_DOCS_RECEIVED"],
+  DEPOT_DOCS_RECEIVED: ["LOADING"],
   RELEASED_TO_DEPOT: ["LOADING", "STOCK_EXCEPTION"],
-  LOADING: ["LOADED", "STOCK_EXCEPTION"],
+  LOADING: ["LOADED", "IN_TRANSIT", "STOCK_EXCEPTION"],
   LOADED: ["DISPATCHED"],
   DISPATCHED: ["IN_TRANSIT"],
   IN_TRANSIT: ["DELIVERED", "DELIVERY_EXCEPTION"],
@@ -89,17 +93,25 @@ export function dealerStatusLabel(status: DealerOrderStatus): string {
       return "Payment Submitted";
     case "PAYMENT_CONFIRMED":
       return "Payment Confirmed";
+    case "ORDER_BOOKED":
+      return "Order booked";
+    case "WAITING_KRA_INVOICE":
+      return "Waiting for KRA invoice";
+    case "KRA_INVOICE_RECEIVED":
+      return "KRA invoice received";
+    case "DEPOT_DOCS_RECEIVED":
+      return "Depot received documents";
     case "RELEASED_TO_DEPOT":
-      return "Released to Depot";
+      return "Loading";
     case "LOADING":
       return "Loading";
     case "LOADED":
       return "Loaded";
     case "DISPATCHED":
     case "IN_TRANSIT":
-      return "In Transit";
+      return "On the way";
     case "DELIVERED":
-      return "Delivered";
+      return "Completed";
     case "CLOSED":
       return "Closed";
     case "REQUIRES_AMENDMENT":
@@ -122,9 +134,9 @@ export const DEALER_TRACKER_STEPS = [
   { key: "submitted", label: "Order Submitted" },
   { key: "quotation", label: "Quotation & PFI" },
   { key: "payment", label: "Payment" },
-  { key: "release", label: "Released to Depot" },
-  { key: "transit", label: "On the Way" },
-  { key: "delivered", label: "Delivered" },
+  { key: "booked", label: "Order booked" },
+  { key: "transit", label: "Loading" },
+  { key: "delivered", label: "Completed" },
 ] as const;
 
 export type DealerTrackerStepKey = (typeof DEALER_TRACKER_STEPS)[number]["key"];
@@ -165,16 +177,24 @@ function trackerPosition(status: DealerOrderStatus): {
     case "PAYMENT_EXCEPTION":
       return { current: 2, attention: true, note: "Needs attention" };
     case "PAYMENT_CONFIRMED":
-      return { current: 3, note: "Awaiting release" };
+      return { current: 3, note: "Booking the order" };
+    case "ORDER_BOOKED":
+      return { current: 3, note: "Order booked" };
+    case "WAITING_KRA_INVOICE":
+      return { current: 3, note: "Waiting for KRA invoice" };
+    case "KRA_INVOICE_RECEIVED":
+      return { current: 3, note: "KRA invoice received" };
+    case "DEPOT_DOCS_RECEIVED":
+      return { current: 3, note: "Depot received Loading order, gate pass and sales order" };
     case "RELEASED_TO_DEPOT":
     case "LOADING":
     case "LOADED":
-      return { current: 3, note: "At depot" };
+      return { current: 4, note: "Loading" };
     case "STOCK_EXCEPTION":
-      return { current: 3, attention: true, note: "Delayed" };
+      return { current: 4, attention: true, note: "Delayed" };
     case "DISPATCHED":
     case "IN_TRANSIT":
-      return { current: 4 };
+      return { current: 4, note: "On the way" };
     case "DELIVERY_EXCEPTION":
       return { current: 4, attention: true, note: "Needs attention" };
     case "DELIVERED":
@@ -203,7 +223,23 @@ export function dealerTrackerSteps(status: DealerOrderStatus): {
     else if (index === position.current) state = position.attention ? "attention" : "active";
     else state = "pending";
     const isCurrent = state === "active" || state === "attention";
-    return { key: step.key, label: step.label, state, note: isCurrent ? position.note ?? null : null };
+    const onTheWay = status === "DISPATCHED" || status === "IN_TRANSIT" || status === "DELIVERY_EXCEPTION";
+    const bookedLabel =
+      status === "WAITING_KRA_INVOICE"
+        ? "Waiting for KRA invoice"
+        : status === "KRA_INVOICE_RECEIVED"
+          ? "KRA invoice received"
+          : status === "DEPOT_DOCS_RECEIVED"
+            ? "Depot received Loading order, gate pass and sales order"
+            : "Order booked";
+    const label =
+      step.key === "booked" && isCurrent
+        ? bookedLabel
+        : step.key === "transit" && (onTheWay || index < position.current)
+          ? "On the way"
+          : step.label;
+    const note = isCurrent ? position.note ?? null : null;
+    return { key: step.key, label, state, note: note === label ? null : note };
   });
   return { steps, stopped: position.stopped ?? null };
 }

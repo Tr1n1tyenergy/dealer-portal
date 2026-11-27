@@ -5,6 +5,7 @@ import { canActOnDepotOrder } from "@/lib/access";
 import { logActivity } from "@/lib/activity";
 import { resolveOdooPartnerId } from "@/lib/dealers/registry";
 import { getOdooClient } from "@/lib/integrations/odoo/client";
+import { putStoredFile } from "@/lib/files/stored-files";
 import { odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
 import type { OdooClient } from "@/lib/integrations/odoo/types";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
@@ -23,6 +24,7 @@ import {
 import { assertDealerCommercialOrdersAllowed } from "@/lib/security/launch-mode";
 import {
   OrderInputError,
+  type DepotAction,
   isDepotAction,
   nairobiToday,
   parseDeliveryDate,
@@ -811,6 +813,25 @@ async function reviewClaimedPayment(
     },
   });
   const journal = bankAccountByNumber(recorded?.bankAccountNumber);
+  if (accept && odoo.mode === "live") {
+    const paid = await prisma.dealerOrder.findUnique({
+      where: { id: payment.orderId },
+      include: { proforma: true, payments: true },
+    });
+    const paidTotals = paid ? paymentTotals(paid.proforma?.amount ?? paid.amountDue, paid.payments) : null;
+    if (paid?.status === "PAYMENT_CONFIRMED" && paidTotals?.balanceCents === 0) {
+      try {
+        await continuePaidOrder(paid.id, actorId, odoo);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        await prisma.dealerOrder.update({
+          where: { id: paid.id },
+          data: { fulfillmentError: message.slice(0, 500) },
+        });
+      }
+    }
+  }
+
   await logActivity({
     actorId,
     action: accept ? "PAYMENT_CONFIRMED" : "PAYMENT_REJECTED",
@@ -832,6 +853,119 @@ async function reviewClaimedPayment(
     },
   });
   return "done";
+}
+
+const BOOKING_PATH = [
+  "PAYMENT_CONFIRMED",
+  "ORDER_BOOKED",
+  "WAITING_KRA_INVOICE",
+  "KRA_INVOICE_RECEIVED",
+  "DEPOT_DOCS_RECEIVED",
+] as const;
+
+const BOOKING_NOTE: Record<(typeof BOOKING_PATH)[number], string> = {
+  PAYMENT_CONFIRMED: "Payment confirmed",
+  ORDER_BOOKED: "Order booked and approved in Odoo",
+  WAITING_KRA_INVOICE: "Invoice sent to KRA",
+  KRA_INVOICE_RECEIVED: "KRA invoice received",
+  DEPOT_DOCS_RECEIVED: "Loading order, gate pass and sales order held for the depot",
+};
+
+async function saveOrderDocument(orderId: string, kind: string, fileName: string, bytes: Buffer) {
+  const existing = await prisma.orderDocument.findFirst({ where: { orderId, kind } });
+  if (existing) return;
+  const key = `order-doc/${orderId}/${kind}`;
+  await putStoredFile(key, bytes);
+  await prisma.orderDocument.create({ data: { orderId, kind, fileName, storagePath: key } });
+}
+
+/**
+ * After a payment clears the balance: book and approve the Odoo order, post the invoice to KRA,
+ * and keep the branded invoice plus the loading documents on the order.
+ * A second call continues from whatever Odoo and the portal already finished.
+ */
+export async function continuePaidOrder(orderId: string, actorId: string, odoo: OdooClient = getOdooClient()) {
+  if (odoo.mode !== "live") return;
+  const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
+  if (!order || !BOOKING_PATH.includes(order.status as (typeof BOOKING_PATH)[number])) return;
+  const saleOrderId = Number(order.odooQuotationId);
+  if (!Number.isFinite(saleOrderId)) {
+    await prisma.dealerOrder.update({
+      where: { id: orderId },
+      data: { fulfillmentError: "This order has no Odoo quotation to book." },
+    });
+    return;
+  }
+
+  let result;
+  try {
+    result = await odoo.fulfillPaidOrder(saleOrderId);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await prisma.dealerOrder.update({ where: { id: orderId }, data: { fulfillmentError: message.slice(0, 500) } });
+    return;
+  }
+
+  const savedKinds = new Set<string>();
+  const saveProblems: string[] = [];
+  for (const document of result.documents) {
+    try {
+      await saveOrderDocument(orderId, document.kind, document.fileName.replace(/[^\w.\-]+/g, "_"), document.bytes);
+      savedKinds.add(document.kind);
+    } catch (error) {
+      saveProblems.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  const documentError = [result.documentError, ...saveProblems].filter(Boolean).join(" ") || null;
+  const hasEtims = Boolean(result.etimsInvoiceNumber) && savedKinds.has("etims-invoice");
+  const hasDepotDocs = savedKinds.has("loading-order") && savedKinds.has("gate-pass") && savedKinds.has("sale-order");
+  const target = hasEtims ? (hasDepotDocs ? "DEPOT_DOCS_RECEIVED" : "KRA_INVOICE_RECEIVED") : "WAITING_KRA_INVOICE";
+
+  await prisma.dealerOrder.update({
+    where: { id: orderId },
+    data: {
+      odooInvoiceId: result.invoiceId,
+      odooInvoiceNumber: result.invoiceNumber,
+      odooPickingId: result.pickingId,
+      etimsInvoiceNumber: result.etimsInvoiceNumber,
+      etimsReceiptNumber: result.etimsReceiptNumber,
+      fulfillmentError: target === "DEPOT_DOCS_RECEIVED" ? null : documentError ?? (hasEtims ? null : "KRA has not returned the invoice yet."),
+    },
+  });
+
+  let current = (await prisma.dealerOrder.findUniqueOrThrow({ where: { id: orderId } })).status;
+  const start = BOOKING_PATH.indexOf(current as (typeof BOOKING_PATH)[number]);
+  const end = BOOKING_PATH.indexOf(target);
+  if (start < 0 || end < 0) return;
+  for (let index = start; index < end; index += 1) {
+    const next = BOOKING_PATH[index + 1];
+    if (!next) break;
+    await prisma.$transaction((tx) =>
+      recordTransition(tx, {
+        orderId,
+        from: current,
+        to: next,
+        actorId,
+        note: BOOKING_NOTE[next],
+      })
+    );
+    current = next;
+  }
+}
+
+export async function completeOrderFromStationReceipt(orderId: string, actorId: string) {
+  const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
+  if (!order || order.status !== "IN_TRANSIT") return;
+  await prisma.$transaction((tx) =>
+    recordTransition(tx, {
+      orderId,
+      from: "IN_TRANSIT",
+      to: "DELIVERED",
+      actorId,
+      note: "Receipted at the station",
+      data: { deliveredAt: new Date() },
+    })
+  );
 }
 
 export async function releaseToDepot(orderId: string, actorId: string, depotId: string) {
@@ -862,7 +996,7 @@ export async function releaseToDepot(orderId: string, actorId: string, depotId: 
 export async function applyDepotAction(
   orderId: string,
   actor: { id: string; role: string; depotId: string | null },
-  action: "accept" | "complete" | "dispatch" | "deliver" | "close",
+  action: DepotAction,
   fields: {
     truckRegistration?: string;
     driverName?: string;
@@ -887,6 +1021,8 @@ export async function applyDepotAction(
 
   const map = {
     accept: { to: "LOADING" as const, action: "LOADING_STARTED", note: "Loading started" },
+    "receive-docs": { to: "LOADING" as const, action: "LOADING_STARTED", note: "Loading started" },
+    "release-station": { to: "IN_TRANSIT" as const, action: "ORDER_RELEASED_TO_STATION", note: "Released to the station" },
     complete: { to: "LOADED" as const, action: "LOADING_COMPLETED", note: "Loading complete" },
     dispatch: { to: "DISPATCHED" as const, action: "ORDER_DISPATCHED", note: "Truck dispatched" },
     deliver: { to: "DELIVERED" as const, action: "ORDER_DELIVERED", note: "Delivery confirmed" },
@@ -902,7 +1038,8 @@ export async function applyDepotAction(
   if (fields.loadingReference) data.loadingReference = fields.loadingReference;
   if (fields.sealNumbers) data.sealNumbers = fields.sealNumbers;
   if (fields.deliveryNoteRef) data.deliveryNoteRef = fields.deliveryNoteRef;
-  if (action === "accept") data.loadingStartedAt = new Date();
+  if (action === "accept" || action === "receive-docs") data.loadingStartedAt = new Date();
+  if (action === "release-station") data.dispatchedAt = new Date();
   if (action === "complete") data.loadingCompletedAt = new Date();
   if (action === "dispatch") {
     data.dispatchedAt = new Date();

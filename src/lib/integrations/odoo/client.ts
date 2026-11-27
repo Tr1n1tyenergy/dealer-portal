@@ -99,6 +99,10 @@ export class MockOdooClient implements OdooClient {
     return this.setPaymentState(id, "cancel");
   }
 
+  async fulfillPaidOrder(): Promise<never> {
+    throw new Error("Mock Odoo does not book live orders.");
+  }
+
   async findMpesaPayment(code: string): Promise<OdooMpesaPayment | null> {
     const amount = MOCK_MPESA[code];
     return amount
@@ -150,6 +154,9 @@ export class UnconfiguredOdooClient implements OdooClient {
     this.fail();
   }
   async findMpesaPayment(): Promise<OdooMpesaPayment | null> {
+    this.fail();
+  }
+  async fulfillPaidOrder(): Promise<never> {
     this.fail();
   }
 }

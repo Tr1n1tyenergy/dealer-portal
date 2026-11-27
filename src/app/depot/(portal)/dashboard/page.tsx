@@ -8,15 +8,17 @@ import { NumericInput } from "@/components/forms/numeric-input";
 import "../../../dealer/dealer-portal.css";
 
 const queues: { title: string; statuses: DealerOrderStatus[] }[] = [
+  { title: "Documents received", statuses: ["DEPOT_DOCS_RECEIVED"] },
   { title: "Ready for release", statuses: ["RELEASED_TO_DEPOT"] },
   { title: "Loading", statuses: ["LOADING"] },
   { title: "Ready to dispatch", statuses: ["LOADED"] },
-  { title: "In transit", statuses: ["DISPATCHED", "IN_TRANSIT"] },
+  { title: "On the way", statuses: ["DISPATCHED", "IN_TRANSIT"] },
 ];
 
 export default async function DepotDashboardPage() {
   const session = await requireDepot();
   const active: DealerOrderStatus[] = [
+    "DEPOT_DOCS_RECEIVED",
     "RELEASED_TO_DEPOT",
     "LOADING",
     "LOADED",
@@ -39,7 +41,7 @@ export default async function DepotDashboardPage() {
         <div>
           <div className="portal-kicker">Depot operations</div>
           <h1>Today</h1>
-          <p>Release queue, loading and dispatch. Only paid orders released by Trinity staff appear here.</p>
+          <p>Loading starts once the loading order, gate pass and sale order are on the order. Release sends the truck to the station.</p>
         </div>
         <SignOutButton />
       </header>
@@ -55,6 +57,9 @@ export default async function DepotDashboardPage() {
                 <div>
                   {order.lines.map((line) => `${line.product} ${line.quantityLitres.toLocaleString()} L`).join(" · ")}
                 </div>
+                {order.status === "DEPOT_DOCS_RECEIVED" ? (
+                  <button name="action" value="receive-docs" type="submit">Start loading</button>
+                ) : null}
                 {order.status === "RELEASED_TO_DEPOT" ? (
                   <>
                     <label>Truck<input name="truckRegistration" maxLength={500} placeholder="Registration" /></label>
@@ -68,6 +73,7 @@ export default async function DepotDashboardPage() {
                     <label>Loaded AGO<NumericInput name="loadedAgoLitres" /></label>
                     <label>Loading reference<input name="loadingReference" maxLength={500} /></label>
                     <button name="action" value="complete" type="submit">Loading complete</button>
+                    <button name="action" value="release-station" type="submit">Release to station</button>
                   </>
                 ) : null}
                 {order.status === "LOADED" ? <button name="action" value="dispatch" type="submit">Dispatch</button> : null}

@@ -108,7 +108,13 @@ export default async function StaffOrderDetailsPage({
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   const odooPayments = odooPaymentsEnabled();
   const contact = order.dealerOrganization.users[0] ?? null;
-  const depots = mayAct && order.status === "PAYMENT_CONFIRMED" ? await prisma.depot.findMany({ orderBy: { name: "asc" } }) : [];
+  const documentKinds = new Set(order.documents.map((document) => document.kind));
+  const bookingStatuses = ["PAYMENT_CONFIRMED", "ORDER_BOOKED", "WAITING_KRA_INVOICE"];
+  const bookingReady =
+    bookingStatuses.includes(order.status) ||
+    (order.status === "KRA_INVOICE_RECEIVED" &&
+      (!documentKinds.has("loading-order") || !documentKinds.has("gate-pass") || !documentKinds.has("sale-order")));
+  const depotNoteStatuses = ["DEPOT_DOCS_RECEIVED", "RELEASED_TO_DEPOT", "LOADING", "LOADED", "DISPATCHED", "IN_TRANSIT"];
   const actorName = (actor: { firstName: string | null; lastName: string | null } | null) =>
     actor ? [actor.firstName, actor.lastName].filter(Boolean).join(" ") || "Staff" : "System";
 
@@ -229,9 +235,9 @@ export default async function StaffOrderDetailsPage({
                 showPaymentPlaceholder={
                   mayAct && !tracker.stopped && stageNumber <= 3 && order.status !== "PAYMENT_CONFIRMED" && openPayments.length === 0
                 }
-                showLockedRelease={mayAct && !tracker.stopped && stageNumber <= 3}
-                releaseReady={mayAct && order.status === "PAYMENT_CONFIRMED"}
-                depots={depots.map((depot) => ({ id: depot.id, name: depot.name }))}
+                showLockedBook={mayAct && !tracker.stopped && stageNumber <= 3}
+                bookingReady={mayAct && bookingReady}
+                bookingError={order.fulfillmentError}
                 showSync={mayAct && (order.status === "ODOO_SYNC_FAILED" || order.status === "ODOO_SYNC_PENDING")}
                 syncError={order.odooSyncError}
                 pfiAction={
@@ -241,7 +247,7 @@ export default async function StaffOrderDetailsPage({
                       : "generate"
                     : null
                 }
-                showDepotNote={mayAct && stageNumber > 3 && !tracker.stopped}
+                showDepotNote={mayAct && depotNoteStatuses.includes(order.status)}
               />
             </section>
           </div>
@@ -339,6 +345,9 @@ export default async function StaffOrderDetailsPage({
                           <div className="sod-doc__name">{doc.fileName}</div>
                           <div className="sod-doc__sub">{doc.kind} · {when(doc.createdAt)}</div>
                         </div>
+                        <a className="sod-doc__act" href={`/api/orders/${order.id}/documents/${doc.kind}`} target="_blank" rel="noopener">
+                          View ↗
+                        </a>
                       </div>
                     ))}
                   </div>

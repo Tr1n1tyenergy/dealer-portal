@@ -32,6 +32,11 @@ describe("dealerOrderViewWhere", () => {
     assert.deepEqual(dealerOrderViewWhere("deliveries"), {
       status: {
         in: [
+          "PAYMENT_CONFIRMED",
+          "ORDER_BOOKED",
+          "WAITING_KRA_INVOICE",
+          "KRA_INVOICE_RECEIVED",
+          "DEPOT_DOCS_RECEIVED",
           "RELEASED_TO_DEPOT",
           "LOADING",
           "LOADED",

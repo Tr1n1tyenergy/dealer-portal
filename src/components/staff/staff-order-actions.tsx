@@ -24,9 +24,9 @@ export type StaffOrderActionsProps = {
   mayAct: boolean;
   waiting: StaffWaitingPayment[];
   showPaymentPlaceholder: boolean;
-  showLockedRelease: boolean;
-  releaseReady: boolean;
-  depots: { id: string; name: string }[];
+  showLockedBook: boolean;
+  bookingReady: boolean;
+  bookingError: string | null;
   showSync: boolean;
   syncError: string | null;
   pfiAction: "generate" | "finish" | null;
@@ -38,9 +38,9 @@ export function StaffOrderActions({
   mayAct,
   waiting,
   showPaymentPlaceholder,
-  showLockedRelease,
-  releaseReady,
-  depots,
+  showLockedBook,
+  bookingReady,
+  bookingError,
   showSync,
   syncError,
   pfiAction,
@@ -158,44 +158,40 @@ export function StaffOrderActions({
         </a>
       ) : null}
 
-      {releaseReady ? (
+      {bookingReady ? (
         <div className="sod-action sod-action--ready sod-action--release">
           <div className="sod-action__lead">
             <span className="sod-action__ico" aria-hidden>
               <Truck size={16} strokeWidth={1.75} />
             </span>
             <span className="sod-action__copy">
-              <span className="sod-action__title">Release to Depot</span>
-              <span className="sod-action__sub">Payment confirmed — choose the depot that will load this order.</span>
+              <span className="sod-action__title">Book order</span>
+              <span className="sod-action__sub">
+                Books the paid order in Odoo, sends the invoice to KRA, and keeps the loading documents for the depot.
+              </span>
             </span>
           </div>
+          {bookingError ? <p className="sod-paycard__alert">{bookingError}</p> : null}
           <form action={internalOrderAction}>
             <input type="hidden" name="orderId" value={orderId} />
-            <select name="depotId" defaultValue={depots[0]?.id} aria-label="Depot">
-              {depots.map((depot) => (
-                <option key={depot.id} value={depot.id}>
-                  {depot.name}
-                </option>
-              ))}
-            </select>
-            <button className="so-btn so-btn--blue" name="action" value="release">
-              Release to depot
+            <button className="so-btn so-btn--blue" name="action" value="continue-booking">
+              Book order
             </button>
           </form>
         </div>
       ) : null}
 
-      {showLockedRelease ? (
-        <Link href="/intelligence/retail/orders?stage=depot" className="sod-action sod-action--locked sod-action--link">
+      {showLockedBook ? (
+        <Link href="/intelligence/retail/orders?stage=payment-confirmed" className="sod-action sod-action--locked sod-action--link">
           <span className="sod-action__ico" aria-hidden>
             <Truck size={16} strokeWidth={1.75} />
           </span>
           <span className="sod-action__copy">
-            <span className="sod-action__title">Release to Depot</span>
+            <span className="sod-action__title">Book order</span>
             <span className="sod-action__sub">
-              Available after payment confirmation.
+              Available once payment clears the order.
               <br />
-              See orders already at the depot.
+              Booking sends the invoice to KRA.
             </span>
           </span>
           <span className="sod-action__go" aria-hidden>

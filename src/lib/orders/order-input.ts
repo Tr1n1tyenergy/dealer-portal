@@ -18,7 +18,7 @@ export class OrderInputError extends Error {
 
 export const MAX_LITRES = 100_000;
 export const DELIVERY_WINDOW_DAYS = 90;
-export const DEPOT_ACTIONS = ["accept", "complete", "dispatch", "deliver", "close"] as const;
+export const DEPOT_ACTIONS = ["accept", "receive-docs", "release-station", "complete", "dispatch", "deliver", "close"] as const;
 export type DepotAction = (typeof DEPOT_ACTIONS)[number];
 
 const QUANTITY_MESSAGE = "Quantity must be a whole number up to 100,000 L.";
