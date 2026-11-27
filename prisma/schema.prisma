@@ -606,6 +606,7 @@ model DealerOrder {
   updatedAt            DateTime          @updatedAt
 
   lines          DealerOrderLine[]
+  transports     DealerOrderTransport[]
   supportTickets SupportTicket[]
   history   OrderStatusHistory[]
   payments  PaymentRecord[]
@@ -619,6 +620,38 @@ model DealerOrder {
   @@index([status])
   @@index([createdAt])
   @@index([odooQuotationId])
+}
+
+/**
+ * Driver records the dealer attached when the order was placed.
+ * Values are copied from Odoo truck.driver at that moment so a later change
+ * to the driver record does not rewrite this order.
+ */
+model DealerOrderTransport {
+  id                 String      @id @default(cuid())
+  orderId            String
+  order              DealerOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  position           Int
+  /** truck.driver id */
+  odooDriverRecordId Int
+  driverName         String
+  /** truck.driver.driver_no */
+  driverNo           String
+  driverEpra         String?
+  /** Plate text stored on the driver record, otherwise the assigned fleet truck plate. */
+  truckPlate         String?
+  truckEpra          String?
+  /** delivery.truck.total_capacity in litres. 0 when the driver record has no assigned truck. */
+  capacityLitres     Int
+  /** res.partner id linked from the driver record, when one exists. */
+  odooContactId      Int?
+  contactName        String?
+  /** delivery.truck id linked from the driver record, when one exists. */
+  odooFleetTruckId   Int?
+  createdAt          DateTime    @default(now())
+
+  @@unique([orderId, odooDriverRecordId])
+  @@index([orderId])
 }
 
 model DealerOrderLine {

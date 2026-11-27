@@ -22,6 +22,7 @@ import {
   MapPin,
   Minus,
   Plus,
+  Truck,
 } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import { placeOrderAction } from "@/lib/orders/actions";
@@ -30,6 +31,8 @@ import { formatMoney, pfiTotals } from "@/lib/orders/pfi-totals";
 import { DEALER_FORECOURT_SRC } from "@/lib/dealer/hero";
 import { DealerHeroMedia } from "@/components/dealer/dealer-hero-media";
 import { DealerHeroActions } from "@/components/dealer/dealer-hero-actions";
+import { PlaceOrderTransport, TransportTable } from "@/components/orders/order-transport";
+import { driverCountLabel, toTransportLine, type OrderDriverRecord } from "@/lib/orders/transport";
 
 type Station = {
   id: string;
@@ -136,7 +139,17 @@ function estimateTotals(
 }
 
 /** orderingNotice: shown up front when dealer ordering is switched off (Submit is then disabled). */
-export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station[]; orderingNotice: string | null }) {
+export function PlaceOrderForm({
+  stations,
+  drivers,
+  driversError,
+  orderingNotice,
+}: {
+  stations: Station[];
+  drivers: OrderDriverRecord[];
+  driversError: string | null;
+  orderingNotice: string | null;
+}) {
   const [step, setStep] = useState<WizardStep>("details");
   const [submissionKey, setSubmissionKey] = useState("");
   useEffect(() => setSubmissionKey(newSubmissionKey()), []);
@@ -145,13 +158,18 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
   const [ago, setAgo] = useState(0);
   const dateWindow = useMemo(() => deliveryWindow(), []);
   const [deliveryDate, setDeliveryDate] = useState(() => dateWindow.min);
+  const [selectedDriverIds, setSelectedDriverIds] = useState<number[]>([]);
   const [state, formAction] = useActionState(placeOrderAction, null);
 
   const station = stations.find((s) => s.id === stationId) ?? stations[0];
   const total = pms + ago;
+  const selectedDrivers = selectedDriverIds.flatMap((id) => {
+    const record = drivers.find((item) => item.id === id);
+    return record ? [record] : [];
+  });
   const summaryDate = useMemo(() => formatDisplayDate(deliveryDate), [deliveryDate]);
   const hero = HERO[step];
-  const canReview = total > 0 && Boolean(stationId) && Boolean(deliveryDate);
+  const canReview = total > 0 && Boolean(stationId) && Boolean(deliveryDate) && selectedDrivers.length > 0 && !driversError;
   const estimate = useMemo(
     () => estimateTotals(station, pms, ago),
     [station, pms, ago],
@@ -185,7 +203,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
             </Link>
             <ChevronRight className="po__crumb-sep" size={14} strokeWidth={2.4} aria-hidden />
             <span className="po__crumb is-current">
-              {step === "review" ? "Review Order" : "Place Order"}
+              {step === "review" ? "Review Order" : "Create Fuel Order"}
             </span>
           </nav>
           <h1>{hero.title}</h1>
@@ -250,6 +268,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
           <input type="hidden" name="requestedDeliveryDate" value={deliveryDate} />
           <input type="hidden" name="submissionKey" value={submissionKey} />
 
+          <input type="hidden" name="driverRecordIds" value={JSON.stringify(selectedDrivers.map((record) => record.id))} />
           <div className="po__main">
             {step === "details" ? (
               <>
@@ -449,15 +468,15 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                       </div>
                     </article>
                   </div>
-
-                  <div className="po__total-bar">
-                    <div className="po__total-bar-left">
-                      <Layers size={18} color="#3551A5" aria-hidden />
-                      <span>Total Order Volume</span>
-                    </div>
-                    <strong>{formatLitres(total)}</strong>
-                  </div>
                 </section>
+
+                <PlaceOrderTransport
+                  drivers={drivers}
+                  driversError={driversError}
+                  selected={selectedDrivers}
+                  onChange={setSelectedDriverIds}
+                  orderLitres={total}
+                />
               </>
             ) : (
               <section className="po__card po__review">
@@ -541,6 +560,14 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                   </article>
                 </div>
 
+                <div className="po__review-transport" id="order-transport-review">
+                  <div className="po-tx__title-row">
+                    <h3>Transportation</h3>
+                    <span className="po-tx__badge">Required</span>
+                  </div>
+                  <p className="po-tx__review-note">These driver records will be sent with the order.</p>
+                  <TransportTable lines={selectedDrivers.map(toTransportLine)} />
+                </div>
                 <div className="po__total-bar is-review">
                   <div className="po__total-bar-left">
                     <Layers size={18} color="#3551A5" aria-hidden />
@@ -602,6 +629,24 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                 <strong>{formatLitres(total)}</strong>
               </div>
 
+              <button
+                type="button"
+                className={`po__summary-transport${selectedDrivers.length === 0 ? " is-required" : ""}`}
+                onClick={() => {
+                  const target = document.getElementById(step === "review" ? "order-transport-review" : "order-transport");
+                  target?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                <span>
+                  <Truck size={16} strokeWidth={2.1} aria-hidden />
+                  Transportation
+                </span>
+                <strong>
+                  {driverCountLabel(selectedDrivers.length)}
+                  <ChevronRight size={16} aria-hidden />
+                </strong>
+              </button>
+
               <div className="po__price">
                 <div className="po__price-label">Estimated amount (incl. 8% VAT)</div>
                 {estimate ? (
@@ -625,10 +670,15 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
               </div>
 
               {step === "details" ? (
-                <button type="button" className="po__cta" disabled={!canReview} onClick={goToReview}>
-                  Review Order
-                  <ArrowRight size={18} strokeWidth={2.5} aria-hidden />
-                </button>
+                <>
+                  <button type="button" className="po__cta" disabled={!canReview} onClick={goToReview}>
+                    Review Order
+                    <ArrowRight size={18} strokeWidth={2.5} aria-hidden />
+                  </button>
+                  {selectedDrivers.length === 0 ? (
+                    <p className="po__cta-hint">Add at least one driver record to continue.</p>
+                  ) : null}
+                </>
               ) : (
                 <>
                   {state?.error ? (
@@ -636,7 +686,7 @@ export function PlaceOrderForm({ stations, orderingNotice }: { stations: Station
                       {state.error}
                     </p>
                   ) : null}
-                  <SubmitOrderButton disabled={total <= 0} unavailable={Boolean(orderingNotice)} />
+                  <SubmitOrderButton disabled={total <= 0 || selectedDrivers.length === 0} unavailable={Boolean(orderingNotice)} />
                 </>
               )}
             </div>

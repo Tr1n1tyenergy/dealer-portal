@@ -45,6 +45,7 @@ describe(
         requestedDeliveryDate: extra.date ?? null,
         dealerReference: extra.reference,
         lines: [{ product: "PMS", quantityLitres: extra.quantity ?? 5000 }],
+        driverRecordIds: [1],
       });
     }
 

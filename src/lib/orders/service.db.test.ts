@@ -121,6 +121,23 @@ describe(
         requestedDeliveryDate: nairobiToday(),
         dealerReference: `PO-${run}`,
         lines: [{ product: "PMS" as const, quantityLitres: 5000 }],
+        driverRecordIds: [1],
+        loadDriverRecords: async () => [
+          {
+            id: 1,
+            driverName: "Test Driver",
+            driverNo: "100",
+            driverEpra: null,
+            truckPlate: "KAA 001A",
+            truckDetails: "KAA 001A",
+            assignedTruckName: "KAA 001A",
+            truckEpra: null,
+            capacityLitres: 20000,
+            contactId: null,
+            contactName: null,
+            fleetTruckId: null,
+          },
+        ],
         submissionKey: `${run}-place-order`,
       };
 

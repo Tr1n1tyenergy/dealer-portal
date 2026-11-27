@@ -7,7 +7,7 @@ import { resolveOdooPartnerId } from "@/lib/dealers/registry";
 import { getOdooClient } from "@/lib/integrations/odoo/client";
 import { putStoredFile } from "@/lib/files/stored-files";
 import { odooPaymentsEnabled } from "@/lib/integrations/odoo/config";
-import type { OdooClient } from "@/lib/integrations/odoo/types";
+import type { OdooClient, OdooDriverRecord } from "@/lib/integrations/odoo/types";
 import { fulfillmentForStation } from "@/lib/integrations/odoo/quotation-contract";
 import { dealerUnitPriceForStation } from "@/lib/integrations/odoo/dealer-prices";
 import { PFI_SIGNATORIES } from "@/lib/company/pfi-settings";
@@ -32,9 +32,11 @@ import {
   parseOrderLines,
   parsePaymentAmount,
 } from "@/lib/orders/order-input";
+import { selectDriverSnapshots } from "@/lib/orders/transport";
 
 const orderInclude = {
   lines: true,
+  transports: { orderBy: { position: "asc" as const } },
   station: true,
   dealerOrganization: true,
   depot: true,
@@ -107,6 +109,10 @@ export async function submitDealerOrder(params: {
   dealerReference?: string | null;
   notes?: string | null;
   lines: { product: "PMS" | "AGO"; quantityLitres: number }[];
+  /** truck.driver ids chosen on the form. Details are loaded again here, not taken from the browser. */
+  driverRecordIds: number[];
+  /** Tests pass a catalog so they do not call Odoo. The place-order action never does. */
+  loadDriverRecords?: () => Promise<OdooDriverRecord[]>;
   submissionKey?: string | null;
 }) {
   assertDealerCommercialOrdersAllowed();
@@ -132,6 +138,15 @@ export async function submitDealerOrder(params: {
   const alreadySubmitted = await findSubmittedOrder(params.submissionKey, params.dealerOrganizationId);
   if (alreadySubmitted) return alreadySubmitted;
 
+  let transports;
+  try {
+    const catalog = await (params.loadDriverRecords ?? (() => getOdooClient().listDriverRecords()))();
+    transports = selectDriverSnapshots(catalog, params.driverRecordIds);
+  } catch (error) {
+    if (error instanceof OrderInputError) throw error;
+    throw new OrderInputError("Driver records could not be loaded. Try again.");
+  }
+
   let created: string;
   try {
     created = await prisma.$transaction(async (tx) => {
@@ -151,6 +166,21 @@ export async function submitDealerOrder(params: {
           odooSyncKey: `quotation:${reference}`,
           submissionKey: params.submissionKey || null,
           lines: { create: lines.value },
+          transports: {
+            create: transports.map((record, position) => ({
+              position,
+              odooDriverRecordId: record.id,
+              driverName: record.driverName,
+              driverNo: record.driverNo,
+              driverEpra: record.driverEpra,
+              truckPlate: record.truckPlate,
+              truckEpra: record.truckEpra,
+              capacityLitres: record.capacityLitres,
+              odooContactId: record.contactId,
+              contactName: record.contactName,
+              odooFleetTruckId: record.fleetTruckId,
+            })),
+          },
         },
       });
       await tx.orderStatusHistory.create({
@@ -184,7 +214,7 @@ export async function submitDealerOrder(params: {
 export async function syncQuotation(orderId: string, actorId?: string | null) {
   const current = await prisma.dealerOrder.findUnique({
     where: { id: orderId },
-    include: { lines: true, station: true, dealerOrganization: true },
+    include: orderInclude,
   });
   if (!current) throw new Error("Order not found.");
   if (current.odooQuotationId) return prisma.dealerOrder.findUniqueOrThrow({ where: { id: orderId }, include: orderInclude });
@@ -243,6 +273,11 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
       dealerReference: current.dealerReference,
       notes: current.notes,
       lines: fuelLines.map(({ product, quantityLitres, unitPrice }) => ({ product, quantityLitres, unitPrice })),
+      trucks: current.transports.map((record) => ({
+        odooDriverRecordId: record.odooDriverRecordId,
+        odooContactId: record.odooContactId,
+        capacityLitres: record.capacityLitres,
+      })),
     });
 
     const saved = await prisma.$transaction(async (tx) => {

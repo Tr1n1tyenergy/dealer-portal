@@ -1874,6 +1874,31 @@
   align-items: end;
 }
 
+.ft-filters--search {
+  grid-template-columns: minmax(16rem, 28rem);
+}
+
+.ps-panel:has(.ft-filters) .ft-table--drivers {
+  min-width: 100%;
+  width: max(100%, 64rem);
+}
+
+.ps-panel:has(.ft-filters) .ft-table--drivers thead th:last-child,
+.ps-panel:has(.ft-filters) .ft-table--drivers tbody td:last-child {
+  text-align: left;
+  width: 16%;
+  min-width: 11rem;
+  background: linear-gradient(180deg, #eef3fb 0%, #e6edf8 100%);
+}
+
+.ps-panel:has(.ft-filters) .ft-table--drivers tbody td:last-child {
+  background: #fff;
+}
+
+.ps-panel:has(.ft-filters) .ft-table--drivers tbody tr:nth-child(even) > td:last-child {
+  background: #fafbfd;
+}
+
 .ft-field {
   display: grid;
   gap: var(--ps-gap-2xs);
@@ -2178,6 +2203,81 @@
 .ft-table th:nth-child(6),
 .ft-table td:nth-child(6) {
   width: 4.5rem;
+}
+
+.ft-table--drivers th:nth-child(1),
+.ft-table--drivers td:nth-child(1),
+.ft-table--drivers th:nth-child(2),
+.ft-table--drivers td:nth-child(2),
+.ft-table--drivers th:nth-child(3),
+.ft-table--drivers td:nth-child(3),
+.ft-table--drivers th:nth-child(4),
+.ft-table--drivers td:nth-child(4),
+.ft-table--drivers th:nth-child(5),
+.ft-table--drivers td:nth-child(5) {
+  width: 16.8%;
+}
+
+.ft-table--drivers th:nth-child(6),
+.ft-table--drivers td:nth-child(6) {
+  width: 16%;
+  min-width: 11rem;
+}
+
+/* Driver list: fill the same bordered shell as the other settings tables.
+   Later fleet rules pin the last column to the old actions width; these win. */
+.ps-panel:has(.ft-filters) .ps-table-wrap.ft-table-wrap--drivers {
+  padding: 0;
+  margin: 0.15rem var(--ps-gap-md) var(--ps-gap-xs);
+  flex: 0 0 auto;
+  height: min(34rem, calc(100vh - 22rem));
+  min-height: 0;
+  max-height: min(34rem, calc(100vh - 22rem));
+  overflow: auto;
+}
+
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers {
+  table-layout: auto;
+  width: 100%;
+  min-width: 100%;
+}
+
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers th,
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers td {
+  width: auto;
+  max-width: none;
+  white-space: nowrap;
+}
+
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers thead th {
+  background: linear-gradient(180deg, #eef3fb 0%, #e6edf8 100%);
+}
+
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers thead th:last-child,
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers tbody td:last-child,
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers th:nth-child(6),
+.ps-panel:has(.ft-filters) .ps-table.ft-table.ft-table--drivers td:nth-child(6) {
+  width: auto;
+  min-width: 12.5rem;
+  max-width: none;
+  text-align: left;
+}
+
+.ft-id-value {
+  font-weight: 750;
+  color: #0a235b;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.ft-epra {
+  font-weight: 650;
+  color: var(--ps-navy);
+}
+
+.ft-dash {
+  color: var(--tri-text-faint, #94a3b8);
+  font-weight: 650;
 }
 
 .ft-id {

@@ -5,7 +5,7 @@ import { canUser } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { requireInternal } from "@/lib/session";
 import { listDealerOptions, listStationsForPricing } from "@/lib/settings/stations-pricing";
-import { listFleetTrucks } from "@/lib/settings/fleet-trucks";
+import { getOdooClient } from "@/lib/integrations/odoo/client";
 import { listActivityFilterOptions, queryActivityLogs } from "@/lib/settings/activity-logs";
 import { PlatformSettingsClient, type SettingsTab } from "@/components/staff/platform-settings-client";
 import "@/app/intelligence/retail/staff-orders.css";
@@ -38,15 +38,23 @@ async function PlatformSettingsContent({
   ) as SettingsTab;
 
   const canViewActivity = canUser(session.user, "activity", "view");
-  const needStations = initialTab === "stations" || initialTab === "tanks" || initialTab === "trucks";
+  const needStations = initialTab === "stations" || initialTab === "tanks";
   const needTrucks = initialTab === "trucks";
   const needActivity = initialTab === "activity" && canViewActivity;
   const needSystem = initialTab === "system";
 
-  const [stations, dealers, trucks, storedSettings, activityBundle] = await Promise.all([
+  const [stations, dealers, driverLoad, storedSettings, activityBundle] = await Promise.all([
     needStations ? listStationsForPricing() : Promise.resolve([]),
     needStations ? listDealerOptions() : Promise.resolve([]),
-    needTrucks ? listFleetTrucks() : Promise.resolve([]),
+    needTrucks
+      ? getOdooClient()
+          .listDriverRecords()
+          .then((drivers) => ({ drivers, driversError: null as string | null }))
+          .catch(() => ({
+            drivers: [],
+            driversError: "Driver records could not be loaded from Odoo. Refresh and try again.",
+          }))
+      : Promise.resolve({ drivers: [], driversError: null as string | null }),
     needSystem
       ? prisma.systemSetting.findMany({ orderBy: { key: "asc" }, select: { key: true, value: true } })
       : Promise.resolve([]),
@@ -72,7 +80,8 @@ async function PlatformSettingsContent({
         <PlatformSettingsClient
           stations={stations}
           dealers={dealers}
-          trucks={trucks}
+          drivers={driverLoad.drivers}
+          driversError={driverLoad.driversError}
           canAct={canUser(session.user, "settings", "act")}
           canViewActivity={canViewActivity}
           activityFilterOptions={activityBundle?.filterOptions ?? null}

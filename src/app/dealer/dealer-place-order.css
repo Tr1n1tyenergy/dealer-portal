@@ -848,10 +848,71 @@ a.po__crumb:hover {
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.7rem 0 0.2rem;
+  margin-top: 0.55rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 10px;
+  background: #eef3fb;
   font-size: 0.9rem;
   font-weight: 750;
   color: var(--po-ink);
+}
+
+.po__summary-transport {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #d7e3f5;
+  background: #fff;
+  color: var(--po-ink);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.po__summary-transport span,
+.po__summary-transport strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.po__summary-transport svg {
+  color: var(--po-blue);
+}
+
+.po__summary-transport.is-required {
+  border-color: #f0d978;
+  background: #fffdf3;
+}
+
+.po__cta-hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.76rem;
+  font-weight: 650;
+  color: #9a3412;
+  text-align: center;
+}
+
+.po__review-transport {
+  margin-top: 0.95rem;
+}
+
+.po__review-transport h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 750;
+  color: var(--po-ink);
+}
+
+#order-transport,
+#order-transport-review {
+  scroll-margin-top: 1rem;
 }
 
 .po__price {
