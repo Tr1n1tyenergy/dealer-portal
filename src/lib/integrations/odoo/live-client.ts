@@ -60,7 +60,9 @@ export class LiveOdooClient implements OdooClient {
     }
     const payload = (await res.json()) as JsonRpcResult<T>;
     if (payload.error) {
-      throw new Error(payload.error.message || "Odoo JSON-RPC error");
+      const data = payload.error.data as { message?: string } | undefined;
+      const detail = typeof data?.message === "string" ? data.message.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
+      throw new Error(detail || payload.error.message || "Odoo JSON-RPC error");
     }
     return payload.result as T;
   }

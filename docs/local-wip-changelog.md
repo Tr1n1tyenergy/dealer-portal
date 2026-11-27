@@ -149,6 +149,10 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-27 — Booking shows Odoo's own reason
+- A refused Odoo button was stored as "Odoo Server Error". The portal now keeps the message Odoo actually returned, such as the missing driver and truck.
+- Files: `src/lib/integrations/odoo/live-client.ts`.
+
 ### 2026-11-27 — New quotations are HOD-approved and valid for a month
 - A dealer order was creating a draft quotation whose valid-until date was the requested delivery date, so Odoo cancelled it the next day and it could not be booked.
 - The portal now sets valid until to one month after the order and approves the quotation as HOD before it is returned.
