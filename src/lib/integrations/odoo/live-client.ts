@@ -21,14 +21,16 @@ import { resolveFuelProductExternalId } from "./fuel-products";
 import { fulfillmentForStation } from "./quotation-contract";
 import { dealerUnitPriceForStation, type DealerFuelProduct } from "./dealer-prices";
 import { parseOdooExternalId } from "./external-ids";
+import { nairobiDatePlusMonth } from "@/lib/time/nairobi";
 
 type JsonRpcResult<T> = { jsonrpc: string; id: number | null; result?: T; error?: { message: string; data?: unknown } };
 
 const M = ODOO_TRINITY.models;
 
 /**
- * Live Odoo 17 JSON-RPC client for Trinity Energy Kenya (odoo.sh). The portal creates a draft
- * sale.order (quotation) for the dealer's res.partner with the portal's EPRA-based unit prices;
+ * Live Odoo 17 JSON-RPC client for Trinity Energy Kenya (odoo.sh). The portal creates a
+ * sale.order (quotation) for the dealer's res.partner with the portal's EPRA-based unit prices
+ * and HOD-approves it before returning. The quotation stays valid for one month from the order.
  * the PFI is issued by the portal itself (src/lib/orders/pfi-*.ts), not by Odoo.
  */
 export class LiveOdooClient implements OdooClient {
@@ -268,7 +270,9 @@ export class LiveOdooClient implements OdooClient {
       [[["client_order_ref", "=", input.idempotencyKey]]],
       { limit: 1 }
     );
+    const validityDate = nairobiDatePlusMonth(input.orderedAt ? new Date(input.orderedAt) : new Date());
     if (existingIds[0]) {
+      await this.approveFuelQuotation(existingIds[0], validityDate);
       const existing = await this.getQuotation(String(existingIds[0]));
       if (existing) return existing;
     }
@@ -349,11 +353,10 @@ export class LiveOdooClient implements OdooClient {
         ...(stationId != null ? { station_id: stationId } : {}),
         ...(warehouseId != null ? { warehouse_id: warehouseId } : {}),
         ...(sourceLocationId != null ? { source_location_id: sourceLocationId } : {}),
-        ...(input.requestedDeliveryDate
-          ? { validity_date: input.requestedDeliveryDate.slice(0, 10) }
-          : {}),
+        validity_date: validityDate,
       },
     ]);
+    await this.approveFuelQuotation(orderId, validityDate);
 
     const rows = await this.execute<
       Array<{ id: number; name: string; amount_total: number; state: string; currency_id: [number, string] }>
@@ -371,6 +374,41 @@ export class LiveOdooClient implements OdooClient {
       lines: input.lines,
       model: M.saleOrder,
     };
+  }
+
+  /**
+   * A new fuel quotation is created as a draft. Submit it and approve it as HOD so it is ready
+   * to book once the dealer has paid. A quotation that is already past that step is left as it is.
+   * A cancelled quotation is not reopened here.
+   */
+  private async approveFuelQuotation(saleOrderId: number, validityDate: string) {
+    const read = async () => {
+      const rows = await this.execute<
+        Array<{ id: number; name: string; state: string; approval_status: string }>
+      >(M.saleOrder, "read", [[saleOrderId], ["name", "state", "approval_status"]]);
+      const row = rows[0];
+      if (!row) throw new Error(`Odoo sales order ${saleOrderId} was not found.`);
+      return row;
+    };
+    let order = await read();
+    if (order.state === "cancel") {
+      throw new Error(`Odoo quotation ${order.name} is cancelled, so it cannot be approved.`);
+    }
+    const pastHod = ["hod_approved", "order_booking", "hold", "cs_review", "pending_hod_marketing", "approved"];
+    if (pastHod.includes(order.approval_status) || order.state === "sale" || order.state === "done") return;
+
+    await this.execute(M.saleOrder, "write", [[saleOrderId], { validity_date: validityDate }]);
+    if (order.approval_status === "draft") {
+      await this.execute(M.saleOrder, "action_submit_for_approval", [[saleOrderId]]);
+      order = await read();
+    }
+    if (order.approval_status === "pending_hod") {
+      await this.execute(M.saleOrder, "action_hod_approve_quotation", [[saleOrderId]]);
+      order = await read();
+    }
+    if (order.approval_status !== "hod_approved" && !pastHod.includes(order.approval_status)) {
+      throw new Error(`Odoo left ${order.name} as “${order.approval_status}” instead of an HOD-approved quotation.`);
+    }
   }
 
   async getQuotation(quotationId: string): Promise<OdooQuotation | null> {

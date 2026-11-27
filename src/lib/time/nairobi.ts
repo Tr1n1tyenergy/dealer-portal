@@ -12,6 +12,17 @@ export function nairobiParts(at: Date = new Date()) {
   };
 }
 
+/** YYYY-MM-DD one calendar month after this instant, on the Nairobi clock. */
+export function nairobiDatePlusMonth(at: Date = new Date()): string {
+  const { year, month, day } = nairobiParts(at);
+  const next = new Date(Date.UTC(year, month, day));
+  if (next.getUTCDate() !== day) next.setUTCDate(0);
+  const y = next.getUTCFullYear();
+  const m = String(next.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(next.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 /** 00:00 Nairobi on the 1st of this month (plus `monthsAhead`, which may be negative), as an instant. */
 export function nairobiMonthStart(at: Date = new Date(), monthsAhead = 0): Date {
   const { year, month } = nairobiParts(at);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { nairobiMonthStart, nairobiParts } from "./nairobi";
+import { nairobiDatePlusMonth, nairobiMonthStart, nairobiParts } from "./nairobi";
 import { lastNMonthLabels, monthKey } from "@/lib/retail/analytics";
 
 describe("Nairobi time (UTC+3)", () => {
@@ -11,6 +11,12 @@ describe("Nairobi time (UTC+3)", () => {
   it("00:30 on 1 January in Nairobi is already the new year", () => {
     const p = nairobiParts(new Date("2026-12-31T21:30:00Z"));
     assert.deepEqual([p.year, p.month, p.day], [2027, 1, 1]);
+  });
+
+  it("a quotation stays valid until the same day next month", () => {
+    assert.equal(nairobiDatePlusMonth(new Date("2026-11-23T14:15:00Z")), "2026-12-23");
+    assert.equal(nairobiDatePlusMonth(new Date("2026-01-31T10:00:00Z")), "2026-02-28");
+    assert.equal(nairobiDatePlusMonth(new Date("2026-12-23T10:00:00Z")), "2027-01-23");
   });
 
   it("a month starts at 00:00 Nairobi, which is 21:00 UTC the day before", () => {

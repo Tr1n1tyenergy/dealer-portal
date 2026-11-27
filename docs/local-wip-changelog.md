@@ -149,6 +149,11 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-27 — New quotations are HOD-approved and valid for a month
+- A dealer order was creating a draft quotation whose valid-until date was the requested delivery date, so Odoo cancelled it the next day and it could not be booked.
+- The portal now sets valid until to one month after the order and approves the quotation as HOD before it is returned.
+- Files: `src/lib/integrations/odoo/live-client.ts`, `src/lib/integrations/odoo/types.ts`, `src/lib/orders/service.ts`, `src/lib/time/nairobi.ts`.
+
 ### 2026-11-27 — Production build no longer pulls booking code into the dealer page
 - Saving a stock receipt completed an on-the-way order by importing the order service. That service reads files from disk, so the dealer page failed to compile on Vercel.
 - The receipt now marks the order completed in its own save, without that import.

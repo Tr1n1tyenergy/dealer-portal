@@ -239,6 +239,7 @@ export async function syncQuotation(orderId: string, actorId?: string | null) {
       stationCode,
       odooStationId: fulfillment?.odooStationId ?? null,
       requestedDeliveryDate: current.requestedDeliveryDate?.toISOString() ?? null,
+      orderedAt: current.createdAt.toISOString(),
       dealerReference: current.dealerReference,
       notes: current.notes,
       lines: fuelLines.map(({ product, quantityLitres, unitPrice }) => ({ product, quantityLitres, unitPrice })),

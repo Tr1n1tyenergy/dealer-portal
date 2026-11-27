@@ -26,6 +26,8 @@ export type CreateQuotationInput = {
   /** station.station id for sale.order.station_id */
   odooStationId?: number | null;
   requestedDeliveryDate?: string | null;
+  /** When the dealer placed the order. The quotation stays valid for one month from this instant. */
+  orderedAt?: string | null;
   dealerReference?: string | null;
   notes?: string | null;
   lines: OdooOrderLineInput[];
