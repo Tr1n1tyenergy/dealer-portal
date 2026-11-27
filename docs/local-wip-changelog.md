@@ -149,6 +149,11 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-27 — Production build no longer pulls booking code into the dealer page
+- Saving a stock receipt completed an on-the-way order by importing the order service. That service reads files from disk, so the dealer page failed to compile on Vercel.
+- The receipt now marks the order completed in its own save, without that import.
+- Files: `src/lib/stock-reporting/stock-receipt.ts`, `src/lib/orders/service.ts`.
+
 ### 2026-11-27 — A cleared payment books the order and collects the KRA invoice
 - Confirming the payment that brings an order's balance to zero now books and approves the fuel order in Odoo, posts the invoice so KRA can brand it, and stores the eTIMS invoice and sale order on that order for the dealer. The loading order and gate pass are stored with the order and held for the depot.
 - The tracker step that was "Released to Depot" is now "Order booked", then the same step reads Waiting for KRA invoice, KRA invoice received, and Depot received Loading order, gate pass and sales order. Loading becomes active after that, and the depot can release the truck so the step reads On the way. Receipting that delivery in Stock Receipt completes the order.

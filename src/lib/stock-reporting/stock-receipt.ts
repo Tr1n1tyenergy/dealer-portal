@@ -1,5 +1,6 @@
 import type { ProductCode, StockReceiptBalanceEffect } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { assertTransition } from "@/lib/orders/state-machine";
 import { formatStockReportDate, nairobiBusinessDate } from "./dates";
 import { centsToLitres, litresToCents } from "./pump-calc";
 import { calculateTankDip, sumTankSalesByProduct } from "./tank-calc";
@@ -461,11 +462,26 @@ export async function saveStockReceipt(params: {
         data: lines.map((line) => ({ ...line, receiptId: receipt.id })),
       });
     }
+
+    if (order.status === "IN_TRANSIT") {
+      assertTransition("IN_TRANSIT", "DELIVERED");
+      const moved = await tx.dealerOrder.updateMany({
+        where: { id: order.id, status: "IN_TRANSIT" },
+        data: { status: "DELIVERED", deliveredAt: new Date() },
+      });
+      if (moved.count === 1) {
+        await tx.orderStatusHistory.create({
+          data: {
+            orderId: order.id,
+            fromStatus: "IN_TRANSIT",
+            toStatus: "DELIVERED",
+            actorId: params.userId,
+            note: "Receipted at the station",
+          },
+        });
+      }
+    }
   });
 
   if (report) await refreshReportForReceipts(report.id, params.stationId, params.reportingDate);
-  if (order.status === "IN_TRANSIT") {
-    const { completeOrderFromStationReceipt } = await import("@/lib/orders/service");
-    await completeOrderFromStationReceipt(order.id, params.userId);
-  }
 }

@@ -953,21 +953,6 @@ export async function continuePaidOrder(orderId: string, actorId: string, odoo: 
   }
 }
 
-export async function completeOrderFromStationReceipt(orderId: string, actorId: string) {
-  const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
-  if (!order || order.status !== "IN_TRANSIT") return;
-  await prisma.$transaction((tx) =>
-    recordTransition(tx, {
-      orderId,
-      from: "IN_TRANSIT",
-      to: "DELIVERED",
-      actorId,
-      note: "Receipted at the station",
-      data: { deliveredAt: new Date() },
-    })
-  );
-}
-
 export async function releaseToDepot(orderId: string, actorId: string, depotId: string) {
   const order = await prisma.dealerOrder.findUnique({ where: { id: orderId } });
   if (!order) throw new Error("Order not found.");
