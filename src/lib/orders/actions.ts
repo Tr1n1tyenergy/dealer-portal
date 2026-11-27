@@ -24,6 +24,7 @@ import {
   parseLitres,
   parseOrderLines,
 } from "@/lib/orders/order-input";
+import { parseDriverRecordIds } from "@/lib/orders/transport";
 import { DEALER_ORDERING_UNAVAILABLE, dealerCommercialOrdersBlockedReason } from "@/lib/security/launch-mode";
 
 /** What the dealer forms get back: a message to show, or null when the action went through. */
@@ -57,6 +58,7 @@ export async function placeOrderAction(_prev: ActionResult, formData: FormData):
       dealerReference: freeText(formData.get("dealerReference")) ?? null,
       notes: freeText(formData.get("notes")) ?? null,
       lines: lines.value,
+      driverRecordIds: parseDriverRecordIds(formData.get("driverRecordIds")),
       submissionKey: submissionKey(formData.get("submissionKey")),
     });
   } catch (error) {

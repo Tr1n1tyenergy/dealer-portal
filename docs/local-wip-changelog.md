@@ -149,6 +149,39 @@ Other product.template candidates kept for reference only.
 
 ## Entry log
 
+### 2026-11-27 — Order sync compiles again
+- A second `include` had been left outside the quotation query, and the price-freeze step had been pasted into the quotation call. Both are restored, and the place-order form is one function again.
+- Files: `src/lib/orders/service.ts`, `src/lib/orders/actions.ts`, `src/components/dealer/place-order-form.tsx`, `src/app/dealer/(portal)/orders/new/page.tsx`, `src/lib/integrations/odoo/types.ts`, `src/lib/integrations/odoo/live-client.ts`, `src/lib/integrations/odoo/client.ts`.
+
+### 2026-11-27 — Driver lists lead with the most complete records
+- Staff Fleet & Trucks and the dealer's Select Driver Record list now put the records with the most filled columns first, and the sparsest records last. A tie stays alphabetical by driver name.
+- Files: `src/lib/orders/transport.ts`, `src/lib/orders/transport.test.ts`, `src/components/staff/fleet-trucks-panel.tsx`, `src/components/orders/order-transport.tsx`.
+
+### 2026-11-27 — Fleet table scrolls through every driver record
+- Fleet & Trucks was paging ten records at a time. The table now lists every Odoo driver record inside the same height, and the rows scroll up and down.
+- Files: `src/components/staff/fleet-trucks-panel.tsx`, `src/app/intelligence/retail/platform-settings.css`.
+
+### 2026-11-27 — Driver table matches the other settings tables
+- The Assigned Truck column was still the old 4.5rem actions width, so the blue heading stopped before the label finished. The driver table now fills the same bordered shell as the other settings tables, and every heading, including Assigned Truck, sits on that blue row.
+- Files: `src/components/staff/fleet-trucks-panel.tsx`, `src/app/intelligence/retail/platform-settings.css`.
+
+### 2026-11-27 — Assigned Truck heading stays on the blue row
+- The last fleet column was still the narrow actions width, so “Assigned Truck” ran off the blue header onto white. That column is now wide enough for the heading to sit inside the blue row.
+- Files: `src/app/intelligence/retail/platform-settings.css`.
+
+### 2026-11-27 — Staff fleet list reads Odoo driver records
+- Fleet & Trucks no longer shows the local trucks or offers Create, Edit, or Delete. The table is the Odoo driver list: res.partner, Driver ID, Driver EPRA, Truck Details, Truck EPRA No., and Assigned Truck. A driver or truck added in Odoo appears the next time the page is opened.
+- Files: `src/components/staff/fleet-trucks-panel.tsx`, `src/components/staff/platform-settings-client.tsx`, `src/app/intelligence/retail/(home)/settings/page.tsx`, `src/lib/settings/truck-actions.ts`, `src/lib/integrations/odoo/live-client.ts`, `src/lib/integrations/odoo/types.ts`.
+
+### 2026-11-27 — One Add Driver Record button
+- The Transportation heading no longer has its own Add button. The empty state keeps the only one, and after a record is chosen a single Add button sits above the table.
+- Files: `src/components/orders/order-transport.tsx`, `src/components/orders/order-transport.css`.
+
+### 2026-11-27 — Dealers attach driver records when they place a fuel order
+- The Create Fuel Order screen now asks for one or more existing Odoo driver records before the order can be reviewed. Choosing a record fills the driver id, EPRA numbers, truck plate, capacity and linked contact from that record. The dealer does not pick a contact, a truck, or a delivery order.
+- The chosen records are saved on the order as they were at that moment, and the same records are written onto the Odoo quotation's Driver - Truck Details lines so booking already has them. A delivery order is still created later.
+- Files: `prisma/schema.prisma`, `prisma/migrations/20261127150000_order_transport/migration.sql`, `src/lib/orders/transport.ts`, `src/lib/orders/service.ts`, `src/lib/orders/actions.ts`, `src/lib/integrations/odoo/live-client.ts`, `src/lib/integrations/odoo/types.ts`, `src/components/dealer/place-order-form.tsx`, `src/components/orders/order-transport.tsx`, `src/app/dealer/(portal)/orders/new/page.tsx`, `src/app/dealer/(portal)/orders/[id]/page.tsx`, `src/app/intelligence/retail/(home)/orders/[id]/page.tsx`, `src/app/depot/(portal)/dashboard/page.tsx`.
+
 ### 2026-11-27 — Booking shows Odoo's own reason
 - A refused Odoo button was stored as "Odoo Server Error". The portal now keeps the message Odoo actually returned, such as the missing driver and truck.
 - Files: `src/lib/integrations/odoo/live-client.ts`.

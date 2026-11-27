@@ -31,7 +31,7 @@ export default async function DepotDashboardPage() {
       status: { in: active },
       ...depotOrderScope(session.user),
     },
-    include: { station: true, dealerOrganization: true, lines: true, depot: true },
+    include: { station: true, dealerOrganization: true, lines: true, transports: { orderBy: { position: "asc" } }, depot: true },
     orderBy: { updatedAt: "desc" },
   });
 
@@ -57,6 +57,11 @@ export default async function DepotDashboardPage() {
                 <div>
                   {order.lines.map((line) => `${line.product} ${line.quantityLitres.toLocaleString()} L`).join(" · ")}
                 </div>
+                {order.transports.length ? (
+                  <div>
+                    Transportation: {order.transports.map((record) => `${record.driverName}${record.truckPlate ? ` · ${record.truckPlate}` : ""}`).join("; ")}
+                  </div>
+                ) : null}
                 {order.status === "DEPOT_DOCS_RECEIVED" ? (
                   <button name="action" value="receive-docs" type="submit">Start loading</button>
                 ) : null}

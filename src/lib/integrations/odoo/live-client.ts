@@ -1,6 +1,8 @@
 import type {
   CreateQuotationInput,
   OdooClient,
+  OdooDriverRecord,
+  QuotationTruckInput,
   OdooMpesaPayment,
   OdooOrderDocument,
   OdooPaymentState,
@@ -274,6 +276,7 @@ export class LiveOdooClient implements OdooClient {
     );
     const validityDate = nairobiDatePlusMonth(input.orderedAt ? new Date(input.orderedAt) : new Date());
     if (existingIds[0]) {
+      if (input.trucks?.length) await this.attachTruckLines(existingIds[0], input.trucks);
       await this.approveFuelQuotation(existingIds[0], validityDate);
       const existing = await this.getQuotation(String(existingIds[0]));
       if (existing) return existing;
@@ -356,6 +359,7 @@ export class LiveOdooClient implements OdooClient {
         ...(warehouseId != null ? { warehouse_id: warehouseId } : {}),
         ...(sourceLocationId != null ? { source_location_id: sourceLocationId } : {}),
         validity_date: validityDate,
+        ...(input.trucks?.length ? { truck_line_ids: this.truckLineCommands(input.trucks) } : {}),
       },
     ]);
     await this.approveFuelQuotation(orderId, validityDate);
@@ -381,6 +385,91 @@ export class LiveOdooClient implements OdooClient {
   /**
    * A new fuel quotation is created as a draft. Submit it and approve it as HOD so it is ready
    * to book once the dealer has paid. A quotation that is already past that step is left as it is.
+   * Driver - Truck Details lines. Related plate and EPRA fields are read from truck.driver
+   * and are not writable. Capacity and the linked contact are stored on the line.
+   * This does not create a delivery order.
+   */
+  private truckLineCommands(trucks: QuotationTruckInput[]) {
+    return trucks.map((truck) => [
+      0,
+      0,
+      {
+        truck_details_id: truck.odooDriverRecordId,
+        capacity: truck.capacityLitres,
+        ...(truck.odooContactId ? { driver_id: truck.odooContactId } : {}),
+      },
+    ]);
+  }
+
+  private async attachTruckLines(saleOrderId: number, trucks: QuotationTruckInput[]) {
+    if (trucks.length === 0) return;
+    const existing = await this.execute<Array<{ truck_details_id: [number, string] | false }>>(
+      "sale.order.truck",
+      "search_read",
+      [[["order_id", "=", saleOrderId]]],
+      { fields: ["truck_details_id"] }
+    );
+    const attached = new Set(
+      existing.flatMap((row) => (Array.isArray(row.truck_details_id) ? [row.truck_details_id[0]] : []))
+    );
+    const missing = trucks.filter((truck) => !attached.has(truck.odooDriverRecordId));
+    if (missing.length === 0) return;
+    await this.execute("sale.order", "write", [[saleOrderId], { truck_line_ids: this.truckLineCommands(missing) }]);
+  }
+
+  async listDriverRecords(): Promise<OdooDriverRecord[]> {
+    type RawDriver = {
+      id: number;
+      name: string;
+      driver_no: string | false;
+      driver_epra: string | false;
+      truck_details: string | false;
+      truck_epra: string | false;
+      partner_id: [number, string] | false;
+      delivery_truck_id: [number, string] | false;
+    };
+    const drivers = await this.execute<RawDriver[]>(
+      "truck.driver",
+      "search_read",
+      [[]],
+      {
+        fields: ["name", "driver_no", "driver_epra", "truck_details", "truck_epra", "partner_id", "delivery_truck_id"],
+        order: "name asc, id asc",
+        limit: 500,
+      }
+    );
+    const truckIds = [...new Set(drivers.flatMap((row) => (Array.isArray(row.delivery_truck_id) ? [row.delivery_truck_id[0]] : [])))];
+    const capacities = new Map<number, number>();
+    if (truckIds.length > 0) {
+      const trucks = await this.execute<Array<{ id: number; total_capacity: number }>>(
+        "delivery.truck",
+        "read",
+        [truckIds, ["total_capacity"]]
+      );
+      for (const truck of trucks) capacities.set(truck.id, Number(truck.total_capacity) || 0);
+    }
+    const text = (value: string | false) => (typeof value === "string" && value.trim() ? value.trim() : null);
+    return drivers.map((row) => {
+      const truck = Array.isArray(row.delivery_truck_id) ? row.delivery_truck_id : null;
+      const contact = Array.isArray(row.partner_id) ? row.partner_id : null;
+      return {
+        id: row.id,
+        driverName: row.name,
+        driverNo: text(row.driver_no) ?? "",
+        driverEpra: text(row.driver_epra),
+        truckDetails: text(row.truck_details),
+        assignedTruckName: truck ? text(truck[1]) : null,
+        truckPlate: text(row.truck_details) ?? (truck ? text(truck[1]) : null),
+        truckEpra: text(row.truck_epra),
+        capacityLitres: truck ? capacities.get(truck[0]) ?? 0 : 0,
+        contactId: contact ? contact[0] : null,
+        contactName: contact ? text(contact[1]) : null,
+        fleetTruckId: truck ? truck[0] : null,
+      };
+    });
+  }
+
+  /**
    * A cancelled quotation is not reopened here.
    */
   private async approveFuelQuotation(saleOrderId: number, validityDate: string) {

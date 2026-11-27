@@ -2,6 +2,7 @@ import type {
   CreateQuotationInput,
   OdooClient,
   OdooCurrency,
+  OdooDriverRecord,
   OdooMpesaPayment,
   OdooPaymentState,
   OdooQuotation,
@@ -66,6 +67,10 @@ export class MockOdooClient implements OdooClient {
     const quotation = mockQuotation(input.idempotencyKey, mockAmountTotal(input.lines), input.lines);
     memory.set(input.idempotencyKey, { quotation });
     return quotation;
+  }
+
+  async listDriverRecords(): Promise<OdooDriverRecord[]> {
+    return [];
   }
 
   async getQuotation(quotationId: string): Promise<OdooQuotation | null> {
@@ -133,6 +138,9 @@ export class UnconfiguredOdooClient implements OdooClient {
   }
 
   async createQuotation(): Promise<OdooQuotation> {
+    this.fail();
+  }
+  async listDriverRecords(): Promise<OdooDriverRecord[]> {
     this.fail();
   }
   async getQuotation(): Promise<OdooQuotation | null> {

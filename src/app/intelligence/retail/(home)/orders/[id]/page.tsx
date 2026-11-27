@@ -24,6 +24,8 @@ import { paymentSummary, stepCompletionTimes } from "@/lib/orders/staff-views";
 import { dealerTrackerSteps, trackerStepSecondary } from "@/lib/orders/state-machine";
 import { StaffOrderDetailGrid } from "@/components/staff/staff-order-bottom-row";
 import { StaffOrderActions, type StaffWaitingPayment } from "@/components/staff/staff-order-actions";
+import { OrderTransportPanel } from "@/components/orders/order-transport";
+import { transportFromOrder } from "@/lib/orders/transport";
 import "@/app/intelligence/retail/staff-orders.css";
 
 export const maxDuration = 60;
@@ -86,6 +88,7 @@ export default async function StaffOrderDetailsPage({
       station: { select: { name: true, tradingName: true } },
       depot: { select: { name: true } },
       lines: true,
+      transports: { orderBy: { position: "asc" } },
       proforma: true,
       payments: { orderBy: { createdAt: "desc" } },
       documents: { orderBy: { createdAt: "desc" } },
@@ -284,6 +287,11 @@ export default async function StaffOrderDetailsPage({
                     </dl>
                   </section>
                 </div>
+
+                <section className="so-card">
+                  <div className="so-card__head"><span className="so-ico"><Truck size={15} /></span> Transportation</div>
+                  <OrderTransportPanel lines={order.transports.map(transportFromOrder)} />
+                </section>
 
                 <section className="so-card sod-pay-card" id="payment">
                   <div className="so-card__head"><span className="so-ico"><Layers size={15} /></span> Payment Summary</div>

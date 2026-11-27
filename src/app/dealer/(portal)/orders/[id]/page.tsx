@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import type { DealerOrderStatus } from "@prisma/client";
 import { requireDealer } from "@/lib/session";
+import { OrderTransportPanel } from "@/components/orders/order-transport";
+import { transportFromOrder } from "@/lib/orders/transport";
 import { prisma } from "@/lib/prisma";
 import {
   dealerStatusLabel,
@@ -230,7 +232,7 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
   const [order, siblings] = await Promise.all([
     prisma.dealerOrder.findFirst({
       where: { id, dealerOrganizationId: orgId },
-      include: { station: true, lines: true, proforma: true, payments: true, documents: true },
+      include: { station: true, lines: true, transports: { orderBy: { position: "asc" } }, proforma: true, payments: true, documents: true },
     }),
     prisma.dealerOrder.findMany({
       where: { dealerOrganizationId: orgId },
@@ -483,6 +485,12 @@ export default async function DealerOrderPage({ params }: { params: Promise<{ id
                 <strong>{order.notes || "None"}</strong>
               </li>
             </ul>
+            <div className="po__review-transport">
+              <div className="po-tx__title-row">
+                <h3>Transportation</h3>
+              </div>
+              <OrderTransportPanel lines={order.transports.map(transportFromOrder)} />
+            </div>
           </article>
 
           <aside className="ot__side">

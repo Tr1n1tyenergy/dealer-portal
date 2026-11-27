@@ -11,6 +11,33 @@ export type OdooOrderLineInput = {
   unitPrice?: number | null;
 };
 
+/** A truck.driver row the dealer chose. The quotation line stores the record, the contact and the capacity. */
+export type QuotationTruckInput = {
+  /** truck.driver id */
+  odooDriverRecordId: number;
+  /** res.partner id on that driver record. Omitted on the quotation line when absent. */
+  odooContactId?: number | null;
+  capacityLitres: number;
+};
+
+/** truck.driver, with the assigned fleet truck's capacity filled in. */
+export type OdooDriverRecord = {
+  id: number;
+  driverName: string;
+  driverNo: string;
+  driverEpra: string | null;
+  truckPlate: string | null;
+  truckEpra: string | null;
+  /** truck.driver.truck_details, as stored. Not filled in from the assigned truck. */
+  truckDetails: string | null;
+  /** delivery.truck display name when the driver record has an assigned truck. */
+  assignedTruckName: string | null;
+  capacityLitres: number;
+  contactId: number | null;
+  contactName: string | null;
+  fleetTruckId: number | null;
+};
+
 export type CreateQuotationInput = {
   /** Stable key. Retries with the same key must not create a second quotation. */
   idempotencyKey: string;
@@ -31,6 +58,8 @@ export type CreateQuotationInput = {
   dealerReference?: string | null;
   notes?: string | null;
   lines: OdooOrderLineInput[];
+  /** Driver records written onto the quotation as Driver - Truck Details lines. */
+  trucks?: QuotationTruckInput[];
 };
 
 export type OdooQuotation = {
@@ -94,6 +123,8 @@ export interface OdooClient {
   createQuotation(input: CreateQuotationInput): Promise<OdooQuotation>;
   getQuotation(quotationId: string): Promise<OdooQuotation | null>;
   createPaymentDraft(input: PaymentDraftInput): Promise<OdooPaymentState>;
+  /** Every truck.driver row, with capacity taken from the assigned delivery.truck. */
+  listDriverRecords(): Promise<OdooDriverRecord[]>;
   /** Rewrites a draft with the payment the staff member just reviewed. A posted payment is left as it is. */
   writePaymentDraft(id: number, input: PaymentDraftInput): Promise<OdooPaymentState>;
   listCurrencies(): Promise<OdooCurrency[]>;

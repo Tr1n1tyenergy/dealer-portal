@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 /** Bump when schema relations or client options change so HMR drops a stale singleton. */
-const PRISMA_SCHEMA_STAMP = "order-booking-kra-2026-11-27";
+const PRISMA_SCHEMA_STAMP = "order-transport-2026-11-27";
 
 /**
  * Neon round-trips are often slower than Prisma's 2s wait and 5s body limits.

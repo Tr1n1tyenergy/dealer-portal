@@ -36,7 +36,7 @@ import {
   type StationPricingRow,
   type SettingsFuel,
 } from "@/lib/settings/stations-pricing";
-import type { FleetTruckRow } from "@/lib/settings/fleet-truck-types";
+import type { OdooDriverRecord } from "@/lib/integrations/odoo/types";
 import {
   createStationAction,
   deleteStationAction,
@@ -196,7 +196,7 @@ const NAV: Array<{
   {
     id: "trucks",
     title: "Fleet & Trucks",
-    desc: "Create and manage trucks by dealer or station.",
+    desc: "Driver and truck records from Odoo.",
     icon: Truck,
   },
   {
@@ -210,7 +210,8 @@ const NAV: Array<{
 export function PlatformSettingsClient({
   stations,
   dealers,
-  trucks = [],
+  drivers = [],
+  driversError = null,
   canAct,
   canViewActivity,
   activityFilterOptions = null,
@@ -220,7 +221,8 @@ export function PlatformSettingsClient({
 }: {
   stations: StationPricingRow[];
   dealers: DealerOpt[];
-  trucks?: FleetTruckRow[];
+  drivers?: OdooDriverRecord[];
+  driversError?: string | null;
   canAct: boolean;
   canViewActivity: boolean;
   activityFilterOptions?: ActivityFilterOptions | null;
@@ -793,7 +795,7 @@ export function PlatformSettingsClient({
         ) : null}
 
         {tab === "trucks" ? (
-          <FleetTrucksPanel trucks={trucks} stations={stations} dealers={dealers} canAct={canAct} />
+          <FleetTrucksPanel drivers={drivers} loadError={driversError} />
         ) : null}
 
         {tab === "activity" ? (
