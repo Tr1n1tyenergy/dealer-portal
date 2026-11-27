@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { destinationLabel, loaderFor, markSplashPending, portalKey, rscTarget, takeSplash, viewHasArrived } from "./loader-routes";
+import { destinationLabel, loaderFor, markSplashPending, portalKey, preparingMessage, rscTarget, takeSplash, viewHasArrived } from "./loader-routes";
 
 describe("which loader a navigation shows", () => {
   it("knows the portal or module a path belongs to", () => {
@@ -37,6 +37,16 @@ describe("which loader a navigation shows", () => {
     assert.equal(destinationLabel("/intelligence/retail?tab=x", "page"), "Home");
     assert.equal(destinationLabel("/intelligence/retail", "portal"), "Retail");
     assert.equal(destinationLabel("/intelligence/retail/orders", "page"), "Orders");
+  });
+
+  it("writes sentence-case preparing messages for the page skeleton", () => {
+    assert.equal(preparingMessage("/intelligence/retail", "page"), "Preparing your dashboard...");
+    assert.equal(preparingMessage("/dealer/dashboard", "page"), "Preparing your dashboard...");
+    assert.equal(preparingMessage("Orders"), "Preparing your orders...");
+    assert.equal(preparingMessage("Support"), "Preparing your support centre...");
+    assert.equal(preparingMessage("Users"), "Preparing user management...");
+    assert.equal(preparingMessage("Stock Reporting"), "Preparing your stock reports...");
+    assert.equal(preparingMessage("/dealer/support", "page"), "Preparing your support centre...");
   });
 });
 
@@ -102,6 +112,39 @@ describe("when the loading screen may leave", () => {
         here: "/dealer/orders?tab=open",
         startSignature: "Orders|2",
         signature: "Orders|3",
+      }),
+      true
+    );
+  });
+
+  it("leaves as soon as login or access pages land, even with no portal shell", () => {
+    assert.equal(
+      viewHasArrived({
+        from: "/access",
+        expected: "/depot/login",
+        here: "/depot/login",
+        startSignature: "",
+        signature: "",
+      }),
+      true
+    );
+    assert.equal(
+      viewHasArrived({
+        from: "/access",
+        expected: "/depot/login",
+        here: "/access",
+        startSignature: "",
+        signature: "",
+      }),
+      false
+    );
+    assert.equal(
+      viewHasArrived({
+        from: "/access",
+        expected: "/intelligence/login",
+        here: "/intelligence/login",
+        startSignature: "Choose your portal|3|120",
+        signature: "Sign In to Trinity Staff|4|200",
       }),
       true
     );
