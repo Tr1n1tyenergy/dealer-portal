@@ -103,6 +103,11 @@ Move portal → Odoo quotation create from numeric/hardcoded IDs to **Odoo Exter
 | `prisma/migrations/20261112120000_staff_role_templates/` | `StaffRoleTemplate` table |
 | `src/components/dealer/dealer-hero-media.tsx` | Legacy no-op (plate is CSS) |
 | `src/app/dealer/dealer-portal-hero.css` | Dealer hero plate = staff pin-point copy |
+| `src/components/ui/sign-in-splash.tsx` | Post-sign-in welcome splash (mockup markup) |
+| `src/components/ui/sign-in-splash.css` | Dedicated two-column welcome splash styles |
+| `src/components/ui/brand-loaders.css` | Portal/orbit loaders only (splash styles removed) |
+| `src/components/ui/view-change-loader.tsx` | Route overlay loader + inert lock |
+| `src/lib/ui/loader-routes.ts` | Loader kind/labels + `preparingMessage()` for page skeleton |
 
 ### Mapping captured
 
@@ -148,6 +153,70 @@ Other product.template candidates kept for reference only.
 ---
 
 ## Entry log
+
+### 2026-11-27 — All brand loaders dismiss the instant the destination is live
+- Orbit/skeleton overlay and welcome splash now share content-root fingerprinting that prefers the current portal shell (so leftover login nodes cannot keep a loader up). Splash unmounts immediately when the post-login view is ready (no fade). ViewChangeLoader does not stack under the splash, watches the DOM with a MutationObserver, and flushSync-hides as soon as arrival rules pass.
+- Files: `src/lib/ui/loader-content.ts`, `src/components/ui/view-change-loader.tsx`, `src/components/ui/sign-in-splash.tsx`, `src/components/ui/sign-in-splash.css`.
+
+### 2026-11-27 — Page skeleton preview route
+- Added `/dev/page-skeleton` for the under-header skeleton (`PageLoader`) and linked it from `/dev`.
+- Files: `src/app/dev/page-skeleton/page.tsx`, `src/app/dev/page.tsx`.
+
+### 2026-11-27 — Welcome splash preview route
+- Added `/dev/welcome-splash` (sticky `SignInSplash preview`) and `/dev` index linking loader previews. Outside auth matcher.
+- Files: `src/app/dev/welcome-splash/page.tsx`, `src/app/dev/page.tsx`, `src/components/ui/sign-in-splash.tsx`.
+
+### 2026-11-27 — Portal orbit block sized up slightly
+- Orbit stage, mark, rings, dots, and copy scale nudged up a notch after the earlier shrink.
+- Files: `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Portal orbit colours fully vibrant
+- Orbit beads use solid Trinity yellow `#ffcc00`, blue `#3551a5`, and red `#ed1c24` (no muted/faded tints). Title, subtitle, and brand line use full brand blue/ink instead of translucent greys.
+- Files: `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Local orbit loader preview route
+- Added `/dev/portal-loader` so the portal orbit (T + circling dots) can be viewed without navigating between pages. Outside auth matcher.
+- Files: `src/app/dev/portal-loader/page.tsx`.
+
+### 2026-11-27 — Portal orbit block smaller, progress sleeker
+- Orbit + T stage scaled down slightly; “Preparing your workspace…” is regular weight; progress track is thinner with a softer blue→yellow fill.
+- Files: `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Page skeleton fills to near viewport bottom
+- Lower skeleton panel is sized from the page floor (~16px inset) with taller rows and enough of them to reach almost the bottom; page/overlay height chain no longer collapses to content height.
+- Files: `src/components/ui/brand-loaders.tsx`, `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Welcome splash copy scaled down, progress bar sleeker
+- Splash text block (brand, greeting, name, stages) is slightly smaller; the progress track is thinner with a softer blue→yellow fill so it reads lighter against the mockup.
+- Files: `src/components/ui/sign-in-splash.css`, `src/components/ui/sign-in-splash.tsx`.
+
+### 2026-11-27 — Page skeleton matches dashboard loading mockup
+- Under-header skeleton copy is sentence-case “Preparing your …” (not uppercase LOADING), regular weight, compact under the nav. The lower white panel fills the remaining viewport with adaptive row count; hero/KPI proportions stay natural. Shared `PageLoader` + `preparingMessage()` cover dealer/staff/depot route fallbacks and the nav overlay.
+- Files: `src/components/ui/brand-loaders.tsx`, `src/components/ui/brand-loaders.css`, `src/lib/ui/loader-routes.ts`, `src/lib/ui/loader-routes.test.ts`.
+
+### 2026-11-27 — Welcome splash layout CSS isolated and fixed
+- The mockup markup was shipping, but splash styles shared with the orbit loader file were not winning in the browser (art stacked above a dark, small-type copy column; stages vertical). Splash styles now live in a dedicated stylesheet with higher-specificity two-column rules: yellow brand + line, large Welcome back / italic name, progress bar, and horizontal stages. Orbit loader CSS is untouched.
+- Files: `src/components/ui/sign-in-splash.css`, `src/components/ui/sign-in-splash.tsx`, `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Premium welcome splash matches the mockup
+- The post-sign-in welcome screen now uses the two-column mockup: existing jumping artwork with a soft float and shadow, yellow “Trinity Retail Intelligence” heading, personalized italic name with a drawn yellow underline, indeterminate blue-to-yellow progress bar, and the three stage indicators. Skip still works by click or Esc; the orbit page-transition loader is unchanged.
+- Files: `src/components/ui/sign-in-splash.tsx`, `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Loaders cover the wait only
+- Access and login pages have no portal shell, so the overlay used to keep an empty content fingerprint and sit until the 20s timeout — long after `/depot/login` was live. Arrival now means the URL has left the start page and the route skeleton is gone; login/access count as arrived immediately. The page under any loader stays inert for the whole wait.
+- Files: `src/lib/ui/loader-routes.ts`, `src/lib/ui/loader-routes.test.ts`, `src/lib/ui/loader-lock.ts`, `src/components/ui/view-change-loader.tsx`, `src/components/ui/sign-in-splash.tsx`, `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Portal loader drops coloured trails
+- The circulating dots no longer leave coloured arcs or glow. They travel on the faint inner ring as flat Trinity yellow, red and blue, and the heading always reads “Preparing your workspace…”.
+- Files: `src/components/ui/brand-loaders.tsx`, `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Premium portal loading animation
+- The portal orbit loader keeps the yellow, red and blue dots merging into the Trinity T, and is now larger on a pure white screen with faint rings, motion trails, a slim indeterminate bar, and the Trinity Retail Intelligence signature. Contextual “Opening …” copy still follows the destination; the default reads “Preparing your workspace…”.
+- Files: `src/components/ui/brand-loaders.tsx`, `src/components/ui/brand-loaders.css`.
+
+### 2026-11-27 — Users type filter stays inside the panel
+- The Active Users “All types” control was drawn wider than its box, so it ran off the right edge of the screen. It now sits in the header row with the search field.
+- Files: `src/app/intelligence/retail/retail-users.css`.
 
 ### 2026-11-27 — Order sync compiles again
 - A second `include` had been left outside the quotation query, and the price-freeze step had been pasted into the quotation call. Both are restored, and the place-order form is one function again.

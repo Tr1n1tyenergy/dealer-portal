@@ -36,9 +36,11 @@ const PAGES: Record<string, string> = {
   settings: "Settings",
   "stock-reporting": "Stock Reporting",
   notes: "Notes",
+  login: "Sign In",
+  access: "Access",
 };
 
-/** "Retail", "Orders", "Stock Reporting"… for "Opening …" / "Loading …". */
+/** "Retail", "Orders", "Stock Reporting"… for portal "Opening …" / page "Loading …". */
 export function destinationLabel(href: string, kind: LoaderKind = "portal"): string {
   // Inside Retail, its start page is the menu's "Home"; from outside it is the Retail module.
   if (kind === "page" && pathOf(href).replace(/\/$/, "") === "/intelligence/retail") return "Home";
@@ -46,6 +48,35 @@ export function destinationLabel(href: string, kind: LoaderKind = "portal"): str
   const page = [...parts].reverse().find((p) => PAGES[p]);
   if (page) return PAGES[page];
   return MODULES[portalKey(href)] ?? "the page";
+}
+
+/** Sentence-case status line for the under-header page skeleton (not the portal orbit). */
+const PREPARING_BY_LABEL: Record<string, string> = {
+  Home: "Preparing your dashboard...",
+  Orders: "Preparing your orders...",
+  Analytics: "Preparing your analytics...",
+  Messages: "Preparing your messages...",
+  Support: "Preparing your support centre...",
+  Users: "Preparing user management...",
+  Settings: "Preparing your settings...",
+  "Stock Reporting": "Preparing your stock reports...",
+  Notes: "Preparing your notes...",
+  "Note Taker": "Preparing Note Taker...",
+  Presentations: "Preparing your presentations...",
+  Admin: "Preparing admin...",
+  "Depot Board": "Preparing your depot board...",
+  "your modules": "Preparing your modules...",
+  Retail: "Preparing your dashboard...",
+  "Sign In": "Preparing sign in...",
+  Access: "Preparing access...",
+  "the page": "Preparing your page...",
+};
+
+/** "Preparing your orders..." from a short destination label or path. */
+export function preparingMessage(labelOrHref: string, kind: LoaderKind = "page"): string {
+  const looksLikePath = labelOrHref.startsWith("/");
+  const label = looksLikePath ? destinationLabel(labelOrHref, kind) : labelOrHref;
+  return PREPARING_BY_LABEL[label] ?? `Preparing your ${label.toLowerCase()}...`;
 }
 
 /**
@@ -69,8 +100,8 @@ export function routeKey(href: string, base = "http://localhost"): string {
 }
 
 /**
- * The overlay stays until the address is the destination and the page underneath
- * is no longer the previous view or the route skeleton.
+ * The overlay stays until the address has left the starting page and the route skeleton
+ * is gone. Login/access pages have no portal shell; an empty signature there still means arrived.
  */
 export function viewHasArrived(params: {
   from: string;
@@ -81,14 +112,25 @@ export function viewHasArrived(params: {
 }): boolean {
   const hereKey = routeKey(params.here);
   const fromKey = routeKey(params.from);
-  // A redirect may land on a different address than the link that was clicked.
-  // Either way the address has to have moved, and the view underneath has to be the new one.
-  const addressMoved = params.expected
-    ? hereKey === routeKey(params.expected) || hereKey !== fromKey
-    : hereKey !== fromKey;
-  if (!addressMoved) return false;
-  if (params.signature === "loading" || params.signature === "") return false;
+
+  // Same-URL UI change (tabs): wait for the content fingerprint to change.
+  if (!params.expected) {
+    if (params.signature === "loading" || !params.signature) return false;
+    return params.signature !== params.startSignature;
+  }
+
+  // Still on the page we left from.
+  if (hereKey === fromKey) return false;
+
+  // Destination route is resolving its loading.tsx skeleton.
+  if (params.signature === "loading") return false;
+
+  // No portal shell (login, access, etc.) — the new URL is enough.
+  if (!params.signature || !params.startSignature) return true;
+
+  // Soft nav: URL can move a frame before React swaps the view. Wait until content changes.
   if (params.signature === params.startSignature) return false;
+
   return true;
 }
 

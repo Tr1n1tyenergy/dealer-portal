@@ -1,8 +1,8 @@
 "use client";
 
-import { useId, useLayoutEffect, useState } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { destinationLabel } from "@/lib/ui/loader-routes";
+import { preparingMessage } from "@/lib/ui/loader-routes";
 import "./brand-loaders.css";
 
 // The three parts of the Trinity mark (viewBox 0 0 70 59), copied from the brand file public/assets2/img/trinity-mark.svg.
@@ -40,24 +40,65 @@ export function TrinityMark({ size = 104, className }: { size?: number; classNam
   );
 }
 
+const MIN_SKELETON_ROWS = 8;
+const BOTTOM_INSET_PX = 16;
+
 /** Everyday page changes: a warm-and-cool line under the header over a grey page skeleton. */
 export function PageLoader({ label: given }: { label?: string }) {
   // Route fallbacks (loading.tsx) don't pass a label: name the page from the address being loaded.
   const pathname = usePathname();
-  const label = given ?? destinationLabel(pathname ?? "/", "page");
-  // A route fallback under the navigation overlay stays silent, so screen readers hear one "Loading …".
+  const message = given
+    ? preparingMessage(given, "page")
+    : preparingMessage(pathname ?? "/", "page");
+  // A route fallback under the navigation overlay stays silent, so screen readers hear one status.
   const [underOverlay, setUnderOverlay] = useState(false);
+  const [rows, setRows] = useState(MIN_SKELETON_ROWS);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   // Before paint, so screen readers never see two status regions at once.
   useLayoutEffect(() => {
     if (!given) setUnderOverlay(Boolean(document.querySelector(".bl-overlay")));
   }, [given]);
+  // Stretch the lower panel to the viewport floor, then pack taller rows into that space.
+  useLayoutEffect(() => {
+    const page = pageRef.current;
+    const table = tableRef.current;
+    if (!page || !table) return;
+    const measure = () => {
+      const pageBox = page.getBoundingClientRect();
+      const floor = Math.max(pageBox.bottom, window.innerHeight) - BOTTOM_INSET_PX;
+      const tableTop = table.getBoundingClientRect().top;
+      const panelH = Math.max(220, Math.floor(floor - tableTop));
+      table.style.minHeight = `${panelH}px`;
+      table.style.height = `${panelH}px`;
+
+      const styles = getComputedStyle(table);
+      const pad =
+        (parseFloat(styles.paddingTop) || 0) + (parseFloat(styles.paddingBottom) || 0);
+      const gap = parseFloat(styles.rowGap || styles.gap) || 12;
+      const probe = table.querySelector(".bl-sk") as HTMLElement | null;
+      const rowH = Math.max(probe?.offsetHeight || 46, 46);
+      const usable = Math.max(0, panelH - pad);
+      const count = Math.max(MIN_SKELETON_ROWS, Math.floor((usable + gap) / (rowH + gap)));
+      setRows(count);
+    };
+    measure();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    ro?.observe(page);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
   const status = underOverlay ? {} : ({ role: "status", "aria-live": "polite", "aria-busy": true } as const);
   return (
-    <div className="bl bl-page" {...status}>
+    <div className="bl bl-page" ref={pageRef} {...status}>
       <span className="bl-line" aria-hidden="true" />
       <div className="bl-sk-wrap" aria-hidden="true">
         <div className="bl-sk-label">
-          <TrinityMark size={20} /> Loading {label}
+          <TrinityMark size={20} />
+          <span>{message}</span>
         </div>
         <div className="bl-sk bl-sk-hero" />
         <div className="bl-sk-kpis">
@@ -66,15 +107,13 @@ export function PageLoader({ label: given }: { label?: string }) {
           <div className="bl-sk" />
           <div className="bl-sk" />
         </div>
-        <div className="bl-sk-table">
-          <div className="bl-sk" />
-          <div className="bl-sk" />
-          <div className="bl-sk" />
-          <div className="bl-sk" />
-          <div className="bl-sk" />
+        <div className="bl-sk-table" ref={tableRef}>
+          {Array.from({ length: rows }, (_, i) => (
+            <div key={i} className="bl-sk" />
+          ))}
         </div>
       </div>
-      {underOverlay ? null : <span className="bl-sr">Loading {label}</span>}
+      {underOverlay ? null : <span className="bl-sr">{message}</span>}
     </div>
   );
 }
@@ -83,13 +122,41 @@ export function PageLoader({ label: given }: { label?: string }) {
 export function PortalLoader({ label = "your workspace" }: { label?: string }) {
   return (
     <div className="bl bl-portal" role="status" aria-live="polite" aria-busy="true">
-      <div className="bl-orbit" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-        <TrinityMark className="bl-orbit-mark" />
+      <div className="bl-portal__stage">
+        <div className="bl-orbit" aria-hidden="true">
+          <span className="bl-orbit__rings">
+            <i className="bl-orbit__ring bl-orbit__ring--outer" />
+            <i className="bl-orbit__ring bl-orbit__ring--mid" />
+            <i className="bl-orbit__ring bl-orbit__ring--inner" />
+          </span>
+
+          <span className="bl-orbit__arm bl-orbit__arm--yellow">
+            <i className="bl-orbit__bead" />
+          </span>
+          <span className="bl-orbit__arm bl-orbit__arm--red">
+            <i className="bl-orbit__bead" />
+          </span>
+          <span className="bl-orbit__arm bl-orbit__arm--blue">
+            <i className="bl-orbit__bead" />
+          </span>
+
+          <TrinityMark className="bl-orbit-mark" size={220} />
+        </div>
+
+        <div className="bl-portal__copy">
+          <p className="bl-title">Preparing your workspace...</p>
+          <p className="bl-sub">Just a moment, please.</p>
+          <div className="bl-progress" aria-hidden="true">
+            <span className="bl-progress__bar" />
+          </div>
+          <p className="bl-brand">
+            <span className="bl-brand__rule" aria-hidden="true" />
+            <span className="bl-brand__text">Trinity Retail Intelligence</span>
+            <span className="bl-brand__rule" aria-hidden="true" />
+          </p>
+        </div>
       </div>
-      <p className="bl-title">Opening {label}</p>
+      <span className="bl-sr">Loading {label}</span>
     </div>
   );
 }

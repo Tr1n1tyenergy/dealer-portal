@@ -3,18 +3,27 @@
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { destinationLabel, loaderFor, routeKey, rscTarget, viewHasArrived, type LoaderKind } from "@/lib/ui/loader-routes";
+import { contentSignature, contentRoot, splashIsCovering } from "@/lib/ui/loader-content";
+import { lockPageBehindLoader } from "@/lib/ui/loader-lock";
 import { PageLoader, PortalLoader } from "./brand-loaders";
 
 /**
- * Covers the page under the real header from the click until the destination
- * view is actually on screen. The overlay stays through the route skeleton
- * and through any moment the previous page is still showing.
+ * Covers the page from the click until the destination view is on screen.
+ * Leaves the instant the URL has moved and the route skeleton is gone — never longer.
  */
 type Bridge = { start: (target?: string) => void; stop: () => void };
 let bridge: Bridge | null = null;
 let fetchPatched = false;
 
-const MAX_WAIT_MS = 20_000;
+const MAX_WAIT_MS = 8_000;
+
+function keepLoaderChrome(el: HTMLElement) {
+  return (
+    el.classList.contains("bl-overlay") ||
+    el.classList.contains("bl-splash") ||
+    el.classList.contains("a11y-menu")
+  );
+}
 
 function headerOffset() {
   const bar = document.querySelector<HTMLElement>(".dp-topbar, .sp-header");
@@ -63,17 +72,16 @@ function address() {
   return `${window.location.pathname}${window.location.search}`;
 }
 
-function contentRoot() {
-  return document.querySelector<HTMLElement>(".dp-content, .sp-main, .tri-main, main");
-}
-
-/** "loading" while a route skeleton is up; otherwise a fingerprint of the current view. */
-function contentSignature() {
-  const root = contentRoot();
-  if (!root) return "";
-  if (root.querySelector(".bl-page")) return "loading";
-  const heading = root.querySelector("h1, h2")?.textContent?.trim() ?? "";
-  return `${heading}|${root.childElementCount}|${root.innerText.length}`;
+/** True once the URL has left the start page and the destination content is showing. */
+function destinationIsLive(from: string, startSignature: string) {
+  const here = routeKey(address());
+  if (here === routeKey(from)) return false;
+  const signature = contentSignature();
+  if (signature === "loading") return false;
+  // Login/access and other pages without a portal shell.
+  if (!signature || !startSignature) return true;
+  // Soft nav can update the URL a frame before React swaps the view.
+  return signature !== startSignature;
 }
 
 export function ViewChangeLoader() {
@@ -90,6 +98,8 @@ export function ViewChangeLoader() {
     let frames = 0;
     let paintedBeforeWatch = false;
     let raf = 0;
+    let unlock: (() => void) | null = null;
+    let observer: MutationObserver | null = null;
 
     const hide = () => {
       showing = false;
@@ -99,61 +109,109 @@ export function ViewChangeLoader() {
       frames = 0;
       paintedBeforeWatch = false;
       window.cancelAnimationFrame(raf);
-      setPending(false);
+      raf = 0;
+      observer?.disconnect();
+      observer = null;
+      unlock?.();
+      unlock = null;
+      // Drop the overlay in the same turn — no fade that outlasts the destination.
+      flushSync(() => setPending(false));
     };
 
-    const tick = () => {
-      if (!showing) return;
-      if (performance.now() - startedAt > MAX_WAIT_MS) {
-        hide();
-        return;
-      }
-      frames += 1;
+    const shouldHide = () => {
+      if (!showing) return false;
+      // Welcome splash owns the post-sign-in beat; never stack the orbit/skeleton under it.
+      if (splashIsCovering()) return true;
+      if (performance.now() - startedAt > MAX_WAIT_MS) return true;
+
+      const here = address();
       const signature = contentSignature();
-      // A tab that stays on this page: leave once its panel has drawn, not after a timed guess.
+
       if (!expected) {
-        if (signature !== "loading" && signature !== startSignature) {
-          hide();
-          return;
+        if (
+          viewHasArrived({
+            from,
+            expected: null,
+            here,
+            startSignature,
+            signature,
+          })
+        ) {
+          return true;
         }
-        if (frames > 10 && signature !== "loading") {
-          hide();
-          return;
-        }
-        raf = window.requestAnimationFrame(tick);
-        return;
+        if (frames > 2 && signature !== "loading" && signature !== startSignature) return true;
+        if (frames > 2 && signature !== "loading" && !startSignature) return true;
+        return false;
       }
+
       if (
         viewHasArrived({
           from,
           expected,
-          here: address(),
+          here,
           startSignature,
           signature,
         })
       ) {
-        hide();
-        return;
+        return true;
       }
-      // Back and forward can paint the page before this watch starts. Leave once that page is the one showing.
+
+      if (destinationIsLive(from, startSignature)) return true;
+
       if (
         paintedBeforeWatch &&
         signature !== "loading" &&
-        routeKey(address()) === routeKey(expected) &&
-        frames > 2
+        routeKey(here) === routeKey(expected) &&
+        frames > 1
       ) {
+        return true;
+      }
+
+      // Expected URL is live and the portal shell has real content (not a skeleton).
+      if (
+        routeKey(here) === routeKey(expected) &&
+        signature !== "loading" &&
+        Boolean(contentRoot()) &&
+        frames > 0
+      ) {
+        // If the fingerprint still matches the start page, the old view may still be mounted —
+        // destinationIsLive already covers the swap. When start was a login/access empty shell,
+        // any non-loading signature on the expected URL is enough.
+        if (!startSignature || signature !== startSignature) return true;
+      }
+
+      return false;
+    };
+
+    const tick = () => {
+      if (!showing) return;
+      frames += 1;
+      if (shouldHide()) {
         hide();
         return;
       }
       raf = window.requestAnimationFrame(tick);
     };
 
+    const watchDom = () => {
+      observer?.disconnect();
+      observer = new MutationObserver(() => {
+        if (!showing) return;
+        if (shouldHide()) hide();
+      });
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    };
+
     const show = (target?: string) => {
+      // Sign-in splash covers this navigation; do not mount a second loader underneath.
+      if (splashIsCovering()) return;
+
       if (!showing) {
         from = address();
         startSignature = contentSignature();
         startedAt = performance.now();
         showing = true;
+        frames = 0;
       }
       if (target) expected = target;
       const nextTop = headerOffset();
@@ -167,12 +225,16 @@ export function ViewChangeLoader() {
         }
         setPending(true);
       });
+      unlock?.();
+      unlock = lockPageBehindLoader(keepLoaderChrome);
       window.cancelAnimationFrame(raf);
+      watchDom();
       raf = window.requestAnimationFrame(tick);
     };
 
     bridge = {
       start(target) {
+        if (splashIsCovering()) return;
         show(showing ? undefined : target);
         if (target && !expected) expected = target;
       },
@@ -204,20 +266,46 @@ export function ViewChangeLoader() {
       show(address());
     };
 
+    // URL can change without a click we saw (router.push). Re-check every navigation.
+    const onPath = () => {
+      if (!showing) return;
+      if (shouldHide()) {
+        hide();
+        return;
+      }
+      window.cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(tick);
+    };
+
     document.addEventListener("click", onClick);
     window.addEventListener("popstate", onPop);
+    window.addEventListener("hashchange", onPath);
     return () => {
       bridge = null;
+      unlock?.();
+      observer?.disconnect();
       window.cancelAnimationFrame(raf);
       document.removeEventListener("click", onClick);
       window.removeEventListener("popstate", onPop);
+      window.removeEventListener("hashchange", onPath);
     };
   }, []);
+
+  // Keep the page locked for the whole time React has the overlay mounted.
+  useEffect(() => {
+    if (!pending) return;
+    return lockPageBehindLoader(keepLoaderChrome);
+  }, [pending]);
 
   if (!pending) return null;
 
   return (
-    <div className="bl-overlay" style={{ top }}>
+    <div
+      className="bl-overlay"
+      style={{ top }}
+      aria-busy="true"
+      onMouseDown={(event) => event.preventDefault()}
+    >
       {view.kind === "portal" ? <PortalLoader label={view.label} /> : <PageLoader label={view.label} />}
     </div>
   );
